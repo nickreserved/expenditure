@@ -1,11 +1,11 @@
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.4.3"
+!define VERSION "1.4.4"
 !define ME "Υπλγος(ΜΧ) Γκέσος Παύλος"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"
-!define PHP_RE_URL "http://tassadar.physics.auth.gr/~chameleon/programs/cost/program/php_cli.exe"
+!define PHP_RE_URL "http://programs.agiasofia.gr/cost/program/php_cli.exe"
 
 # ------------------------------------------------------------------ general ---
 Name "${PROGRAM} ${VERSION}"
@@ -96,7 +96,7 @@ SectionEnd
 # --------------------------------------------------------------- start menu ---
 Section 'Συντομεύσεις στο μενού "Έναρξη"'
 
-	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" $SYSDIR\javaw.exe "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: GNU GPL"
+	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" $SYSDIR\javaw.exe "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
 
 SectionEnd
 

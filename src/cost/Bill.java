@@ -103,7 +103,11 @@ public class Bill extends DynHashObject {
 	protected void setFe() {
 		byte a = ((Number) get("ΠοσοστόΦΕ")).byteValue();
 		String c = (String) get("Κατηγορία");
-		if (!get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", 0);
+		if (c.equals("Τεχνικών έργων") && a != 3) {
+			super.put("ΠοσοστόΦΕ", 3);
+			super.put("Τύπος", "Τιμολόγιο");
+		}
+		else if (!get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", 0);
 		else if (a == 0);
 		else if (c.equals("Παροχή υπηρεσιών") && a != 8 && a != 20) super.put("ΠοσοστόΦΕ", 8);
 		else if (c.equals("Προμήθεια υλικών") && a != 4) super.put("ΠοσοστόΦΕ", 4);

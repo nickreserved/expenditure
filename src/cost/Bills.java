@@ -23,10 +23,10 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		tblBills.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		TableColumnModel cm = tblBills.getColumnModel();
 		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο", "Απόδειξη ενοικιασης" })));
-		cm.getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" })));
+		cm.getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων", "Τεχνικών έργων" })));
 		cm.getColumn(3).setCellEditor(new DefaultCellEditor(Providers.providers));
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(Holds.holds));
-		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1 })));
+		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1, 3 })));
 		
 		billModel = new ResizableTableModel((Vector) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
 		JTable billTable = new ResizableTable(billModel, true, true);

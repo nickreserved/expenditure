@@ -48,6 +48,8 @@ public class MainFrame extends JFrame implements ActionListener {
 				"ticket", "other", null, "Απόδειξη για Προκαταβολή",
 		"options", null, null, "Ρυθμίσεις",
 			"skins", "options", "skins", "Κέλυφος ",
+			"openwith", "options", "openwith", "Άνοιγμα με...",
+			"fexport", "options", "export", "Εξαγωγή ",
 		"costs", null, null, "Δαπάνες",
 		"help", null, null, "Βοήθεια",
 			"help_open", "help", "help", "Βοήθεια",
@@ -62,7 +64,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.3");
+		super("Στρατιωτικές Δαπάνες 1.4.4");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -261,16 +263,28 @@ public class MainFrame extends JFrame implements ActionListener {
 		cbmi.addActionListener(this);
 		cbmi.setActionCommand("only_one");
 		options.add(cbmi);
-		JMenuItem skins = options.getItem(0);
+
+		JMenuItem skins = getMenuFromName("skins");
 		LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
 		String s = (String) h.get("Κέλυφος");
 		if (s == null) s = UIManager.getSystemLookAndFeelClassName();
-
 		ButtonGroup btg = new ButtonGroup();
 		for (int z = 0; z < laf.length; z++) {
 			String s1 = laf[z].getClassName();
 			JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(laf[z].getName(), s1.equals(s));
 			jmi.setActionCommand(s1);
+			jmi.addActionListener(this);
+			btg.add(jmi);
+			skins.add(jmi);
+		}
+
+		skins = getMenuFromName("fexport");
+		s = (String) h.get("Εξαγωγή");
+		if (s == null) s = ExportReport.x[0][1];
+		btg = new ButtonGroup();
+		for (int z = 0; z < ExportReport.x.length; z++) {
+			JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(ExportReport.x[z][0], ExportReport.x[z][1].equals(s));
+			jmi.setActionCommand(ExportReport.x[z][1]);
 			jmi.addActionListener(this);
 			btg.add(jmi);
 			skins.add(jmi);
@@ -347,32 +361,47 @@ public class MainFrame extends JFrame implements ActionListener {
 		Map<String, Object> options = (HashObject) data.get("Ρυθμίσεις");
 		if (Boolean.TRUE.equals(options.get("ΜιαΦορά"))) env.put("one", "true");
 
-		if (((JMenu) getMenuFromName("skins")).isMenuComponent(j)) {
-			((HashObject) data.get("Ρυθμίσεις")).put("Κέλυφος", ac);
+		if (((JMenu) getMenuFromName("fexport")).isMenuComponent(j))
+			options.put("Εξαγωγή", ac);
+		else if (((JMenu) getMenuFromName("skins")).isMenuComponent(j)) {
+			options.put("Κέλυφος", ac);
 			JOptionPane.showMessageDialog(this, "Το Κέλυφος θα αλλάξει όταν ξαναξεκινήσετε το πρόγραμμα", "Αλλαγή κελύφους", JOptionPane.INFORMATION_MESSAGE);
 		} else if (((JMenu) getMenuFromName("costs")).isMenuComponent(j)) {
 			costs.setPos(ac);
 			updatePanels();
+		} else if (ac == "openwith") {
+			String editor = (String) options.get("Επεξεργαστής");
+			JFileChooser fc = new JFileChooser();
+			if (editor != null) fc.setSelectedFile(new File(editor));
+			fc.setDialogTitle("Επέλεξε επεξεργαστή κειμένου που θα ανοίγει τα εξαγόμενα αρχεία");
+			if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+				File f = fc.getSelectedFile();
+				if (f.exists()) options.put("Επεξεργαστής", f.getPath());
+				else {
+					options.remove("Επεξεργαστής");
+					JOptionPane.showMessageDialog(this, "<html>Δεν βρέθηκε το πρόγραμμα:<br><b>" + f.getPath() + "</b>", "Επεξεργαστής κειμένου", JOptionPane.ERROR_MESSAGE);
+				}
+			}
 		}
 		else if (ac == "new") newCost();
 		else if (ac == "open") openCost();
 		else if (ac == "save") saveCost();
 		else if (ac == "close") closeCost();
 		else if (ac == "exit") dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		else if (ac == "cost") ExportReport.exportReport("templates/cost.php", env);
-		else if (ac == "taxis") ExportReport.exportReport("templates/fe_tax.php");
-		else if (ac == "provider") ExportReport.exportReport("templates/fe_provider.php");
+		else if (ac == "cost") ExportReport.exportReport("cost.php", env);
+		else if (ac == "taxis") ExportReport.exportReport("fe_tax.php");
+		else if (ac == "provider") ExportReport.exportReport("fe_provider.php");
 		else if (ac.startsWith("order_")) {
 			final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
 			Object b = JOptionPane.showInputDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
 			if (b == null) return; else if (a[1].equals(b)) env.put("draft", "true");
-			ExportReport.exportReport("templates/" + ac.substring(6) + ".php", env);
+			ExportReport.exportReport(ac.substring(6) + ".php", env);
 		}
-		else if (ac == "contest_proposal") ExportReport.exportReport("templates/contest_proposal.php");
-		else if (ac == "contest_record") ExportReport.exportReport("templates/contest_record.php");
-		else if (ac == "hold") ExportReport.exportReport("templates/holds.php");
-		else if (ac == "bills") ExportReport.exportReport("templates/bills.php");
-		else if (ac == "ticket") ExportReport.exportReport("templates/ticket.php");
+		else if (ac == "contest_proposal") ExportReport.exportReport("contest_proposal.php");
+		else if (ac == "contest_record") ExportReport.exportReport("contest_record.php");
+		else if (ac == "hold") ExportReport.exportReport("holds.php");
+		else if (ac == "bills") ExportReport.exportReport("bills.php");
+		else if (ac == "ticket") ExportReport.exportReport("ticket.php");
 		else if (ac == "only_one") options.put("ΜιαΦορά", !Boolean.TRUE.equals(options.get("ΜιαΦορά")));
 		else if (ac == "help_open") {
 			try {
@@ -381,7 +410,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.3</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>15 Απρ 2006</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.4</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>03 Φεβ 2007</b><br>Σελίδα: <b>http://programs.agiasofia.gr/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 
 
