@@ -1,15 +1,51 @@
 package cost;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.UIManager.*;
-
-import common.*;
+import common.ExtensionFileFilter;
+import common.Functions;
+import common.HashObject;
+import common.IteratorHashObject;
+import common.LoadSaveFile;
+import common.PhpScriptRunner;
+import common.Saveable;
+import common.TreeFileLoader;
+import common.VectorObject;
+import java.awt.AWTEvent;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.HeadlessException;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JTabbedPane;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class MainFrame extends JFrame implements ActionListener {
 	private static JMenuItem[] menu;
@@ -23,7 +59,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected CostWizardDialog cwf;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.6.6b");
+		super("Στρατιωτικές Δαπάνες 1.6.7");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		// Πρέπει να δημιουργηθούν πρώτα!
@@ -516,10 +552,10 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this,
 				"<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br>" +
-				"<font size=3>Έκδοση 1.6.6b</font></b></center><br>" +
+				"<font size=3>Έκδοση 1.6.7</font></b></center><br>" +
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
-				"Δημοσίευση: <b>01 Ιουν 16</b><br>" +
+				"Δημοσίευση: <b>17 Σεπ 16</b><br>" +
 				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
 				"<center>Το Πρόγραμμα είναι 12 χρονών!</center>",
 				getTitle(), JOptionPane.PLAIN_MESSAGE);

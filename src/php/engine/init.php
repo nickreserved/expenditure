@@ -24,7 +24,7 @@ if (!isset($data['ΘέμαΔιαγωνισμού']) && isset($data['Έργο'])) $data['ΘέμαΔιαγωνι
 $a = null;
 foreach($bills as $v)
 	if (isset($v['Τιμολόγιο']) && preg_match('/(\d{1,2})-(\d{1,2})-(\d{4})/', $v['Τιμολόγιο'], $b)) {
-		$b = mktime(0, 0, 0, $b[2], $b[1], $b[3], -1);
+		$b = mktime(0, 0, 0, $b[2], $b[1], $b[3]);
 		if ($a < $b) $a = $b;
 	}
 if ($a) $a = $data['ΗμερομηνίαΤελευταίουΤιμολογίου'] = strftime('%d %b %Y', $a);

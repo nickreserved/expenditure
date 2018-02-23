@@ -12,7 +12,6 @@ $1: Η παλιά έκδοση, αν υπάρχει
 */
 Function PHPstatus
 	IfFileExists $WINDIR\php.exe 0 PHPstatusinstall
-	IfFileExists $WINDIR\php5ts.dll 0 PHPstatusinstall	# Both must exist
 	
 	GetDllVersion '$WINDIR\php.exe' $1 $2				# Check version of php.exe
 	IntCmpU ${VER1} $1 0 PHPstatusend +2

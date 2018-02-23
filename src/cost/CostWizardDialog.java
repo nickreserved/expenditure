@@ -1,10 +1,21 @@
 package cost;
 
 import common.Functions;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
+import java.awt.BorderLayout;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class CostWizardDialog extends JDialog implements ActionListener, DocumentListener {
 
@@ -113,7 +124,7 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 				case 1 /*Δημόσιο*/:
 					switch(idxProvider) {
 						case 0 /*Ιδιώτης*/:
-							if (valueprovider < 2500) hold = 4.096; else { hold = 4.1996; agreement = true; }
+							if (valueprovider < 2500) hold = 4.096; else { hold = 4.15816; agreement = true; }
 							break;
 						case 1 /*Στρατός*/:
 						case 2 /*Δημόσιο*/:
@@ -125,24 +136,23 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 						default /*Ενοικιαστής*/:
 							cbCost.setSelectedIndex(idxCost = 1);	// Λοιπές δαπάνες
 							cbBill.setSelectedIndex(idxBill = 1); // Παροχή υπηρεσιών
+							hold = 4.096;
 					}
-					if (idxMoney == 0 && hold != 0) hold = Functions.round(hold + 10, 4);
+					if (idxMoney == 0 && hold != 0) hold = Functions.round(hold + 10, 5);
 					break;
 				case 2 /*Υπ.Αν.*/:
-					cbCost.setSelectedIndex(idxCost = 1);
 					cbProvider.setSelectedIndex(idxProvider = 0);
-					if (idxBill == 1) cbBill.setSelectedIndex(idxBill = 0);
-					hold = 4.302;
+					if (valueprovider < 2500) hold = 0; else { hold = 0.06216; agreement = true; }
 			}
 
-			if (idxProvider == 1 /*Στρατός*/ || idxProvider == 3 /*Ενοικιαστής*/) fpa = false;
+			if (idxProvider == 1 /*Στρατός*/) fpa = false;
 			text += "<br><b>ΦΠΑ:</b> " + (fpa ? "Προβλέπεται και το γνωρίζει ο προμηθευτής" : "0%");
 
 			text += "<br><b>Κρατήσεις:</b> " + hold + "% της καθαρής αξίας (" +
-					Math.round(value * hold) / 100 + " €), που βαρύνουν " +
-					(idxProvider != 0 /*Ιδιώτης*/ ? "εμάς" : "τον προμηθευτή") +
+					Math.round(value * hold) / 100.0 + " €), που βαρύνουν " +
+					(idxProvider != 0 /*Ιδιώτης*/ && idxProvider != 3 /*Ενοικιαστής*/ ? "εμάς" : "τον προμηθευτή") +
 					"<br><b>Καταλογιστέο:</b> Καθαρή Αξία" + (fpa ? " + ΦΠΑ" : "") +
-					(idxProvider != 0 /*Ιδιώτης*/ ? " + Κρατήσεις" : "");			
+					(idxProvider != 0 /*Ιδιώτης*/ && idxProvider != 3 /*Ενοικιαστής*/ ? " + Κρατήσεις" : "");			
 			
 			{
 			double valueforfe = value;
@@ -150,19 +160,15 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 				final int[] a = { 4, 8, 1 };
 				fe = a[idxBill];	// Είδος τιμολογίου
 				if (idxBill == 1 /*Παροχή Υπηρεσιών*/ && idxCost == 0 /*Κατασκευή Έργων*/) fe = 3;
-				else valueforfe = value - Math.round(hold * value) / 100;
+				else valueforfe = value - Math.round(hold * value) / 100.0;
 			}
 			text += "<br><b>ΦΕ:</b> " + fe + "% της καθαρής αξίας" +
-					(fe == 3 ? "" : " μειον κρατήσεις") + " (" + Math.round(valueforfe * fe) / 100 + " €)<br>";
+					(fe == 3 ? "" : " μειον κρατήσεις") + " (" + Math.round(valueforfe * fe) / 100.0 + " €)<br>";
 			}
 	
 			if (idxCost == 0 /*Κατασκευή Έργων*/ && idxBill == 1 /*Παροχή Υπηρεσιών*/)
-				text += "<br>Ο εργολάβος πρέπει να μας υποβάλει αποδεικτικά κατάθεσης για 1% <b>ΤΠΕΔΕ</b> της καθαρής αξίας (" + Functions.round(0.01 * value, 2) +
-						" €).<br>Εργολάβος ασφαλισμένος στο <b>ΤΣΜΕΔΕ</b> είναι υποχρεωμένος να μας υποβάλλει αποδεικτικά κατάθεσης για <b>ΤΣΜΕΔΕ</b>:" +
-						"<ul><li><b>Προσωπική Εισφορά:</b><ul><li>Αν το έργο είναι <b>Γενική Εργολαβία</b>: 2% του 10% της καθαρής αξίας (" +
-						Functions.round(0.002 * value, 2) + " €)<li>Αν το έργο είναι <b>Τμηματικές Εργολαβίες</b>: 2% του 25% της καθαρής αξίας (" +
-						Functions.round(0.005 * value, 2) + " €)</ul><li><b>Υπέρ Τρίτων (Ν2166/93):</b> 0.6% της καθαρής αξίας (" +
-						Functions.round(0.006 * value, 2) + " €)</ul>";
+				text += "<br>Ο εργολάβος πρέπει να μας υποβάλει τα πρωτότυπα αποδεικτικά κατάθεσης για 1% <b>ΤΠΕΔΕ</b> (" + Functions.round(0.01 * value, 2) +
+						" €) και 0.5% <b>ΕΜΠ</b> (" + Functions.round(0.005 * value, 2) + " €) της καθαρής αξίας, καθώς και το χαρτόσημο και χαρτόσημο ΟΓΑ που αναλογεί σε αυτά.";
 			
 			if (idxProvider == 0 /*Ιδιώτης*/) {
 				if (valueprovider > 1500) text += "<br>Απαιτείται Φορολογική Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».";
@@ -177,7 +183,7 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 			
 			tpInfo.setText(text);
 		} catch(NumberFormatException e) {
-			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/131/864670/Σ.7834/24 Οκτ 14/ΓΕΣ/ΔΟΙ/3α.");
+			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/60/918814/Σ.5965/2 Σεπ 16/ΓΕΣ/ΔΟΙ/3α.");
 		}
 	}
 }
