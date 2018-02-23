@@ -17,10 +17,6 @@ public class BillItem extends HashString2Object {
 	
 	public String toString() { return super.get("Είδος").toString(); }
 	
-	public boolean isEmpty() {
-		return super.get("Είδος") == null && super.get("ΤιμήΜονάδας") == null && super.get("Ποσότητα") == null;
-	}
-	
 	private void recalculate() {
 		Number nFpa = (Number) super.get("ΦΠΑ");
 		if (nFpa == null) super.put("ΦΠΑ", nFpa = new Byte((byte) 0));
@@ -28,16 +24,16 @@ public class BillItem extends HashString2Object {
 		double cost = M.safeNumber2double((Number) super.get("ΤιμήΜονάδας"));
 		double fpa = nFpa.doubleValue();
 		if (cost != 0 && many != 0) {
-			super.put("$ΣυνολικήΤιμή", M.round(cost * many, 2));
-			super.put("$ΣυνολικήΤιμήΜεΦΠΑ", M.round(cost * many * (1 + fpa / 100), 2));
+			getDynamic().put("ΣυνολικήΤιμή", M.round(cost * many, 2));
+			getDynamic().put("ΣυνολικήΤιμήΜεΦΠΑ", M.round(cost * many * (1 + fpa / 100), 2));
 		} else {
-			super.remove("$ΣυνολικήΤιμή");
-			super.remove("$ΣυνολικήΤιμήΜεΦΠΑ");
+			getDynamic().remove("ΣυνολικήΤιμή");
+			getDynamic().remove("ΣυνολικήΤιμήΜεΦΠΑ");
 		}
 		if (cost != 0)
-			super.put("$ΤιμήMονάδαςMεΦΠΑ", M.round(cost * (1 + fpa / 100), 4));
+			getDynamic().put("ΤιμήMονάδαςMεΦΠΑ", M.round(cost * (1 + fpa / 100), 4));
 		else
-			super.remove("$ΤιμήMονάδαςMεΦΠΑ");
+			getDynamic().remove("ΤιμήMονάδαςMεΦΠΑ");
 	}
 	
 	public Object put(String key, Object value) {

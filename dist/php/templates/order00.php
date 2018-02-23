@@ -14,7 +14,7 @@ if (!isset($draft)) $draft = getEnvironment('draft', 'true');
 \sectd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134
 
 <?
-echo preOrder(isset($data['ΔγηΑνάθεσης']) ? $data['ΔγηΑνάθεσης'] : null, array('Αξκο Έργου', 'Επιτροπές'), array(null), $draft);
+echo preOrder(isset($data['ΔγηΑνάθεσης']) ? $data['ΔγηΑνάθεσης'] : null, array(man_ext($data['ΑξκοςΈργου'], 2)), array(null, 'Επιτροπές'), $draft);
 echo '\pard\plain\par\par\par';
 echo subjectOrder('Διάθεση Πίστωσης', array($data['ΔγηΔιάθεσης']));
 ?>
@@ -24,19 +24,13 @@ echo subjectOrder('Διάθεση Πίστωσης', array($data['ΔγηΔιάθεσης']));
 Υπεύθυνο Αξκό Έργου για την εκτέλεση της παραπάνω εργασίας και τη σύνταξη των δικαιολογητικών της δαπάνης σύμφωνα με τους ισχύοντες Νόμους και Διαταγές καθώς και την ΠαΔ 8-2/2002/Δ'ΣΣ/4ο ΕΓ.\par\par
 \tab\b 2.\b0\tab Συγκροτώ επιπρόσθετα τις παρακάτω επιτροπές:\par\par
 \tab\tab α.\tab\ul Aγοράς και διάθεσης\ul0  αποτελούμενη από τους:\par
-\tab\tab\tab (1)\tab <?=inflection(man($data['ΠρόεδροςΑγοράςΔιάθεσης']), 2)?> ως πρόεδρο\par
-\tab\tab\tab (2)\tab <?=inflection(man($data['ΜέλοςΑγοράςΔιάθεσηςΑ']), 2)?> και\par
-\tab\tab\tab (3)\tab <?=inflection(man($data['ΜέλοςΑγοράςΔιάθεσηςΒ']), 2)?> ως μέλη\par\par
+\tab\tab\tab (1)\tab <?=man_ext($data['ΠρόεδροςΑγοράςΔιάθεσης'], 2)?> ως πρόεδρο\par
+\tab\tab\tab (2)\tab <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΑ'], 2)?> και\par
+\tab\tab\tab (3)\tab <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΒ'], 2)?> ως μέλη\par\par
 \tab\tab β.\tab\ul Ποιοτικού ελέγχου και ποσοτικής παραλαβής\ul0  αποτελούμενη από τους:\par
-\tab\tab\tab (1)\tab <?=inflection(man($data['ΠρόεδροςΠοιοτικήςΠοσοτικήςΠαραλαβής']), 2)?> ως πρόεδρο\par
-\tab\tab\tab (2)\tab <?=inflection(man($data['ΜέλοςΠοιοτικήςΠοσοτικήςΠαραλαβήςΑ']), 2)?> και\par
-\tab\tab\tab (3)\tab <?=inflection(man($data['ΜέλοςΠοιοτικήςΠοσοτικήςΠαραλαβήςΒ']), 2)?> ως μέλη\par
-<? if (isset($data['ΠρόεδροςΖυγίσεωςΥλικώνΕμπορίου'], $data['ΜέλοςΖυγίσεωςΥλικώνΕμπορίου'])) { ?>
-\tab\tab γ.\tab\ul Ζυγίσεως Εμπορίου\ul0  αποτελούμενη από τους:\par
-\tab\tab\tab (1)\tab <?=inflection(man($data['ΠρόεδροςΖυγίσεωςΥλικώνΕμπορίου']), 2)?> ως πρόεδρο\par
-\tab\tab\tab (2)\tab <?=inflection(man($data['ΜέλοςΖυγίσεωςΥλικώνΕμπορίου']), 2)?> ως μέλος\par
-<? } ?>
-\par
+\tab\tab\tab (1)\tab <?=man_ext($data['ΠρόεδροςΠοιοτικήςΠοσοτικήςΠαραλαβής'], 2)?> ως πρόεδρο\par
+\tab\tab\tab (2)\tab <?=man_ext($data['ΜέλοςΠοιοτικήςΠοσοτικήςΠαραλαβήςΑ'], 2)?> και\par
+\tab\tab\tab (3)\tab <?=man_ext($data['ΜέλοςΠοιοτικήςΠοσοτικήςΠαραλαβήςΒ'], 2)?> ως μέλη\par\par
 \tab\b 3.\b0\tab Απολογισμός γενομένης δαπάνης μαζί μα τα υπόλοιπα δικαιολογητικά να υποβληθούν μέχρι <?=chk_date($data['ΗμερομηνίαΥποβολής'])?>.\par\par
 \tab\b 4.\b0\tab Η δαπάνη υπόκειται στις νόμιμες κρατήσεις.\par\par
 

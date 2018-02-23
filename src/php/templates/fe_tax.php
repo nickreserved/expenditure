@@ -10,7 +10,7 @@ foreach ($bills_month as $my => $list) {
 
 {
 
-\sectd\landscape\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\fs21\trowd\cellx7370\cellx10206
 \ul Προς τη ΔΟΥ\line Οικονομικό Έτος:\ul0  <?=strftime('%Y', $my)?>\line\ul Μήνας:\ul0  <?=strftime('%b', $my)?>\cell
@@ -80,7 +80,7 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 
 \sect
 
-\sectd\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\qc{\fs28\b\ul ΠΙΝΑΚΑΣ ΕΠΙΧΕΙΡΗΣΕΩΝ}\par\par
 {\fs20 Από τις οποίες προμηθεύτηκαν κάθε είδους αγαθά ή υπηρεσίες οι υπόχρεοι παρακράτησης\line φόρου εισοδήματος της περιπτ. στ' της παραγρ. 1 του άρθρου 37α του Ν.Δ. 3323/1955.}\par\par

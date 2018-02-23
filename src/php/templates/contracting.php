@@ -15,9 +15,9 @@ if ($bills_contract) {
 \fs28\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΠΑΡΑΛΑΒΗΣ ΓΕΝΟΜΕΝΗΣ ΕΡΓΑΣΙΑΣ\par\par
 \pard\plain\tx567\tx1134\qj
 \tab Σήμερα την <?=now()?> η υπογεγραμμένη επιτροπή αποτελούμενη από τους:\par
-\tab\tab α. <?=inflection(man($data['ΠρόεδροςΑγοράςΔιάθεσης']), 2)?> ως πρόεδρο\par
-\tab\tab β. <?=inflection(man($data['ΜέλοςΑγοράςΔιάθεσηςΑ']), 2)?> και\par
-\tab\tab γ. <?=inflection(man($data['ΜέλοςΑγοράςΔιάθεσηςΒ']), 2)?> ως μέλη\par
+\tab\tab α. <?=man_ext($data['ΠρόεδροςΑγοράςΔιάθεσης'], 2)?> ως πρόεδρο\par
+\tab\tab β. <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΑ'], 2)?> και\par
+\tab\tab γ. <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΒ'], 2)?> ως μέλη\par
 που συγκροτήθηκε με την \ul <?=chk_order($data['ΔγηΑνάθεσης'])?>\ul0  προέβη στην παραλαβή των παρακάτω εργασιών οι οποίες έγιναν καλώς και σύμφωνα με τους κανόνες της τέχνης.\par\par
 
 \pard\trowd\trhdr\fs23\trautofit1\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57

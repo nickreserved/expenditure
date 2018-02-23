@@ -1,7 +1,6 @@
 package cost;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
 import common.*;
 import tables.*;
@@ -23,12 +22,7 @@ public class StaticData extends JPanel implements DataTransmitter {
 	}
 	
 	public Object getData() {
-		Object o = MainFrame.currentCost == null ? null : MainFrame.costs.get(MainFrame.currentCost);
-		if (o instanceof Dictionary) return o;
-		if (!(MainFrame.data instanceof HashObject)) MainFrame.data = new HashObject();
-		o = MainFrame.data.get("ΑμετάβληταΣτοιχείαΔαπάνης");
-		if (!(o instanceof HashObject))
-			MainFrame.data.put("ΑμετάβληταΣτοιχείαΔαπάνης", o = new HashObject());
-		return o;
+		Object c = MainFrame.costs.get();
+		return c == null ? MainFrame.data.get("ΑμετάβληταΣτοιχείαΔαπάνης") : c;
 	}
 }

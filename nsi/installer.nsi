@@ -4,19 +4,21 @@
 
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.0.0"
+!define VERSION "1.1.0"
 !define ΜΕ "Υπλγος(ΜΧ) Γκέσος Παύλος"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"
 #!define PHP_RE_URL "http://127.0.0.1/programs/cost/php_cli.exe"
-!define PHP_RE_URL "http://fasolada.dyndns.org/programs/cost/php_cli.exe"
-#!define PHP_RE_URL "http://tassadar.physics.auth.gr/~chameleon/programs/cost/php_cli.exe"
+#!define PHP_RE_URL "http://fasolada.dyndns.org/programs/cost/php_cli.exe"
+!define PHP_RE_URL "http://tassadar.physics.auth.gr/~chameleon/programs/cost/program/php_cli.exe"
 
 
 Name "${PROGRAM} ${VERSION}"
 OutFile "..\cost_${VERSION}.exe"
 InstallDir "$PROGRAMFILES\Στρατιωτικές Δαπάνες"
 InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString"
+Icon "..\cost.ico"
+UninstallIcon "..\cost.ico"
 
 # -------------------------------------------------------------------- pages ---
 Page components
@@ -69,14 +71,18 @@ Section
 
 	SetOutPath $INSTDIR
 
-	File /r ..\dist\*.*
-	File /r ..\help
-	File /r ..\scripts
+	File /r ..\dist\php
+	File ..\dist\Cost.jar
 	File ..\*.txt
 	File ..\cost.ico
 
+	IfFileExists $INSTDIR\main.ini 0 +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Στο φάκελο εγκατάστασης βρέθηκε το παλιό σας αρχείο main.ini$\nΔεν προτείνεται να το διαγράψετε$\nΘέλετε να το διαγράψω;" IDNO +2
+	File ..\dist\main.ini
+
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayName" "${PROGRAM}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayIcon" '"$INSTDIR\uninstall.exe"'
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoModify" 1
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoRepair" 1
 	WriteUninstaller "uninstall.exe"
@@ -108,6 +114,23 @@ Section /o 'Πηγαίος Κώδικας'
 
 SectionEnd
 
+
+Section 'Βοήθεια'
+
+	SetOutPath $INSTDIR
+
+	File /r ..\help
+
+SectionEnd
+
+Section 'Χρήσιμα Scripts'
+
+	SetOutPath $INSTDIR
+
+	File /r ..\scripts
+
+SectionEnd
+
 ;--------------------------------
 
 ; Uninstaller
@@ -115,8 +138,19 @@ SectionEnd
 Section "Uninstall"
 
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}"
-  DeleteRegKey HKCR ".cost"
-  RMDir /r $INSTDIR
   Delete "$SMPROGRAMS\${PROGRAM}.lnk"
+  DeleteRegKey HKCR ".cost"
 
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Στο αρχείο main.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +3
+  RMDir /r $INSTDIR
+	Goto end
+
+  Delete "$INSTDIR\Cost.*"
+  Delete "$INSTDIR\*.txt"
+  Delete "$INSTDIR\*.exe"
+  RMDir /r "$INSTDIR\php"
+  RMDir /r "$INSTDIR\help"
+  RMDir /r "$INSTDIR\source"
+  RMDir /r "$INSTDIR\scripts"
+end:
 SectionEnd

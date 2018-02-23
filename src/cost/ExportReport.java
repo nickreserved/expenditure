@@ -17,17 +17,17 @@ public class ExportReport {
 			e.putAll(env);
 		}
 		try {
-			int a = php.exec(MainFrame.costs.get(MainFrame.currentCost).serialize(), php, php, false);
+			int a = php.exec(((Cost) MainFrame.costs.get()).serialize(), php, php, false);
 			String err = php.getStderr();
 			if (a != 0) err += "Το php script τερμάτισε με κωδικό λάθους: (" + a + ")";
 			if (err != null && !err.equals("")) throw new Exception(err);
-file = "c:/e.rtf";/*
+//file = "c:/e.rtf";/*
 			fc.setFileFilter(new ExtensionFileFilter("rtf", "Αρχείο Κειμένου (RTF)"));
 			int returnVal = fc.showSaveDialog(MainFrame.ths);
 			if(returnVal != JFileChooser.APPROVE_OPTION) return;
 			file = fc.getSelectedFile().getPath();
 			if (!file.endsWith(".rtf")) file += ".rtf";
-*/
+//*/
 			LoadSaveFile.saveStringFile(file, php.getStdout() + "}");
 		} catch (Exception e) {
 			showError(e.getMessage());

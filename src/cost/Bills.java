@@ -5,7 +5,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
-
 import tables.*;
 import common.*;
 
@@ -40,7 +39,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
   
 	public Bills() {
 		billsModel = new ResizableTableModel(this, billHash, billHeader, Bill.class);
-		billsTable = new JTable(billsModel);
+		billsTable = new ResizableTable(billsModel, false);
 		billsTable.getSelectionModel().addListSelectionListener(this);
 		billsModel.addTableModelListener(this);
 		billsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -52,7 +51,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(feList)));
 		
 		billModel = new ResizableTableModel((Vector) null, itemHash, itemHeader, BillItem.class);
-		JTable billTable = new JTable(billModel);
+		JTable billTable = new ResizableTable(billModel, true);
 		cm = billTable.getColumnModel();
 		JComboBox fpa = new JComboBox(fpaList);
 		fpa.setEditable(true);
@@ -72,15 +71,8 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 	}
 	
 	public Object getData() {
-		if (MainFrame.currentCost == null) return null;
-		Object o = MainFrame.costs.get(MainFrame.currentCost);
-		if (!(o instanceof Dictionary)) return null;
-		Object a = ((Dictionary) o).get("Τιμολόγια");
-		if (!(a instanceof VectorObject)) {
-			((Dictionary) o).put("Τιμολόγια", a = new VectorObject());
-			billsModel.fireTableDataChanged();
-		}
-		return a;
+		Cost c = (Cost) MainFrame.costs.get();
+		return c == null ? null : c.get("Τιμολόγια");
 	}
 	
 	public void tableChanged(TableModelEvent e) {

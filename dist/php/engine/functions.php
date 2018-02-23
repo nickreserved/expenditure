@@ -118,10 +118,12 @@ function getBillsType($a, $i) {
 // αν υπάρχουν με backslash και το χαρακτήρα
 function chk($a) { return preg_replace('/([\\\{\}])/', '$0$0', $a); }
 
-function man($a) {
-	if ($a['Βαθμός'] == null) return chk($a['Ονοματεπώνυμο']);
-	return chk($a['Βαθμός'] . ' ' . $a['Ονοματεπώνυμο']);
+function man($a) { return chk($a['Βαθμός'] . ' ' . $a['Ονοματεπώνυμο']); }
+
+function man_ext($a, $c) {
+	return inflection(man($a), $c) . (isset($a['Μονάδα']) ? " {$a['Μονάδα']}" : null);
 }
+
 
 // Ελέγχει την ταυτότητα μιας διαταγής που πρέπει να έχει τη μορφή π.χ.
 // Φ.830/23/3424/Σ.891/12 Δεκ 2005/7ος ΛΜΧ/4ο Γρ.

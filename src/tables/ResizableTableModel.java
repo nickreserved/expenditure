@@ -56,11 +56,12 @@ public class ResizableTableModel extends AbstractTableModel {
 
   public void setValueAt(Object obj, int row, int col) {
     try {
-      if (row + 1 == getRowCount()) getData().add(classType.newInstance());
+      if (row >= getData().size()) getData().add(classType.newInstance());
+			else if (getData().get(row) == null) getData().set(row, classType.newInstance());
       Dictionary o = (Dictionary) getData().get(row);
-      o.put(hash[col], obj);
-      if (o.isEmpty()) getData().remove(row);
+			o.put(hash[col], obj);
+			if (o.isEmpty()) getData().remove(row);
     } catch (Exception e) {}
     fireTableDataChanged();
-  }
+	}
 }

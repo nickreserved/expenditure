@@ -14,7 +14,7 @@ function preOrder($order, $to, $info, $draft = false, $add = null) {
 	if (is_array($info))
 		foreach($info as $v) {
 			if (!$v && isset($ord)) $v = $ord['еЙДЭТГР'];
-			echo '\tab ' . chk($v) . '\line';
+			if ($v) echo '\tab ' . chk($v) . '\line';
 		}
 ?>
 \cell
@@ -36,11 +36,13 @@ function preOrder($order, $to, $info, $draft = false, $add = null) {
 function subjectOrder($subject, $orders) { ?>
 \pard\plain\fs28\tx1134
 \b хела:\tab\ul <?=chk($subject)?>\ul0\par
-свет:
 <?
-	if (count($orders) > 1) echo '\b0';
-	for($z = 0; $z < count($orders); $z++) {
-		echo '\tab ' . ($z == count($orders) - 1 ? '\b\ul' : '') . chk_order($orders[$z]) . '\par';
+	if ($orders) {
+		echo 'свет:';
+		if (count($orders) > 1) echo '\b0';
+		for($z = 0; $z < count($orders); $z++) {
+			echo '\tab ' . ($z == count($orders) - 1 ? '\b\ul' : '') . chk_order($orders[$z]) . '\par';
+		}
 	}
 	echo '\par';
 }

@@ -20,9 +20,6 @@ public class MainFrame extends JFrame implements ActionListener {
 			"save", "file", "save", "Αποθήκευση Δαπάνης...",
 			"close", "file", "close", "Κλείσιμο Δαπάνης",
 			null, "file", null, null,
-			"loadini", "file", "loadini", "’νοιγμα Σταθερών",
-			"saveini", "file", "saveini", "Αποθήκευση Σταθερών",
-			null, "file", null, null,
 			"exit", "file", "exit", "Έξοδος",
 		"export", null, null, "Εξαγωγή",
 			"cost", "export", null, "Δαπάνη",
@@ -42,6 +39,8 @@ public class MainFrame extends JFrame implements ActionListener {
 			"other", "export", null, "Διάφορα",
 				"hold", "other", null, "Ανάλυση Κρατήσεων",
 				"bills", "other", null, "Λίστα Τιμολογίων",
+		"options", null, null, "Ρυθμίσεις",
+			"skins", "options", "skins", "Κέλυφος ",
 		"costs", null, null, "Δαπάνες",
 		"help", null, null, "Βοήθεια",
 			"help_open", "help", "help", "Βοήθεια"
@@ -51,49 +50,44 @@ public class MainFrame extends JFrame implements ActionListener {
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static String rootPath;
 	static protected HashObject data;
-	static protected Hashtable<String, HashObject> costs = new Hashtable<String, HashObject>();
-	static protected String currentCost;
+	static protected IteratorHashObject costs;
 	
 	static protected MainFrame ths;
-	static private Holds holds = new Holds();
-	static private Providers providers = new Providers();
-	static private Men men = new Men();
-	static private Bills bills = new Bills();
-	static private CostData costData = new CostData();
-	static private StaticData staticData = new StaticData();
-	
+	static private Bills bills;
 	
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες");
+		super("Στρατιωτικές Δαπάνες 1.1.0");
 		ths = this;
 		
 		this.setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 		
+		Providers prov = new Providers();
+		Men men = new Men();
+		Holds holds = new Holds();
+		
 		JTabbedPane mainTab = new JTabbedPane();
-		mainTab.addTab("Στοιχεία Δαπάνης", costData);
-		mainTab.addTab("Τιμολόγια", bills);
-		mainTab.addTab("Αμετάβλητα Στοιχεία", staticData);
-		//mainTab.addTab("Εργασίες", new Works());
-		mainTab.addTab("Προμηθευτές", providers);
+		mainTab.addTab("Στοιχεία Δαπάνης", new CostData());
+		mainTab.addTab("Τιμολόγια", bills = new Bills());
+		mainTab.addTab("Αμετάβλητα Στοιχεία", new StaticData());
+		mainTab.addTab("Προμηθευτές", prov);
 		mainTab.addTab("Κρατήσεις", holds);
 		mainTab.addTab("Προσωπικό Μονάδας", men);
+		
 		getContentPane().add(mainTab);
 		Color c = Color.decode("#b0d0b0");
 		mainTab.setBackgroundAt(0, c);
 		mainTab.setBackgroundAt(1, c);
 		mainTab.setBackgroundAt(2, c);
-		//c = Color.decode("#e0b0b0");
-		//mainTab.setBackgroundAt(3, c);
 		c = Color.decode("#e0e0b0");
 		mainTab.setBackgroundAt(3, c);
 		mainTab.setBackgroundAt(4, c);
 		mainTab.setBackgroundAt(5, c);
-		//mainTab.setBackgroundAt(7, Color.decode("#b0d0e0"));
 		
 		updatePanels();
 		
 		setJMenuBar(createMenus(new JMenuBar()));
 		updateMenus();
+		addOptionsMenu();
 		
 		setSize(635, 450);
 		setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
@@ -105,7 +99,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		for(int z = 0, c = 0; z < mnu.length; z += 4)
 			if (mnu[z] == null) ((JMenu) getMenuFromName(mnu[z + 1])).addSeparator();
 			else {
-			if (mnu[z + 1] == null || z + 5 < mnu.length && mnu[z + 5] == mnu[z])
+			if (mnu[z + 1] == null || mnu[z + 3].endsWith(" ") || z + 5 < mnu.length && mnu[z + 5] == mnu[z])
 				menu[c] = new JMenu(mnu[z + 3]);
 			else {
 				menu[c] = new JMenuItem(mnu[z + 3]);
@@ -129,162 +123,212 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 	
 	public void newCost() {
-		for(int c = 0;; c++) {
-			String s = "Νέα Δαπάνη - " + c + ".cost";
-			if (!costs.containsKey(s)) {
-				currentCost = s;
-				HashString2Object hso = new HashString2Object();
-				hso.putAll((Map) data.get("ΑμετάβληταΣτοιχείαΔαπάνης"));
-				costs.put(currentCost, hso);
-				setCostClasses(hso);
-				updatePanels();
+		try {
+			for(int z = 0;; z++) {
+				String s = new File("Νέα Δαπάνη - " + z + ".cost").getCanonicalPath();
+				if (!costs.containsKey(s)) {
+					Cost c = new Cost();
+					c.putAll((Map) data.get("ΑμετάβληταΣτοιχείαΔαπάνης"));
+					costs.add(s, c);
+					updateMenus();
+					updatePanels();
+					return;
+				}
+			}
+		} catch (Exception e) {}
+	}
+	
+	public void saveCost() {
+		try {
+			JFileChooser fc = new JFileChooser(costs.getPos());
+			fc.setSelectedFile(new File(costs.getPos()));
+			fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
+			if(fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
+			File f = fc.getSelectedFile();
+			String s = f.getCanonicalPath();
+			if (!s.endsWith(".cost")) s += ".cost";
+			if (s != costs.getPos()) {
+				if (costs.containsKey(s)) {
+					JOptionPane.showMessageDialog(this, "Το όνομα αυτό ανοίκει σε άλλη ανοικτή δαπάνη.\nΠαρακαλώ δώστε άλλο όνομα.", "Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
+					return;
+				} else if (f.exists()) {
+					if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "Το αρχείο αυτό υπάρχει και θα χαθεί.\nΘελετε να συνεχίσω;", "Αποθήκευση Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+						return;
+				}
+			}
+			LoadSaveFile.save(s, (Saveable) costs.get());
+			if (s != costs.getPos()) {
+				costs.add(s, costs.remove());
 				updateMenus();
+			}
+		} catch(Exception e) {
+			Functions.showExceptionMessage(this, e, "Αποθήκευση Δαπάνης", "Πρόβλημα κατά την αποθήκευση της δαπάνης");
+		}
+	}
+	
+	private void openCost() {
+		try {
+			JFileChooser fc = new JFileChooser();
+			fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
+			int returnVal = fc.showOpenDialog(this);
+			if(returnVal != JFileChooser.APPROVE_OPTION) return;
+			String s = fc.getSelectedFile().getCanonicalPath();
+			if (!s.endsWith(".cost")) s += ".cost";
+			openCost(s);
+		} catch (Exception ex) {}
+	}
+	
+	static private void openCost(String file) {
+		try {
+			if (costs.containsKey(file)) {
+				JOptionPane.showMessageDialog(ths, "Το όνομα αυτό ανοίκει σε ανοικτή δαπάνη.\nΓια να ανοίξετε αυτή τη δαπάνη θα πρέπει να κλείσετε την ομόνυμη ανοικτή.", "’νοιγμα Δαπάνης", JOptionPane.ERROR_MESSAGE);
 				return;
+			}
+			costs.add(file, TreeFileLoader.loadFile(file));
+			if (ths != null) {
+				ths.updateMenus();
+				ths.updatePanels();
+			}
+		} catch (Exception e) {
+			Functions.showExceptionMessage(ths, e, "’νοιγμα αρχείου", "Πρόβλημα κατά το άνοιγμα της δαπάνης<br><b>" + file + "</b>");
+		}
+	}
+	
+	private void closeCost() {
+		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, "<html>Να κλείσω την τρέχουσα δαπάνη;", "Κλείσιμο Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) {
+			costs.remove();
+			updatePanels();
+			updateMenus();
+		}
+	}
+	
+	private void updatePanels() {
+		JTabbedPane j = (JTabbedPane) getContentPane().getComponent(0);
+		j.setBackgroundAt(2, Color.decode(costs.getPos() == null ? "#e0e0b0" : "#b0d0b0"));
+		bills.updateObject();
+		repaint();
+	}
+	
+	private void updateMenus() {
+		getMenuFromName("save").setEnabled(costs.getPos() != null);
+		getMenuFromName("close").setEnabled(costs.getPos() != null);
+		JMenu window = (JMenu) getMenuFromName("costs");
+		window.setEnabled(costs.getPos() != null);
+		JMenu export = (JMenu) getMenuFromName("export");
+		export.setEnabled(costs.getPos() != null);
+		
+		if (costs.getPos() != null) {
+			window.removeAll();
+			ButtonGroup btg = new ButtonGroup();
+			Enumeration en = costs.keys();
+			while (en.hasMoreElements()) {
+				String m = en.nextElement().toString();
+				JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(new File(m).getName(), m.equals(costs.getPos()));
+				jmi.addActionListener(this);
+				jmi.setActionCommand(m);
+				btg.add(jmi);
+				window.add(jmi);
 			}
 		}
 	}
 	
-	private void setCostClasses(HashString2Object h) {
-		h.classes.put("Ποσό", Double.class);
-	}
-	
-	public void saveCost() {
-		JFileChooser fc = new JFileChooser(currentCost);
-		fc.setSelectedFile(new File(currentCost));
-		fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
-		int returnVal = fc.showSaveDialog(this);
-		if(returnVal != JFileChooser.APPROVE_OPTION) return;
-		String s = fc.getSelectedFile().getPath();
-		if (!s.endsWith(".cost")) s += ".cost";
-		LoadSaveFile.save(s, (Saveable) costs.get(currentCost));
-		costs.put(s, costs.remove(currentCost));
-		currentCost = s;
-		updateMenus();
-	}
-	
-	private void openCost() {
-		JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
-		int returnVal = fc.showOpenDialog(this);
-		if(returnVal != JFileChooser.APPROVE_OPTION) return;
-		String s = fc.getSelectedFile().getPath();
-		if (!s.endsWith(".cost")) s += ".cost";
-		openCost(s);
-	}
-	
-	private void openCost(String file) {
-		HashString2Object o = null;
-		try {
-			o = (HashString2Object) TreeFileLoader.loadFile(file);
-		} catch (Exception e) {}
-		if (o == null) return;
-		currentCost = file;
-		costs.put(currentCost, o);
-		setCostClasses((HashString2Object) o);
-		updateMenus();
-		updatePanels();
-	}
-	
-	private boolean closeCost() {
-		if (currentCost == null) return true;
-		if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this,
-				"<html>Να κλείσω την δαπάνη<br><b>" + currentCost + "</b>;",
-				"Κλείσιμο Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
-			return false;
-		costs.remove(currentCost);
-		try {
-			currentCost = costs.keys().nextElement().toString();
-		} catch (Exception e) {
-			currentCost = null;
-		}
-		updatePanels();
-		updateMenus();
-		return true;
-	}
-	
-	private void updatePanels() {
-		costData.repaint();
-		staticData.repaint();
-		bills.updateObject();
-		holds.updateObject();
-		men.updateObject();
-		providers.updateObject();
-	}
-	
-	private void updateMenus() {
-		JMenu window = (JMenu) getMenuFromName("costs");
-		JMenu export = (JMenu) getMenuFromName("export");
-		window.removeAll();
-		Enumeration en = costs.keys();
-		while (en.hasMoreElements()) {
-			String m = en.nextElement().toString();
-			JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(m, m.equals(currentCost));
-			jmi.addActionListener(this);
-			window.add(jmi);
-		}
-		getMenuFromName("save").setEnabled(currentCost != null);
-		getMenuFromName("close").setEnabled(currentCost != null);
-		window.setEnabled(currentCost != null);
-		export.setEnabled(currentCost != null);
-	}
-	
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-			while (currentCost != null)
-				if (!closeCost()) return;
+			try {
+				LoadSaveFile.save(rootPath + "main.ini", data);
+			} catch(Exception ex) {
+				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αποτυχία κατά την αποθήκευση του <b>main.ini</b>.<br>Να κλείσω τo πρόγραμμα;", "Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+					return;
+			}
 			System.exit(0);
 		}
 		super.processWindowEvent(e);
 	}
 	
-	static public void setSkin(String skin) {
+	public void addOptionsMenu() {
+		JMenuItem skins = getMenuFromName("skins");
+		LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
+		HashObject ho = (HashObject) data.get("Ρυθμίσεις");
+		String s = (String) ho.get("Κέλυφος");
+		if (s == null) s = UIManager.getSystemLookAndFeelClassName();
+
+		ButtonGroup btg = new ButtonGroup();
+		for (int z = 0; z < laf.length; z++) {
+			String s1 = laf[z].getClassName();
+			JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(laf[z].getName(), s1.equals(s));
+			jmi.setActionCommand(s1);
+			jmi.addActionListener(this);
+			btg.add(jmi);
+			skins.add(jmi);
+		}
+	}
+	
+	static public void setSkin() {
 		try {
-			LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
-			for (int z = 0; z < laf.length; z++)
-				if (laf[z].getName().equalsIgnoreCase(skin)) {
-				UIManager.setLookAndFeel(laf[z].getClassName());
-				return;
-				}
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(((HashObject) data.get("Ρυθμίσεις")).get("Κέλυφος").toString());
 		} catch(Exception e) {
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch(Exception ex) {}
 		}
 	}
 	
 	public static void main(String[] args) throws Exception {
-		setSkin(args.length > 0 && !args[0].endsWith(".cost") ? args[0] : null);
+		// check for other running instance and setup listening server
+		if (!OnlyOneInstance.check()) {
+			for (int z = 0; z < args.length; z++)
+				OnlyOneInstance.send(args[z].getBytes());
+			System.exit(0);
+		}
+		
+		// init php engine
 		PhpScriptRunner.init(null);
+		
+		// get application path
 		rootPath = URLDecoder.decode(ClassLoader.getSystemResource("cost/MainFrame.class").getPath().
 				replaceAll("(Cost\\.jar!/)?cost/MainFrame\\.class$|^(file\\:)?/", ""), "UTF-8");
-		data = (HashObject) TreeFileLoader.loadFile(rootPath + "main.ini");
-		MainFrame m = new MainFrame();
-		String a = null;
+		
+		// load ini file and create data structure
+		Object o = TreeFileLoader.loadFile(rootPath + "main.ini");
+		data = o instanceof HashObject ? (HashObject) o : new HashObject();
+		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject());
+		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject());
+		if (!(data.get("Κρατήσεις") instanceof VectorObject)) data.put("Κρατήσεις", new VectorObject());
+		if (!(data.get("ΑμετάβληταΣτοιχείαΔαπάνης") instanceof HashObject)) data.put("ΑμετάβληταΣτοιχείαΔαπάνης", new HashObject());
+		if (!(data.get("Ρυθμίσεις") instanceof HashObject)) data.put("Ρυθμίσεις", new HashObject());
+		if (!(data.get("ΑνοικτέςΔαπάνες") instanceof IteratorHashObject)) data.put("ΑνοικτέςΔαπάνες", new IteratorHashObject());
+		costs = (IteratorHashObject) data.get("ΑνοικτέςΔαπάνες");			// shortcut
+		
+		setSkin();
+		
 		for (int z = 0; z < args.length; z++)
-			if (args[z].endsWith(".cost")) m.openCost(args[z]);
+			openCost(new File(args[z]).getCanonicalPath());
+		
+		MainFrame m = new MainFrame();
 	}
 	
-	
-	// ================================ ActionListener ==================================== //
+	// ----- ActionListener ----- //
 	
 	public void actionPerformed(ActionEvent e) {
 		String ac = e.getActionCommand();
 		JMenuItem j = (JMenuItem) e.getSource();
-
+		
 		// if we must output a draft order
 		Map<String, String> env = new Hashtable();
 		env.put("draft", "true");
-
-		if (j instanceof JRadioButtonMenuItem) {
-			currentCost = j.getText();
+		
+		if (((JMenu) getMenuFromName("skins")).isMenuComponent(j)) {
+			((HashObject) data.get("Ρυθμίσεις")).put("Κέλυφος", ac);
+			JOptionPane.showMessageDialog(this, "Το Κέλυφος θα αλλάξει όταν ξαναξεκινήσετε το πρόγραμμα", "Αλλαγή κελύφους", JOptionPane.INFORMATION_MESSAGE);
+		}
+		else if (((JMenu) getMenuFromName("costs")).isMenuComponent(j)) {
+			costs.setPos(ac);
 			updatePanels();
-			updateMenus();
-		} else if (ac == "new") newCost();
+		}
+		else if (ac == "new") newCost();
 		else if (ac == "open") openCost();
 		else if (ac == "save") saveCost();
 		else if (ac == "close") closeCost();
-		else if (ac == "loadini") {
-			data = (HashObject) TreeFileLoader.loadFile(rootPath + "main.ini");
-			updatePanels();
-		} else if (ac == "saveini") LoadSaveFile.save(rootPath + "main.ini", data);
 		else if (ac == "exit") dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		else if (ac == "cost") ExportReport.exportReport("templates/cost.php");
 		else if (ac == "taxis") ExportReport.exportReport("templates/fe_tax.php");
@@ -301,12 +345,39 @@ public class MainFrame extends JFrame implements ActionListener {
 			try {
 				BrowserLauncher.openURL(rootPath + "help/index.html");
 			} catch(Exception ex) {
-				Functions.showExceptionMessage(ex, "Πρόβλημα στην εκκίνηση του browser");
+				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
 	}
-
 	
+	
+	private static class OnlyOneInstance implements Runnable {
+		private static ServerSocket ss;
+		public static boolean check() {
+			try {
+				ss = new ServerSocket(666);
+				new Thread(new OnlyOneInstance()).start();
+				return true;
+			} catch(Exception e) { return false; }
+		}
+		
+		public static void send(byte[] a) {
+			try {
+				OutputStream s = new Socket("127.0.0.1", 666).getOutputStream();
+				s.write(a);
+				s.close();
+			} catch(Exception e) {}
+		}
+		
+		public void run() {
+			try {
+				for(;;) {
+					Socket s = ss.accept();
+					openCost(new File(LoadSaveFile.loadFile(s.getInputStream())).getCanonicalPath());
+				}
+			} catch(Exception e) {}
+		}
+	}
 	
 	class MenuBlankIcon implements Icon {
 		public int getIconHeight() { return 16; }

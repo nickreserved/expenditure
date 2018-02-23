@@ -15,10 +15,10 @@ if ($bills_buy) {
 \fs28\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΑΓΟΡΑΣ ΚΑΙ ΔΙΑΘΕΣΗΣ ΥΛΙΚΩΝ\par\par
 \pard\plain\tx567\tx1134\qj
 \tab Σήμερα την <?=now()?> η υπογεγραμμένη επιτροπή αποτελούμενη από τους:\par
-\tab\tab α. <?=inflection(man($data['ΠρόεδροςΑγοράςΔιάθεσης']), 2)?> ως πρόεδρο\par
-\tab\tab β. <?=inflection(man($data['ΜέλοςΑγοράςΔιάθεσηςΑ']), 2)?> και\par
-\tab\tab γ. <?=inflection(man($data['ΜέλοςΑγοράςΔιάθεσηςΒ']), 2)?> ως μέλη\par
-που συγκροτήθηκε με την \ul <?=chk_order($data['ΔγηΑνάθεσης'])?>\ul0  προέβη στην αγορά και διάθεση των παρακάτω υλικών στον Αξκο Έργου <?=inflection(man($data['ΑξκοςΈργου']), 2)?>.\par\par
+\tab\tab α. <?=man_ext($data['ΠρόεδροςΑγοράςΔιάθεσης'], 2)?> ως πρόεδρο\par
+\tab\tab β. <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΑ'], 2)?> και\par
+\tab\tab γ. <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΒ'], 2)?> ως μέλη\par
+που συγκροτήθηκε με την \ul <?=chk_order($data['ΔγηΑνάθεσης'])?>\ul0  προέβη στην αγορά και διάθεση των παρακάτω υλικών στον Αξκο Έργου <?=man_ext($data['ΑξκοςΈργου'], 2)?>.\par\par
 
 \pard\trowd\trhdr\fs23\trautofit1\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx567

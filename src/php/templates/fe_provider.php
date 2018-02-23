@@ -11,7 +11,7 @@ foreach ($bills_provider as $list) {
 
 {
 
-\sectd\landscape\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\li11339 <?=chk(toUppercase($data['Μονάδα']))?>\line <?=chk(toUppercase($data['Γραφείο']))?>\par
 \pard\plain ΣΤΟΙΧΕΙΑ ΤΟΥ ΥΠΟΧΡΕΟΥ\par
@@ -47,9 +47,9 @@ if (isset($provider['Διεύθυνση']) && isset($provider['Πόλη'])) echo ', ';
 if (isset($provider['Διεύθυνση'])) echo chk($provider['Διεύθυνση']);
 ?>
 \line\b Διεύθυνση (Πόλη - Οδός)\b0\cell
-<? if (isset($provider['ΤΚ'])) echo ', ' . chk($provider['ΤΚ']); ?>
+<? if (isset($provider['ΤΚ'])) echo chk($provider['ΤΚ']); ?>
 \line\b T.K.\b0\line\line
-<? if (isset($provider['Τηλέφωνο'])) echo ', ' . chk($provider['Τηλέφωνο']); ?>
+<? if (isset($provider['Τηλέφωνο'])) echo chk($provider['Τηλέφωνο']); ?>
 \line\b Τηλέφωνο\b0\cell
 <?=chk($provider['ΑΦΜ'])?>\line\b Α.Φ.Μ.\b0\line\line <?=chk($provider['ΔΟΥ'])?>\line\b Δ.Ο.Υ.\b0\cell\row
 

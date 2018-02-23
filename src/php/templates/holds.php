@@ -17,7 +17,7 @@ $pos = 3188;
 
 {
 
-\sectd\landscape\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['лОМэДА']))?>\par
 \ul\qc суцйемтяытийг йатастасг йяатгсеым упея тяитым\par\par

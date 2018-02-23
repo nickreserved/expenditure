@@ -111,16 +111,16 @@ public class PhpScriptRunner implements PipeHandler {
 	}
 	
 	
-	static public void init(String directory) {
-		PhpScriptRunner p = new PhpScriptRunner(null, null, null);
+	static public void init(String directory) throws Exception {
 		try {
+			PhpScriptRunner p = new PhpScriptRunner(null, null, null);
 			if (p.exec("<?echo 5+5;exit(51);?>", p, null, true) != 51)
-				throw new ExecutionException("Πρόβλημα στην τιμή εξόδου του php script", null);
+				throw null;
 			String f = p.getStdout();
 			if (f == null || !f.equals("10"))
-				throw new ExecutionException("Πρόβλημα στο stdout του php script", null);
+				throw null;
 		} catch(Exception e) {
-			Functions.showExceptionMessage(e, "Πρόβλημα στην αρχικοποίηση της php μηχανής");
+			throw new ExecutionException("Πρόβλημα στην αρχικοποίηση της php μηχανής", null);
 		}
 	}
 }

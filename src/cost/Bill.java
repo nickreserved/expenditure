@@ -3,7 +3,7 @@ package cost;
 import java.util.*;
 import common.*;
 
-public class Bill extends HashObject {
+public class Bill extends DynHashObject {
 	public Bill() {
 		put("ΠοσοστόΦΕ", new Byte((byte) 4));
 		put("Τύπος", "Τιμολόγιο");
@@ -11,7 +11,6 @@ public class Bill extends HashObject {
 		put("Είδη", new VectorObject());
 	}
 	
-	public boolean isEmpty() { return super.get("Τιμολόγιο") == null; }
 	public String toString() { return super.get("Τιμολόγιο").toString(); }
 	
 	public Object put(String key, Object value) {
@@ -27,8 +26,8 @@ public class Bill extends HashObject {
 			
 			
 			for (int z = 0; z < items.size(); z++)
-				d = M.add(d, (Number) ((BillItem) items.get(z)).get("ΣυνολικήΤιμή"));
-			super.put("$ΚαθαρήΑξία", ka = M.round(d, 2));
+				d = M.add(d, (Number) ((BillItem) items.get(z)).getDynamic().get("ΣυνολικήΤιμή"));
+			getDynamic().put("ΚαθαρήΑξία", ka = M.round(d, 2));
 			
 			
 			Dictionary h = new HashObject();
@@ -37,7 +36,7 @@ public class Bill extends HashObject {
 				BillItem bi = (BillItem) items.get(z);
 				Number fpa = (Number) bi.get("ΦΠΑ");
 				d = (Number) h.get(fpa);
-				Number va = (Number) bi.get("ΣυνολικήΤιμή");
+				Number va = (Number) bi.getDynamic().get("ΣυνολικήΤιμή");
 				if (fpa.doubleValue() != 0) {
 					if (d == null) h.put(fpa.toString(), va); else h.put(fpa.toString(), M.add(d, va));
 				}
@@ -51,25 +50,23 @@ public class Bill extends HashObject {
 				d = M.round(M.add(d, f), 2);
 			}
 			h.put("Σύνολο", tfpa = d);
-			super.put("$ΚατηγορίεςΦΠΑ", h);
+			getDynamic().put("ΚατηγορίεςΦΠΑ", h);
 			
 			
 			Hold hold = (Hold) super.get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
 			h = new HashObject();
 			TreeMap tm = new TreeMap();
-			Number sum = M.round(M.mul(ka, M.div((Number) hold.get("Σύνολο"), 100)), 2);
+			Number sum = M.round(M.mul(ka, M.div((Number) hold.getDynamic().get("Σύνολο"), 100)), 2);
 			h.put("Σύνολο", thold = sum);
 			en = hold.keys();
 			while (en.hasMoreElements()) {
 				String k = en.nextElement().toString();
-				if (!k.equals("$Σύνολο")) {
-					d = M.mul(ka, M.div((Number) hold.get(k), 100));
-					double diff = d.doubleValue();
-					sum = M.sub(sum, d = M.round(d, 2));
-					h.put(k, d);
-					diff = 1000 * (diff - d.doubleValue()) + Math.random() / 100;
-					tm.put(new Double(diff), k);
-				}
+				d = M.mul(ka, M.div((Number) hold.get(k), 100));
+				double diff = d.doubleValue();
+				sum = M.sub(sum, d = M.round(d, 2));
+				h.put(k, d);
+				diff = 1000 * (diff - d.doubleValue()) + Math.random() / 100;
+				tm.put(new Double(diff), k);
 			}
 			int z = (int) (100 * M.round(sum, 4).doubleValue());
 			if (z > 0) {
@@ -87,19 +84,19 @@ public class Bill extends HashObject {
 					tm.remove(first);
 				}
 			}
-			super.put("$ΑνάλυσηΚρατήσεωνΣεΕυρώ", h);
+			getDynamic().put("ΑνάλυσηΚρατήσεωνΣεΕυρώ", h);
 			
 			
-			super.put("$Καταλογιστέο", kat = M.round(M.add("ΣΠ/ΚΨΜ".equals(super.get("Τύπος")) ? thold : tfpa, ka), 2));
+			getDynamic().put("Καταλογιστέο", kat = M.round(M.add("ΣΠ/ΚΨΜ".equals(super.get("Τύπος")) ? thold : tfpa, ka), 2));
 			
-			super.put("$Πληρωτέο", pl = M.round(M.sub(kat, thold), 2));
+			getDynamic().put("Πληρωτέο", pl = M.round(M.sub(kat, thold), 2));
 			
-			super.put("$ΚαθαρήΑξίαΜείονΚρατήσεις", kak = M.round(M.sub(ka, thold), 2));
+			getDynamic().put("ΚαθαρήΑξίαΜείονΚρατήσεις", kak = M.round(M.sub(ka, thold), 2));
 			
 			setFe();
-			super.put("$ΦΕΣεΕυρώ", fe = M.round(M.mul(kak, ((Number) get("ΠοσοστόΦΕ")).doubleValue() / 100), 2));
+			getDynamic().put("ΦΕΣεΕυρώ", fe = M.round(M.mul(kak, ((Number) get("ΠοσοστόΦΕ")).doubleValue() / 100), 2));
 			
-			super.put("$ΥπόλοιποΠληρωτέο", M.round(M.sub(pl, fe), 2));
+			getDynamic().put("ΥπόλοιποΠληρωτέο", M.round(M.sub(pl, fe), 2));
 		} catch(Exception e) {}
 	}
 	

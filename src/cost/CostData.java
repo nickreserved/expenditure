@@ -1,9 +1,9 @@
 package cost;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
 import tables.*;
+import common.*;
 
 public class CostData extends JPanel implements DataTransmitter {
 	public CostData() {
@@ -27,8 +27,5 @@ public class CostData extends JPanel implements DataTransmitter {
 		add(PropertiesTable.getScrolled(new PropertiesTableModel(hash, this, hdr), cmp, 210));
 	}
 	
-	public Object getData() {
-		Object o = MainFrame.costs.get(MainFrame.currentCost);
-		return o instanceof Dictionary ? o : null;
-	}
+	public Object getData() { return MainFrame.costs.get(); }
 }

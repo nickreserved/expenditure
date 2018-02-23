@@ -15,7 +15,7 @@ $bills_info_hold = $bills_info['ÁíÜëõóçÊñáôŞóåùíÓåÅõñş'];
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28 {\b ĞÏÓÏ:} <?=euro($data['Ğïóü'])?>\par
 \pard\par
-\pard\plain\box\brdrs\brdrw1\brsp28 {\b ÁÎÉÙÌÁÔÉÊÏÓ ÅÑÃÏÕ:} <?=man($data['Áîêïò¸ñãïõ'])?>\par
+\pard\plain\box\brdrs\brdrw1\brsp28 {\b ÁÎÉÙÌÁÔÉÊÏÓ ÅÑÃÏÕ:} <?=man_ext($data['Áîêïò¸ñãïõ'], 0)?>\par
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28 {\b ÅÃÊÑÉÔÉÊÇ ÄÉÁÔÁÃÇ:} <?=chk(chk_order($data['ÄãçÄéÜèåóçò']))?>\par
 \pard\par

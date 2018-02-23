@@ -1,7 +1,6 @@
 package common;
 
 import java.util.*;
-import java.text.*;
 import javax.swing.*;
 import java.util.regex.*;
 
@@ -15,19 +14,18 @@ public class Functions {
 		else if (o instanceof Double || o instanceof Float) return "d:" + o + ";";
 		else if (o instanceof Number) return "i:" + o + ";";
 		else if (o instanceof Boolean) return "b:" + (o.equals(Boolean.TRUE) ? 1 : 0) + ";";
-		else return "s:" + o.toString().length() + ":\"" +
-				o.toString().replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"", "\\\\\\\"") + "\";";
+		else return "s:" + o.toString().length() + ":\"" + o + "\";";
 	}
 	
 	public static final String saveable(String key, Object value) {
-		if (key != null && key.startsWith("$") ||
-				value instanceof List && ((List) value).isEmpty() ||
+		if (value instanceof List && ((List) value).isEmpty() ||
 				value instanceof Dictionary && ((Dictionary) value).isEmpty() ||
 				value instanceof Map && ((Map) value).isEmpty())
 			return "";
 		
 		String s = value.getClass().getName() + " ";
-		if (key != null) s += key + " = ";
+		if (key != null)
+			s += (key.matches(".*[\\{;\\s].*") ? "\"" + key.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"", "\\\\\\\"") + "\"" : key) + " = ";
 		
 		if (value instanceof Saveable)
 			return s + ((Saveable) value).save() + ";\r\n";
@@ -45,12 +43,7 @@ public class Functions {
 		Matcher m = Pattern.compile(regex).matcher(s);
 		return m.find(start) && m.start() == start ? m.end() : -1;
 	}
-	
-	// return first occurance of regex in string or -1
-	final static public int findFirstRegex(String s, int start, String regex) {
-		Matcher m = Pattern.compile(regex).matcher(s);
-		return m.find(start) ? m.start() : -1;
-	}
+
 	
 	// if string starts with ', return index of closest ', else
 	// find where a string close with " and returns offset.
@@ -69,27 +62,13 @@ public class Functions {
 	}
 	
 	
-	
-	static public Exception getException(Exception e, String s) {
-		String a = e == null ? null : e.getMessage();
-		if (a == null || a.length() < 5) a = null;
-		String b = e == null ? null : e.getClass().getName();
-		if (b != null && b.equals("java.lang.Exception")) b = null;
-		if ((a != null || b != null) && s != null) s = "<br>" + s;
-		if (s == null) s = "";
-		if (a != null) s = a + s;
-		if (a != null && b != null) s = ": " + s;
-		if (b != null) s = "<b>" + b + "</b>" + s;
-		return new Exception(s);
-	}
-	
-	
-	
-	
-	public static void showExceptionMessage(Exception e, String s) {
-		JOptionPane.showMessageDialog(null,
-				"<html>Διαπράχθηκαν τα παρακάτω Στρατιωτικά Εγκλήματα:<br>" +
-				Functions.getException(e, null).getMessage(),
-				s, JOptionPane.ERROR_MESSAGE);
+	public static void showExceptionMessage(java.awt.Component c, Exception e, String title, String info) {
+		if (info == null) info = ""; else info += "<br>";
+		if (e != null) {
+			info += "Σφάλμα: <b>" + e.getClass().getName() + "</b>";
+			String s = e.getLocalizedMessage();
+			if (s != null && s.length() > 7) info += "<br>Λόγος: <b>" + s + "</b>";
+		}
+		JOptionPane.showMessageDialog(null, "<html>" + info, title, JOptionPane.ERROR_MESSAGE);
 	}
 }
