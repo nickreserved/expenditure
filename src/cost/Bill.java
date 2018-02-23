@@ -122,7 +122,7 @@ public class Bill extends DynHashObject {
 			if (a.equals("ΣΠ/ΚΨΜ") || a.equals("Απόδειξη ενοικιασης"))
 				bi.put("ΦΠΑ", 0);
 			else if (((Number) bi.get("ΦΠΑ")).doubleValue() == 0)
-				bi.put("ΦΠΑ", 19);
+				bi.put("ΦΠΑ", 21);
 		}
 	}
 }

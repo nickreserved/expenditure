@@ -64,7 +64,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.5");
+		super("Στρατιωτικές Δαπάνες 1.4.5b");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -410,7 +410,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.5</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>11 Οκτ 2008</b><br>Σελίδα: <b>http://programs.agiasofia.gr/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.5b</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>29 Μαρ 2010</b><br>Σελίδα: <b>http://programs.agiasofia.gr/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 
 
