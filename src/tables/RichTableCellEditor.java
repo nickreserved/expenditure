@@ -17,10 +17,10 @@ public class RichTableCellEditor extends AbstractCellEditor	implements TableCell
 		text.setBorder(BorderFactory.createMatteBorder(1,1,0,0,Color.WHITE));
 		text.addActionListener(this);
 		cls = cmp;
-		for (int z = 0; z < cls.length; z++)
-			if (cls[z] != null) ((JComboBox) cls[z]).addActionListener(this);
+		for (Component cl : cls)
+			if (cl != null) ((JComboBox) cl).addActionListener(this);
 	}
-
+	
 	@Override
 	public Object getCellEditorValue() {
 		if (current instanceof JTextField)

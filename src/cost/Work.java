@@ -6,7 +6,7 @@ public class Work extends HashObject {
   public Work() {
     super.put("Ποσότητα", 1d);
     super.put("ΜονάδαMέτρησης", "τεμάχια");
-    super.put("Υλικά", new VectorObject<Material>());
+    super.put("Υλικά", new VectorObject<>());
   }
 	@Override
   public String toString() { return get("Εργασία").toString(); }

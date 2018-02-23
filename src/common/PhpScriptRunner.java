@@ -22,7 +22,7 @@ public class PhpScriptRunner implements PipeHandler {
 
 
 	public PhpScriptRunner(String directory, String script, String[] argv) {
-		ArrayList<String> v = new ArrayList<String>();
+		ArrayList<String> v = new ArrayList<>();
 		if (!runScript || script == null) {
 			v.add(interpreter);
 			v.add("-n");

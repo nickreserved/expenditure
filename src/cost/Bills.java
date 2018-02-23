@@ -43,23 +43,19 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
 		JMenuItem item = new JMenuItem("Αντιγραφή επιλεγμένων γραμμών στην τρέχουσα εργασία",
 				new ImageIcon(ClassLoader.getSystemResource("cost/import.png")));
 		popupMenu.add(item);
-		item.addActionListener(
-				new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						int rows[] = billTable.getSelectedRows();
-						ArrayList<BillItem> items = billModel.getData();
-						ArrayList<Material> materials = new ArrayList();
-						for (int row : rows)
-							if (row < items.size()) materials.add(new Material(items.get(row)));
-						try {
-						((Works) ((JTabbedPane) MainFrame.ths.getContentPane().getComponent(0))
-								.getComponentAt(3)).addMaterialToCurrentWork(materials);
-						} catch(Exception ex) {
-							JOptionPane.showMessageDialog(MainFrame.ths, "Δεν υπάρχει επιλεγμένη εργασία για να προστεθούν υλικά.\n" +
-									"Επιλέξτε πρώτα μια εργασία στην καρτέλα «Εργασίες» και μετά προσθέστε υλικά, από τα τιμολόγια, σε αυτή.",
-									"Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
-						}
+		item.addActionListener((ActionEvent e) -> {
+					int rows[] = billTable.getSelectedRows();
+					ArrayList<BillItem> items = billModel.getData();
+					ArrayList<Material> materials = new ArrayList();
+					for (int row : rows)
+						if (row < items.size()) materials.add(new Material(items.get(row)));
+					try {
+					((Works) ((JTabbedPane) MainFrame.ths.getContentPane().getComponent(0))
+							.getComponentAt(3)).addMaterialToCurrentWork(materials);
+					} catch(Exception ex) {
+						JOptionPane.showMessageDialog(MainFrame.ths, "Δεν υπάρχει επιλεγμένη εργασία για να προστεθούν υλικά.\n" +
+								"Επιλέξτε πρώτα μια εργασία στην καρτέλα «Εργασίες» και μετά προσθέστε υλικά, από τα τιμολόγια, σε αυτή.",
+								"Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
 					}
 				});
 
@@ -129,7 +125,7 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
           t = ((Bill) bv1).get(getHash()[row]);
           if ((row == 1 || row == 3) && t != null)
             t = ((Map) t).get("Σύνολο");
-          o = M.round(M.add((Number) o, (Number) t), 2);
+          o = Functions.round((Double) o + (Double) t, 2);
         }
 				}
 				if (!(o instanceof Number) || ((Number) o).doubleValue() != 0) return o;

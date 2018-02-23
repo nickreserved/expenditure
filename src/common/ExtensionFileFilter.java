@@ -24,8 +24,8 @@ public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
 		String file = f.getName().toLowerCase();
 		if (s.length() == 0) return true;
 		String[] d = s.split(":");
-		for (int z = 0; z < d.length; z++)
-			if (file.endsWith(d[z])) return true;
+		for (String d1 : d)
+			if (file.endsWith(d1)) return true;
 		return false;
 	}
 }

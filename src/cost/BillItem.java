@@ -10,8 +10,8 @@ public class BillItem extends HashString2Object {
 		classes.put("ΣυνολικήΤιμή", Double.class);
 		classes.put("ΤιμήMονάδαςMεΦΠΑ", Double.class);
 		classes.put("ΣυνολικήΤιμήΜεΦΠΑ", Double.class);
-		super.put("ΦΠΑ", 23);
-		super.put("Ποσότητα", 1);
+		super.put("ΦΠΑ", (byte) 23);
+		super.put("Ποσότητα", 1.0);
 		super.put("ΜονάδαMέτρησης", "τεμάχια");
 	}
 
@@ -19,20 +19,20 @@ public class BillItem extends HashString2Object {
 	public String toString() { return super.get("Είδος").toString(); }
 
 	private void recalculate() {
-		Number nFpa = (Number) super.get("ΦΠΑ");
-		if (nFpa == null) super.put("ΦΠΑ", nFpa = 0);
-		double many = M.safeNumber2double((Number) super.get("Ποσότητα"));
-		double cost = M.safeNumber2double((Number) super.get("ΤιμήΜονάδας"));
-		double fpa = nFpa.doubleValue();
+		byte fpa = ((Number) super.get("ΦΠΑ")).byteValue();
+		Number Many = (Number) super.get("Ποσότητα");
+		double many = Many == null ? 0.0 : Many.doubleValue();
+		Double Cost = (Double) super.get("ΤιμήΜονάδας");
+		double cost = Cost == null ? 0.0 : Cost;
 		if (cost != 0 && many != 0) {
-			getDynamic().put("ΣυνολικήΤιμή", M.round(cost * many, 3));
-			getDynamic().put("ΣυνολικήΤιμήΜεΦΠΑ", M.round(cost * many * (1 + fpa / 100), 2));
+			getDynamic().put("ΣυνολικήΤιμή", Functions.round(cost * many, 3));
+			getDynamic().put("ΣυνολικήΤιμήΜεΦΠΑ", Functions.round(cost * many * (1 + fpa / 100.0), 2));
 		} else {
 			getDynamic().remove("ΣυνολικήΤιμή");
 			getDynamic().remove("ΣυνολικήΤιμήΜεΦΠΑ");
 		}
 		if (cost != 0)
-			getDynamic().put("ΤιμήMονάδαςMεΦΠΑ", M.round(cost * (1 + fpa / 100), 4));
+			getDynamic().put("ΤιμήMονάδαςMεΦΠΑ", Functions.round(cost * (1 + fpa / 100.0), 4));
 		else
 			getDynamic().remove("ΤιμήMονάδαςMεΦΠΑ");
 	}
@@ -41,21 +41,22 @@ public class BillItem extends HashString2Object {
 	public Object put(String key, Object value) {
 		if (value instanceof String) value = super.fromString(key, value.toString());
 		if (value instanceof Number && ((Number) value).doubleValue() == 0 && !key.equals("ΦΠΑ")) value = null;
-		Number d;
+		double d;
 		switch (key) {
-			case "ΣυνολικήΤιμή": d = (Number) super.get("Ποσότητα"); break;
-			case "ΣυνολικήΤιμήΜεΦΠΑ": d = M.mul((Number) super.get("Ποσότητα"),
-						1 + ((Number) super.get("ΦΠΑ")).doubleValue() / 100);
+			case "ΣυνολικήΤιμή": d = ((Number) super.get("Ποσότητα")).doubleValue(); break;
+			case "ΣυνολικήΤιμήΜεΦΠΑ":
+				d = ((Number) super.get("Ποσότητα")).doubleValue() *
+						(1 + ((Number) super.get("ΦΠΑ")).byteValue() / 100.0);
 				break;
 			case "ΤιμήMονάδαςMεΦΠΑ":
-				d = 1 + ((Number) super.get("ΦΠΑ")).doubleValue() / 100;
+				d = 1 + ((Number) super.get("ΦΠΑ")).byteValue() / 100.0;
 				break;
 			default:
 				Object o = super.put(key, value);
 				recalculate();
 				return o;
 		}
-		d = M.round(M.div((Number) value, d), 4);
+		d = Functions.round(((Double) value) / d, 4);
 		super.put("ΤιμήΜονάδας", d);
 		recalculate();
 		return get(key);

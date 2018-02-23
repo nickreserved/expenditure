@@ -1,4 +1,4 @@
-Copyright (c) 2014, Cpt Paul Gessos
+Copyright (c) 2015, Paul Gessos
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -11,7 +11,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 --------------------------------------------------------------------------------
 Αυτή είναι μια ανεπίσημη μετάφραση της άδειας χρήσης «Berkeley Διανομή Λογισμικού» στα ελληνικά. Δεν εκδόθηκε από το τους «Εφόρους του Πανεπιστημίου της Καλιφόρνια» ("Regents of the University of California") και δεν διατυπώνει νομικά τους όρους διανομής λογισμικού που υπάγεται στην άδεια χρήσης «Berkeley Διανομή Λογισμικού». Αυτό γίνεται μόνο από την επίσημη αγγλική έκδοση της Άδειας (BSD). Ωστόσο, ελπίζουμε ότι η μετάφραση αυτή θα βοηθήσει όσους μιλούν την ελληνική να κατανοήσουν καλύτερα την Άδεια BSD.
 
-Copyright (c) 2014, Λγος(ΜΧ) Γκέσος Παύλος
+Copyright (c) 2015, Γκέσος Παύλος
 Όλα τα δικαιώματα παρακρατούνται.
 
 Αντιγραφή, διανομή και χρήση σε μορφή πηγαίου κώδικα ή binary, με ή χωρίς τροποποίηση, επιτρέπεται υπό τις παρακάτω προϋποθέσεις:

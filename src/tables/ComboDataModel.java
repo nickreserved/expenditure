@@ -5,7 +5,7 @@ import javax.swing.event.*;
 import java.util.*;
 
 public class ComboDataModel<T> implements ComboBoxModel {
-	private final ArrayList<ListDataListener> v = new ArrayList<ListDataListener>();
+	private final ArrayList<ListDataListener> v = new ArrayList<>();
 	private Object idx;
 	private final Object last;
 	private final boolean hasLast;

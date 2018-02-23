@@ -40,19 +40,15 @@ public class ResizableTable extends JTable
 						ArrayList data = model.getData();
 						final String sortHeader = model.hash[a];
 						if (data != null)
-							Collections.sort(data,
-								// Ταξινόμηση των εγγραφών κατά τη στήλη που κάναμε κλικ, αύξουσα σειρά
-								new Comparator<Map>() {
-									@Override
-									public int compare(Map a, Map b) {
-										Object aa = a.get(sortHeader);
-										Object bb = b.get(sortHeader);
-										if (aa instanceof Comparable)
-											return bb != null && bb.getClass().equals(aa.getClass()) ?
-												((Comparable) aa).compareTo((Comparable) bb) : 1;
-										else
-											return bb instanceof Comparable ? -1 : 0;
-									}
+							Collections.sort(data,	// Ταξινόμηση των εγγραφών κατά τη στήλη που κάναμε κλικ, αύξουσα σειρά
+								(Map c, Map b) -> {
+									Object aa = c.get(sortHeader);
+									Object bb = b.get(sortHeader);
+									if (aa instanceof Comparable)
+										return bb != null && bb.getClass().equals(aa.getClass()) ?
+											((Comparable) aa).compareTo((Comparable) bb) : 1;
+									else
+										return bb instanceof Comparable ? -1 : 0;
 								});
 					}
 				});

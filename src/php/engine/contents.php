@@ -1,6 +1,6 @@
 <?
 function get_java($k, $v) {
-	if (is_int($v)) $a = 'java.lang.Integer';
+	if (is_int($v)) $a = 'java.lang.Byte';
 	elseif (is_bool($v)) {
 		$a = 'java.lang.Boolean';
 		$v = $v ? 'true' : 'false';

@@ -23,7 +23,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected CostWizardDialog cwf;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.6.3");
+		super("Στρατιωτικές Δαπάνες 1.6.4");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		// Πρέπει να δημιουργηθούν πρώτα!
@@ -255,13 +255,13 @@ public class MainFrame extends JFrame implements ActionListener {
 						if (man instanceof Man && !men.contains((Man) man))
 							men.add((Man) man);
 				ArrayList<Bill> b = (ArrayList<Bill>) c.get("Τιμολόγια");
-				for (int z = 0; z < b.size(); z++) {
+				for (Bill b1 : b) {
 					if ((flags & 2) != 0) {
-						Hold h = (Hold) b.get(z).get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
+						Hold h = (Hold) b1.get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
 						if (h != null && !holds.contains(h)) holds.add(h);
 					}
 					if ((flags & 4) != 0) {
-						Provider p = (Provider) b.get(z).get("Προμηθευτής");
+						Provider p = (Provider) b1.get("Προμηθευτής");
 						if (p != null && !providers.contains(p)) providers.add(p);
 					}
 				}
@@ -429,9 +429,9 @@ public class MainFrame extends JFrame implements ActionListener {
 			}
 		}
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
-		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject<Man>());
-		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject<Provider>());
-		if (!(data.get("Κρατήσεις") instanceof VectorObject)) data.put("Κρατήσεις", new VectorObject<Hold>());
+		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject<>());
+		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject<>());
+		if (!(data.get("Κρατήσεις") instanceof VectorObject)) data.put("Κρατήσεις", new VectorObject<>());
 		if (!(data.get("ΑμετάβληταΣτοιχείαΔαπάνης") instanceof HashObject)) data.put("ΑμετάβληταΣτοιχείαΔαπάνης", new HashObject());
 		if (!(data.get("Ρυθμίσεις") instanceof HashObject)) data.put("Ρυθμίσεις", new HashObject());
 		if (!(data.get("ΑνοικτέςΔαπάνες") instanceof IteratorHashObject)) data.put("ΑνοικτέςΔαπάνες", new IteratorHashObject());
@@ -446,14 +446,10 @@ public class MainFrame extends JFrame implements ActionListener {
 		ths = new MainFrame();
 		
 		// Autosave ini file every 5 minutes.
-		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
-			new Runnable() {
-				@Override
-				public void run() {
-					try {
-						LoadSaveFile.save(ini, data);
-					} catch(Exception ex) {}
-				}					
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+				try {
+					LoadSaveFile.save(ini, data);
+				} catch(Exception ex) {}
 			}, 5, 5, TimeUnit.MINUTES);
 	}
 
@@ -504,7 +500,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		else if (ac.equals("Χειροκίνητη ρύθμιση τιμολογίου")) {
 			boolean a = Boolean.TRUE.equals(options.get("ΤιμολόγιοΧειροκίνητα"));
 			options.put("ΤιμολόγιοΧειροκίνητα", !a);
-			Cost c = (Cost) MainFrame.costs.get();
+			Cost c = (Cost) costs.get();
 			if (a && c != null) {
 				ArrayList<Bill> b = (ArrayList<Bill>) c.get("Τιμολόγια");
 				for (Bill b1 : b) b1.recalculate();
@@ -520,12 +516,12 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this,
 				"<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br>" +
-				"<font size=3>Έκδοση 1.6.3</font></b></center><br>" +
+				"<font size=3>Έκδοση 1.6.4</font></b></center><br>" +
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
-				"Δημοσίευση: <b>15 Οκτ 14</b><br>" +
+				"Δημοσίευση: <b>5 Οκτ 15</b><br>" +
 				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
-				"<center><font size=4>Το Πρόγραμμα έκλεισε 10 Έτη!!!</font></center>",
+				"<center>Το Πρόγραμμα είναι 11 χρονών!</center>",
 				getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
 		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο

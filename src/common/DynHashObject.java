@@ -3,7 +3,7 @@ package common;
 import java.util.*;
 
 public class DynHashObject extends HashObject {
-	private HashMap<String, Object> dyn = new HashMap<String, Object>();
+	private HashMap<String, Object> dyn = new HashMap<>();
 
 	public HashMap<String, Object> getDynamic() { return dyn; }
 

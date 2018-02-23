@@ -7,6 +7,10 @@ import java.util.regex.*;
 public class Functions {
 	private Functions() {}
 
+	public static double round(double a, int b) {
+		long div = (long) Math.pow(10, b);
+		return ((double) Math.round(a * div)) / div;
+	}
 
 	public static String phpSerialize(Object o) {
 		if (o == null) return "N;";

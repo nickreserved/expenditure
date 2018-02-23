@@ -25,7 +25,7 @@ public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, I
 
 	private Object load(int a) {
 		try {
-			PhpScriptRunner php = new PhpScriptRunner(MainFrame.rootPath + "php/", "engine/contents.php", new String[] { new Integer(a).toString() });
+			PhpScriptRunner php = new PhpScriptRunner(MainFrame.rootPath + "php/", "engine/contents.php", new String[] { Integer.toString(a) });
 			php.exec(null, php, null, false);
 			return TreeFileLoader.load(php.getStdout());
 		} catch(Exception e) {
@@ -53,7 +53,7 @@ public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, I
 		String b = (String) c.get("ΤύποςΔιαγωνισμού");
 		String a = (String) c.get("ΤύποςΔαπάνης");
 		if (a != null && b != null && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αλλάξατε τον τύπο δαπάνης.<br>Να προσαρμόσω το φύλλο καταχώρησης;", "Αλλαγή Φύλλου Καταχώρησης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) return;
-		if (e.getItem().toString().indexOf("Διαγωνισμό") != -1) b = e.getItem().toString();
+		if (e.getItem().toString().contains("Διαγωνισμό")) b = e.getItem().toString();
 		else a = e.getItem().toString();
 		c.put("ΦύλλοΚαταχώρησης", a != null && b != null ?
 			load(1 - Arrays.binarySearch(CostData.cosT, a) + 2 * (2 - Arrays.binarySearch(CostData.contesT, b))) : null);
