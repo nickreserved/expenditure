@@ -7,6 +7,7 @@ public class Hold extends DynHashObject {
   public String toString() { return getDynamic().get("Σύνολο").toString(); }
 	
   public Object put(String key, Object value) {
+		if (key.equals("Σύνολο")) return getDynamic().get("Σύνολο");
     Number d = M.parseString(value.toString());
     d = d == null ? 0 : M.round(d, 3);
     Number o = (Number) super.put(key, d.doubleValue() == 0 ? null : d);
