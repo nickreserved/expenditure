@@ -1,10 +1,11 @@
 package cost;
 
 import java.awt.*;
+import java.util.ArrayList;
 import javax.swing.*;
 import tables.*;
 
-public class Men extends JPanel implements DataTransmitter {
+public class Men extends JPanel implements ArrayTransmitter<Man> {
 	static protected JComboBox men;
 	public Men() {
 		men = new JComboBox(new ComboDataModel(this, null));
@@ -13,5 +14,5 @@ public class Men extends JPanel implements DataTransmitter {
 	}
 
 	@Override
-	public Object getData() { return MainFrame.data.get("Προσωπικό"); }
+	public ArrayList<Man> getData() { return (ArrayList<Man>) MainFrame.data.get("Προσωπικό"); }
 }

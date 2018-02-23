@@ -1,6 +1,5 @@
 package tables;
 
-import java.util.*;
 import javax.swing.table.*;
 
 public class PropertiesTableModel extends AbstractTableModel {
@@ -40,7 +39,7 @@ public class PropertiesTableModel extends AbstractTableModel {
       if (vHeader == null || vHeader[row] == null) return hash[row];
       else return vHeader[row];
     try {
-      return ((HashMap) transmitter.getData()).get(hash[row + getColumnCount() * col]);
+      return transmitter.getData().get(hash[row + getColumnCount() * col]);
     } catch(Exception e) {
       return null;
     }
@@ -49,7 +48,7 @@ public class PropertiesTableModel extends AbstractTableModel {
 	@Override
   public void setValueAt(Object obj, int row, int col) {
     try {
-      ((HashMap) transmitter.getData()).put(hash[row + getColumnCount() * col], obj);
+      transmitter.getData().put(hash[row + getColumnCount() * col], obj);
     } catch(Exception e) {}
   }
 }

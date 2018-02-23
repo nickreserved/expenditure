@@ -6,9 +6,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import tables.*;
 
-public class Works extends JPanel implements DataTransmitter, ListSelectionListener {
-	private ResizableTableModel matModel;
-	private JTable tblWorks;
+public class Works extends JPanel implements ArrayTransmitter<Work>, ListSelectionListener {
+	private final ResizableTableModel matModel;
+	private final JTable tblWorks;
 	private String cost;
 
 	public Works() {
@@ -31,17 +31,25 @@ public class Works extends JPanel implements DataTransmitter, ListSelectionListe
 		add(sp);
 	}
 
-	public Object getData() {
-		Cost c = (Cost) MainFrame.costs.get();
-		return c == null ? null : c.get("Εργασίες");
+	// Throws if there is no current work selected
+	public void addMaterialToCurrentWork(ArrayList<Material> mat) {
+		((ArrayList<Material>) matModel.getData()).addAll(mat);
 	}
 
+  @Override
+	public ArrayList<Work> getData() {
+		Cost c = (Cost) MainFrame.costs.get();
+		return c == null ? null : (ArrayList<Work>) c.get("Εργασίες");
+	}
+
+  @Override
 	public void valueChanged(ListSelectionEvent e) {
 		int a = tblWorks.getSelectionModel().getLeadSelectionIndex();
-		ArrayList v = (ArrayList) getData();
-		matModel.setData(v == null || a < 0 || a >= v.size() || ((Map) v.get(a)) == null ? null : (ArrayList) ((Map) v.get(a)).get("Υλικά"));
+		ArrayList<Work> v = getData();
+		matModel.setData(v == null || a < 0 || a >= v.size() || v.get(a) == null ? null : (ArrayList) ((Map) v.get(a)).get("Υλικά"));
 	}
 
+  @Override
 	public void paint(Graphics g) {
 		if (cost != MainFrame.costs.getPos()) {
 			cost = MainFrame.costs.getPos();

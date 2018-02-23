@@ -1,5 +1,6 @@
 package cost;
 
+import common.HashObject;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -56,5 +57,5 @@ public class CostData extends JPanel implements DataTransmitter {
 	}
 	
 	@Override
-	public Object getData() { return MainFrame.costs.get(); }
+	public HashObject getData() { return (Cost) MainFrame.costs.get(); }
 }

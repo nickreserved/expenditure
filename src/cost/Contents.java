@@ -8,7 +8,7 @@ import tables.*;
 import common.*;
 import java.awt.event.*;
 
-public class Contents extends JPanel implements DataTransmitter, ItemListener {
+public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, ItemListener {
 	private final ResizableTableModel rtm;
 	public Contents() {
 		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Δικαιολογητικό", "Πλήθος"}, null, ContentItem.class), true, false);
@@ -35,9 +35,9 @@ public class Contents extends JPanel implements DataTransmitter, ItemListener {
 	}
 
 	@Override
-	public Object getData() {
+	public ArrayList<ContentItem> getData() {
 		Cost c = (Cost) MainFrame.costs.get();
-		return c == null ? null : c.get("ΦύλλοΚαταχώρησης");
+		return c == null ? null : (ArrayList<ContentItem>) c.get("ΦύλλοΚαταχώρησης");
 	}
 
 	@Override

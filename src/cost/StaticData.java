@@ -1,5 +1,6 @@
 package cost;
 
+import common.HashObject;
 import java.awt.*;
 import javax.swing.*;
 import tables.*;
@@ -23,5 +24,5 @@ public class StaticData extends JPanel implements DataTransmitter {
 	}
 	
 	@Override
-	public Object getData() {	return MainFrame.data.get("ΑμετάβληταΣτοιχείαΔαπάνης");	}
+	public HashObject getData() {	return (HashObject) MainFrame.data.get("ΑμετάβληταΣτοιχείαΔαπάνης");	}
 }

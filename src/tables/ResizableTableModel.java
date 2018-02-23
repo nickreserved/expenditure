@@ -3,22 +3,22 @@ package tables;
 import java.util.*;
 import javax.swing.table.*;
 
-public class ResizableTableModel extends AbstractTableModel {
-  protected ArrayList data;
-  protected DataTransmitter transmitter;
+public class ResizableTableModel<T> extends AbstractTableModel {
+  protected ArrayList<T> data;
+  protected ArrayTransmitter<T> transmitter;
   protected String[] title;
   protected String[] hash;
-  protected Class classType;
+  protected Class<T> classType;
 	protected int old = -1;
 
-  public ResizableTableModel(ArrayList data, String[] hash, String[] title, Class classType) {
+  public ResizableTableModel(ArrayList<T> data, String[] hash, String[] title, Class<T> classType) {
     this.data = data;
     this.title = title;
     this.hash = hash;
     this.classType = classType;
   }
 
-  public ResizableTableModel(DataTransmitter dt, String[] hash, String[] title, Class classType) {
+  public ResizableTableModel(ArrayTransmitter<T> dt, String[] hash, String[] title, Class<T> classType) {
     transmitter = dt;
     this.title = title;
     this.hash = hash;
@@ -28,19 +28,19 @@ public class ResizableTableModel extends AbstractTableModel {
   public String[] getHash() { return hash; }
   public void setHash(String[] hash) { this.hash = hash; }
 
-  public void setData(ArrayList data) {
+  public void setData(ArrayList<T> data) {
     transmitter = null;
     this.data = data;
 		fireTableDataChanged();
   }
 
-  public void setData(DataTransmitter dt) {
+  public void setData(ArrayTransmitter<T> dt) {
     this.data = null;
     transmitter = dt;
 		fireTableDataChanged();
   }
 
-  public ArrayList getData() { return (transmitter != null) ? (ArrayList) transmitter.getData() : data; }
+  public ArrayList<T> getData() { return (transmitter != null) ? transmitter.getData() : data; }
 	@Override
   public int getColumnCount() { return hash.length; }
 	@Override

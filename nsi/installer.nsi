@@ -1,7 +1,7 @@
 ﻿# -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.6.1"
+!define VERSION "1.6.2"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.7"
@@ -117,7 +117,6 @@ Section /o 'Πηγαίος Κώδικας'
 	File /r ..\src
 	File /r ..\nbproject
 	File /r ..\nsi
-	File ..\manifest.mf
 	File ..\build.xml
 
 SectionEnd
@@ -132,7 +131,7 @@ Section 'Βοήθεια'
 SectionEnd
 
 # ------------------------------------------------------------------ scripts ---
-Section 'Χρήσιμα Scripts'
+Section /o 'Χρήσιμα Scripts'
 
 	SetOutPath $INSTDIR
 

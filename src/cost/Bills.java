@@ -7,11 +7,11 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import tables.*;
 import common.*;
+import java.awt.event.*;
 
-public class Bills extends JPanel implements ListSelectionListener, DataTransmitter, TableModelListener {
+public class Bills extends JPanel implements ListSelectionListener, ArrayTransmitter<Bill>, TableModelListener {
 	static protected JComboBox cbMeasures = new JComboBox(new String[] { "τεμάχια", "lt", "Kgr", "ton", "mm", "cm", "<html>cm<sup>2", "<html>cm<sup>3", "m", "<html>m<sup>2", "<html>m<sup>3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "<html>Km<sup>2" });
 	private final ResizableTableModel billModel;
-	private final PropertiesTable tblSum;
 	private final JTable tblBills;
 	private String cost;
 
@@ -28,7 +28,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1, 3, 20 })));
 
 		billModel = new ResizableTableModel((ArrayList) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
-		JTable billTable = new ResizableTable(billModel, true, true);
+		final JTable billTable = new ResizableTable(billModel, true, true);
 		cm = billTable.getColumnModel();
 		JComboBox fpa = new JComboBox(new Byte[] { 23, 13, 16, 9, 5, 0 });
 		fpa.setEditable(true);
@@ -37,18 +37,44 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		cm.getColumn(7).setCellEditor(new DefaultCellEditor(cbMeasures));
 		billModel.addTableModelListener(this);
 
+		// Προσθήκη επιπλέον επιλογής στο popup menu για μεταφορά υλικών στις εργασίες
+		JPopupMenu popupMenu = billTable.getComponentPopupMenu();
+		popupMenu.addSeparator();
+		JMenuItem item = new JMenuItem("Αντιγραφή επιλεγμένων γραμμών στην τρέχουσα εργασία",
+				new ImageIcon(ClassLoader.getSystemResource("cost/import.png")));
+		popupMenu.add(item);
+		item.addActionListener(
+				new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						int rows[] = billTable.getSelectedRows();
+						ArrayList<BillItem> items = billModel.getData();
+						ArrayList<Material> materials = new ArrayList();
+						for (int row : rows)
+							if (row < items.size()) materials.add(new Material(items.get(row)));
+						try {
+						((Works) ((JTabbedPane) MainFrame.ths.getContentPane().getComponent(0))
+								.getComponentAt(3)).addMaterialToCurrentWork(materials);
+						} catch(Exception ex) {
+							JOptionPane.showMessageDialog(MainFrame.ths, "Δεν υπάρχει επιλεγμένη εργασία για να προστεθούν υλικά.\n" +
+									"Επιλέξτε πρώτα μια εργασία στην καρτέλα «Εργασίες» και μετά προσθέστε υλικά, από τα τιμολόγια, σε αυτή.",
+									"Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				});
+
 		setLayout(new BorderLayout());
 		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(tblBills), new JScrollPane(billTable));
 		sp.setDividerSize(3);
 		sp.setDividerLocation(75);
 		add(sp, BorderLayout.CENTER);
-		add(PropertiesTable.getBoxed(tblSum = new PropertiesTable(new ReportTableModel(), null)), BorderLayout.SOUTH);
+		add(PropertiesTable.getBoxed(new PropertiesTable(new ReportTableModel(), null)), BorderLayout.SOUTH);
 	}
 
 	@Override
-	public Object getData() {
+	public ArrayList<Bill> getData() {
 		Cost c = (Cost) MainFrame.costs.get();
-		return c == null ? null : c.get("Τιμολόγια");
+		return c == null ? null : (ArrayList<Bill>) c.get("Τιμολόγια");
 	}
 
 	@Override
@@ -77,7 +103,6 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		super.paint(g);
 	}
 
-
 	private class ReportTableModel extends PropertiesTableModel {
 		public ReportTableModel() {
 			super(new String[] { "ΚαθαρήΑξία", "ΚατηγορίεςΦΠΑ", "Καταλογιστέο", "ΑνάλυσηΚρατήσεωνΣεΕυρώ", "Πληρωτέο", "ΦΕΣεΕυρώ", "ΥπόλοιποΠληρωτέο", null, null, null, null, null, null, null }, null, new String[] { "Καθαρή Αξία", "ΦΠΑ", null, "Κρατήσεις", null, "ΦΕ", "Υπόλοιπο" }, new String[] { "Τρέχον Τιμολόγιο", "Όλα τα Τιμολόγια" });
@@ -100,12 +125,12 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 						break;
 					case 1:
 						o = 0d;
-						for (int z = 0; z < bv.size(); z++) {
-							t = ((Bill) bv.get(z)).get(getHash()[row]);
-							if ((row == 1 || row == 3) && t != null)
-								t = ((Map) t).get("Σύνολο");
-							o = M.round(M.add((Number) o, (Number) t), 2);
-						}
+        for (Object bv1 : bv) {
+          t = ((Bill) bv1).get(getHash()[row]);
+          if ((row == 1 || row == 3) && t != null)
+            t = ((Map) t).get("Σύνολο");
+          o = M.round(M.add((Number) o, (Number) t), 2);
+        }
 				}
 				if (!(o instanceof Number) || ((Number) o).doubleValue() != 0) return o;
 			} catch(Exception e) {}

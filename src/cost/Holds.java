@@ -7,7 +7,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import tables.*;
 
-public class Holds extends JPanel implements DataTransmitter, ActionListener {
+public class Holds extends JPanel implements ArrayTransmitter<Hold>, ActionListener {
 
 	static protected JComboBox holds;
 	protected ResizableTable table;
@@ -17,7 +17,7 @@ public class Holds extends JPanel implements DataTransmitter, ActionListener {
 
 		ArrayList<String> heads = new ArrayList<>(Arrays.asList(new String[]
 			{"Σύνολο", "ΜΤΣ", "Χαρτόσημο", "ΟΓΑ", "ΕΑΑΔΗΣΥ"} ));
-		ArrayList<Hold> lst = (ArrayList<Hold>) getData();
+		ArrayList<Hold> lst = getData();
 		for (HashMap z : lst) {
 			Set<String> hold = z.keySet();
 			for (String head : hold)
@@ -37,7 +37,7 @@ public class Holds extends JPanel implements DataTransmitter, ActionListener {
 	}
 
 	@Override
-	public final Object getData() { return MainFrame.data.get("Κρατήσεις"); }
+	public ArrayList<Hold> getData() { return (ArrayList<Hold>) MainFrame.data.get("Κρατήσεις"); }
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

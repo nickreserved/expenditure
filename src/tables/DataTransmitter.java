@@ -1,5 +1,7 @@
 package tables;
 
+import common.HashObject;
+
 public interface DataTransmitter {
-  public Object getData();
+  public HashObject getData();
 }

@@ -10,8 +10,6 @@ import javax.swing.*;
 import javax.swing.UIManager.*;
 
 import common.*;
-import static cost.StaticData.hash;
-
 
 public class MainFrame extends JFrame implements ActionListener {
 	private static JMenuItem[] menu;
@@ -25,14 +23,18 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected CostWizardDialog cwf;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.6.1");
+		super("Στρατιωτικές Δαπάνες 1.6.2");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
+		// Πρέπει να δημιουργηθούν πρώτα!
 		Providers prov = new Providers();
 		Men men = new Men();
 		Holds holds = new Holds();
 		Contents contents = new Contents();
 
+		// Το tabbed panel πρέπει να είναι πρώτο στοιχείο της φορμας και
+		// οι Εργασίες το 4ο στοιχείο του tabbed panel.
+		// Ειδάλλως στο Bills θα έχουμε προβλήματα.
 		JTabbedPane mainTab = new JTabbedPane();
 		mainTab.addTab("Στοιχεία Δαπάνης", new CostData(contents));
 		mainTab.addTab("Τιμολόγια", new Bills());
@@ -482,8 +484,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			Cost c = (Cost) MainFrame.costs.get();
 			if (a && c != null) {
 				ArrayList<Bill> b = (ArrayList<Bill>) c.get("Τιμολόγια");
-				for (int z = 0; z < b.size(); z++)
-					b.get(z).recalculate();
+				for (Bill b1 : b) b1.recalculate();
 				repaint();
 			}
 		}
@@ -494,7 +495,15 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.6.1</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>09 Σεπ 14</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br><center><font size=4>Το Πρόγραμμα έκλεισε 10 Έτη!!!</font></center>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this,
+				"<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br>" +
+				"<font size=3>Έκδοση 1.6.2</font></b></center><br>" +
+				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
+				"Άδεια χρήσης: <b>BSD</b><br>" +
+				"Δημοσίευση: <b>10 Οκτ 14</b><br>" +
+				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
+				"<center><font size=4>Το Πρόγραμμα έκλεισε 10 Έτη!!!</font></center>",
+				getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
 		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο
 		if (order != -1) {
