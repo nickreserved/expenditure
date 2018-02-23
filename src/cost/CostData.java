@@ -1,10 +1,10 @@
 package cost;
 
 import java.util.*;
+import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
 
 public class CostData extends JPanel implements ActionListener, Hashing {
   protected static final String[] properties = { "Δγη διάθεσης", "Δγη ανάθεσης", "Ποσό", "ΕΦ",
@@ -17,12 +17,12 @@ public class CostData extends JPanel implements ActionListener, Hashing {
   };
 
   protected static final String[] hashKeys = {
-      "approval_order_", "my_order_", "money", "ef", "ka", "title", "expire_date", "money_source",
-      "work_officer_", "proedros_afanwn_",
-      "proedros_agoras_", "melos1_agoras_", "melos2_agoras_",
-      "proedros_poiotikhs_", "melos1_poiotikhs_", "melos2_poiotikhs_",
-      "proedros_paralabhs_", "melos1_paralabhs_", "melos2_paralabhs_",
-      "proedros_zygisews_", "melos_zygisews_"
+      "approval_order", "my_order", "money", "ef", "ka", "title", "expire_date", "money_source",
+      "work_officer", "proedros_afanwn",
+      "proedros_agoras", "melos1_agoras", "melos2_agoras",
+      "proedros_poiotikhs", "melos1_poiotikhs", "melos2_poiotikhs",
+      "proedros_paralabhs", "melos1_paralabhs", "melos2_paralabhs",
+      "proedros_zygisews", "melos_zygisews"
   };
 
   public static final int APROVAL_ORDER = 0;
@@ -87,6 +87,7 @@ public class CostData extends JPanel implements ActionListener, Hashing {
     main.bills.billsModel.setData(new Vector());
     main.bills.currentBill = -1;
     main.bills.billModel.setData(null);
+    costFile = "Νέα Δαπάνη.cost";
   }
 
   public void load() {
@@ -97,13 +98,19 @@ public class CostData extends JPanel implements ActionListener, Hashing {
                                           JOptionPane.WARNING_MESSAGE);
     if (a == JOptionPane.NO_OPTION) return;
     JFileChooser fc = new JFileChooser(costFile);
+    fc.setSelectedFile(new File(costFile));
     fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
     int returnVal = fc.showOpenDialog(this);
     if(returnVal != JFileChooser.APPROVE_OPTION) return;
     String s = fc.getSelectedFile().getPath();
+    loadFile(s);
+    costFile = s;
+  }
+
+  public void loadFile(String file) {
     try {
-      Vector v = LoadSaveFile.loadFileLines(s);
-      costFile = s;
+      Vector v = LoadSaveFile.loadFileLines(file);
+      costFile = file;
       main.staticData.load(v);
       load(v, main.staticData.properties.length);
       main.bills.billsModel.setData(
@@ -119,7 +126,7 @@ public class CostData extends JPanel implements ActionListener, Hashing {
 
   public void load(Vector v, int start) {
     Object[][] data = new Object[properties.length][1];
-    if (v.size() >= properties.length + start) {
+    if (v.size() + 1 >= properties.length + start) {
       for (int z = 0; z < properties.length; z++)
         if (z <= MY_ORDER)
           data[z][0] = new OrderId(v.elementAt(z + start).toString());
@@ -136,11 +143,12 @@ public class CostData extends JPanel implements ActionListener, Hashing {
     }
   }
 
-  public void save() {
+  public boolean save() {
     JFileChooser fc = new JFileChooser(costFile);
+    fc.setSelectedFile(new File(costFile));
     fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
     int returnVal = fc.showSaveDialog(this);
-    if(returnVal != JFileChooser.APPROVE_OPTION) return;
+    if(returnVal != JFileChooser.APPROVE_OPTION) return false;
     costFile = fc.getSelectedFile().getPath();
     if (!costFile.endsWith(".cost")) costFile += ".cost";
 
@@ -153,8 +161,10 @@ public class CostData extends JPanel implements ActionListener, Hashing {
       v.add(v1.elementAt(z));
     try {
       LoadSaveFile.saveFileLines(costFile, v);
+      return true;
     } catch (Exception e) {
       StaticFunctions.showExceptionMessage(e, "Σφάλμα κατά τη αποθήκευση της Δαπάνης");
+      return false;
     }
   }
 
@@ -164,11 +174,10 @@ public class CostData extends JPanel implements ActionListener, Hashing {
     Object[][] data = propertiesModel.getData();
     for (int z = 0; z < data.length; z++)
       if (s.startsWith(hashKeys[z])) {
-        if (data[z][0] == null) throw new Exception("Δεν αρχικοποιήθηκε η φράση <b>" + s + "</b> στην κλάση <b>Cost</b>");
-        if (z >= WORK_OFFICER || z <= MY_ORDER)
-          return ( (Hashing) data[z][0]).hash(s.substring(1 + s.lastIndexOf('_')));
-        else if (s.length() == hashKeys[z].length())
-          return data[z][0];
+        if (data[z][0] == null) throw new Exception("Δεν αρχικοποιήθηκε η φράση <b>cost_" + s + "</b>");
+        else if (s.length() == hashKeys[z].length()) return data[z][0];
+        else if (z >= WORK_OFFICER || z <= MY_ORDER) return ( (Hashing) data[z][0]).hash(s.substring(1 + s.lastIndexOf('_')));
+
       }
     throw new Exception("Η κλάση <b>Cost</b> δεν υποστηρίζει τη φράση <b>" + s + "</b>");
   }
@@ -179,21 +188,22 @@ public class CostData extends JPanel implements ActionListener, Hashing {
     if (e.getSource() == main.openCost) load();
     else if (e.getSource() == main.saveCost) save();
     else if (e.getSource() == main.newCost) fresh();
+    else if (e.getSource() == main.exit) main.dispatchEvent(new WindowEvent(main, WindowEvent.WINDOW_CLOSING));
       // bills array must have elements ######################### NOT FORGET!!! ##########
     else if (e.getSource() == main.exportBill)
       ExportReport.exportReport("plhrhs_apodei3h", main, null);
     else if (e.getSource() == main.exportCost)
       ExportReport.exportReport("cost", main, null);
-    else if (e.getSource() == main.exportPlan)
-      ExportReport.exportReport("my_order", main, "sxedio");
+    else if (e.getSource() == main.exportEpitropes)
+      ExportReport.exportReport("my_order", main, null);
+    else if (e.getSource() == main.exportDiabibastiko)
+      ExportReport.exportReport("diabibastiko", main, null);
     else if (e.getSource() == main.exportProvider)
       ExportReport.exportReport("fe_provider", main, null);
     else if (e.getSource() == main.exportEforia)
       ExportReport.exportReport("fe_doy", main, null);
     else if (e.getSource() == main.exportReport)
       ExportReport.exportReport("report", main, null);
-    else if (e.getSource() == main.exportPreReport)
-      ExportReport.exportReport("report", main, "prereport");
     else if (e.getSource() == main.exportHolds)
       ExportReport.exportReport("hold", main, null);
   }

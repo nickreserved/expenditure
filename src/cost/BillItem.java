@@ -4,7 +4,7 @@ public class BillItem implements RowTable, FileLineData, Hashing {
   protected static final String[] header = { "Είδος", "Ποσότητα", "Τιμή μονάδας", "Συνολική τιμή",
       "ΦΠΑ", "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"};
   public static final String[] measures = {
-      "τεμάχια", "lt", "Kgr", "cm", "cm^2", "cm^3", "m", "m^2", "m^3", "ρολά", "πόδια", "λίβρες", "ζεύγη" };
+      "τεμάχια", "lt", "Kgr", "cm", "cm^2", "cm^3", "m", "m^2", "m^3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "Km^2" };
   protected static final Byte[] fpaList = { new Byte((byte) 18), new Byte((byte) 8), new Byte((byte) 0) };
   protected static final String[] hashKeys = { "name", "many", "cost", "total_cost", "fpa",
       "cost_with_fpa", "total_cost_with_fpa", "measure" };
@@ -12,7 +12,7 @@ public class BillItem implements RowTable, FileLineData, Hashing {
   protected String name;
   protected int measure = 0;
   protected Digit many = new Digit(1, 6, true, true);
-  protected Digit cost = new Digit(0, 2, false, true);
+  protected Digit cost = new Digit(0, 4, true, true);
   protected Byte fpa = fpaList[0];
 
   public static final int NAME = 0;
@@ -31,9 +31,7 @@ public class BillItem implements RowTable, FileLineData, Hashing {
   // ---------------------------- RowTable --------------------------------------------- //
 
   public boolean isEmpty() {
-    if ((name == null || name.length() == 0) && many.doubleValue() * cost.doubleValue() == 0)
-      return true;
-    else return false;
+    return (name == null || name.length() == 0) && many.doubleValue() * cost.doubleValue() == 0;
   }
 
   public Object getCell(int col) {
@@ -41,7 +39,10 @@ public class BillItem implements RowTable, FileLineData, Hashing {
       case NAME: return name;
       case MANY: return many;
       case COST: return cost;
-      case TOTAL_COST: return Digit.mul(cost, many);
+      case TOTAL_COST:
+        Digit d = Digit.mul(cost, many);
+        d.round(2);
+        return d;
       case FPA: return fpa;
       case COST_WITH_FPA: return Digit.mul(cost, (100 + fpa.intValue()) / (double) 100);
       case TOTAL_COST_WITH_FPA: return Digit.mul( (Digit) getCell(TOTAL_COST), (100 + fpa.intValue()) / (double) 100);
@@ -51,41 +52,42 @@ public class BillItem implements RowTable, FileLineData, Hashing {
   }
 
   public void setCell(Object o, int col) {
-    switch (col) {
-      case NAME:
-	name = o.toString();
-	break;
-      case MANY:
-	many.setDigit(o.toString());
-	break;
-      case COST:
-	cost.setDigit(o.toString());
-	break;
-      case TOTAL_COST:
-	if (many.doubleValue() == 0) return;
-	cost.setDigit(Digit.parseDigit(o.toString()) / many.doubleValue());
-	break;
-      case FPA:
-	fpa = (Byte) o;
-	break;
-      case COST_WITH_FPA:
-	cost.setDigit(Digit.parseDigit(o.toString()) / (100 + fpa.intValue()) * 100);
-	break;
-      case TOTAL_COST_WITH_FPA:
-	cost.setDigit(Digit.parseDigit(o.toString()) / many.doubleValue()
-                      / (100 + fpa.intValue()) * 100);
-        break;
-      case MEASURE:
-	measure = StaticFunctions.findInArray(measures, o);
-    }
+    try {
+      switch (col) {
+        case NAME:
+          name = o.toString();
+          break;
+        case MANY:
+          many.setDigit(o.toString());
+          break;
+        case COST:
+          cost.setDigit(o.toString());
+          break;
+        case TOTAL_COST:
+          if (many.doubleValue() == 0) return;
+          cost.setDigit(Digit.parseDigit(o.toString()) / many.doubleValue());
+          break;
+        case FPA:
+          fpa = (Byte) o;
+          break;
+        case COST_WITH_FPA:
+          cost.setDigit(Digit.parseDigit(o.toString()) / (100 + fpa.intValue()) * 100);
+          break;
+        case TOTAL_COST_WITH_FPA:
+          cost.setDigit(Digit.parseDigit(o.toString()) / many.doubleValue()
+                        / (100 + fpa.intValue()) * 100);
+          break;
+        case MEASURE:
+          measure = StaticFunctions.findInArray(measures, o);
+      }
+    } catch (Exception e) {}
   }
 
 
   // ---------------------------- FileLineData --------------------------------------------- //
 
   public boolean isValid() {
-    if (name == null || name.length() * many.doubleValue() * cost.doubleValue() == 0) return true;
-    else return false;
+    return name == null || name.length() * many.doubleValue() * cost.doubleValue() == 0;
   }
 
   public String load(String s) throws Exception {

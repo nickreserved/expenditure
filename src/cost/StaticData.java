@@ -17,7 +17,7 @@ public class StaticData extends JPanel implements ActionListener, Hashing {
   protected static final String[] hashKeys = { "outfit_short", "outfit", "supervisor",
       "office_short", "office", "office_officer_speciality", "city", "province", "address",
       "phone_external", "phone_internal", "tk", "doy", "afm", "small_contest", "public_contest",
-      "commander_", "eoy_", "office_officer_", "dxsths_"
+      "commander", "eoy", "office_officer", "dxsths"
   };
 
   public static final int OUTFIT_SHORT = 0;
@@ -107,12 +107,10 @@ public class StaticData extends JPanel implements ActionListener, Hashing {
     Object[][] data = propertiesModel.getData();
     for (int z = 0; z < data.length; z++)
       if (s.startsWith(hashKeys[z])) {
-       if (data[z][0] == null) throw new Exception("Δεν αρχικοποιήθηκε η φράση <b>" + s + "</b> στην κλάση <b>Static</b>");
-       if (z >= COMMANDER)
-         return ( (Man) data[z][0]).hash(s.substring(1 + s.lastIndexOf('_')));
-       else if (s.length() == hashKeys[z].length())
-         return data[z][0];
-     }
+        if (data[z][0] == null) throw new Exception("Δεν αρχικοποιήθηκε η φράση <b>static_" + s + "</b>");
+        else if (s.length() == hashKeys[z].length()) return data[z][0];
+        else if (z >= COMMANDER) return ( (Man) data[z][0]).hash(s.substring(1 + s.lastIndexOf('_')));
+      }
     throw new Exception("<html>Η κλάση <b>Static</b> δεν υποστηρίζει τη φράση <b>" + s + "</b>");
   }
 

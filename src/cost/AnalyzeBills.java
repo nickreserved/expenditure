@@ -2,6 +2,7 @@ package cost;
 
 import java.util.*;
 
+
 public class AnalyzeBills {
   static public final String[] hashKeys = { "by_provider", "by_month", "by_fe", "with_fe",
       "warrants", "by_hold", "agoras", "paroxhs" };
@@ -27,91 +28,91 @@ public class AnalyzeBills {
 
       switch (val) {
 
-        case BILLS_WITH_FE:
-          o = vc;
-          if (((Digit) b.getCell(Bill.FE_TOTAL)).doubleValue() != 0)
-            vc.add(b);
-          break;
+	case BILLS_WITH_FE:
+	  o = vc;
+	  if (((Digit) b.getCell(Bill.FE_TOTAL)).doubleValue() != 0)
+	    vc.add(b);
+	  break;
 
-        case BILLS_AGORAS:
-          o = vc;
-          if (b.style != Bill.PAROXH) vc.add(b);
-          break;
+	case BILLS_AGORAS:
+	  o = vc;
+	  if (b.style != Bill.PAROXH) vc.add(b);
+	  break;
 
-        case BILLS_PAROXHS:
-          o = vc;
-          if (b.style == Bill.PAROXH) vc.add(b);
-          break;
+	case BILLS_PAROXHS:
+	  o = vc;
+	  if (b.style == Bill.PAROXH) vc.add(b);
+	  break;
 
-        case WARRANTS:
-          o = vc;
-          if (b.type == Bill.WARRANT) vc.add(b);
-          break;
+	case WARRANTS:
+	  o = vc;
+	  if (b.type == Bill.WARRANT) vc.add(b);
+	  break;
 
-        case Bill.FPA_LIST:
-          o = ht;
-          Hashtable fpa = (Hashtable) b.getCell(Bill.FPA_LIST);
-          Enumeration en = fpa.keys();
-          while (en.hasMoreElements()) {
-            Byte key = (Byte) en.nextElement();
-            d = (Digit) fpa.get(key);
-            if (ht.containsKey(key)) ((Digit) ht.get(key)).add(d);
-            else ht.put(key, d);
-          }
-          break;
+	case Bill.FPA_LIST:
+	  o = ht;
+	  Hashtable fpa = (Hashtable) b.getCell(Bill.FPA_LIST);
+	  Enumeration en = fpa.keys();
+	  while (en.hasMoreElements()) {
+	    Byte key = (Byte) en.nextElement();
+	    d = (Digit) fpa.get(key);
+	    if (ht.containsKey(key)) ((Digit) ht.get(key)).add(d);
+	    else ht.put(key, d);
+	  }
+	  break;
 
-        case Bill.HOLD_LIST:
-          o = h;
-          Hold hold = (Hold) b.getCell(Bill.HOLD_LIST);
-          h.addHold(hold);
-          break;
+	case Bill.HOLD_LIST:
+	  o = h;
+	  Hold hold = (Hold) b.getCell(Bill.HOLD_LIST);
+	  h.addHold(hold);
+	  break;
 
-        case BILLS_BY_HOLD:
-          o = ht;
-          Vector l = (Vector) ht.getExt(b.getCell(Bill.HOLDS));
-          if (l == null) ht.put(b.getCell(Bill.HOLDS), l = new Vector());
-          l.add(b);
-          break;
+	case BILLS_BY_HOLD:
+	  o = ht;
+	  Vector l = (Vector) ht.get(b.getCell(Bill.HOLDS));
+	  if (l == null) ht.put(b.getCell(Bill.HOLDS), l = new Vector());
+	  l.add(b);
+	  break;
 
-        case BILLS_BY_PROVIDER:
-          o = ht;
-          l = (Vector) ht.getExt(b.getCell(Bill.PROVIDER));
-          if (l == null) ht.put(b.getCell(Bill.PROVIDER), l = new Vector());
-          l.add(b);
-          break;
+	case BILLS_BY_PROVIDER:
+	  o = ht;
+	  l = (Vector) ht.get(b.getCell(Bill.PROVIDER));
+	  if (l == null) ht.put(b.getCell(Bill.PROVIDER), l = new Vector());
+	  l.add(b);
+	  break;
 
-        case BILLS_BY_FE:
-          o = ht;
-          l = (Vector) ht.getExt(b.getCell(Bill.FE));
-          if (l == null) ht.put(b.getCell(Bill.FE), l = new Vector());
-          l.add(b);
-          break;
+	case BILLS_BY_FE:
+	  o = ht;
+	  l = (Vector) ht.get(b.getCell(Bill.FE));
+	  if (l == null) ht.put(b.getCell(Bill.FE), l = new Vector());
+	  l.add(b);
+	  break;
 
-        case BILLS_BY_MONTH:
-          o = ht;
-          String[] s = b.getCell(Bill.ID).toString().split("-");
-          Hashtable key = new Hashtable2();
-          key.put("year", new Short(s[2]));
-          key.put("month", StaticFunctions.months[Integer.parseInt(s[1]) - 1]);
-          l = (Vector) ht.getExt(key);
-          if (l == null) ht.put(key, l = new Vector());
-          l.add(b);
-          break;
+	case BILLS_BY_MONTH:
+	  o = ht;
+	  String[] s = b.getCell(Bill.ID).toString().split("-");
+	  Hashtable key = new Hashtable2();
+	  key.put("year", new Short(s[2]));
+	  key.put("month", StaticFunctions.months[Integer.parseInt(s[1]) - 1]);
+	  l = (Vector) ht.get(key);
+	  if (l == null) ht.put(key, l = new Vector());
+	  l.add(b);
+	  break;
 
-        case Bill.CLEAR_COST:
-        case Bill.FE_CLEAR_COST:
-        case Bill.FPA_TOTAL:
-        case Bill.HOLD_TOTAL:
-        case Bill.KATALOGISTEO:
-        case Bill.PLHRWTEO:
-        case Bill.FE_TOTAL:
-        case Bill.YPOLOIPO_PLHRWTEO:
-          o = d;
-          d.add((Digit) b.getCell(val));
-          break;
+	case Bill.CLEAR_COST:
+	case Bill.FE_CLEAR_COST:
+	case Bill.FPA_TOTAL:
+	case Bill.HOLD_TOTAL:
+	case Bill.KATALOGISTEO:
+	case Bill.PLHRWTEO:
+	case Bill.FE_TOTAL:
+	case Bill.YPOLOIPO_PLHRWTEO:
+	  o = d;
+	  d.add((Digit) b.getCell(val));
+	  break;
 
-        default:
-          return null;
+	default:
+	  return null;
       }
     }
     return o;
@@ -122,15 +123,15 @@ public class AnalyzeBills {
     try {
       if (s.startsWith("bills_")) s = s.substring(6);
       for (int z = Bill.CLEAR_COST; z < hashKeys.length + BILLS_BY_PROVIDER; z++) {
-        String a;
-        if (z < BILLS_BY_PROVIDER) a = Bill.hashKeys[z];
-        else a = hashKeys[z - BILLS_BY_PROVIDER];
+	String a;
+	if (z < BILLS_BY_PROVIDER) a = Bill.hashKeys[z];
+	else a = hashKeys[z - BILLS_BY_PROVIDER];
 
-        if (s.equals(a)) return getSumFromBills(v, z);
-        else if (s.startsWith(a + "_")) {
-          HashTable t = new HashTable(null, null);
-          return t.getParseObject(s.substring(a.length() + 1), getSumFromBills(v, z));
-        }
+	if (s.equals(a)) return getSumFromBills(v, z);
+	else if (s.startsWith(a + "_")) {
+	  HashTable t = new HashTable(null, null);
+	  return t.getParseObject(s.substring(a.length() + 1), getSumFromBills(v, z));
+	}
       }
       throw null;
     } catch (Exception e) {

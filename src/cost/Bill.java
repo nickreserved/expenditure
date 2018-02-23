@@ -63,10 +63,7 @@ public class Bill implements RowTable, FileLineData, Hashing {
 
   // ---------------------------- RowTable --------------------------------------------- //
 
-  public boolean isEmpty() {
-    if (id == null || id.length() == 0) return true;
-    else return false;
-  }
+  public boolean isEmpty() { return id == null || id.length() == 0; }
 
   public Object getCell(int col) {
     switch (col) {
@@ -196,9 +193,7 @@ public class Bill implements RowTable, FileLineData, Hashing {
   // ---------------------------- FileLineData --------------------------------------------- //
 
   public boolean isValid() {
-    if (!isEmpty() && provider != null && hold != null && items.size() != 0)
-      return true;
-    else return false;
+    return !isEmpty() && provider != null && hold != null && items.size() != 0;
   }
 
   public String load(String s) throws Exception {

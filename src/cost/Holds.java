@@ -54,7 +54,7 @@ public class Holds extends JPanel implements ActionListener {
       super(data, Hold.header, cls);
     }
     public boolean isCellEditable(int row, int col) {
-      if (col < Hold.STAMP) return true; else return false;
+      if (col != Hold.TOTAL) return true; else return false;
     }
   }
 }

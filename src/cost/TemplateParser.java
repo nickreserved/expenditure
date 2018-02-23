@@ -19,12 +19,12 @@ public class TemplateParser {
       // find first '%' & second '%'
       if ((st = html.indexOf("%", bst = st)) == -1) st = bst;
       if ((en = html.indexOf("%", st + 1)) == -1) {
-        s += c.compileTag(new Keyword(html.substring(bst), -1));
+        s += StaticFunctions.safeObject2String(c.compileTag(new Keyword(html.substring(bst), -1)));
         return s;
       }
 
       // add text which is not tag
-      s += c.compileTag(new Keyword(html.substring(bst, st), -1));
+      s += StaticFunctions.safeObject2String(c.compileTag(new Keyword(html.substring(bst, st), -1)));
 
       // check if it is a tag with forbidden chars
       String tag = html.substring(st + 1, en);
@@ -32,18 +32,17 @@ public class TemplateParser {
       if (hasForbiddenChars(tag)) {
         if (tag.length() != 0) tag = "%" + tag;
         st = en;
-        s += c.compileTag(new Keyword(tag, -1));
+        s += StaticFunctions.safeObject2String(c.compileTag(new Keyword(tag, -1)));
       } else {
-        Object o = c.compileTag(new Keyword(tag, en + 1));
+        Object o = StaticFunctions.safeObject2String(c.compileTag(new Keyword(tag, en + 1)));
         if (o instanceof Integer) st = ((Integer) o).intValue();
         else s += o;
       }
     }
   }
 
-  protected static boolean hasForbiddenChars(String s) {
-    if (s.matches("[0-9a-zA-Z_.]+")) return false; else return true;
-  }
+//  protected static boolean hasForbiddenChars(String s) { return !s.matches("[0-9a-zA-Z_.]+"); }
+  protected static boolean hasForbiddenChars(String s) { return !s.matches("[\\w.]+(\"[\\s\\S]+\")?"); }
 
 
   // =================== this is a class for passing keywords ================== //

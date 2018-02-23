@@ -3,6 +3,7 @@ package cost;
 import java.util.*;
 import java.text.*;
 import javax.swing.*;
+import java.util.regex.*;
 
 public class StaticFunctions {
   private StaticFunctions() {}
@@ -21,6 +22,14 @@ public class StaticFunctions {
     for (int z = 0; z < s.length; z++) v.add(s[z][0]);
     return v;
   }
+
+
+
+
+
+  static public Object safeObject2String(Object o) { return o == null ? "" : o; }
+
+
 
 
 
@@ -60,24 +69,24 @@ public class StaticFunctions {
 
     while ((a = s.length()) != 0) {
       if (a > 2) {
-        t = s.substring(a - 3);
-        s = s.substring(0, a - 3);
+	t = s.substring(a - 3);
+	s = s.substring(0, a - 3);
       } else {
-        t = s;
-        s = "";
+	t = s;
+	s = "";
       }
       t = numToText100(t, c == 1) + " ";
       if (c == 0);
       else if (c > 2) {
-        t += other_1[c - 3] + (c < 5 ? "" : " ");
-        c = 2;
+	t += other_1[c - 3] + (c < 5 ? "" : " ");
+	c = 2;
       }
       if (c > 0 && c <= 2) {
-        int j = 1;
-        if (t.startsWith("ένα")) {
-            if (c == 1) t = other[c - 1][0]; else t += other[c - 1][0];
-        } else if (t.trim().length() != 0)
-          t += other[c - 1][1];
+	int j = 1;
+	if (t.startsWith("ένα")) {
+	    if (c == 1) t = other[c - 1][0]; else t += other[c - 1][0];
+	} else if (t.trim().length() != 0)
+	  t += other[c - 1][1];
       }
       o = t + " " + o;
       c++;
@@ -99,8 +108,8 @@ public class StaticFunctions {
     if (s.length() == 3) {
       a = s.charAt(0) - "0".charAt(0);
       if (a > 0 && a < 10) {
-        if (s.substring(1).equals("00")) a = 0;
-        o = ekatodades[a];
+	if (s.substring(1).equals("00") && a == 1) a = 0;
+	o = ekatodades[a];
       }
       s = s.substring(1);
     }
@@ -130,9 +139,9 @@ public class StaticFunctions {
       else if (num);
       else if ("0123456789".indexOf(c) != -1) num = true;
       else
-        c = ("" + c).toUpperCase().replaceAll("Ά", "Α").replaceAll("Έ", "Ε")
-            .replaceAll("Ή", "Η").replaceAll("Ί", "Ι").replaceAll("Ό", "Ο")
-            .replaceAll("Ύ", "Υ").replaceAll("Ώ", "Ω").charAt(0);
+	c = ("" + c).toUpperCase().replaceAll("Ά", "Α").replaceAll("Έ", "Ε")
+	    .replaceAll("Ή", "Η").replaceAll("Ί", "Ι").replaceAll("Ό", "Ο")
+	    .replaceAll("Ύ", "Υ").replaceAll("Ώ", "Ω").charAt(0);
       t += c;
     }
     return t;
@@ -179,8 +188,53 @@ public class StaticFunctions {
 
   public static void showExceptionMessage(Exception e, String s) {
     JOptionPane.showMessageDialog(null,
-                                  "<html>Διαπράχθηκαν τα παρακάτω Στρατιωτικά Εγκλήματα:<br><b>" +
-                                  StaticFunctions.getException(e, null).getMessage(), s,
-                                  JOptionPane.ERROR_MESSAGE);
+				  "<html>Διαπράχθηκαν τα παρακάτω Στρατιωτικά Εγκλήματα:<br>" +
+				  StaticFunctions.getException(e, null).getMessage(), s,
+				  JOptionPane.ERROR_MESSAGE);
   }
+
+
+
+
+
+
+
+  public static String multipleInflections(String a, byte what) {
+    String out = "";
+    int s, prev = 0;
+    Matcher m = Pattern.compile("(\\p{InGreek}{3,}+)").matcher(a);
+    while(m.find()) {
+      out += a.substring(prev, s = m.start());
+      out += getInflection(m.group(), what);
+      prev = m.end();
+    }
+    out += a.substring(prev, a.length());
+    return out;
+  }
+
+
+
+  public static String getInflection(String onomastikh, byte what) {
+    if (onomastikh.endsWith("ος") && what == 1) return onomastikh.replace('ς', 'υ');
+    else if (onomastikh.endsWith("ός") && what == 1) return onomastikh.replace('ς', 'ύ');
+    else if (what >= 2 && what <= 3 && (
+	onomastikh.endsWith("ος") || onomastikh.endsWith("ός")) ||
+	what >= 1 && what <= 3 && (
+	onomastikh.endsWith("ης") || onomastikh.endsWith("ής") ||
+	onomastikh.endsWith("ας") || onomastikh.endsWith("άς") ||
+	onomastikh.endsWith("ες") || onomastikh.endsWith("ές") ||
+	onomastikh.endsWith("υς") || onomastikh.endsWith("ύς"))) {
+      return onomastikh.replaceAll("ς", "");
+    } else if (what == 1 && (
+	onomastikh.endsWith("η") || onomastikh.endsWith("ή") ||
+	onomastikh.endsWith("α") || onomastikh.endsWith("ά") ||
+	onomastikh.endsWith("ω") || onomastikh.endsWith("ώ")))
+      return onomastikh + "ς";
+    return onomastikh;
+  }
+
+
+
+
+
 }

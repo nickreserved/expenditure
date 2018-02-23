@@ -1,3 +1,5 @@
+%request_prereport_boolean_"Εκτύπωση της <b>έκθεσης</b> σαν <b>απαιτούμενης</b> δαπάνης;"%
+
 <div class="Paper_A4_Portrait_20x20x20x35">
 <h1 class="t">ΕΚΘΕΣΗ</h1>
 <table class="f"><tr><td width=99%> </td><td nowrap><b>ΣΧΗΜ. <u>%static_supervisor%</u><br>ΜΟΝΑΔΑ <u>%static_outfit_short%</u></b><br>Μήνας <u>%system_month%</u><br>Χρήση <u>%system_year%</u><br>ΦΟΡΕΑΣ <u>%cost_ef%</u><br>KA <u>%cost_ka%</u></td></tr></table>
@@ -7,13 +9,13 @@
 %start_counter_aa%
 %enum_bills%
 %if_greater_1_sizeof_bills%
-<tr><td class="lc" colspan=%if_greater_1_sizeof_bills_fpa_list%6%else%5%endif%><b>%b_type%: %b_name%</b> (Κρατήσεις: %percent_b_hold_percent_total%%if_greater_0_b_fe_percent%, ΦΕ: %percent_b_fe_percent%%endif%)</td></tr>
+<tr><td class="lc" colspan=%if_greater_1_sizeof_bills_fpa_list%6%else%5%endif%><br><b>%b_type%: %b_name%</b> (Κρατήσεις: %percent_b_hold_percent_total%%if_greater_0_b_fe_percent%, ΦΕ: %percent_b_fe_percent%%endif%)</td></tr>
 %endif%
 %enum_b_items%
 <tr><td class="lc">%counter_aa%</td><td class="l">%i_name%</td><td class="lc">%i_many%</td><td class="lr">%euro_i_cost%</td>%if_greater_1_sizeof_bills_fpa_list%<td class="lr">%percent_i_fpa%</td>%endif%<td class="lr">%euro_i_total_cost%</td></tr>
 %end_enum%%end_enum%
 %end_counter%
-<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%><b>Καθαρή Αξία</b></td><td class="lr"><b>%euro_bills_clear_cost%</b></td></tr>
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%><br><b>Καθαρή Αξία</b></td><td class="lr"><br><b>%euro_bills_clear_cost%</b></td></tr>
 %enum_bills_fpa_list%
 <tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%>Προστίθεται ΦΠΑ %percent_bfl_key%</td><td class="lr">%euro_bfl_value%</td></tr>
 %end_enum%
@@ -47,7 +49,9 @@
 </div>
 <br class="nextPage">
 
-%if_not_parameter_prereport%%if_greater_0_sizeof_bills_agoras%
+%if_not_parameter_prereport%
+
+%if_greater_0_sizeof_bills_agoras%
 <div class="Paper_A4_Portrait_20x20x20x35">
 <table class="f"><tr><td width=99%> </td><td nowrap><b>%static_supervisor%<br>%static_outfit_short%</td></tr></table>
 <h1 class="t">ΒΕΒΑΙΩΣΗ</h1>

@@ -12,9 +12,9 @@ public class Man implements RowTable, FileLineData, Hashing {
   public Man(String s) throws Exception { load(s); }
 
   public boolean isValid() {
-    if (data[NAME] != null && data[NAME].length() != 0 &&
-	data[RANK] != null && data[RANK].length() != 0) return true;
-    else return false;
+    return
+        data[NAME] != null && data[NAME].length() != 0 &&
+	data[RANK] != null && data[RANK].length() != 0;
   }
 
   public String toString() { return data[RANK] + " " + data[NAME]; }

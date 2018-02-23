@@ -58,7 +58,11 @@ public class PropertiesTableModel extends AbstractTableModel {
   public void setValueAt(Object obj, int row, int col) {
     if (col > 0) {
       if (obj instanceof String && data[row][col - 1] instanceof FromString)
-        ((FromString) data[row][col - 1]).fromString(obj.toString());
+        try{
+          ((FromString) data[row][col - 1]).fromString(obj.toString());
+        } catch (Exception e) {
+          data[row][col - 1] = null;
+        }
       else
         data[row][col - 1] = obj;
     }

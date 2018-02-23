@@ -9,7 +9,7 @@ public class Hold implements RowTable, FileLineData, Hashing {
   protected static final String[] hashKeys = { "mts", "tas", "emp", "tsmede", "aooa", "ypk",
       "tpede", "ekoems", "stamp", "oga", "total" };
 
-  protected Digit[] data = new Digit[header.length - 3];
+  protected Digit[] data = new Digit[header.length - 1];
   public static final int MTS = 0;
   public static final int TAS = 1;
   public static final int EMP = 2;
@@ -33,18 +33,9 @@ public class Hold implements RowTable, FileLineData, Hashing {
     return p;
   }
 
-  protected Digit getStamp(boolean oga) {
-    double f = oga ? 0.004 : 0.02;
-    Digit a = new Digit(0, data[0].d, false, true);
-    for (int z = 0; z <= TPEDE; z++)
-      a.add(data[z]);
-    a.mul(f);
-    return a;
-  }
-
   public Digit getTotalHold() {
     Digit a = new Digit(0, 3, false, true);
-    for (int z = 0; z <= OGA; z++)
+    for (int z = 0; z < data.length; z++)
       a.add((Digit) getCell(z));
     return a;
   }
@@ -71,16 +62,12 @@ public class Hold implements RowTable, FileLineData, Hashing {
 
   public Object getCell(int col) {
     if (col == TOTAL) return getTotalHold();
-    else if (col == STAMP) return getStamp(false);
-    else if (col == OGA) return getStamp(true);
-    else return data[col];
+    else return data[col] == null ? new Digit(0, 3, false, true) : data[col];
   }
   public void setCell(Object o, int col) {
     data[col] = new Digit(o.toString(), 3, false, true);
   }
-  public boolean isEmpty() {
-    if (getTotalHold().doubleValue() == 0) return true; else return false;
-  }
+  public boolean isEmpty() { return getTotalHold().doubleValue() == 0; }
   public boolean isValid() { return true; }
 
 

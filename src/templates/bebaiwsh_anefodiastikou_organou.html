@@ -1,0 +1,17 @@
+%if_greater_0_sizeof_bills_agoras%
+
+<div class="Paper_A4_Portrait_20x20x20x35">
+<h1 class="t">ΒΕΒΑΙΩΣΗ<br>ΑΝΕΦΟΔΙΑΣΤΙΚΟΥ ΟΡΓΑΝΟΥ</h1>
+<p class="para1">Ο υπογεγραμένος ................................... βεβαιώνει οτι ο ΛΥΠ δεν διαθέτει τα παρακάτω υλικά σε απόθεμα:</p>
+<table class="f">
+<tr><th class="l">A/A</th><th class="l">ΕΙΔΟΣ ΥΛΙΚΩΝ</th><th class="l">ΜΟΝΑΔΑ ΜΕΤΡΗΣΗΣ</th><th class="l">ΠΟΣΟΤΗΤΑ</th></tr>
+%start_counter_aa%%enum_bills_agoras%%enum_ba_items%
+<tr><td class="lc">%counter_aa%</td><td class="l">%i_name%</td><td class="lc">%i_measure%</td><td class="lc">%i_many%</td></tr>
+%end_enum%%end_enum%%end_counter%
+</table>
+<p align="right">%static_city%, %system_date%</p>
+<table class="f"><tr><td width=75%></td><td nowrap class="c">-Ο-<br>ΒΕΒΑΙΩΝ</td></tr></table>
+</div>
+<br class="nextPage">
+
+%endif%

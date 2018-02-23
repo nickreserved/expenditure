@@ -6,11 +6,11 @@ import java.util.*;
 public class ExportReport {
   private ExportReport() {}
 
-  static public void exportReport(String file, MainFrame m, String param) {
+  static public void exportReport(String file, MainFrame m, Hashtable param) {
     try {
       HashTable ht = new HashTable(m, param);
       Vector v = new Vector();
-      v.add(LoadSaveFile.loadFileToString("templates/header.template") +
+      v.add(LoadSaveFile.loadFileToString("templates/header.html") +
             ht.openFile(file));
       JFileChooser fc = new JFileChooser();
       fc.setFileFilter(new ExtensionFileFilter("html", "Αρχείο Εξόδου"));

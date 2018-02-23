@@ -21,15 +21,8 @@ public class Bills extends JPanel implements ListSelectionListener {
   ResizableTableModel billModel;
   PropertiesTableModel propertiesModel;
   JTable billsTable;
-  JTable billTable;
-  JTable propertiesTable;
 
-  JComboBox cbFpa = new JComboBox(BillItem.fpaList);
   JComboBox cbMeasures = new JComboBox(BillItem.measures);
-
-  JComboBox cbFe = new JComboBox(Bill.feList);
-  JComboBox cbType = new JComboBox(Bill.types);
-  JComboBox cbCategory = new JComboBox(Bill.categories);
   JComboBox providers = new JComboBox();
   JComboBox holds = new JComboBox();
 
@@ -43,32 +36,30 @@ public class Bills extends JPanel implements ListSelectionListener {
     TableColumnModel cm = billsTable.getColumnModel();
     cm.getColumn(Bill.PROVIDER).setCellEditor(new DefaultCellEditor(providers));
     cm.getColumn(Bill.HOLDS).setCellEditor(new DefaultCellEditor(holds));
-    cm.getColumn(Bill.FE).setCellEditor(new DefaultCellEditor(cbFe));
-    cm.getColumn(Bill.TYPE).setCellEditor(new DefaultCellEditor(cbType));
-    cm.getColumn(Bill.CATEGORY).setCellEditor(new DefaultCellEditor(cbCategory));
+    cm.getColumn(Bill.FE).setCellEditor(new DefaultCellEditor(new JComboBox(Bill.feList)));
+    cm.getColumn(Bill.TYPE).setCellEditor(new DefaultCellEditor(new JComboBox(Bill.types)));
+    cm.getColumn(Bill.CATEGORY).setCellEditor(new DefaultCellEditor(new JComboBox(Bill.categories)));
 
     billModel = new ResizableTableModel(null, BillItem.header, BillItem.class);
-    billTable = new JTable(billModel);
+    JTable billTable = new JTable(billModel);
     cm = billTable.getColumnModel();
-    cm.getColumn(BillItem.FPA).setCellEditor(new DefaultCellEditor(cbFpa));
+    cm.getColumn(BillItem.FPA).setCellEditor(new DefaultCellEditor(new JComboBox(BillItem.fpaList)));
     cm.getColumn(BillItem.MEASURE).setCellEditor(new DefaultCellEditor(cbMeasures));
     billTable.getSelectionModel().addListSelectionListener(this);
 
     propertiesModel = new ReportTableModel(billsModel.getData());
-    propertiesTable = new PropertiesTable(propertiesModel, 85, null);
+    JTable propertiesTable = new PropertiesTable(propertiesModel, 85, null);
 
     setLayout(new BorderLayout());
-    Box bv = Box.createVerticalBox();
-    bv.add(billsTable.getTableHeader());
-    bv.add(billsTable);
-    bv.add(billTable.getTableHeader());
-    bv.add(billTable);
-
+    JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                   new JScrollPane(billsTable),
+                                   new JScrollPane(billTable));
+    sp.setDividerSize(3);
+    sp.setDividerLocation(75);
+    add(sp, BorderLayout.CENTER);
     Box bv1 = Box.createVerticalBox();
     bv1.add(propertiesTable.getTableHeader());
     bv1.add(propertiesTable);
-
-    add(new JScrollPane(bv), BorderLayout.CENTER);
     add(bv1, BorderLayout.SOUTH);
     setVisible(true);
   }

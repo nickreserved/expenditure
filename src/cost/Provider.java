@@ -23,10 +23,10 @@ public class Provider implements RowTable, FileLineData, Hashing {
   public Provider(String s) throws Exception { load(s); }
 
   public boolean isValid() {
-    if (data[NAME] != null && data[NAME].length() != 0 &&
+    return
+        data[NAME] != null && data[NAME].length() != 0 &&
 	data[AFM] != null && data[AFM].length() != 0 &&
-	data[DOY] != null && data[DOY].length() != 0) return true;
-    else return false;
+	data[DOY] != null && data[DOY].length() != 0;
   }
 
   public String toString() { return data[NAME]; }
