@@ -1,0 +1,16 @@
+body {font-family: Verdana, Arial; background-color: white; font-size: 10pt}
+h1, h2, h3, h4 {text-align: center}
+li, p, td, th {text-align: justify}
+
+dd, dt {font-size: 105%; text-align: justify; font-family: Times new roman}
+dt {margin-top: 10px}
+p.h, caption {font-size: 90%; font-family: Tahoma; margin: 20px 0}
+li {margin-bottom: 15px; margin-top: 15px}
+h1 {padding-bottom: 30px; padding-top: 30px}
+h2 {padding-top: 30px}
+h3 {padding-top: 20px}
+h4 {padding-top: 10px}
+a:visited {color: blue}
+a:hover {color: red}
+table {border: 1px solid black; margin: 20px 0}
+th, td {border: 1px solid darkgray; padding: 0 10px}

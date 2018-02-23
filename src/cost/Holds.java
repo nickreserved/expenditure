@@ -3,22 +3,40 @@ package cost;
 import java.util.*;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
 import common.*;
 import tables.*;
 
-public class Holds extends JPanel implements TableModelListener {
+public class Holds extends JPanel implements TableModelListener/*, KeyListener*/ {
   static final protected JComboBox holds = new JComboBox();
   private static final String[] header = { "ΜΤΣ", "ΤΑΣ", "ΕΜΠ", "ΤΣΜΕΔΕ", "ΑΟΟΑ", "ΥΠΚ", "ΤΠΕΔΕ", "ΕΚΟΕΜΣ",
       "Χαρτόσημο", "ΟΓΑ", "Σύνολο" };
   private static HoldTableModel htm = new HoldTableModel();
 
+	
+	/*
+	public void keyReleased(KeyEvent e) {}
+	public void keyPressed(KeyEvent e) {System.out.println(new Date());}
+	public void keyTyped(KeyEvent e) {}
+	*/
+	
+	
+	
+	
   public Holds() {
     setLayout(new BorderLayout());
     htm.addTableModelListener(this);
-    add(new JScrollPane(new JTable(htm)));
+/*
+		JTable jt = new JTable(htm);
+		jt.addKeyListener(this);
+		add(new JScrollPane(jt));
+*/
+		
+
+		add(new JScrollPane(new JTable(htm)));
   }
 
   public void tableChanged(TableModelEvent e) {
@@ -43,7 +61,7 @@ public class Holds extends JPanel implements TableModelListener {
       if (!(MainFrame.data instanceof HashObject)) MainFrame.data = new HashObject();
       Object v = MainFrame.data.get("Κρατήσεις");
       if (!(v instanceof VectorObject))
-	MainFrame.data.put("Κρατήσεις", v = new VectorObject());
+				MainFrame.data.put("Κρατήσεις", v = new VectorObject());
       return (Vector) v;
     }
   }

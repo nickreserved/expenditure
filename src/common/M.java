@@ -2,7 +2,8 @@ package common;
 
 public class M {
   private M() {}
-
+  
+  static public final double safeNumber2double(Number o) { return o == null ? 0 : o.doubleValue(); }
   static public final Number add(Number a, double b) { return new Double(a.doubleValue() + b); }
   static public final Number add(Number a, Number b) { return new Double(a.doubleValue() + b.doubleValue()); }
   static public final Number mul(Number a, double b) { return new Double(a.doubleValue() * b); }

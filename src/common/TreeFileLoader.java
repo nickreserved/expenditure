@@ -86,7 +86,7 @@ public class TreeFileLoader {
     return v;
   }
 
-  private boolean skipRegex(String regex) {
+  private final boolean skipRegex(String regex) {
     int a = Functions.findEndOfRegex(html, pos, regex);
     if (a == -1) return false;
     pos = a;

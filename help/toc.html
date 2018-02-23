@@ -1,0 +1,123 @@
+<HTML>
+
+<HEAD>
+<TITLE>Στρατιωτικές Δαπάνες 1.0.0::Περιεχόμενα</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-7">
+</HEAD>
+
+<BASE TARGET=content>
+
+<script>
+var src, ie;
+if (navigator.appName == "Microsoft Internet Explorer") ie = true; else ie = false;
+cf = new Image; ef = new Image; cf.src = "images/collapsef.gif"; ef.src = "images/expandf.gif";
+cnf = new Image; enf = new Image; cnf.src = "images/collapse.gif"; enf.src = "images/expand.gif";
+function clkH(e) {
+	var i = 0, did = false, obj;
+	if (ie)
+	{
+		src = window.event.srcElement;
+		obj = document.all;
+	}
+	else
+	{
+		obj = document.getElementsByTagName('*');
+		src = e.target;
+		while (src.nodeType != src.ELEMENT_NODE) src = src.parentNode;
+	}
+	if (src.tagName == "IMG") {
+		while (!did || obj[i].tagName != "TABLE")
+			if (obj[i++] == src) did = true;
+		if (obj[i].className=="") {obj[i].className="v"; src.src = cf.src;} else {obj[i].className=""; src.src = ef.src;}
+	}
+}
+function onH(e) {
+	if (ie) src = window.event.srcElement; else {src = e.target; while (src.nodeType != src.ELEMENT_NODE) src = src.parentNode;}
+	if (src.tagName == "IMG")
+		if (src.src.slice(-5, -4) != "f") src.src = src.src.replace(".gif", "f.gif"); else src.src = src.src.replace("f.gif", ".gif");
+}
+document.onclick = clkH;
+document.onmouseover = onH;
+document.onmouseout = onH;
+</script>
+
+
+<style>
+	a {color:black;text-decoration:none}
+	a:hover {border:black 1px solid;background-color:gainsboro}
+	a:active {border:blue 1px solid;background-color:powderblue}
+	img {margin-left:-12px}
+	td {padding:1px 0px 1px 12px; font-size: 80%; font-family: Tahoma}
+	table {display:none}
+	table.v {display:block}
+</style>
+
+<BODY onselectstart="return false;" bgColor=#f0f0e0>
+
+<H3>Στρατιωτικές Δαπάνες 1.0.0</H3>
+
+
+
+
+<table class="v"><tr><td nowrap>
+
+<script>
+var k = new Array(
+
+1, "about.html", "Γενικά",
+0, "about.html#what", "Τι κάνει το πρόγραμμα",
+0, "about.html#who", "Περί του Προγραμματιστή",
+0, "about.html#requirements", "Απαιτήσεις",
+0, "about.html#my_opinion", "Η άποψή μου για το πρόγραμμα",
+0, "about.html#we_are_fools", "Η άποψή μου για το Στρατό",
+0, "about.html#lol", "Το ανέκδοτο του προγράμματος",
+-1,"about.html#proposal", "Προτάσεις",
+
+1, "license.html", "Άδεια Χρήσης",
+0, "license.html#license", "Άδεια χρήσης",
+0, "license.html#gpl_en", "GNU GPL (Αγγλικά)",
+-1,"license.html#gpl_gr", "GNU GPL (Ελληνικά)",
+
+1, "tabs.html", "Ετικέτες",
+0, "tabs.html#cost", "Στοιχεία δαπάνης",
+1, "tabs.html#bills", "Τιμολόγια",
+0, "tabs.html#billsbills", "Λίστα Τιμολογίων",
+0, "tabs.html#billsitems", "Λίστα Ειδών",
+-1,"tabs.html#billswatch", "Λίστα Παρατήρησης",
+0, "tabs.html#static", "Αμετάβλητα στοιχεία",
+0, "tabs.html#provider", "Προμηθευτές",
+0, "tabs.html#hold", "Κρατήσεις",
+-1,"tabs.html#personel", "Προσωπικό μονάδας",
+
+1, "menus.html", "Menus",
+0, "menus.html#file", "Αρχείο",
+0, "menus.html#export", "Εξαγωγή",
+-1,"menus.html#costs", "Δαπάνες",
+
+0, "programming.html", "Για Προγραμματιστές",
+
+1, "general.html", "Διάφορα",
+0, "general.html#commandline", "Γραμμή εντολών",
+-1,"general.html#contactus", "Επικοινωνία"
+
+);
+
+</script>
+
+
+<script>
+	var indent = 0;
+	for (z = 0; z < k.length / 3; z++)
+	{
+		v = k[z * 3];
+		if (v == 1) { document.write("<img src=\"" + enf.src + "\">"); indent++; }
+		document.write("&nbsp;<a href=\"" + k[z * 3 + 1] + "\">" + k[z * 3 + 2] + "</a>");
+		if (v < 0) { for (y = 0; y > v; y--) document.write("</table>"); indent += v; }
+		else { document.write("<br>"); if (v == 1) document.write("<table><tr><td nowrap>"); }
+	}
+	for (z = 0; z < indent; z++) document.write("</table>");
+</script>
+
+</table>
+
+</BODY></HTML>

@@ -13,7 +13,7 @@ public class Material extends HashObject {
 
   public boolean isEmpty() { return get("Υλικό") == null && get("Ποσότητα") == null; }
 
-  public Object put(Object key, Object value) {
+  public Object put(String key, Object value) {
     if (key.equals("Ποσότητα") && value instanceof String) {
       value = new Double(value.toString());
       if (((Number) value).doubleValue() == 0) return remove(key);

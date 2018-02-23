@@ -32,27 +32,15 @@ public class LoadSaveFile {
 
   static public void save(String file, Object sv) {
     try {
-      if (sv == null ||
-	  sv instanceof List && ((List) sv).size() == 0 ||
-	  sv instanceof Dictionary && ((Dictionary) sv).size() == 0 ||
-	  sv instanceof Map && ((Map) sv).size() == 0) return;
-      String s = sv.getClass().getName() + " ";
-      if (sv instanceof Saveable) s += ((Saveable) sv).save();
-      else {
-	String t = sv.toString();
-	if (!(sv instanceof Number))
-	    t = "\"" + t.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"", "\\\\\\\"") + "\"";
-	s += t;
-      }
-      s += ";\r\n";
-
+      
+      String s = Functions.saveable(null, sv);
       String[] d = s.split("\r\n");
       s = "";
       int c = 0;
       for (int z = 0; z < d.length; z++) {
-	if (d[z].startsWith("}") && c > 0) c--;
-	s += "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t".substring(0, c) + d[z] + "\r\n";
-	if (d[z].endsWith("{")) c++;
+				if (d[z].startsWith("}") && c > 0) c--;
+				s += "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t".substring(0, c) + d[z] + "\r\n";
+				if (d[z].endsWith("{")) c++;
       }
 
       saveStringFile(file, s);

@@ -2,22 +2,18 @@ package common;
 
 import java.util.*;
 
-public class VectorObject extends Vector implements Saveable {
+public class VectorObject extends Vector implements Saveable, PhpSerialize {
   public String save() {
     String s = "{\r\n";
-    for (int z = 0; z < size(); z++) {
-      Object value = get(z);
-      s += value.getClass().getName() + " ";
-      if (value instanceof Saveable)
-	s += ((Saveable) value).save();
-      else {
-	String t = value.toString();
-	if (!(value instanceof Number))
-	  t = "\"" + t.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"", "\\\\\\\"") + "\"";
-	s += t;
-      }
-      s += ";\r\n";
-    }
+    for (int z = 0; z < size(); z++)
+      s += Functions.saveable(null, get(z));
+    return s + "}";
+  }
+  
+  public String serialize() {
+    String s = "a:" + size() + ":{";
+    for (int z = 0; z < size(); z++)
+      s += "i:" + z + ";" + Functions.phpSerialize(get(z));
     return s + "}";
   }
 }

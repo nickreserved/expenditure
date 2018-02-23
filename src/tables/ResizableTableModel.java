@@ -57,7 +57,7 @@ public class ResizableTableModel extends AbstractTableModel {
   public void setValueAt(Object obj, int row, int col) {
     try {
       if (row + 1 == getRowCount()) getData().add(classType.newInstance());
-      HashObject o = (HashObject) getData().get(row);
+      Dictionary o = (Dictionary) getData().get(row);
       o.put(hash[col], obj);
       if (o.isEmpty()) getData().remove(row);
     } catch (Exception e) {}

@@ -1,22 +1,13 @@
-Features
---------
-echo		Na spaei se sta8era strings kai mh sta8eres synarthseis (me <? ... ?>) kai sto "toString" kai sto "simplify"
-block		Elegxei an kapoia Function entolh den kanei ekxwrhsh kai thn kanei discard (p.x. sum(a, 5))
-for		simplify
-line		better code line system
+To Do
+=====
 
+Δυσκολία - Καθυστέρηση Κατασκευής - Χαρακτηριστικό
 
-Notes
------
-1.	to function pou 8a brisketai mesa sto block? pws 8a domeitai?
-2.	To throw pws 8a kanei rethrow? pws 8a to kanei handle to catch?
-3.	pws 8a energopoiountai oi extra synarthseis? to package pws kanei enum tis class tou?
-
-
-Bugs
-----
-1.	H break continue return den ypologizoun compile-time ta nested blocks prokeimenou na petoun compile-time error
-
-Dokimes
--------
-1.
+1 - 1 - Το πρόγραμμα δεν εξάγει αποδείξεις για να λαμβάνεται προκαταβολή από το ΚΤΣ.
+7 - 3 - Δεν έχει στηθεί ακόμα η σελίδα του προγράμματος στο web για υποστήριξη, downloads κ.τ.λ.
+5 - 3 - Με την έξοδο να σώζονται όλες οι ανοικτές δαπάνες στο main.ini στο κλειδί "backup" και να επαναφέρονται όταν ξανατρέχουμε το πρόγραμμα.
+2 - 2 - Να προστεθεί menu "ρυθμίσεις" στο πρόγραμμα που να αλλάζει το skin του προγράμματος. Απόθήκευση ρύθμισης στο "main.ini" στο κλειδί "ρυθμίσεις".
+6 - 7 - Οι πίνακες να διαγράφουν την τρέχουσα εγγραφή (σειρά) με το πλήκτρο del και να εισάγουν κενή εγγραφή με το πλήκτρο insert. Παραμένει η τελευταία γραμμή. Το insert θα εισάγει την γραμμή πριν την τρέχουσα.
+4 - 4 - Δημιουργία ενός επιπλέον tab που θα ορίζεται το φύλλο καταχώρησης εγγράφων, και με βάση αυτό, το τί θα εξάγει το πρόγραμμα.
+9 - 9 - Δεν υποστηρίζονται δαπάνες κατασκευής έργων
+9 - 9 - Δεν υποστηρίζονται πρόχειροι και δημόσιοι διαγωνισμοί.
