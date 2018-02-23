@@ -3,7 +3,7 @@ package common;
 import java.util.*;
 
 public class DynHashObject extends HashObject {
-	private Hashtable<String, Object> dyn = new Hashtable();
+	private Hashtable<String, Object> dyn = new Hashtable<String, Object>();
 	
 	public Hashtable<String, Object> getDynamic() { return dyn; }
 	

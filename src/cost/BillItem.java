@@ -10,7 +10,7 @@ public class BillItem extends HashString2Object {
 		classes.put("ΣυνολικήΤιμή", Double.class);
 		classes.put("ΤιμήMονάδαςMεΦΠΑ", Double.class);
 		classes.put("ΣυνολικήΤιμήΜεΦΠΑ", Double.class);
-		super.put("ΦΠΑ", 21);
+		super.put("ΦΠΑ", 23);
 		super.put("Ποσότητα", 1);
 		super.put("ΜονάδαMέτρησης", "τεμάχια");
 	}

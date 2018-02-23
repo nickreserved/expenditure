@@ -109,8 +109,8 @@ public class Bill extends DynHashObject {
 		}
 		else if (!get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", 0);
 		else if (a == 0);
-		else if (c.equals("Παροχή υπηρεσιών") && a != 8 && a != 20) super.put("ΠοσοστόΦΕ", 8);
-		else if (c.equals("Προμήθεια υλικών") && a != 4) super.put("ΠοσοστόΦΕ", 4);
+		else if (c.equals("Παροχή υπηρεσιών") && a == 4) super.put("ΠοσοστόΦΕ", 8);
+		else if (c.equals("Προμήθεια υλικών") && a == 8) super.put("ΠοσοστόΦΕ", 4);
 		else if (c.equals("Αγορά υγρών καυσίμων") && a != 1) super.put("ΠοσοστόΦΕ", 1);
 	}
 	
@@ -122,7 +122,7 @@ public class Bill extends DynHashObject {
 			if (a.equals("ΣΠ/ΚΨΜ") || a.equals("Απόδειξη ενοικιασης"))
 				bi.put("ΦΠΑ", 0);
 			else if (((Number) bi.get("ΦΠΑ")).doubleValue() == 0)
-				bi.put("ΦΠΑ", 21);
+				bi.put("ΦΠΑ", 23);
 		}
 	}
 }

@@ -31,7 +31,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		billModel = new ResizableTableModel((Vector) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
 		JTable billTable = new ResizableTable(billModel, true, true);
 		cm = billTable.getColumnModel();
-		JComboBox fpa = new JComboBox(new Byte[] { 21, 10, 15, 7, 0 });
+		JComboBox fpa = new JComboBox(new Byte[] { 23, 11, 16, 8, 0 });
 		fpa.setEditable(true);
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(fpa));
 		cbMeasures.setEditable(true);
