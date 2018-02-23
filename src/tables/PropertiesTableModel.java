@@ -29,7 +29,7 @@ public class PropertiesTableModel extends AbstractTableModel {
   public int getColumnCount() { return hash.length / getRowCount(); }
   public int getRowCount() { return vHeader.length; }
   public String getColumnName(int col) { return col == -1 || hHeader == null ? null : hHeader[col]; }
-  public boolean isCellEditable(int row, int col) { return col != -1; }
+  public boolean isCellEditable(int row, int col) { return col != -1 && hash[row] != null; }
   
   public Object getValueAt(int row, int col) {
     if (col == -1)

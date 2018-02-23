@@ -1,20 +1,16 @@
 <?
-require_once('engine/functions.php');
+require_once('engine/init.php');
 require_once('header.php');
-
-if (!isset($bills_contract)) $bills_contract = getBillsCategory($data['Τιμολόγια'], 'Παροχή υπηρεσιών');
 
 if ($bills_contract) {
 ?>
-
-{
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
 \fs28\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΠΑΡΑΛΑΒΗΣ ΓΕΝΟΜΕΝΗΣ ΕΡΓΑΣΙΑΣ\par\par
 \pard\plain\tx567\tx1134\qj
-\tab Σήμερα την <?=now()?> η υπογεγραμμένη επιτροπή αποτελούμενη από τους:\par
+\tab Σήμερα την <?=get_last_bill_date()?> η υπογεγραμμένη επιτροπή αποτελούμενη από τους:\par
 \tab\tab α. <?=man_ext($data['ΠρόεδροςΑγοράςΔιάθεσης'], 2)?> ως πρόεδρο\par
 \tab\tab β. <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΑ'], 2)?> και\par
 \tab\tab γ. <?=man_ext($data['ΜέλοςΑγοράςΔιάθεσηςΒ'], 2)?> ως μέλη\par
@@ -28,11 +24,11 @@ if ($bills_contract) {
 \qc\b A/A\cell ΕΙΔΟΣ\cell ΜΟΝΑΔΑ\cell ΠΟΣΟΤΗΤΑ\b0\cell\row
 <?
 $count = 0;
-foreach($bills_contract as $v) {
-	$items = $v['Είδη'];
-	foreach($items as $i) { ?>
-\qr <?=++$count?>\cell\qj <?=chk($i['Είδος'])?>\cell\qc <?=chk($i['ΜονάδαMέτρησης'])?>\cell <?=num($i['Ποσότητα'])?>\cell\row
-<? } } ?>
+foreach($bills_contract as $v)
+	foreach($v['Είδη'] as $i) {
+		?>\qr <?=++$count?>\cell\qj <?=chk($i['Είδος'])?>\cell\qc <?=chk_measure($i['ΜονάδαMέτρησης'])?>\cell <?=num($i['Ποσότητα'])?>\cell\row<?
+	} ?>
+\pard\plain\qr <?=chk($data['Πόλη']) . ', ' . $data['ΗμερομηνίαΤελευταίουΤιμολογίου']?>\par
 
 \pard\plain\fs23\par
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
@@ -43,7 +39,5 @@ foreach($bills_contract as $v) {
 \line\line\line <?=chk($data['ΜέλοςΑγοράςΔιάθεσηςΒ']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΜέλοςΑγοράςΔιάθεσηςΒ']['Βαθμός'])?>\cell\row
 
 \sect
-
-}
 
 <? } ?>

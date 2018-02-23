@@ -21,8 +21,5 @@ public class StaticData extends JPanel implements DataTransmitter {
 		add(PropertiesTable.getScrolled(new PropertiesTableModel(hash, this, hdr), cmp, 130));
 	}
 	
-	public Object getData() {
-		Object c = MainFrame.costs.get();
-		return c == null ? MainFrame.data.get("ΑμετάβληταΣτοιχείαΔαπάνης") : c;
-	}
+	public Object getData() {	return MainFrame.data.get("ΑμετάβληταΣτοιχείαΔαπάνης");	}
 }

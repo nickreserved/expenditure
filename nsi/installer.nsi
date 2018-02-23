@@ -1,18 +1,13 @@
-# check for JVM before install
-# if php don't exist you must download package and install
-
-
+# -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.2.0"
-!define ΜΕ "Υπλγος(ΜΧ) Γκέσος Παύλος"
+!define VERSION "1.3.0"
+!define ME "Υπλγος(ΜΧ) Γκέσος Παύλος"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"
-#!define PHP_RE_URL "http://127.0.0.1/programs/cost/php_cli.exe"
-#!define PHP_RE_URL "http://fasolada.dyndns.org/programs/cost/php_cli.exe"
 !define PHP_RE_URL "http://tassadar.physics.auth.gr/~chameleon/programs/cost/program/php_cli.exe"
 
-
+# ------------------------------------------------------------------ general ---
 Name "${PROGRAM} ${VERSION}"
 OutFile "..\cost_${VERSION}.exe"
 InstallDir "$PROGRAMFILES\Στρατιωτικές Δαπάνες"
@@ -35,7 +30,7 @@ VIAddVersionKey /LANG=${LANG_GREEK} "FileDescription" "Πρόγραμμα για σύνταξη δικ
 VIAddVersionKey /LANG=${LANG_GREEK} "LegalCopyright" "${ΜΕ}"
 VIAddVersionKey /LANG=${LANG_GREEK} "FileVersion" "${VERSION}"
 
-
+# ----------------------------------------------------- check for php & java ---
 Function .onInit
 	IfFileExists $WINDIR\php.exe 0 +3
 	IfFileExists $WINDIR\php5ts.dll phpexists
@@ -67,12 +62,12 @@ javaexists:
 FunctionEnd
 
 
+# ----------------------------------------------------- default installation ---
 Section
 
 	SetOutPath $INSTDIR
 
-	File /r ..\dist\php
-	File ..\dist\Cost.jar
+	File /r ..\dist\*.*
 	File ..\*.txt
 	File ..\cost.ico
 
@@ -94,14 +89,14 @@ Section
 
 SectionEnd
 
-
+# --------------------------------------------------------------- start menu ---
 Section 'Συντομεύσεις στο μενού "Έναρξη"'
 
-	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$INSTDIR\cost.jar" "" "$INSTDIR\cost.ico" 0
+	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" $SYSDIR\javaw.exe "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: GNU GPL"
 
 SectionEnd
 
-
+# -------------------------------------------------------------- source code ---
 Section /o 'Πηγαίος Κώδικας'
 
 	SetOutPath "$INSTDIR\source"
@@ -114,7 +109,7 @@ Section /o 'Πηγαίος Κώδικας'
 
 SectionEnd
 
-
+# --------------------------------------------------------------------- help ---
 Section 'Βοήθεια'
 
 	SetOutPath $INSTDIR
@@ -123,6 +118,7 @@ Section 'Βοήθεια'
 
 SectionEnd
 
+# ------------------------------------------------------------------ scripts ---
 Section 'Χρήσιμα Scripts'
 
 	SetOutPath $INSTDIR
@@ -131,9 +127,7 @@ Section 'Χρήσιμα Scripts'
 
 SectionEnd
 
-;--------------------------------
-
-; Uninstaller
+# -------------------------------------------------------------- Uninstaller ---
 
 Section "Uninstall"
 

@@ -10,8 +10,8 @@ public class BillItem extends HashString2Object {
 		classes.put("ΣυνολικήΤιμή", Double.class);
 		classes.put("ΤιμήMονάδαςMεΦΠΑ", Double.class);
 		classes.put("ΣυνολικήΤιμήΜεΦΠΑ", Double.class);
-		super.put("ΦΠΑ", new Byte((byte) 19));
-		super.put("Ποσότητα", new Double(1));
+		super.put("ΦΠΑ", 19);
+		super.put("Ποσότητα", 1);
 		super.put("ΜονάδαMέτρησης", "τεμάχια");
 	}
 	
@@ -19,7 +19,7 @@ public class BillItem extends HashString2Object {
 	
 	private void recalculate() {
 		Number nFpa = (Number) super.get("ΦΠΑ");
-		if (nFpa == null) super.put("ΦΠΑ", nFpa = new Byte((byte) 0));
+		if (nFpa == null) super.put("ΦΠΑ", nFpa = 0);
 		double many = M.safeNumber2double((Number) super.get("Ποσότητα"));
 		double cost = M.safeNumber2double((Number) super.get("ΤιμήΜονάδας"));
 		double fpa = nFpa.doubleValue();

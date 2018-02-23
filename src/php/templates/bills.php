@@ -1,8 +1,6 @@
 <?
-require_once('engine/functions.php');
+require_once('engine/init.php');
 require_once('header.php');
-
-if (!isset($bills)) $bills = $data['Τιμολόγια'];
 ?>
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134

@@ -26,15 +26,16 @@ public class MainFrame extends JFrame implements ActionListener {
 				"taxis", "fe", null, "Εφορία",
 				"provider", "fe", null, "Προμηθευτής",
 			"mail", "export", null, "Αλληλογραφία",
-				"committee", "mail", null, "Συγκρότηση Επιτροπών",
-					"committee_draft", "committee", null, "Σχέδιο",
-					"committee_nodraft", "committee", null, "Ακριβές Αντίγραφο",
-				"route_slip", "mail", null, "Διαβιβαστικό Δαπάνης",
-					"route_slip_draft", "route_slip", null, "Σχέδιο",
-					"route_slip_nodraft", "route_slip", null, "Ακριβές Αντίγραφο",
-				"prereport", "mail", null, "Έκθεση Απαιτούμενης Δαπάνης",
-					"prereport_draft", "prereport", null, "Σχέδιο",
-					"prereport_nodraft", "prereport", null, "Ακριβές Αντίγραφο",
+				"order_order", "mail", null, "Συγκρότηση Επιτροπών",
+				"contract_order", "mail", null, "Διαταγές για Εργολαβίες",
+					"order_order_contractor", "contract_order", null, "Ανάθεση Εργολαβίας",
+					"order_order_work_officer", "contract_order", null, "Ορισμός Αξκου Έργου",
+					"order_order_obscure_work", "contract_order", null, "Συγκρότηση Επιτροπής Αφανών Εργασιών",
+					"order_order_temporary_finally_taking", "contract_order", null, "Συγκρότηση Επιτροπής Προσωρινής και Οριστικής Παραλαβής",
+					"order_order_quality_quantity", "contract_order", null, "Συγκρότηση Επιτροπής Ποιοτικής και Ποσοτικής Παραλαβής",
+					"order_order_buy_service", "contract_order", null, "Συγκρότηση Επιτροπής Αγοράς και Διάθεσης",
+				"order_route_slip", "mail", null, "Διαβιβαστικό Δαπάνης",
+				"order_prereport", "mail", null, "Έκθεση Απαιτούμενης Δαπάνης",
 			"other", "export", null, "Διάφορα",
 				"hold", "other", null, "Ανάλυση Κρατήσεων",
 				"bills", "other", null, "Λίστα Τιμολογίων",
@@ -43,7 +44,8 @@ public class MainFrame extends JFrame implements ActionListener {
 			"skins", "options", "skins", "Κέλυφος ",
 		"costs", null, null, "Δαπάνες",
 		"help", null, null, "Βοήθεια",
-			"help_open", "help", "help", "Βοήθεια"
+			"help_open", "help", "help", "Βοήθεια",
+			"about", "help", "about", "Περί..."
 	};
 	private static JMenuItem[] menu = new JMenuItem[mnu.length / 4];
 	
@@ -54,7 +56,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 	
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.2.0");
+		super("Στρατιωτικές Δαπάνες 1.3.0");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 		
 		Providers prov = new Providers();
@@ -66,6 +68,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainTab.addTab("Στοιχεία Δαπάνης", new CostData(contents));
 		mainTab.addTab("Τιμολόγια", new Bills());
 		mainTab.addTab("Φύλλο καταχώρησης", contents);
+		mainTab.addTab("Εργασίες", new Works());
 		mainTab.addTab("Αμετάβλητα Στοιχεία", new StaticData());
 		mainTab.addTab("Προμηθευτές", prov);
 		mainTab.addTab("Κρατήσεις", holds);
@@ -76,18 +79,20 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainTab.setBackgroundAt(0, c);
 		mainTab.setBackgroundAt(1, c);
 		mainTab.setBackgroundAt(2, c);
+		mainTab.setBackgroundAt(3, c);
 		c = Color.decode("#e0e0b0");
 		mainTab.setBackgroundAt(4, c);
 		mainTab.setBackgroundAt(5, c);
 		mainTab.setBackgroundAt(6, c);
-		
+		mainTab.setBackgroundAt(7, c);
+
 		updatePanels();
 		
 		setJMenuBar(createMenus(new JMenuBar()));
 		updateMenus();
 		addOptionsMenu();
 		
-		setSize(635, 450);
+		setSize(700, 450);
 		setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 		setVisible(true);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -166,7 +171,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	
 	private void openCost() {
 		try {
-			JFileChooser fc = new JFileChooser();
+			JFileChooser fc = new JFileChooser(costs.getPos());
 			fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
 			int returnVal = fc.showOpenDialog(this);
 			if(returnVal != JFileChooser.APPROVE_OPTION) return;
@@ -202,20 +207,18 @@ public class MainFrame extends JFrame implements ActionListener {
 	
 	private void updatePanels() {
 		JTabbedPane j = (JTabbedPane) getContentPane().getComponent(0);
-		j.setBackgroundAt(3, Color.decode(costs.getPos() == null ? "#e0e0b0" : "#b0d0b0"));
-		for (int z = 0; z < 3; z++)
+		for (int z = 0; z < 4; z++)
 			j.setEnabledAt(z, costs.getPos() != null);
-		if (costs.getPos() == null && j.getSelectedIndex() < 3) j.setSelectedIndex(3);
+		if (costs.getPos() == null && j.getSelectedIndex() < 4) j.setSelectedIndex(4);
 		repaint();
 	}
 	
 	private void updateMenus() {
 		getMenuFromName("save").setEnabled(costs.getPos() != null);
 		getMenuFromName("close").setEnabled(costs.getPos() != null);
+		getMenuFromName("export").setEnabled(costs.getPos() != null);
 		JMenu window = (JMenu) getMenuFromName("costs");
 		window.setEnabled(costs.getPos() != null);
-		JMenu export = (JMenu) getMenuFromName("export");
-		export.setEnabled(costs.getPos() != null);
 		
 		if (costs.getPos() != null) {
 			window.removeAll();
@@ -246,9 +249,15 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 	
 	public void addOptionsMenu() {
-		JMenuItem skins = getMenuFromName("skins");
+		JMenu options = (JMenu) getMenuFromName("options");
+		HashObject h = (HashObject) data.get("Ρυθμίσεις");
+		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Μόνο μια φορά", new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")), Boolean.TRUE.equals(h.get("ΜιαΦορά")));
+		cbmi.addActionListener(this);
+		cbmi.setActionCommand("only_one");
+		options.add(cbmi);
+		JMenuItem skins = options.getItem(0);
 		LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
-		String s = (String) ((HashObject) data.get("Ρυθμίσεις")).get("Κέλυφος");
+		String s = (String) h.get("Κέλυφος");
 		if (s == null) s = UIManager.getSystemLookAndFeelClassName();
 		
 		ButtonGroup btg = new ButtonGroup();
@@ -329,7 +338,8 @@ public class MainFrame extends JFrame implements ActionListener {
 		
 		// if we must output a draft order
 		Map<String, String> env = new Hashtable();
-		env.put("draft", "true");
+		Map<String, Object> options = (HashObject) data.get("Ρυθμίσεις");
+		if (Boolean.TRUE.equals(options.get("ΜιαΦορά"))) env.put("one", "true");
 		
 		if (((JMenu) getMenuFromName("skins")).isMenuComponent(j)) {
 			((HashObject) data.get("Ρυθμίσεις")).put("Κέλυφος", ac);
@@ -337,23 +347,25 @@ public class MainFrame extends JFrame implements ActionListener {
 		} else if (((JMenu) getMenuFromName("costs")).isMenuComponent(j)) {
 			costs.setPos(ac);
 			updatePanels();
-		} else if (ac == "new") newCost();
+		}
+		else if (ac == "new") newCost();
 		else if (ac == "open") openCost();
 		else if (ac == "save") saveCost();
 		else if (ac == "close") closeCost();
 		else if (ac == "exit") dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		else if (ac == "cost") ExportReport.exportReport("templates/cost.php");
+		else if (ac == "cost") ExportReport.exportReport("templates/cost.php", env);
 		else if (ac == "taxis") ExportReport.exportReport("templates/fe_tax.php");
 		else if (ac == "provider") ExportReport.exportReport("templates/fe_provider.php");
-		else if (ac == "prereport_draft") ExportReport.exportReport("templates/prereport.php", env);
-		else if (ac == "prereport_nodraft") ExportReport.exportReport("templates/prereport.php");
+		else if (ac.startsWith("order_")) {
+			String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
+			Object b = JOptionPane.showInputDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
+			if (b == null) return; else if (a[1].equals(b)) env.put("draft", "true");
+			ExportReport.exportReport("templates/" + ac.substring(6) + ".php", env);
+		}
 		else if (ac == "hold") ExportReport.exportReport("templates/holds.php");
 		else if (ac == "bills") ExportReport.exportReport("templates/bills.php");
 		else if (ac == "ticket") ExportReport.exportReport("templates/ticket.php");
-		else if (ac == "committee_draft") ExportReport.exportReport("templates/order.php", env);
-		else if (ac == "committee_nodraft") ExportReport.exportReport("templates/order.php");
-		else if (ac == "route_slip_draft") ExportReport.exportReport("templates/route_slip.php", env);
-		else if (ac == "route_slip_nodraft") ExportReport.exportReport("templates/route_slip.php");
+		else if (ac == "only_one") options.put("ΜιαΦορά", !Boolean.TRUE.equals(options.get("ΜιαΦορά")));
 		else if (ac == "help_open") {
 			try {
 				BrowserLauncher.openURL(rootPath + "help/index.html");
@@ -361,6 +373,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.3.0 alpha</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>GNU GPL</b><br>Δημοσίευση: <b>12 Δεκ 2005</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/cost/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	

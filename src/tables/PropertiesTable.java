@@ -22,8 +22,9 @@ public class PropertiesTable extends JTable {
 		vert.setForeground(getTableHeader().getForeground());
 		
 		setModel(tcr);
+		vert.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setSelectionModel(vert.getSelectionModel());
-		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
 		getTableHeader().setReorderingAllowed(false);
 		if (tcr.getHeaders(true) == null) setTableHeader(null);
 		for (int z = 0; z < this.getColumnCount(); z++)

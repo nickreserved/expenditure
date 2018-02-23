@@ -1,26 +1,26 @@
 <?
-require_once('engine/functions.php');
-require_once('header.php');
+require_once('engine/basic.php');
 
-if (isset($data['Ποσό'])) $cost = $data['Ποσό'];
+if (isset($data['Ποσό']) || !count($data['Τιμολόγια'])) $data['Προκαταβολή'] = $data['Ποσό'];
 else {
 	$a = calc_bills($data['Τιμολόγια']);
-	$cost = $a['Πληρωτέο'];
+	$data['Προκαταβολή'] = $a['Πληρωτέο'];
 	foreach($data['ΦύλλοΚαταχώρησης'] as $v)
 		if ($v['Δικαιολογητικό'] == 'Βεβαίωση Απόδοσης Κρατήσεων') {
-			$cost = $a['Καταλογιστέο'];
+			$data['Προκαταβολή'] = $a['Καταλογιστέο'];
 			break;
 		}
 }
+
+require_once('engine/init.php');
+require_once('header.php');
 ?>
 
 
-{
-
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\fs28\b\ul\qc ΑΠΟΔΕΙΞΗ <?=euro($cost)?>\par\par
-\pard\plain\qj Ο υπογεγραμένος <?=man_ext($data['ΑξκοςΈργου'], 0)?> έλαβα <?=euro2str($cost)?> (<?=euro($cost)?>), για «<?=chk($data['Τίτλος'])?>» κατόπιν της δγης <?=chk_order($data['ΔγηΔιάθεσης'])?> και <?=chk_order($data['ΔγηΑνάθεσης'])?>\par
+\pard\plain\fs28\b\ul\qc ΑΠΟΔΕΙΞΗ <?=euro($data['Προκαταβολή'])?>\par\par
+\pard\plain\qj Ο υπογεγραμένος <?=man_ext($data['ΑξκοςΈργου'], 0)?> έλαβα <?=euro2str($data['Προκαταβολή'])?> (<?=euro($data['Προκαταβολή'])?>), για «<?=chk($data['Τίτλος'])?>» κατόπιν της δγης <?=chk_order($data['ΔγηΔιάθεσης'])?> και <?=chk_order($data['ΔγηΑξκουΈργου'])?> οι οποίες επισυνάπτονται.\par
 \qr <?=now()?>\par
 
 \pard\plain\fs23\par
@@ -37,7 +37,7 @@ else {
 
 
 \fs28\b\ul\qc ΕΞΟΥΣΙΟΔΟΤΗΣΗ\par\par
-\pard\plain\qj Ο υπογεγραμένος <?=man_ext($data['ΑξκοςΈργου'], 0)?>, εξουσιοδοτώ τον . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . να παραλάβει <?=euro2str($cost)?> (<?=euro($cost)?>), για «<?=chk($data['Τίτλος'])?>».\par
+\pard\plain\qj Ο υπογεγραμένος <?=man_ext($data['ΑξκοςΈργου'], 0)?>, εξουσιοδοτώ τον . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . να παραλάβει <?=euro2str($data['Προκαταβολή'])?> (<?=euro($data['Προκαταβολή'])?>), για «<?=chk($data['Τίτλος'])?>».\par
 \qr <?=now()?>\par
 
 \pard\plain\fs23\par
@@ -47,14 +47,11 @@ else {
 - Ο -\line ΕΞΟΥΣΙΟΔΟΤΩΝ\line\line\line <?=chk($data['ΑξκοςΈργου']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΑξκοςΈργου']['Βαθμός'])?>\cell
 - Ο -\line ΕΞΟΥΣΙΟΔΟΤΟΥΜΕΝΟΣ\cell\row
 
-
 \sect
-
-}
-
 
 <?
 // Για να βγεί ακριβές αντίγραφο των διαταγών και όχι σχέδιο
 $draft = false;
-require('order.php');
+if (strpos($data['ΤύποςΔαπάνης'], 'Εργοληπτική Επιχείρηση')) require('order_work_officer.php');
+else require('order.php');
 ?>

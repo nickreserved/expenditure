@@ -19,7 +19,7 @@ Section
 	IfFileExists $WINDIR\php.exe 0 write
 	IfFileExists $WINDIR\php5ts.dll end write
 write:	SetOutPath $WINDIR
-	File "c:\windows\php.exe"
-	File "c:\windows\php5ts.dll"
+	File c:\windows\php.exe
+	File c:\windows\php5ts.dll
 end:	MessageBox MB_OK|MB_ICONINFORMATION "Η εγκατάσταση του ${PROGRAM} ${VERSION} ολοκληρώθηκε."
 SectionEnd

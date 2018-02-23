@@ -9,6 +9,8 @@ import tables.*;
 import common.*;
 
 public class Bills extends JPanel implements ListSelectionListener, DataTransmitter, TableModelListener {
+	static private final String[] measures = { "τεμάχια", "lt", "Kgr", "ton", "mm", "cm", "<html>cm<sup>2", "<html>cm<sup>3", "m", "<html>m<sup>2", "<html>m<sup>3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "<html>Km<sup>2" };
+	static protected JComboBox cbMeasures = new JComboBox(measures);
 	private ResizableTableModel billModel;
 	private PropertiesTable tblSum;
 	private JTable tblBills;
@@ -18,16 +20,14 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		final String[] itemHeader = { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"};
 		final String[] itemHash = { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"};
 		
-		final String[] measures = { "τεμάχια", "lt", "Kgr", "cm", "cm^2", "cm^3", "m", "m^2", "m^3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "Km^2" };
-		final Number[] fpaList = { new Byte((byte) 36), new Byte((byte) 19), new Byte((byte) 9), new Byte((byte) 0) };
-		
 		final String[] billHeader = { null, null, null, null, "Κρατήσεις", "ΦΕ" };
 		final String[] billHash = { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" };
 		
-		final Number[] feList = { new Byte((byte) 8), new Byte((byte) 4), new Byte((byte) 3), new Byte((byte) 1), new Byte((byte) 0) };
-		final String[] billTypes = { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο" };
+		final Byte[] fpaList = { 19, 9, 0 };
+		final Byte[] feList = { 4, 8, 0, 1 };
+		final String[] billTypes = { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο", "Απόδειξη ενοικιασης" };
 		final String[] categories = { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" };
-		
+
 		ResizableTableModel billsModel = new ResizableTableModel(this, billHash, billHeader, Bill.class);
 		billsModel.addTableModelListener(this);
 		tblBills = new ResizableTable(billsModel, false);
@@ -46,7 +46,6 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		JComboBox fpa = new JComboBox(fpaList);
 		fpa.setEditable(true);
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(fpa));
-		JComboBox cbMeasures = new JComboBox(measures);
 		cbMeasures.setEditable(true);
 		cm.getColumn(7).setCellEditor(new DefaultCellEditor(cbMeasures));
 		billModel.addTableModelListener(this);
@@ -110,7 +109,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 							o = ((Map) o).get("Σύνολο");
 						break;
 					case 1:
-						o = new Double(0);
+						o = 0d;
 						for (int z = 0; z < bv.size(); z++) {
 							t = ((Bill) bv.get(z)).get(hash[row]);
 							if ((row == 1 || row == 3) && t != null)

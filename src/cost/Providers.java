@@ -9,7 +9,7 @@ public class Providers extends JPanel implements DataTransmitter {
 
 	public Providers() {
 		final String[] header = { "Επωνυμία", "ΑΦΜ", "ΔΟΥ", "Τηλέφωνο", "Τ.Κ.", "Πόλη", "Διεύθυνση"};
-		providers = new JComboBox(new ComboDataModel(this));
+		providers = new JComboBox(new ComboDataModel(this, null));
     setLayout(new BorderLayout());
     add(new JScrollPane(new JTable(new ResizableTableModel(this, header, null, Provider.class))));
   }

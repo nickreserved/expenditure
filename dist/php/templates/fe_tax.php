@@ -1,19 +1,18 @@
 <?
-require_once('engine/functions.php');
+require_once('engine/init.php');
 require_once('header.php');
 
-if (!isset($bills_month)) $bills_month = bills_by_month(bills_with_fe($data['Τιμολόγια']));
-
-foreach ($bills_month as $my => $list) {
-	$list_info = calc_bills($list);
+$c = bills_with_fe($bills);
+if (!$c) trigger_error('Δεν υπάρχουν τιμολόγια με ΦΕ', E_USER_ERROR);
+$c = bills_by_month($c);
+foreach ($c as $k => $v) {
+	$a = calc_bills($v);
 ?>
-
-{
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\fs21\trowd\cellx7370\cellx10206
-\ul Προς τη ΔΟΥ\line Οικονομικό Έτος:\ul0  <?=strftime('%Y', $my)?>\line\ul Μήνας:\ul0  <?=strftime('%b', $my)?>\cell
+\ul Προς τη ΔΟΥ\line Οικονομικό Έτος:\ul0  <?=strftime('%Y', $k)?>\line\ul Μήνας:\ul0  <?=strftime('%b', $k)?>\cell
 \ul Δήλωση:\line Αριθμός Φακέλου:\line Φορ. Μητρώο:\cell\row
 
 \pard\plain\qc{\b Δ Η Λ Ω Σ Η}\par\par
@@ -46,17 +45,17 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx10206
 \qc Είδος τιμολογίου\cell Καθαρή αξία\cell Συντελεστής φόρου\cell Ποσό φόρου\cell\row
 <?
-	$list_fe = bills_by_fe($list);
-	foreach($list_fe as $v) {
-		$v_info = calc_bills($v);
-		echo '\ql ' . chk($v[0]['Κατηγορία']) . '\cell\qr ' . euro($v_info['ΚαθαρήΑξίαΜείονΚρατήσεις']) . '\cell\qc ' . percent($v[0]['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($v_info['ΦΕΣεΕυρώ']) . '\cell\row';
+	$b = bills_by_fe($v);
+	foreach($b as $i) {
+		$d = calc_bills($i);
+		echo '\ql ' . chk($i[0]['Κατηγορία']) . '\cell\qr ' . euro($d['ΚαθαρήΑξίαΜείονΚρατήσεις']) . '\cell\qc ' . percent($i[0]['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($d['ΦΕΣεΕυρώ']) . '\cell\row';
 	}
 ?>
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\cellx3118
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\cellx5386
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx10206
-\qr ΣΥΝΟΛΟ\cell <?=euro($list_info['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell <?=euro($v_info['ΦΕΣεΕυρώ'])?>\cell\row
+\qr ΣΥΝΟΛΟ\cell <?=euro($a['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell <?=euro($a['ΦΕΣεΕυρώ'])?>\cell\row
 \ql Φόρος λόγω εκπρόθεσμου\cell\cell\cell\row
 \qr ΓΕΝΙΚΟ ΣΥΝΟΛΟ\cell\cell\cell\row
 
@@ -94,22 +93,22 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx12416
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx13946
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx15137
-Επωνυμία\cell Α.Φ.Μ.\cell Διεύθυνση\cell\Είδος τιμολογίου\cell Τιμολόγιο\cell\ Καθαρή αξία\cell Ποσοστό φόρου\cell Ποσό φόρου\cell\row
+Επωνυμία\cell Α.Φ.Μ.\cell Διεύθυνση\cell Είδος τιμολογίου\cell Τιμολόγιο\cell\ Καθαρή αξία\cell Ποσοστό φόρου\cell Ποσό φόρου\cell\row
 <?
-	foreach($list as $v) {
-		$provider = $v['Προμηθευτής'];
-		echo '\ql ' . chk($provider['Επωνυμία']) . '\cell\qc ' . chk($provider['ΑΦΜ']) . '\cell\ql ';
-		if (isset($provider['Πόλη'])) echo chk($provider['Πόλη']);
-		if (isset($provider['Διεύθυνση']) && isset($provider['Πόλη'])) echo ', ';
-		if (isset($provider['Διεύθυνση'])) echo chk($provider['Διεύθυνση']);
-		echo '\cell\qc ' . chk($v['Κατηγορία']) . '\cell ' . chk_bill($v['Τιμολόγιο']) . '\cell\qr ' . euro($v['ΚαθαρήΑξίαΜείονΚρατήσεις']) . '\cell\qc ' . percent($v['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($v['ΦΕΣεΕυρώ']) . '\cell\row';
+	foreach($v as $i) {
+		$d = $i['Προμηθευτής'];
+		echo '\ql ' . chk($d['Επωνυμία']) . '\cell\qc ' . chk($d['ΑΦΜ']) . '\cell\ql ';
+		if (isset($d['Πόλη'])) echo chk($d['Πόλη']);
+		if (isset($d['Διεύθυνση']) && isset($d['Πόλη'])) echo ', ';
+		if (isset($d['Διεύθυνση'])) echo chk($d['Διεύθυνση']);
+		echo '\cell\qc ' . chk($i['Κατηγορία']) . '\cell ' . chk_bill($i['Τιμολόγιο']) . '\cell\qr ' . euro($i['ΚαθαρήΑξίαΜείονΚρατήσεις']) . '\cell\qc ' . percent($i['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($i['ΦΕΣεΕυρώ']) . '\cell\row';
 	}
 ?>
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28\fs20
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx11169
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx12416
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx15137
-\qr ΣΥΝΟΛΟ:\cell <?=euro($list_info['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell <?=euro($list_info['ΦΕΣεΕυρώ'])?>\cell\row
+\qr ΣΥΝΟΛΟ:\cell <?=euro($a['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell <?=euro($a['ΦΕΣεΕυρώ'])?>\cell\row
 \pard\plain\qr <?=chk($data['Πόλη']) . ', ' . now()?>\par
 
 \pard\plain\fs23\par
@@ -118,8 +117,5 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 \line - Ο -\line ΑΞΚΟΣ ΕΡΓΟΥ\line\line\line <?=chk($data['ΑξκοςΈργου']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΑξκοςΈργου']['Βαθμός'])?>\cell\row
 
 \sect
-
-}
-
 
 <? } ?>

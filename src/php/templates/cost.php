@@ -1,4 +1,6 @@
 <?
+require_once('engine/init.php');
+require_once('header.php');
 
 // Για να βγεί η Έκθεση "Γενομένης" και όχι "Απαιτουμένης" Δαπάνης
 $prereport = false;
@@ -6,18 +8,19 @@ $prereport = false;
 // Για να βγεί ακριβές αντίγραφο των διαταγών και όχι σχέδιο
 $draft = false;
 
-require_once('engine/functions.php');
-require_once('engine/order.php');
-require_once('header.php');
+// Αν η ρύθμιση "Μόνο μια φορά" είναι ενεργή
+$onlyone = getEnvironment('one', 'true');
 
+if (!isset($data['ΦύλλοΚαταχώρησης']))
+	trigger_error('Ορίστε <b>Τύπο Δαπάνης</b> και <b>Τύπο Διαγωνισμού</b> για να δημιουργηθεί το Φύλλο Καταχώρησης', E_USER_ERROR);
 
-foreach($data['ΦύλλοΚαταχώρησης'] as $cost_item)
-	if (isset($cost_item['Αρχείο'])) {
-		// Αν μπει ρύθμιση για να μην εκτυπώνει πάνω από 1, εδώ.
-		// Να μπει με include_once γιατί μπορεί να υπάρχουν διάσπαρτα τα αρχεία.
+foreach($data['ΦύλλοΚαταχώρησης'] as $cost_v)
+	if (isset($cost_v['Αρχείο'])) {
 		ob_start();
-		require("{$cost_item['Αρχείο']}.php");
+		require("{$cost_v['Αρχείο']}.php");
 		$a = ob_get_clean();
-		for($z = 0; $z < $cost_item['Πλήθος']; $z++) echo $a;
+		$b = $onlyone ? 1 : $cost_v['Πλήθος'];
+		for($z = 0; $z < $b; $z++) echo $a;
 	}
+
 ?>

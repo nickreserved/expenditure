@@ -5,13 +5,13 @@ import common.*;
 
 public class Bill extends DynHashObject {
 	public Bill() {
-		put("ΠοσοστόΦΕ", new Byte((byte) 4));
-		put("Τύπος", "Τιμολόγιο");
-		put("Κατηγορία", "Προμήθεια υλικών");
-		put("Είδη", new VectorObject());
+		super.put("ΠοσοστόΦΕ", 4);
+		super.put("Τύπος", "Τιμολόγιο");
+		super.put("Κατηγορία", "Προμήθεια υλικών");
+		super.put("Είδη", new VectorObject());
 	}
 	
-	public String toString() { return super.get("Τιμολόγιο").toString(); }
+	public String toString() { return get("Τιμολόγιο").toString(); }
 	
 	public Object put(String key, Object value) {
 		Object o = super.put(key, value);
@@ -21,19 +21,19 @@ public class Bill extends DynHashObject {
 	
 	protected final void recalculate() {
 		try {
-			Vector items = (Vector) get("Είδη");
-			Number kak, ka, kat, pl, fe, tfpa, thold, d = new Double(0);
+			Vector<BillItem> items = (Vector) get("Είδη");
+			Number kak, ka, kat, pl, fe, tfpa, thold, d = 0d;
 			
 			
 			for (int z = 0; z < items.size(); z++)
-				d = M.add(d, (Number) ((BillItem) items.get(z)).getDynamic().get("ΣυνολικήΤιμή"));
+				d = M.add(d, (Number) items.get(z).getDynamic().get("ΣυνολικήΤιμή"));
 			getDynamic().put("ΚαθαρήΑξία", ka = M.round(d, 2));
 			
 			
 			Dictionary h = new HashObject();
 			setFpa();
 			for (int z = 0; z < items.size(); z++) {
-				BillItem bi = (BillItem) items.get(z);
+				BillItem bi = items.get(z);
 				Number fpa = (Number) bi.get("ΦΠΑ");
 				d = (Number) h.get(fpa.toString());
 				Number va = (Number) bi.getDynamic().get("ΣυνολικήΤιμή");
@@ -41,7 +41,7 @@ public class Bill extends DynHashObject {
 					if (d == null) h.put(fpa.toString(), va); else h.put(fpa.toString(), M.add(d, va));
 				}
 			}
-			d = new Double(0);
+			d = 0d;
 			Enumeration en = h.keys();
 			while (en.hasMoreElements()) {
 				Number fpa = new Byte(en.nextElement().toString());
@@ -53,7 +53,7 @@ public class Bill extends DynHashObject {
 			getDynamic().put("ΚατηγορίεςΦΠΑ", h);
 			
 			
-			Hold hold = (Hold) super.get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
+			Hold hold = (Hold) get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
 			h = new HashObject();
 			TreeMap tm = new TreeMap();
 			Number sum = M.round(M.mul(ka, M.div((Number) hold.getDynamic().get("Σύνολο"), 100)), 2);
@@ -86,8 +86,8 @@ public class Bill extends DynHashObject {
 			}
 			getDynamic().put("ΑνάλυσηΚρατήσεωνΣεΕυρώ", h);
 			
-			
-			getDynamic().put("Καταλογιστέο", kat = M.round(M.add("ΣΠ/ΚΨΜ".equals(super.get("Τύπος")) ? thold : tfpa, ka), 2));
+			kat = "ΣΠ/ΚΨΜ".equals(get("Τύπος")) || "Δημόσιο".equals(get("Τύπος")) ? M.add(thold, tfpa) : tfpa;
+			getDynamic().put("Καταλογιστέο", kat = M.round(M.add(kat, ka), 2));
 			
 			getDynamic().put("Πληρωτέο", pl = M.round(M.sub(kat, thold), 2));
 			
@@ -101,21 +101,24 @@ public class Bill extends DynHashObject {
 	}
 	
 	protected void setFe() {
-		if (!super.get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", new Byte((byte) 0));
-		else if (((Number) super.get("ΠοσοστόΦΕ")).doubleValue() != 0)
-			if (super.get("Κατηγορία").equals("Παροχή υπηρεσιών")) super.put("ΠοσοστόΦΕ", new Byte((byte) 8));
-			else if (super.get("Κατηγορία").equals("Προμήθεια υλικών")) super.put("ΠοσοστόΦΕ", new Byte((byte) 4));
-			else super.put("ΠοσοστόΦΕ", new Byte((byte) 1));
+		byte a = ((Number) get("ΠοσοστόΦΕ")).byteValue();
+		String c = (String) get("Κατηγορία");
+		if (!get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", 0);
+		else if (a == 0);
+		else if (c.equals("Παροχή υπηρεσιών") && a != 8 && a != 20) super.put("ΠοσοστόΦΕ", 8);
+		else if (c.equals("Προμήθεια υλικών") && a != 4) super.put("ΠοσοστόΦΕ", 4);
+		else if (c.equals("Αγορά υγρών καυσίμων") && a != 1) super.put("ΠοσοστόΦΕ", 1);
 	}
 	
 	protected void setFpa() {
 		List items = (List) get("Είδη");
+		String a = (String) get("Τύπος");
 		for (int z = 0; z < items.size(); z++) {
 			BillItem bi = (BillItem) items.get(z);
-			if (super.get("Τύπος").equals("ΣΠ/ΚΨΜ"))
-				bi.put("ΦΠΑ", new Byte((byte) 0));
+			if (a.equals("ΣΠ/ΚΨΜ") || a.equals("Απόδειξη ενοικιασης"))
+				bi.put("ΦΠΑ", 0);
 			else if (((Number) bi.get("ΦΠΑ")).doubleValue() == 0)
-				bi.put("ΦΠΑ", new Byte((byte) 19));
+				bi.put("ΦΠΑ", 19);
 		}
 	}
 }

@@ -8,7 +8,7 @@ public class Holds extends JPanel implements DataTransmitter {
 	static protected JComboBox holds;
 
 	public Holds() {
-		final String[] header = { "лтс", "тас", "елп", "тследе", "аооа", "упй", "тпеде", "ейоелс", "вАЯТЭСГЛО", "оца", "сЩМОКО" };
+		final String[] header = { "лтс", "елп", "тследе", "аооа", "тпеде", "ейоелс", "вАЯТЭСГЛО", "оца", "сЩМОКО" };
 		holds = new JComboBox(new ComboDataModel(this, new Hold()));
 		setLayout(new BorderLayout());
 		add(new JScrollPane(new ResizableTable(new ResizableTableModel(this, header, null, Hold.class), false)));
