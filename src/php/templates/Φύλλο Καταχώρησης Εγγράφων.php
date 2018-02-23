@@ -26,11 +26,13 @@ foreach($data['ΦύλλοΚαταχώρησης'] as $v)
 		elseif ($d == 'Φορολογική και Ασφαλιστική Ενημερότητα') {
 			$bills_provider = bills_by_provider(getBillsType($bills, '*Ιδιώτης*'));
 			$b = null;
-			foreach($bills_provider as $k => $i)
-				$b[$k] = calc_bills($i);
-			foreach($b as $k => $i) {
-				if ($i['ΚαθαρήΑξία'] >= 1500) echo ' ' . ++$count . '.\tab Φορολογική Ενημερότητα: «' . $k . '»\cell\row';
-				if ($i['ΚαθαρήΑξία'] >= 3000) echo ' ' . ++$count . '.\tab Ασφαλιστική Ενημερότητα: «' . $k . '»\cell\row';
+			if ($bills_provider) {
+				foreach($bills_provider as $k => $i)
+					$b[$k] = calc_bills($i);
+				foreach($b as $k => $i) {
+					if ($i['Καταλογιστέο'] >= 1500) echo ' ' . ++$count . '.\tab Φορολογική Ενημερότητα: «' . $k . '»\cell\row';
+					if ($i['Καταλογιστέο'] >= 3000) echo ' ' . ++$count . '.\tab Ασφαλιστική Ενημερότητα: «' . $k . '»\cell\row';
+				}
 			}
 		}
 		elseif ($d == 'Πρωτόκολλο Εκτελεσθέντων Εργασιών' && !count($data['Εργασίες']));

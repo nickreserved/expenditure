@@ -31,7 +31,7 @@ function calc_bills_sum(& $b, $a, $i) { if (!isset($b[$i])) $b[$i] = $a[$i]; els
 // Από το array $a επιστρέφει τα τιμολόγια που είναι ($f == true)
 // ή δεν είναι ($f == false) κατηγορίας $i.
 function getBillsCategory($a, $i, $f = true) {
-	$b = null;
+	$b = array();
 	foreach($a as $v)
 		if (($v['Κατηγορία'] == $i) == $f) $b[] = $v;
 	return $b;
@@ -39,7 +39,7 @@ function getBillsCategory($a, $i, $f = true) {
 
 // Από το array $a επιστρέφει τα τιμολόγια που είναι τύπου $i.
 function getBillsType($a, $i) {
-	$b = null;
+	$b = array();
 	foreach($a as $v)
 		if (strpos($i, "*{$v['Προμηθευτής']['Τύπος']}*") !== false) $b[] = $v;
 	return $b;
@@ -48,7 +48,7 @@ function getBillsType($a, $i) {
 
 // Επιστρέφει ένα array με τιμολόγια που έχουν ΦΕ.
 function bills_with_fe($a) {
-	$b = null;
+	$b = array();
 	foreach($a as $v)
 		if ($v['ΠοσοστόΦΕ']) $b[] = $v;
 	return $b;
@@ -59,7 +59,7 @@ function bills_with_fe($a) {
 // Αν $zero == false δεν επιστρέφει τα τιμολόγια που έχουν
 // κρατήσεις 0 (σπάνιο να έχουν 0 αλλά όχι απίθανο)
 function bills_by_hold($a, $zero = false) {
-	$b = null;
+	$b = array();
 	foreach($a as $v) {
 		$n = $v['ΑνάλυσηΚρατήσεωνΣεΠοσοστά']['Σύνολο'];
 		if ($n || $zero) $b[str_replace(',', '.', $n)][] = $v;
@@ -71,7 +71,7 @@ function bills_by_hold($a, $zero = false) {
 // values array με όλα τα τιμολόγια που έχουν τέτοιο ΦΕ.
 // Δεν επιστρέφει τιμολόγια δίχως ΦΕ.
 function bills_by_fe($a) {
-	$b = null;
+	$b = array();
 	foreach($a as $v) {
 		$n = $v['ΠοσοστόΦΕ'];
 		if ($n) $b[str_replace(',', '.', $n)][] = $v;
@@ -82,7 +82,7 @@ function bills_by_fe($a) {
 // Επιστρέφει ένα array με keys τον προμηθευτή και
 // values array με όλα τα τιμολόγια από αυτόν.
 function bills_by_provider($a) {
-	$b = null;
+	$b = array();
 	foreach($a as $v)
 		$b[$v['Προμηθευτής']['Επωνυμία']][] = $v;
 	return $b;
@@ -91,7 +91,7 @@ function bills_by_provider($a) {
 // Επιστρέφει ενα array με keys τον "μήνα έτος" π.χ. "Νοε 2005" και
 // values array με όλα τα τιμολόγια του μηνός.
 function bills_by_month($a) {
-	$b = null;
+	$b = array();
 	foreach($a as $v)
 		if (preg_match('/\d{1,2}-(\d{1,2})-(\d{4})/', $v['Τιμολόγιο'], $m)) {
 			$b[mktime(0, 0, 0, $m[1], 1, $m[2])][] = $v;

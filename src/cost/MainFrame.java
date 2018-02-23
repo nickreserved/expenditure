@@ -25,7 +25,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected CostWizardDialog cwf;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.6.0");
+		super("Στρατιωτικές Δαπάνες 1.6.1");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -494,7 +494,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.6.0</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>01 Ιαν 14</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br><center><font size=4>Το Πρόγραμμα γίνεται 10 Ετών!!!</font></center>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.6.1</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>09 Σεπ 14</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br><center><font size=4>Το Πρόγραμμα έκλεισε 10 Έτη!!!</font></center>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
 		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο
 		if (order != -1) {

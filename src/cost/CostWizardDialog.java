@@ -172,8 +172,8 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 			}
 			
 			if (cb[2] == 0 /*Ιδιώτης*/) {
-				if (valueprovider > 1500) text += "<br>Απαιτείται Φορολογική Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».";
-				if (valueprovider > 3000) text += "<br>Απαιτείται Ασφαλιστική Ενημερότητα του προμηθευτή.";
+				if (valueprovider > 1220) text += "<br>Αν το καταλογιστέο είναι πάνω από 1500€, απαιτείται Φορολογική Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».";
+				if (valueprovider > 2440) text += "<br>Αν το καταλογιστέο είναι πάνω από 3000€, απαιτείται Ασφαλιστική Ενημερότητα του προμηθευτή.";
 			}
 			if (valueprovider > 60000) { text += "<br>Απαιτείται Δημόσιος Διαγωνισμός."; agreement = true; }
 			else if (valueprovider > 15000 || cb[1] == 0 /*Κατασκευή Έργων*/)
