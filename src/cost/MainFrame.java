@@ -23,7 +23,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected CostWizardDialog cwf;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.6.2");
+		super("Στρατιωτικές Δαπάνες 1.6.3");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		// Πρέπει να δημιουργηθούν πρώτα!
@@ -35,6 +35,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		// Το tabbed panel πρέπει να είναι πρώτο στοιχείο της φορμας και
 		// οι Εργασίες το 4ο στοιχείο του tabbed panel.
 		// Ειδάλλως στο Bills θα έχουμε προβλήματα.
+		// Και στην ενεργοποίηση-απενεργοποίηση καρτελών όταν ανοίγει-κλείνει δαπάνη.
 		JTabbedPane mainTab = new JTabbedPane();
 		mainTab.addTab("Στοιχεία Δαπάνης", new CostData(contents));
 		mainTab.addTab("Τιμολόγια", new Bills());
@@ -163,10 +164,13 @@ public class MainFrame extends JFrame implements ActionListener {
 			if (!s.endsWith(".cost")) s += ".cost";
 			if (!s.equals(costs.getPos())) {
 				if (costs.containsKey(s)) {
-					JOptionPane.showMessageDialog(this, "Το όνομα αυτό ανοίκει σε άλλη ανοικτή δαπάνη.\nΠαρακαλώ δώστε άλλο όνομα.", "Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, "Το όνομα αυτό ανοίκει σε άλλη ανοικτή δαπάνη.\n"
+							+ "Παρακαλώ δώστε άλλο όνομα.", "Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
 					return;
 				} else if (f.exists()) {
-					if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "Το αρχείο αυτό υπάρχει και θα χαθεί.\nΘελετε να συνεχίσω;", "Αποθήκευση Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+					if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this,
+							"Το αρχείο αυτό υπάρχει και θα χαθεί.\nΘελετε να συνεχίσω;",
+							"Αποθήκευση Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 						return;
 				}
 			}
@@ -195,7 +199,9 @@ public class MainFrame extends JFrame implements ActionListener {
 	static private void openCost(String file) {
 		try {
 			if (costs.containsKey(file)) {
-				JOptionPane.showMessageDialog(ths, "Το όνομα αυτό ανοίκει σε ανοικτή δαπάνη.\nΓια να ανοίξετε αυτή τη δαπάνη θα πρέπει να κλείσετε την ομόνυμη ανοικτή.", "’νοιγμα Δαπάνης", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(ths, "Το όνομα αυτό ανοίκει σε ανοικτή δαπάνη.\n"
+						+ "Για να ανοίξετε αυτή τη δαπάνη θα πρέπει να κλείσετε την ομόνυμη ανοικτή.",
+						"’νοιγμα Δαπάνης", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			costs.add(file, TreeFileLoader.loadFile(file));
@@ -204,7 +210,8 @@ public class MainFrame extends JFrame implements ActionListener {
 				ths.updatePanels();
 			}
 		} catch (Exception e) {
-			Functions.showExceptionMessage(ths, e, "’νοιγμα αρχείου", "Πρόβλημα κατά το άνοιγμα της δαπάνης<br><b>" + file + "</b>");
+			Functions.showExceptionMessage(ths, e, "’νοιγμα αρχείου",
+					"Πρόβλημα κατά το άνοιγμα της δαπάνης<br><b>" + file + "</b>");
 		}
 	}
 
@@ -216,12 +223,13 @@ public class MainFrame extends JFrame implements ActionListener {
 			int returnVal = fc.showOpenDialog(this);
 			if(returnVal != JFileChooser.APPROVE_OPTION) return;
 			File[] files = fc.getSelectedFiles();
-			for (File f1 : files) System.out.println(f1);///////////////////////////////////////////////////////////////////
 			final String choices[] = new String[] { "Προμηθευτές, Κρατήσεις, Προσωπικό", "Προμηθευτές, Προσωπικό",
 				"Αμετάβλητα στοιχεία", "Προμηθευτές", "Κρατήσεις", "Προσωπικό" };
 			final char fchoices[] = new char[] { 7, 5, 8, 4, 2, 1 };
-			Object a = JOptionPane.showInputDialog(this, "Επιλέξτε τι θα εξάγετε από τα επιλεχθέντα αρχεία δαπανών και ρυθμίσεων\nγια εισαγωγή στα δεδομένα του προγράμματος",
-					"Εισαγωγή στοιχείων από αρχεία δαπανών και ρυθμίσεων", JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
+			Object a = JOptionPane.showInputDialog(this,
+					"Επιλέξτε τι θα εξάγετε από τα επιλεχθέντα αρχεία δαπανών και ρυθμίσεων\n"
+					+ "για εισαγωγή στα δεδομένα του προγράμματος", "Εισαγωγή στοιχείων από αρχεία δαπανών και ρυθμίσεων",
+					JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 			if (a == null) return;
 			char flags = fchoices[Arrays.asList(choices).indexOf(a)];
 			for (File f1 : files) {
@@ -277,12 +285,15 @@ public class MainFrame extends JFrame implements ActionListener {
 				}
 			}
 		} catch (Exception e) {
-			Functions.showExceptionMessage(ths, e, "’νοιγμα αρχείου", "Πρόβλημα κατά το άνοιγμα του αρχείου δαπάνης ή ρυθμίσεων<br><b>" + file + "</b>");
+			Functions.showExceptionMessage(ths, e, "’νοιγμα αρχείου",
+					"Πρόβλημα κατά το άνοιγμα του αρχείου δαπάνης ή ρυθμίσεων<br><b>" + file + "</b>");
 		}
 	}
 
 	private void closeCost() {
-		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, "<html>Να κλείσω την τρέχουσα δαπάνη;", "Κλείσιμο Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) {
+		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this,
+				"<html>Να κλείσω την τρέχουσα δαπάνη;", "Κλείσιμο Δαπάνης",
+				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) {
 			costs.remove();
 			updatePanels();
 			updateMenus();
@@ -325,7 +336,9 @@ public class MainFrame extends JFrame implements ActionListener {
 			try {
 				LoadSaveFile.save(ini, data);
 			} catch(Exception ex) {
-				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αποτυχία κατά την αποθήκευση του <b>cost.ini</b>.<br>Να κλείσω τo πρόγραμμα;", "Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this,
+						"<html>Αποτυχία κατά την αποθήκευση του <b>cost.ini</b>.<br>Να κλείσω τo πρόγραμμα;",
+						"Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 					return;
 			}
 			System.exit(0);
@@ -336,11 +349,15 @@ public class MainFrame extends JFrame implements ActionListener {
 	public final void addOptionsMenu() {
 		JMenu options = (JMenu) getMenuFromName("Ρυθμίσεις");
 		HashObject h = (HashObject) data.get("Ρυθμίσεις");
-		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Ένα αντίγραφο", new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")), Boolean.TRUE.equals(h.get("ΜιαΦορά")));
+		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Ένα αντίγραφο",
+				new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")),
+				Boolean.TRUE.equals(h.get("ΜιαΦορά")));
 		cbmi.addActionListener(this);
 		options.add(cbmi);
 		
-		cbmi = new JCheckBoxMenuItem("Χειροκίνητη ρύθμιση τιμολογίου", new ImageIcon(ClassLoader.getSystemResource("cost/chain.png")), Boolean.TRUE.equals(h.get("ΤιμολόγιοΧειροκίνητα")));
+		cbmi = new JCheckBoxMenuItem("Χειροκίνητη ρύθμιση τιμολογίου",
+				new ImageIcon(ClassLoader.getSystemResource("cost/chain.png")),
+				Boolean.TRUE.equals(h.get("ΤιμολόγιοΧειροκίνητα")));
 		cbmi.addActionListener(this);
 		options.add(cbmi);
 
@@ -362,7 +379,8 @@ public class MainFrame extends JFrame implements ActionListener {
 	static public void setSkin() {
 		try {
 			UIManager.setLookAndFeel(((HashObject) data.get("Ρυθμίσεις")).get("Κέλυφος").toString());
-		} catch(NullPointerException | ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+		} catch(NullPointerException | ClassNotFoundException | IllegalAccessException
+				| InstantiationException | UnsupportedLookAndFeelException e) {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {}
@@ -381,14 +399,15 @@ public class MainFrame extends JFrame implements ActionListener {
 			// init php engine
 			PhpScriptRunner.init(null);
 		} catch (Exception e) {
-			Functions.showExceptionMessage(null, e, "Πρόβλημα του PHP cli", "Πρόβλημα κατά την αρχικοποίηση του <b>PHP cli</b>.<br>Το πρόγραμμα θα τερματίσει.");
+			Functions.showExceptionMessage(null, e, "Πρόβλημα του PHP cli",
+				"Πρόβλημα κατά την αρχικοποίηση του <b>PHP cli</b>.<br>Το πρόγραμμα θα τερματίσει.");
 			System.exit(0);
 		}
 
 		try {
 			// get application path
 			rootPath = URLDecoder.decode(ClassLoader.getSystemResource("cost/MainFrame.class").getPath().
-					replaceAll("(Cost\\.jar!/)?cost/MainFrame\\.class$|^(file\\:)?/", ""), "UTF-8");
+				replaceAll("(Cost\\.jar!/)?cost/MainFrame\\.class$|^(file\\:)?/", ""), "UTF-8");
 		} catch (UnsupportedEncodingException ex) {
 			rootPath = "";
 		}
@@ -398,11 +417,15 @@ public class MainFrame extends JFrame implements ActionListener {
 		try {
 			o = TreeFileLoader.loadFile(ini);
 		} catch(Exception e) {
-			Functions.showExceptionMessage(null, e, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>Αν τρέχετε για πρώτη φορά το πρόγραμμα δεν υπάρχει λόγος ανησυχίας.<br>Θα φορτώσω τη default έκδοσή του.");
+			Functions.showExceptionMessage(null, e, "Πρόβλημα",
+				"Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>"
+				+ "Αν τρέχετε για πρώτη φορά το πρόγραμμα δεν υπάρχει λόγος ανησυχίας.<br>"
+				+ "Θα φορτώσω τη default έκδοσή του.");
 			try {
 				o = TreeFileLoader.loadResource("cost.ini");
 			} catch(Exception e2) {
-				Functions.showExceptionMessage(null, e2, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του default <b>cost.ini</b>.");
+				Functions.showExceptionMessage(null, e2, "Πρόβλημα",
+					"Πρόβλημα κατά τη φόρτωση του default <b>cost.ini</b>.");
 			}
 		}
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
@@ -473,7 +496,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		else if (ac.equals("Ανάλυση Κρατήσεων")) ExportReport.exportReport("Κρατήσεις υπέρ Τρίτων.php");
 		else if (ac.equals("Πρόχειρη Λίστα Τιμολογίων")) ExportReport.exportReport("Πρόχειρη Λίστα Τιμολογίων.php");
 		else if (ac.equals("Απόδειξη για Προκαταβολή")) ExportReport.exportReport("Απόδειξη για Προκαταβολή.php");
-		else if (ac.equals("Μόνο μια φορά")) options.put("ΜιαΦορά", !Boolean.TRUE.equals(options.get("ΜιαΦορά")));
+		else if (ac.equals("Ένα αντίγραφο")) options.put("ΜιαΦορά", Boolean.FALSE.equals(options.get("ΜιαΦορά")));
 		else if (ac.equals("Οδηγός Τιμολογίου")) {
 			if (cwf == null) cwf = new CostWizardDialog(this);
 			cwf.setVisible(true);
@@ -497,19 +520,21 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this,
 				"<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br>" +
-				"<font size=3>Έκδοση 1.6.2</font></b></center><br>" +
+				"<font size=3>Έκδοση 1.6.3</font></b></center><br>" +
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"’δεια χρήσης: <b>BSD</b><br>" +
-				"Δημοσίευση: <b>10 Οκτ 14</b><br>" +
+				"Δημοσίευση: <b>15 Οκτ 14</b><br>" +
 				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
 				"<center><font size=4>Το Πρόγραμμα έκλεισε 10 Έτη!!!</font></center>",
 				getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
 		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο
 		if (order != -1) {
-			final String[] file = { "Δγη Συγκρότησης Επιτροπών", "Δγη Διακήρυξης Διαγωνισμού", "Δγη Κατακύρωσης Διαγωνισμού", "Διαβιβαστικό Δαπάνης", "Έκθεση Απαιτούμενης Δαπάνης" };
+			final String[] file = { "Δγη Συγκρότησης Επιτροπών", "Δγη Διακήρυξης Διαγωνισμού",
+				"Δγη Κατακύρωσης Διαγωνισμού", "Διαβιβαστικό Δαπάνης", "Έκθεση Απαιτούμενης Δαπάνης" };
 			final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
-			int b = JOptionPane.showOptionDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
+			int b = JOptionPane.showOptionDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.",
+					"Επιλογή", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
 			if (b == JOptionPane.CLOSED_OPTION) return;
 			else if (b == 1) env.put("draft", "true");
 			ExportReport.exportReport(file[order] + ".php", env);
