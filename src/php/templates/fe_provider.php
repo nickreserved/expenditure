@@ -45,7 +45,7 @@ if (isset($a['Διεύθυνση']) && isset($a['Πόλη'])) echo ', ';
 if (isset($a['Διεύθυνση'])) echo chk($a['Διεύθυνση']);
 ?>
 \line\b Διεύθυνση (Πόλη - Οδός)\b0\cell
-<? if (isset($a['ΤΚ'])) echo chk($a['ΤΚ']); ?>
+<? if (isset($a['Τ.Κ.'])) echo chk($a['Τ.Κ.']); ?>
 \line\b T.K.\b0\line\line
 <? if (isset($a['Τηλέφωνο'])) echo chk($a['Τηλέφωνο']); ?>
 \line\b Τηλέφωνο\b0\cell

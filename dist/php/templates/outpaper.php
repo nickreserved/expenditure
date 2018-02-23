@@ -21,24 +21,16 @@ $a = $bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ'];
 \pard\line\line\line\line\line\line\par
 
 
-\pard\tx1\tqdec\tx4457
+\pard\plain\li6236\box\brdrs\brdrw1\brsp170\tqdec\tx9496
 
-\trowd
-\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx5103
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx10206
-\qc{\b ΑΝΑΛΥΣΗ ΚΡΑΤΗΣΕΩΝ\cell ΚΑΤΑΛΟΓΙΣΤΕΟ ΠΟΣΟ}\cell\row
-\ql ΜΤΣ:\tab <? if (isset($a['ΜΤΣ'])) echo euro($a['ΜΤΣ']); ?>\cell\qc <?=euro($bills_info['Καταλογιστέο'])?>\cell\row
-\ql ΕΜΠ:\tab <? if (isset($a['ΕΜΠ'])) echo euro($a['ΕΜΠ']); ?>\cell\qc{\b ΠΛΗΡΩΤΕΟ ΠΟΣΟ}\cell\row
-\ql ΤΣΜΕΔΕ:\tab <? if (isset($a['ΤΣΜΕΔΕ'])) echo euro($a['ΤΣΜΕΔΕ']); ?>\cell\qc <?=euro($bills_info['Πληρωτέο'])?>\cell\row
-\trowd
-\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx5103
-\cellx10206
-\ql ΤΠΕΔΕ:\tab <? if (isset($a['ΤΠΕΔΕ'])) echo euro($a['ΤΠΕΔΕ']); ?>\cell\cell\row
-ΑΟΟΑ:\tab <? if (isset($a['ΑΟΟΑ'])) echo euro($a['ΑΟΟΑ']); ?>\cell\cell\row
-Χαρτόσημο:\tab <? if (isset($a['Χαρτόσημο'])) echo euro($a['Χαρτόσημο']); ?>\cell\cell\row
-Χαρτόσημο ΟΓΑ:\tab <? if (isset($a['ΟΓΑ'])) echo euro($a['ΟΓΑ']); ?>\cell\cell\row
-ΕΚΟΕΜΣ:\tab <? if (isset($a['ΕΚΟΕΜΣ'])) echo euro($a['ΕΚΟΕΜΣ']); ?>\cell\cell\row
-{\b ΣΥΝΟΛΟ ΚΡΑΤΗΣΕΩΝ:\tab <? if (isset($a['Σύνολο'])) echo euro($a['Σύνολο'], true); ?>}\cell\cell\row
+\b ΚΑΤΑΛΟΓΙΣΤΕΟ\tab <?=euro($bills_info['Καταλογιστέο'])?>\par
+ΠΛΗΡΩΤΕΟ\tab <?=euro($bills_info['Πληρωτέο'])?>\par\par
+ΚΡΑΤΗΣΕΙΣ\tab <?=euro($a['Σύνολο'], true)?>\par\b0\tx6803\tqdec\tx9496
+<?
+	foreach($a as $k => $v)
+		if ($k != 'Σύνολο')
+			echo "\\tab $k\\tab " . euro($v) . '\par';
+?>
 
 \sect
 

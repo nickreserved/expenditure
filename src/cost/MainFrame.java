@@ -54,22 +54,22 @@ public class MainFrame extends JFrame implements ActionListener {
 			"about", "help", "about", "Περί..."
 	};
 	private static JMenuItem[] menu = new JMenuItem[mnu.length / 4];
-	
+
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static String rootPath;
 	static protected HashObject data;
 	static protected IteratorHashObject costs;
 	static protected MainFrame ths;
-	
+
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.2");
+		super("Στρατιωτικές Δαπάνες 1.4.3");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
-		
+
 		Providers prov = new Providers();
 		Men men = new Men();
 		Holds holds = new Holds();
 		Contents contents = new Contents();
-			
+
 		JTabbedPane mainTab = new JTabbedPane();
 		mainTab.addTab("Στοιχεία Δαπάνης", new CostData(contents));
 		mainTab.addTab("Τιμολόγια", new Bills());
@@ -79,7 +79,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainTab.addTab("Προμηθευτές", prov);
 		mainTab.addTab("Κρατήσεις", holds);
 		mainTab.addTab("Προσωπικό Μονάδας", men);
-		
+
 		getContentPane().add(mainTab);
 		Color c = Color.decode("#b0d0b0");
 		mainTab.setBackgroundAt(0, c);
@@ -93,17 +93,17 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainTab.setBackgroundAt(7, c);
 
 		updatePanels();
-		
+
 		setJMenuBar(createMenus(new JMenuBar()));
 		updateMenus();
 		addOptionsMenu();
-		
+
 		setSize(700, 450);
 		setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 		setVisible(true);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 	}
-	
+
 	private final JMenuBar createMenus(JMenuBar jtb) {
 		for(int z = 0, c = 0; z < mnu.length; z += 4)
 			if (mnu[z] == null) ((JMenu) getMenuFromName(mnu[z + 1])).addSeparator();
@@ -124,13 +124,13 @@ public class MainFrame extends JFrame implements ActionListener {
 			}
 		return jtb;
 	}
-	
+
 	static private final JMenuItem getMenuFromName(String s) {
 		for(int z = 0; menu[z] != null; z++)
 			if (s.equals(menu[z].getActionCommand())) return menu[z];
 		return null;
 	}
-	
+
 	public void newCost() {
 		try {
 			for(int z = 0;; z++) {
@@ -146,7 +146,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			}
 		} catch (Exception e) {}
 	}
-	
+
 	public void saveCost() {
 		try {
 			JFileChooser fc = new JFileChooser(costs.getPos());
@@ -174,7 +174,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			Functions.showExceptionMessage(this, e, "Αποθήκευση Δαπάνης", "Πρόβλημα κατά την αποθήκευση της δαπάνης");
 		}
 	}
-	
+
 	private void openCost() {
 		try {
 			JFileChooser fc = new JFileChooser(costs.getPos());
@@ -186,7 +186,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			openCost(s);
 		} catch (Exception ex) {}
 	}
-	
+
 	static private void openCost(String file) {
 		try {
 			if (costs.containsKey(file)) {
@@ -202,7 +202,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			Functions.showExceptionMessage(ths, e, "Άνοιγμα αρχείου", "Πρόβλημα κατά το άνοιγμα της δαπάνης<br><b>" + file + "</b>");
 		}
 	}
-	
+
 	private void closeCost() {
 		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, "<html>Να κλείσω την τρέχουσα δαπάνη;", "Κλείσιμο Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) {
 			costs.remove();
@@ -210,7 +210,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			updateMenus();
 		}
 	}
-	
+
 	private void updatePanels() {
 		JTabbedPane j = (JTabbedPane) getContentPane().getComponent(0);
 		for (int z = 0; z < 4; z++)
@@ -218,14 +218,14 @@ public class MainFrame extends JFrame implements ActionListener {
 		if (costs.getPos() == null && j.getSelectedIndex() < 4) j.setSelectedIndex(4);
 		repaint();
 	}
-	
+
 	private void updateMenus() {
 		getMenuFromName("save").setEnabled(costs.getPos() != null);
 		getMenuFromName("close").setEnabled(costs.getPos() != null);
 		getMenuFromName("export").setEnabled(costs.getPos() != null);
 		JMenu window = (JMenu) getMenuFromName("costs");
 		window.setEnabled(costs.getPos() != null);
-		
+
 		if (costs.getPos() != null) {
 			window.removeAll();
 			ButtonGroup btg = new ButtonGroup();
@@ -240,7 +240,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			}
 		}
 	}
-	
+
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			try {
@@ -253,7 +253,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 		super.processWindowEvent(e);
 	}
-	
+
 	public void addOptionsMenu() {
 		JMenu options = (JMenu) getMenuFromName("options");
 		HashObject h = (HashObject) data.get("Ρυθμίσεις");
@@ -265,7 +265,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
 		String s = (String) h.get("Κέλυφος");
 		if (s == null) s = UIManager.getSystemLookAndFeelClassName();
-		
+
 		ButtonGroup btg = new ButtonGroup();
 		for (int z = 0; z < laf.length; z++) {
 			String s1 = laf[z].getClassName();
@@ -276,7 +276,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			skins.add(jmi);
 		}
 	}
-	
+
 	static public void setSkin() {
 		try {
 			UIManager.setLookAndFeel(((HashObject) data.get("Ρυθμίσεις")).get("Κέλυφος").toString());
@@ -286,7 +286,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			} catch(Exception ex) {}
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		// check for other running instance and setup listening server
 		if (!OnlyOneInstance.check()) {
@@ -310,7 +310,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		} catch (UnsupportedEncodingException ex) {
 			rootPath = "";
 		}
-		
+
 		// load ini file and create data structure
 		Object o = null;
 		try {
@@ -326,7 +326,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		if (!(data.get("Ρυθμίσεις") instanceof HashObject)) data.put("Ρυθμίσεις", new HashObject());
 		if (!(data.get("ΑνοικτέςΔαπάνες") instanceof IteratorHashObject)) data.put("ΑνοικτέςΔαπάνες", new IteratorHashObject());
 		costs = (IteratorHashObject) data.get("ΑνοικτέςΔαπάνες");			// shortcut
-		
+
 		setSkin();
 		try {
 			for (int z = 0; z < args.length; z++)
@@ -335,18 +335,18 @@ public class MainFrame extends JFrame implements ActionListener {
 
 		ths = new MainFrame();
 	}
-	
+
 	// ----- ActionListener ----- //
-	
+
 	public void actionPerformed(ActionEvent e) {
 		String ac = e.getActionCommand();
 		JMenuItem j = (JMenuItem) e.getSource();
-		
+
 		// if we must output a draft order
 		Map<String, String> env = new Hashtable();
 		Map<String, Object> options = (HashObject) data.get("Ρυθμίσεις");
 		if (Boolean.TRUE.equals(options.get("ΜιαΦορά"))) env.put("one", "true");
-		
+
 		if (((JMenu) getMenuFromName("skins")).isMenuComponent(j)) {
 			((HashObject) data.get("Ρυθμίσεις")).put("Κέλυφος", ac);
 			JOptionPane.showMessageDialog(this, "Το Κέλυφος θα αλλάξει όταν ξαναξεκινήσετε το πρόγραμμα", "Αλλαγή κελύφους", JOptionPane.INFORMATION_MESSAGE);
@@ -381,10 +381,10 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.2</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>GNU GPL</b><br>Δημοσίευση: <b>16 Φεβ 2006</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.3</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>15 Απρ 2006</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
-	
-	
+
+
 	private static class OnlyOneInstance implements Runnable {
 		private static ServerSocket ss;
 		public static boolean check() {
@@ -394,7 +394,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				return true;
 			} catch(Exception e) { return false; }
 		}
-		
+
 		public static void send(byte[] a) {
 			try {
 				OutputStream s = new Socket("127.0.0.1", 666).getOutputStream();
@@ -402,7 +402,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				s.close();
 			} catch(Exception e) {}
 		}
-		
+
 		public void run() {
 			try {
 				for(;;) {
@@ -412,7 +412,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			} catch(Exception e) {}
 		}
 	}
-	
+
 	/*class MenuBlankIcon implements Icon {
 		public int getIconHeight() { return 16; }
 		public int getIconWidth() { return 16; }

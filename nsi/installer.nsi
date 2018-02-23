@@ -1,7 +1,7 @@
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.4.2"
+!define VERSION "1.4.3"
 !define ME "Υπλγος(ΜΧ) Γκέσος Παύλος"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"

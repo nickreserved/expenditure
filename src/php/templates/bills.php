@@ -9,8 +9,7 @@ require_once('header.php');
 
 \pard\plain
 Προμηθευτής:\b  <?=chk($v['Προμηθευτής']['Επωνυμία'])?>\b0\line
-ΔΟΥ Στρατού: Ν. Ψυχικού\line
-Α.Φ.Μ. Στρατού: 090153025\line\par
+ΔΟΥ Στρατού: Ν. Ψυχικού - Α.Φ.Μ. Στρατού: 090153025\line\par
 
 \pard\plain\fs21
 \trowd\trhdr\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
