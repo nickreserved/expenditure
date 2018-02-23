@@ -5,7 +5,7 @@ public class BillItem implements RowTable, FileLineData, Hashing {
       "ΦΠΑ", "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"};
   public static final String[] measures = {
       "τεμάχια", "lt", "Kgr", "cm", "cm^2", "cm^3", "m", "m^2", "m^3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "Km^2" };
-  protected static final Byte[] fpaList = { new Byte((byte) 18), new Byte((byte) 8), new Byte((byte) 0) };
+  protected static final Byte[] fpaList = { new Byte((byte) 19), new Byte((byte) 9), new Byte((byte) 0) };
   protected static final String[] hashKeys = { "name", "many", "cost", "total_cost", "fpa",
       "cost_with_fpa", "total_cost_with_fpa", "measure" };
 

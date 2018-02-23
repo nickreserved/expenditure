@@ -43,7 +43,9 @@ public class Bills extends JPanel implements ListSelectionListener {
     billModel = new ResizableTableModel(null, BillItem.header, BillItem.class);
     JTable billTable = new JTable(billModel);
     cm = billTable.getColumnModel();
-    cm.getColumn(BillItem.FPA).setCellEditor(new DefaultCellEditor(new JComboBox(BillItem.fpaList)));
+    JComboBox fpa = new JComboBox(BillItem.fpaList);
+    fpa.setEditable(true);
+    cm.getColumn(BillItem.FPA).setCellEditor(new DefaultCellEditor(fpa));
     cm.getColumn(BillItem.MEASURE).setCellEditor(new DefaultCellEditor(cbMeasures));
     billTable.getSelectionModel().addListSelectionListener(this);
 

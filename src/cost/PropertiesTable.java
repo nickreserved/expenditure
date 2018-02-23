@@ -48,7 +48,6 @@ public class PropertiesTable extends JTable {
     public RichTableCellRenderer() {
       b.setBorder(BorderFactory.createMatteBorder(1,1,0,0,Color.WHITE));
       b.setFont(new Font(null, Font.PLAIN, 12));
-      b.setHorizontalAlignment(SwingConstants.LEFT);
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value,
