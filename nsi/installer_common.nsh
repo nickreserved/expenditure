@@ -1,7 +1,7 @@
 ﻿# -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.6.5"
+!define VERSION "1.6.6"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_VERSION "1.8"
 !define PHP_VERSION "5.6.15"
@@ -50,17 +50,18 @@ Section
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoRepair" 1
 	WriteUninstaller "uninstall.exe"
 
-	WriteRegStr HKCR ".cost" "" "Αρχείο δαπάνης"
-	WriteRegStr HKCR ".cost\DefaultIcon" "" "$INSTDIR\cost.ico"
-	WriteRegStr HKCR ".cost\Shell" "" "άνοιγμα"
-	WriteRegStr HKCR ".cost\Shell\άνοιγμα\Command" "" '"$0" -jar "$INSTDIR\cost.jar" "%1"'
+	WriteRegStr HKLM "Software\Classes\.cost" "" "Αρχείο δαπάνης"
+	WriteRegStr HKLM "Software\Classes\.cost\DefaultIcon" "" "$INSTDIR\cost.ico"
+	WriteRegStr HKLM "Software\Classes\.cost\Shell" "" "άνοιγμα"
+	WriteRegStr HKLM "Software\Classes\.cost\Shell\άνοιγμα\Command" "" '"$0" -jar "$INSTDIR\cost.jar" "%1"'
 
 SectionEnd
 
 # --------------------------------------------------------------- start menu ---
 Section 'Συντομεύσεις στο μενού "Έναρξη"'
 
-	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$0" "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
+	#CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$0" "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
+	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$INSTDIR\cost.jar" "" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
 
 SectionEnd
 

@@ -106,9 +106,12 @@ public class Bill extends DynHashObject {
 		if (a == 0) return;
 		String c = (String) get("Κατηγορία");
 		if (!"Ιδιώτης".equals(((Provider) get("Προμηθευτής")).get("Τύπος"))) super.put("ΠοσοστόΦΕ", (byte) 0);
-		else if (((Hold) get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά")).get("ΑΟΟΑ") != null) { if (a != 3) super.put("ΠοσοστόΦΕ", (byte) 3); }
-		else if (c.equals("Παροχή υπηρεσιών")) { if (a != 8) super.put("ΠοσοστόΦΕ", (byte) 8); }
-		else if (c.equals("Προμήθεια υλικών")) { if (a != 4) super.put("ΠοσοστόΦΕ", (byte) 4); }
+		else if (c.equals("Παροχή υπηρεσιών")) {
+			Cost co = null;
+			if (MainFrame.costs != null) co = (Cost) MainFrame.costs.get();
+			if (co != null && CostData.cosT[0].equals((String) co.get("ΤύποςΔαπάνης"))) { if (a != 3) super.put("ΠοσοστόΦΕ", (byte) 3); }
+			else if (a != 8) super.put("ΠοσοστόΦΕ", (byte) 8);
+		} else if (c.equals("Προμήθεια υλικών")) { if (a != 4) super.put("ΠοσοστόΦΕ", (byte) 4); }
 		else if (c.equals("Αγορά υγρών καυσίμων")) { if (a != 1) super.put("ΠοσοστόΦΕ", (byte) 1); }
 	}
 

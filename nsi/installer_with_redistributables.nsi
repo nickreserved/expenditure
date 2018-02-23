@@ -48,8 +48,6 @@ phpend:
 	SetRegView 32	# Check 32-bit registry
 	ReadRegStr $1 HKLM "Software\JavaSoft\Java Runtime Environment" "CurrentVersion"
 	StrCmp $1 "" java64	# javanotexist
-	ReadRegStr $0 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\$1" "JavaHome"
-	StrCpy $0 "$0\bin\javaw.exe"
 	StrCpy $2 $1 1
 	StrCpy $3 $1 1 2
 	StrCpy $4 "${JAVA_VERSION}" 1
@@ -61,8 +59,6 @@ java64:
 	SetRegView 64	# Check 64-bit registry
 	ReadRegStr $1 HKLM "Software\JavaSoft\Java Runtime Environment" "CurrentVersion"
 	StrCmp $1 "" javanotexist
-	ReadRegStr $0 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\$1" "JavaHome"
-	StrCpy $0 "$0\bin\javaw.exe"
 	StrCpy $2 $1 1
 	StrCpy $3 $1 1 2
 	StrCpy $4 "${JAVA_VERSION}" 1
@@ -82,4 +78,8 @@ javanotexist:
 javaexists:
 	SectionSetFlags ${section_java} 16 # SF_RO
 javaend:
+	!define CSIDL_COMMONAPPDATA '0x23' ; Common Application Data path
+	System::Call 'shell32::SHGetSpecialFolderPath(i $HWNDPARENT, t.r0, i ${CSIDL_COMMONAPPDATA}, i0) v'
+	#ReadEnvStr $0 'ALLUSERSPROFILE'
+	StrCpy $0 "$0\Oracle\Java\javapath\javaw.exe"
 FunctionEnd
