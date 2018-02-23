@@ -20,7 +20,7 @@ public class Works extends JPanel implements DataTransmitter, ListSelectionListe
 		tblWorks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblWorks.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
 		
-		matModel = new ResizableTableModel((Vector) null, new String[] { "Υλικό", "Ποσότητα", "ΜονάδαMέτρησης"}, commonHeader, Material.class);
+		matModel = new ResizableTableModel((ArrayList) null, new String[] { "Υλικό", "Ποσότητα", "ΜονάδαMέτρησης"}, commonHeader, Material.class);
 		JTable tblMaterial = new ResizableTable(matModel, false, true);
 		tblMaterial.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
 		
@@ -38,8 +38,8 @@ public class Works extends JPanel implements DataTransmitter, ListSelectionListe
 	
 	public void valueChanged(ListSelectionEvent e) {
 		int a = tblWorks.getSelectionModel().getLeadSelectionIndex();
-		Vector v = (Vector) getData();
-		matModel.setData(v == null || a < 0 || a >= v.size() || ((Map) v.get(a)) == null ? null : (Vector) ((Map) v.get(a)).get("Υλικά"));
+		ArrayList v = (ArrayList) getData();
+		matModel.setData(v == null || a < 0 || a >= v.size() || ((Map) v.get(a)) == null ? null : (ArrayList) ((Map) v.get(a)).get("Υλικά"));
 	}
 		
 	public void paint(Graphics g) {

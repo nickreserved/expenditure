@@ -1,19 +1,17 @@
 package common;
 
-import java.util.*;
 import java.io.*;
-import javax.swing.*;
 
 public class LoadSaveFile {
-	
+
 	static public String loadResource(String file) throws Exception {
 		return loadFile(ClassLoader.getSystemResourceAsStream(file));
 	}
-	
+
 	static public String loadFile(String file) throws Exception {
 		return loadFile(new FileInputStream(file));
 	}
-	
+
 	static public String loadFile(InputStream is) throws Exception {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];
@@ -24,7 +22,7 @@ public class LoadSaveFile {
 		}
 		return bout.toString();
 	}
-	
+
 	static public void save(String file, Object sv) throws Exception {
 		String s = Functions.saveable(null, sv);
 		String[] d = s.split("\r\n");
@@ -35,10 +33,10 @@ public class LoadSaveFile {
 			s += "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t".substring(0, c) + d[z] + "\r\n";
 			if (d[z].endsWith("{")) c++;
 		}
-		
+
 		saveStringFile(file, s);
 	}
-	
+
 	static public void saveStringFile(String file, String data) throws IOException {
 		OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(file));
 		osw.write(data);

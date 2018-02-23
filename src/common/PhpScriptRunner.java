@@ -7,23 +7,22 @@ import java.util.concurrent.*;
 public class PhpScriptRunner implements PipeHandler {
 	private static boolean runScript = false;
 	private static String interpreter = "php";
-	
+
 	private OutputStream stdin;
 	private InputStream stdout;
 	private InputStream stderr;
-	
+
 	private ProcessBuilder pb;
 	private Map<String, String> env;
-	
-	private int what_run;
+
 	private Object cin;
 	private PipeHandler cout, cerr;
 	private boolean throwthread = false;
 	private String sout, serr;
-	
-	
+
+
 	public PhpScriptRunner(String directory, String script, String[] argv) {
-		Vector<String> v = new Vector<String>();
+		ArrayList<String> v = new ArrayList<String>();
 		if (!runScript || script == null) {
 			v.add(interpreter);
 			v.add("-n");
@@ -37,40 +36,41 @@ public class PhpScriptRunner implements PipeHandler {
 			if (!runScript) v.add("--");
 			v.addAll(Arrays.asList(argv));
 		}
-		
+
 		pb = new ProcessBuilder(v);
 		pb.directory(directory == null ? null : new File(directory));
 		env = pb.environment();
 	}
-	
+
 	public Map<String, String> getEnvironment() { return env; }
 	public String getStdout() { return sout; }
 	public String getStderr() { return serr; }
-	
+
 	public int exec(Object in, PipeHandler out, PipeHandler err, boolean redirect) throws Exception {
-		
+
 		if (err == null && redirect) pb.redirectErrorStream(true);
-		
+
 		Process p = pb.start();
 		stdin = p.getOutputStream();
 		stdout = p.getInputStream();
 		stderr = p.getErrorStream();
-		
+
 		cin = in; cout = out; cerr = err;
-		
+
 		if (out == null) stdout.close(); else new Thread(new RunPipe(1)).start();
 		if (in == null) stdin.close(); else new Thread(new RunPipe(0)).start();
 		if (err == null) stderr.close(); else new Thread(new RunPipe(2)).start();
-		
+
 		int r = p.waitFor();
 		if (throwthread) throw new Exception("Πρόβλημα στα stdin, stdout, stderr του php script");
 		return r;
-		
+
 	}
-	
+
 	private class RunPipe implements Runnable {
 		private int what;
 		public RunPipe(int what_run) { what = what_run; }
+		@Override
 		public void run() {
 			try {
 				switch(what) {
@@ -90,7 +90,8 @@ public class PhpScriptRunner implements PipeHandler {
 			}
 		}
 	}
-	
+
+	@Override
 	public void processOutputStream(int id, OutputStream os) {
 		try {
 			int size = cin instanceof byte[] ? ((byte[]) cin).length : cin.toString().length();
@@ -101,7 +102,8 @@ public class PhpScriptRunner implements PipeHandler {
 			os.close();
 		} catch(Exception e) {}
 	}
-	
+
+	@Override
 	public void processInputStream(int id, InputStream is) throws Exception {
 		byte[] b = new byte[16384];
 		if (id == 0) sout = ""; else serr = "";
@@ -109,16 +111,15 @@ public class PhpScriptRunner implements PipeHandler {
 		while((c = is.read(b)) > 0)
 			if (id == 0) sout += new String(b, 0, c); else serr += new String(b, 0, c);
 	}
-	
-	
+
+
 	static public void init(String directory) throws Exception {
 		try {
 			PhpScriptRunner p = new PhpScriptRunner(null, null, null);
 			if (p.exec("<?echo 5+5;exit(51);?>", p, null, true) != 51)
 				throw null;
 			String f = p.getStdout();
-			if (f == null || !f.equals("10"))
-				throw null;
+			if (f == null || !f.equals("10")) throw null;
 		} catch(Exception e) {
 			throw new ExecutionException("Πρόβλημα στην αρχικοποίηση της php μηχανής", null);
 		}

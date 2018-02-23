@@ -14,21 +14,23 @@ public class ResizableTable extends JTable
 		insert = ins;
 		if (sort) getTableHeader().addMouseListener(this);
 	}
+	@Override
 	public void keyReleased(KeyEvent e) {}
+	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == e.VK_INSERT && insert) {
+		if (e.getKeyCode() == KeyEvent.VK_INSERT && insert) {
 			e.consume();
 			ResizableTableModel rtm = (ResizableTableModel) getModel();
-			Vector v = rtm.getData();
+			ArrayList v = rtm.getData();
 			int a = getSelectedRow();
 			if (a >= 0 && a < v.size() && v.get(a) != null && (a == 0 || v.get(a - 1) != null)) {
-				v.insertElementAt(null, a);
+				v.add(a, null);
 				rtm.fireTableDataChanged();
 			}
-		} else if (e.getKeyCode() == e.VK_DELETE) {
+		} else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
 			e.consume();
 			ResizableTableModel rtm = (ResizableTableModel) getModel();
-			Vector v = rtm.getData();
+			ArrayList v = rtm.getData();
 			int[] a = getSelectedRows();
 			boolean chk = false;
 			boolean yes = false;
@@ -46,18 +48,25 @@ public class ResizableTable extends JTable
 			rtm.fireTableDataChanged();
 		}
 	}
+	@Override
 	public void keyTyped(KeyEvent e) {}
-	
+
+	@Override
 	public void mouseClicked(MouseEvent e) {
 		int a = convertColumnIndexToModel(getTableHeader().columnAtPoint(e.getPoint()));
 		sort = ((ResizableTableModel) getModel()).hash[a];
 		Collections.sort(((ResizableTableModel) getModel()).getData(), this);
 	}
+	@Override
 	public void mousePressed(MouseEvent e) {}
+	@Override
 	public void mouseReleased(MouseEvent e) {}
+	@Override
 	public void mouseExited(MouseEvent e) {}
+	@Override
 	public void mouseEntered(MouseEvent e) {}
-	
+
+	@Override
 	public int compare(Map a, Map b) {
 		Object aa = a.get(sort);
 		Object bb = b.get(sort);

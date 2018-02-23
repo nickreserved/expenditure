@@ -13,7 +13,7 @@ public class Contents extends JPanel implements DataTransmitter, ItemListener {
 	public Contents() {
 		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Δικαιολογητικό", "Πλήθος"}, null, ContentItem.class), true, false);
 		JComboBox cbMany = new JComboBox(new Byte[] {1, 2, 3, 4, 5});
-		JComboBox cbContents = new JComboBox((Vector) load(-1));
+		JComboBox cbContents = new JComboBox(((ArrayList) load(-1)).toArray());
 		cbContents.setEditable(true);
 		TableColumnModel cm = tbl.getColumnModel();
 		cm.getColumn(0).setCellEditor(new DefaultCellEditor(cbContents));
@@ -22,7 +22,7 @@ public class Contents extends JPanel implements DataTransmitter, ItemListener {
 		add(new JScrollPane(tbl));
 		this.setFocusCycleRoot(true);
 	}
-	
+
 	private Object load(int a) {
 		try {
 			PhpScriptRunner php = new PhpScriptRunner(MainFrame.rootPath + "php/", "engine/contents.php", new String[] { new Integer(a).toString() });
@@ -34,18 +34,21 @@ public class Contents extends JPanel implements DataTransmitter, ItemListener {
 		}
 	}
 
+	@Override
 	public Object getData() {
 		Cost c = (Cost) MainFrame.costs.get();
 		return c == null ? null : c.get("ΦύλλοΚαταχώρησης");
 	}
-	
+
+	@Override
 	public void paint(Graphics g) {
 		rtm.fireTableRowsDeleted(10000, 10000);
 		super.paint(g);
 	}
-	
+
+	@Override
 	public void itemStateChanged(ItemEvent e) {
-		if (e.getStateChange() == e.DESELECTED) return;
+		if (e.getStateChange() == ItemEvent.DESELECTED) return;
 		Cost c = (Cost) MainFrame.costs.get();
 		String b = (String) c.get("ΤύποςΔιαγωνισμού");
 		String a = (String) c.get("ΤύποςΔαπάνης");

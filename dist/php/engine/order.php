@@ -69,7 +69,7 @@ function bottomOrder() {
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
 \clftsWidth1\clNoWrap\cellx4394\clftsWidth1\clNoWrap\cellx8788\qc
 Ακριβές Αντίγραφο\line\line\line\line <?=man($data['ΑξκοςΓραφείου'])?>\line <?=chk($data['ΙδιότηταΑξκου'])?>\cell
-<?=man($data['Δκτης'])?>\line Δ Ι Ο Ι Κ Η Τ Η Σ\cell\row
+<?=man($data['Δκτης'])?>\line Διοικητής\cell\row
 <?
 }
 

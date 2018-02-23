@@ -64,7 +64,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.6");
+		super("Στρατιωτικές Δαπάνες 1.4.7");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -106,7 +106,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 	}
 
-	private final JMenuBar createMenus(JMenuBar jtb) {
+	private JMenuBar createMenus(JMenuBar jtb) {
 		for(int z = 0, c = 0; z < mnu.length; z += 4)
 			if (mnu[z] == null) ((JMenu) getMenuFromName(mnu[z + 1])).addSeparator();
 			else {
@@ -127,7 +127,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		return jtb;
 	}
 
-	static private final JMenuItem getMenuFromName(String s) {
+	static private JMenuItem getMenuFromName(String s) {
 		for(int z = 0; menu[z] != null; z++)
 			if (s.equals(menu[z].getActionCommand())) return menu[z];
 		return null;
@@ -231,9 +231,9 @@ public class MainFrame extends JFrame implements ActionListener {
 		if (costs.getPos() != null) {
 			window.removeAll();
 			ButtonGroup btg = new ButtonGroup();
-			Enumeration en = costs.keys();
-			while (en.hasMoreElements()) {
-				String m = en.nextElement().toString();
+			Iterator en = costs.keySet().iterator();
+			while (en.hasNext()) {
+				String m = en.next().toString();
 				JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(new File(m).getName(), m.equals(costs.getPos()));
 				jmi.addActionListener(this);
 				jmi.setActionCommand(m);
@@ -243,6 +243,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 	}
 
+	@Override
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			try {
@@ -256,7 +257,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		super.processWindowEvent(e);
 	}
 
-	public void addOptionsMenu() {
+	public final void addOptionsMenu() {
 		JMenu options = (JMenu) getMenuFromName("options");
 		HashObject h = (HashObject) data.get("Ρυθμίσεις");
 		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Μόνο μια φορά", new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")), Boolean.TRUE.equals(h.get("ΜιαΦορά")));
@@ -352,12 +353,13 @@ public class MainFrame extends JFrame implements ActionListener {
 
 	// ----- ActionListener ----- //
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		String ac = e.getActionCommand();
 		JMenuItem j = (JMenuItem) e.getSource();
 
 		// if we must output a draft order
-		Map<String, String> env = new Hashtable();
+		Map<String, String> env = new HashMap<String, String>();
 		Map<String, Object> options = (HashObject) data.get("Ρυθμίσεις");
 		if (Boolean.TRUE.equals(options.get("ΜιαΦορά"))) env.put("one", "true");
 
@@ -410,7 +412,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.6</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>07 Δεκ 2010</b><br>Σελίδα: <b>http://programs.agiasofia.gr/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.7</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>07 Δεκ 2011</b><br>Σελίδα: <b>http://programs.agiasofia.gr/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 
 
@@ -432,6 +434,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			} catch(Exception e) {}
 		}
 
+		@Override
 		public void run() {
 			try {
 				for(;;) {

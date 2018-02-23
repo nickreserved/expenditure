@@ -7,12 +7,12 @@ import javax.swing.table.*;
 import java.util.*;
 
 public class RichTableCellEditor extends AbstractCellEditor	implements TableCellEditor, ActionListener {
-	
+
 	protected Component[] cls;
 	protected int x, y;
 	protected Component current;
 	protected JTextField text = new JTextField();
-	
+
 	public RichTableCellEditor(Component[] cmp) {
 		text.setBorder(BorderFactory.createMatteBorder(1,1,0,0,Color.WHITE));
 		text.addActionListener(this);
@@ -20,7 +20,8 @@ public class RichTableCellEditor extends AbstractCellEditor	implements TableCell
 		for (int z = 0; z < cls.length; z++)
 			if (cls[z] != null) ((JComboBox) cls[z]).addActionListener(this);
 	}
-	
+
+	@Override
 	public Object getCellEditorValue() {
 		if (current instanceof JTextField)
 			return ((JTextField) current).getText();
@@ -28,26 +29,29 @@ public class RichTableCellEditor extends AbstractCellEditor	implements TableCell
 			return ((JComboBox) current).getSelectedItem();
 		else return null;
 	}
-	
+
 	public void setValue(Object o) {
 		if (current instanceof JTextField)
 			((JTextField) current).setText(o.toString());
 		else if (current instanceof JComboBox)
 			((JComboBox) current).setSelectedItem(o);
 	}
-	
+
+	@Override
 	public boolean isCellEditable(EventObject anEvent) {
 		if (anEvent instanceof MouseEvent)
 			return ((MouseEvent)anEvent).getClickCount() >= 2;
 		return true;
 	}
-	
+
+	@Override
 	public boolean shouldSelectCell(EventObject anEvent) {
 		if (anEvent instanceof MouseEvent && current instanceof JComboBox)
 			return ((MouseEvent)anEvent).getID() != MouseEvent.MOUSE_DRAGGED;
 		return true;
 	}
-	
+
+	@Override
 	public boolean stopCellEditing() {
 		if (current instanceof JComboBox) {
 			JComboBox j = (JComboBox) current;
@@ -55,7 +59,8 @@ public class RichTableCellEditor extends AbstractCellEditor	implements TableCell
 		}
 		return super.stopCellEditing();
 	}
-	
+
+	@Override
 	public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 		current = cls[row + table.getModel().getColumnCount() * column];
 		if (current != null) setValue(value);
@@ -65,9 +70,10 @@ public class RichTableCellEditor extends AbstractCellEditor	implements TableCell
 		}
 		return current;
 	}
-	
-	
+
+
 	// ------------------------------------- ActionListener ------------------------------- //
 
+	@Override
 	public void actionPerformed(ActionEvent e) { stopCellEditing(); }
 }

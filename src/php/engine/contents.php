@@ -76,7 +76,7 @@ function get_contents($k) {
 
 		if ($k == -1) {
 			$a = array_keys($papers);
-			echo 'java.util.Vector {';
+			echo 'java.util.ArrayList {';
 			foreach($a as $v)
 				echo get_java(null, $v);
 			echo '};';

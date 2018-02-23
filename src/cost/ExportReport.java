@@ -6,7 +6,7 @@ import common.*;
 
 public class ExportReport {
 	static public final String[][] x = {{ "Rich Text", "rtf" }/*, { "OpenOffice", "odt" }*/ };
-	
+
 	static public void exportReport(String file) { exportReport(file, null); }
 	static public void exportReport(String file, Map<String, String> env) {
 		String ext = (String) ((HashObject) MainFrame.data.get("Ρυθμίσεις")).get("Εξαγωγή");
@@ -41,7 +41,7 @@ public class ExportReport {
 				Runtime.getRuntime().exec(editor + " \"" + file + '"');
 			} catch(Exception e) {}
 	}
-	
+
 	static private void showError(String err) {
 		JDialog dlg = new JDialog(MainFrame.ths, "Εμφάνιση σφαλμάτων εκτέλεσης του PHP Script", true);
 		JList list = new JList(err.split("\n"));

@@ -14,7 +14,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 	private PropertiesTable tblSum;
 	private JTable tblBills;
 	private String cost;
-	
+
 	public Bills() {
 		ResizableTableModel billsModel = new ResizableTableModel(this, new String[] { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" }, new String[] { null, null, null, null, "Κρατήσεις", "ΦΕ" }, Bill.class);
 		billsModel.addTableModelListener(this);
@@ -26,18 +26,18 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		cm.getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων", "Τεχνικών έργων" })));
 		cm.getColumn(3).setCellEditor(new DefaultCellEditor(Providers.providers));
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(Holds.holds));
-		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1, 3 })));
-		
-		billModel = new ResizableTableModel((Vector) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
+		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1, 3, 20 })));
+
+		billModel = new ResizableTableModel((ArrayList) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
 		JTable billTable = new ResizableTable(billModel, true, true);
 		cm = billTable.getColumnModel();
-		JComboBox fpa = new JComboBox(new Byte[] { 23, 11, 16, 8, 0 });
+		JComboBox fpa = new JComboBox(new Byte[] { 23, 13, 16, 9, 5, 0 });
 		fpa.setEditable(true);
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(fpa));
 		cbMeasures.setEditable(true);
 		cm.getColumn(7).setCellEditor(new DefaultCellEditor(cbMeasures));
 		billModel.addTableModelListener(this);
-		
+
 		setLayout(new BorderLayout());
 		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(tblBills), new JScrollPane(billTable));
 		sp.setDividerSize(3);
@@ -45,26 +45,30 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		add(sp, BorderLayout.CENTER);
 		add(PropertiesTable.getBoxed(tblSum = new PropertiesTable(new ReportTableModel(), null)), BorderLayout.SOUTH);
 	}
-	
+
+	@Override
 	public Object getData() {
 		Cost c = (Cost) MainFrame.costs.get();
 		return c == null ? null : c.get("Τιμολόγια");
 	}
-	
+
+	@Override
 	public void tableChanged(TableModelEvent e) {
-		Vector v = (Vector) getData();
+		ArrayList v = (ArrayList) getData();
 		int cb = tblBills.getSelectionModel().getLeadSelectionIndex();
 		if (v == null || cb == -1 || cb >= v.size()) return;
 		((Bill) v.get(cb)).recalculate();
 		repaint();
 	}
-	
+
+	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		int a = tblBills.getSelectionModel().getLeadSelectionIndex();
-		Vector v = (Vector) getData();
-		billModel.setData(a < 0 || a >= v.size() ? null : (Vector) ((Map) v.get(a)).get("Είδη"));
+		ArrayList v = (ArrayList) getData();
+		billModel.setData(a < 0 || a >= v.size() ? null : (ArrayList) ((Map) v.get(a)).get("Είδη"));
 	}
-	
+
+	@Override
 	public void paint(Graphics g) {
 		if (cost != MainFrame.costs.getPos()) {
 			cost = MainFrame.costs.getPos();
@@ -73,13 +77,15 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		}
 		super.paint(g);
 	}
-	
-	
+
+
 	private class ReportTableModel extends PropertiesTableModel {
 		public ReportTableModel() {
 			super(new String[] { "ΚαθαρήΑξία", "ΚατηγορίεςΦΠΑ", "Καταλογιστέο", "ΑνάλυσηΚρατήσεωνΣεΕυρώ", "Πληρωτέο", "ΦΕΣεΕυρώ", "ΥπόλοιποΠληρωτέο", null, null, null, null, null, null, null }, null, new String[] { "Καθαρή Αξία", "ΦΠΑ", null, "Κρατήσεις", null, "ΦΕ", "Υπόλοιπο" }, new String[] { "Τρέχον Τιμολόγιο", "Όλα τα Τιμολόγια" });
 		}
+		@Override
 		public boolean isCellEditable(int row, int col) { return false; }
+		@Override
 		public Object getValueAt(int row, int col) {
 			try {
 				Object t, o = null;

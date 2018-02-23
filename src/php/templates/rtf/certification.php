@@ -14,7 +14,7 @@ if (isset($bills_buy)) {
 \pard\plain\fs23\par
 \trowd\cellx5103\cellx10206\qc
 ΕΘΕΩΡΗΘΗ\line - Ο -\line ΔΚΤΗΣ\line\line\line <?=chk($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=chk($data['Δκτης']['Βαθμός'])?>\cell
-\line - Ο -\line ΕΟΥ\line\line\line <?=chk($data['ΕΟΥ']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΕΟΥ']['Βαθμός'])?>\cell\row
+\line - Ο -\line Δχστης\line\line\line <?=chk($data['Δχστης']['Ονοματεπώνυμο'])?>\line <?=chk($data['Δχστης']['Βαθμός'])?>\cell\row
 
 \pard\plain\qj\par\par Βεβαιώνουμε ότι αφού επισκεφθήκαμε τα διάφορα καταστήματα για να βρούμε τα καλύτερα ποιοτικά και συμφέροντα κατά τιμή είδη ενεργήσαμε την προμήθεια των υλικών που αναγράφονται στην έκθεση γενομένης δαπάνης.\par\par
 

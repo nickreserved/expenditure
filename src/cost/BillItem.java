@@ -14,9 +14,10 @@ public class BillItem extends HashString2Object {
 		super.put("Ποσότητα", 1);
 		super.put("ΜονάδαMέτρησης", "τεμάχια");
 	}
-	
+
+	@Override
 	public String toString() { return super.get("Είδος").toString(); }
-	
+
 	private void recalculate() {
 		Number nFpa = (Number) super.get("ΦΠΑ");
 		if (nFpa == null) super.put("ΦΠΑ", nFpa = 0);
@@ -35,7 +36,8 @@ public class BillItem extends HashString2Object {
 		else
 			getDynamic().remove("ΤιμήMονάδαςMεΦΠΑ");
 	}
-	
+
+	@Override
 	public Object put(String key, Object value) {
 		if (value instanceof String) value = super.fromString(key, value.toString());
 		if (value instanceof Number && ((Number) value).doubleValue() == 0 && !key.equals("ΦΠΑ")) value = null;

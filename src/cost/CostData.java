@@ -8,7 +8,7 @@ import tables.*;
 public class CostData extends JPanel implements DataTransmitter {
 	final static protected String[] cosT = { "Κατασκευή Έργων από Εργοληπτική Επιχείρηση", "Κατασκευή Έργων από Εργοληπτική Επιχείρηση με Υλικά Δημοσίου ή Εμπορίου", "Κατασκευή Έργων από Οπλίτες ή Εργατοτεχνίτες με Υλικά Δημοσίου ή Εμπορίου", "Προμήθεια - Συντήρηση - Επισκευή" };
 	final static protected String[] contesT = { "Δημόσιος Διαγωνισμός", "Πρόχειρος Διαγωνισμός", "Χωρίς Διαγωνισμό" };
-	
+
 	public CostData(ItemListener il) {
 		final String[] hash = { null, "ΤύποςΔαπάνης", "ΤύποςΔιαγωνισμού", "ΔγηΔιάθεσης", "ΔγηΑνάθεσης",
 				"Διαβιβαστικό", "Ποσό", "ΕΦ", "ΚΑ", "Τίτλος", "ΗμερομηνίαΥποβολής", "ΑξκοςΈργου",
@@ -23,7 +23,7 @@ public class CostData extends JPanel implements DataTransmitter {
 				null, null, "ΔγηΔιαγωνισμού", "ΔγηΔιακήρυξης", "ΔγηΚατακύρωσης", "Εφημερίδες", "ΗμερομηνίεςΔημοσίευσης", "ΘέμαΔιαγωνισμού",
 				"ΏραΔιαγωνισμού", "ΤόποςΔιαγωνισμού", "Νικητής", "ΠρόεδροςΔιαγωνισμού", "ΜέλοςΔιαγωνισμούΑ", "ΜέλοςΔιαγωνισμούΒ",
 				null, null, "ΣύντμησηΜονάδας", "Μονάδα", "ΓραφείοΣχηματισμού", "Γραφείο", "ΙδιότηταΑξκου", "Πόλη",
-				"Διεύθυνση", "ΕξωτερικόΤηλέφωνο", "ΕσωτερικόΤηλέφωνο", "ΤΚ", "Δκτης", "ΕΟΥ", "ΑξκοςΓραφείου"
+				"Διεύθυνση", "ΕξωτερικόΤηλέφωνο", "ΕσωτερικόΤηλέφωνο", "ΤΚ", "Δκτης", "ΕΟΥ", "ΑξκοςΓραφείου", "Δχστης"
 		};
 		JComboBox[] cmp = new JComboBox[hash.length];
 		cmp[1] = new JComboBox(cosT);
@@ -35,7 +35,7 @@ public class CostData extends JPanel implements DataTransmitter {
 		for (int z = 11; z < 11 + 7; z++) cmp[z] = Men.men;
 		for (int z = 27; z < 27 + 5; z++) cmp[z] = Men.men;
 		for (int z = 50; z < 50 + 3; z++) cmp[z] = Men.men;
-		for (int z = hash.length - 3; z < hash.length; z++) cmp[z] = Men.men;
+		for (int z = hash.length - 4; z < hash.length; z++) cmp[z] = Men.men;
 		setLayout(new BorderLayout());
 		add(PropertiesTable.getScrolled(
 				new PropertiesTableModel(hash, this,
@@ -56,8 +56,10 @@ public class CostData extends JPanel implements DataTransmitter {
 						"Πρόεδρος Διαγωνισμού", "Α' Μέλος Διαγωνισμού", "Β' Μέλος Διαγωνισμού",
 						null, "<html><b>ΑΜΕΤΑΒΛΗΤΑ ΣΤΟΙΧΕΙΑ", "<html>Μονάδα <font color=gray size=2>(σύντμηση)", "<html>Μονάδα <font color=gray size=2>(πλήρης)",
 						"Γραφείο Σχηματισμού", null, "Ιδιότητα Αξκού",	"Πόλη ή Χωρίο", null, "<html>Τηλέφωνο <font color=gray size=2>(εξωτερικό)",
-						"<html>Τηλέφωνο <font color=gray size=2>(εσωτερικό)", "Τ.Κ.",	null,	null, "Αξκος Γραφείου" }
+						"<html>Τηλέφωνο <font color=gray size=2>(εσωτερικό)", "Τ.Κ.", null, null, "Αξκος Γραφείου", null }
 		), cmp, 230));
 	}
+	
+	@Override
 	public Object getData() { return MainFrame.costs.get(); }
 }

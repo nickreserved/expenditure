@@ -1,5 +1,5 @@
 package common;
 
 public interface Saveable {
-  public String save();
+	public String save();
 }

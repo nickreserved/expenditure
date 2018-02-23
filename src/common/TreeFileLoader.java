@@ -9,23 +9,23 @@ public class TreeFileLoader {
 	private String key;
 	private Object value;
 	private TreeFileLoader() {}
-	
+
 	static public Object loadFile(String file) throws Exception {
 		return load(LoadSaveFile.loadFile(file));
 	}
-	
+
 	static public Object load(String html) throws Exception {
 		TreeFileLoader c = new TreeFileLoader();
 		c.html = html;
 		return c.load();
 	}
-	
+
 	private Object load() throws Exception {
 		Object v = value = null;
 		String k = key = null;
 		skipRegex("\\s*");
 		if (skipRegex("\\}\\s*;\\s*")) return value;
-		
+
 		int a = pos;
 		skipRegex("\\S+");
 		String s = html.substring(a, pos);
@@ -36,9 +36,9 @@ public class TreeFileLoader {
 			if (cl.length == 0) c0 = cs[z];
 			else if (cl.length == 1 && cl[0].equals(String.class)) c1 = cs[z];
 		}
-		
+
 		if (c1 == null) v = c0.newInstance(new Object[0]);
-		
+
 		skipRegex("\\s*");
 		if (html.startsWith("\"", pos)) {
 			a = Functions.getStringClosePosition(html, pos);
@@ -78,8 +78,8 @@ public class TreeFileLoader {
 		value = v; key = k;
 		return v;
 	}
-	
-	private final boolean skipRegex(String regex) {
+
+	private boolean skipRegex(String regex) {
 		int a = Functions.findEndOfRegex(html, pos, regex);
 		if (a == -1) return false;
 		pos = a;
