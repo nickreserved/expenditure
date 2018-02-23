@@ -27,7 +27,8 @@ function preOrder($order, $to, $info, $draft = false, $add = null) {
 		echo chk($data['Πόλη']);
 	}
 	if ($add) echo '\line Συνημμένα: ' . $add;
-	?>\cell\row <?
+	?>\cell\row
+\pard\plain\par<?
 }
 
 

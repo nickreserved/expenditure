@@ -12,50 +12,7 @@ import common.*;
 
 
 public class MainFrame extends JFrame implements ActionListener {
-	static private final String[] mnu = {
-		"file", null, null, "Αρχείο",
-			"new", "file", "new", "Νέα Δαπάνη",
-			"open", "file", "open", "’νοιγμα Δαπάνης...",
-			"save", "file", "save", "Αποθήκευση Δαπάνης...",
-			"close", "file", "close", "Κλείσιμο Δαπάνης",
-			null, "file", null, null,
-			"exit", "file", "exit", "Έξοδος",
-		"export", null, null, "Εξαγωγή",
-			"cost", "export", null, "Δαπάνη",
-			"fe", "export", null, "ΦΕ",
-				"taxis", "fe", null, "Εφορία",
-				"provider", "fe", null, "Προμηθευτής",
-			"mail", "export", null, "Αλληλογραφία",
-				"order_order", "mail", null, "Συγκρότηση Επιτροπών",
-				"contract", "mail", null, "Εργολαβίες",
-					"order_order_contractor", "contract", null, "Ανάθεση Εργολαβίας",
-					"order_order_work_officer", "contract", null, "Ορισμός Αξκου Έργου",
-					"order_order_obscure_work", "contract", null, "Συγκρότηση Επιτροπής Αφανών Εργασιών",
-					"order_order_temporary_finally_taking", "contract", null, "Συγκρότηση Επιτροπής Προσωρινής και Οριστικής Παραλαβής",
-					"order_order_quality_quantity", "contract", null, "Συγκρότηση Επιτροπής Ποιοτικής και Ποσοτικής Παραλαβής",
-					"order_order_buy_service", "contract", null, "Συγκρότηση Επιτροπής Αγοράς και Διάθεσης",
-				"contest", "mail", null, "Διαγωνισμοί",
-					"order_order_contest", "contest", null, "Συγκρότηση Επιτροπής Διαγωνισμού",
-					"order_order_declaration", "contest", null, "Διακήρυξη Διαγωνισμού",
-					"contest_record", "contest", null, "Πρακτικό Διαγωνισμού...",
-					"contest_proposal", "contest", null, "Εισηγητική Έκθεση...",
-					"order_order_adjudication", "contest", null, "Κατακύρωση του Διαγωνισμού...",
-				"order_route_slip", "mail", null, "Διαβιβαστικό Δαπάνης",
-				"order_prereport", "mail", null, "Έκθεση Απαιτούμενης Δαπάνης",
-			"other", "export", null, "Διάφορα",
-				"hold", "other", null, "Ανάλυση Κρατήσεων",
-				"bills", "other", null, "Λίστα Τιμολογίων",
-				"ticket", "other", null, "Απόδειξη για Προκαταβολή",
-		"options", null, null, "Ρυθμίσεις",
-			"skins", "options", "skins", "Κέλυφος ",
-			"openwith", "options", "openwith", "’νοιγμα με...",
-			"fexport", "options", "export", "Εξαγωγή ",
-		"costs", null, null, "Δαπάνες",
-		"help", null, null, "Βοήθεια",
-			"help_open", "help", "help", "Βοήθεια",
-			"about", "help", "about", "Περί..."
-	};
-	private static JMenuItem[] menu = new JMenuItem[mnu.length / 4];
+	private static JMenuItem[] menu;
 
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static String rootPath;
@@ -64,7 +21,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.9");
+		super("Στρατιωτικές Δαπάνες 1.5.0 beta");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -79,7 +36,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainTab.addTab("Εργασίες", new Works());
 		mainTab.addTab("Αμετάβλητα Στοιχεία", new StaticData());
 		mainTab.addTab("Προμηθευτές", prov);
-		mainTab.addTab("Κρατήσεις", holds);
+		mainTab.addTab("Ανάλυση Κρατήσεων", holds);
 		mainTab.addTab("Προσωπικό Μονάδας", men);
 
 		getContentPane().add(mainTab);
@@ -100,23 +57,58 @@ public class MainFrame extends JFrame implements ActionListener {
 		updateMenus();
 		addOptionsMenu();
 
-		setSize(700, 450);
+		setSize(750, 450);
 		setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 		setVisible(true);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 	}
 
 	private JMenuBar createMenus(JMenuBar jtb) {
-		for(int z = 0, c = 0; z < mnu.length; z += 4)
+		final String[] mnu = {
+			"Αρχείο", null, null,
+				"Νέα Δαπάνη", "Αρχείο", "new",
+				"’νοιγμα Δαπάνης...", "Αρχείο", "open",
+				"Αποθήκευση Δαπάνης...", "Αρχείο", "save",
+				"Κλείσιμο Δαπάνης", "Αρχείο", "close",
+				null, "Αρχείο", null,
+				"Έξοδος", "Αρχείο", "exit",
+			"Εξαγωγή", null, null,
+				"Δαπάνη", "Εξαγωγή", null,
+				"ΦΕ", "Εξαγωγή", null,
+					"Εφορία", "ΦΕ", null,
+					"Προμηθευτής", "ΦΕ", null,
+				"Αλληλογραφία", "Εξαγωγή", null,
+					"Συγκρότηση Επιτροπών", "Αλληλογραφία", null,
+					"Διαγωνισμοί", "Αλληλογραφία", null,
+						"Διακήρυξη", "Διαγωνισμοί", null,
+						null, "Διαγωνισμοί", null,
+						"Πρακτικό", "Διαγωνισμοί", null,
+						"Εισηγητική Έκθεση", "Διαγωνισμοί", null,
+						"Κατακύρωση", "Διαγωνισμοί", null,
+					"Διαβιβαστικό Δαπάνης", "Αλληλογραφία", null,
+					"Έκθεση Απαιτούμενης Δαπάνης", "Αλληλογραφία", null,
+				"Διάφορα", "Εξαγωγή", null,
+					"Ανάλυση Κρατήσεων", "Διάφορα", null,
+					"Πρόχειρη Λίστα Τιμολογίων", "Διάφορα", null,
+					"Απόδειξη για Προκαταβολή", "Διάφορα", null,
+			"Ρυθμίσεις", null, null,
+				"Κέλυφος ", "Ρυθμίσεις", "skins",
+			"Δαπάνες", null, null,
+			"Βοήθεια", null, null,
+				"Εγχειρίδιο", "Βοήθεια", "help",
+				"Περί...", "Βοήθεια", "about"
+		};
+		menu = new JMenuItem[mnu.length / 3];
+			
+		for(int z = 0, c = 0; z < mnu.length; z += 3)
 			if (mnu[z] == null) ((JMenu) getMenuFromName(mnu[z + 1])).addSeparator();
 			else {
-			if (mnu[z + 1] == null || mnu[z + 3].endsWith(" ") || z + 5 < mnu.length && mnu[z + 5] == mnu[z])
-				menu[c] = new JMenu(mnu[z + 3]);
+			if (mnu[z + 1] == null || mnu[z].endsWith(" ") || z + 4 < mnu.length && mnu[z + 4] == mnu[z])
+				menu[c] = new JMenu(mnu[z]);
 			else {
-				menu[c] = new JMenuItem(mnu[z + 3]);
+				menu[c] = new JMenuItem(mnu[z]);
 				menu[c].addActionListener(this);
 			}
-			menu[c].setActionCommand(mnu[z]);
 			if (mnu[z + 2] != null) {
 				/*if (mnu[z + 2] == "") menu[c].setIcon(new MenuBlankIcon());
 				else*/ menu[c].setIcon(new ImageIcon(ClassLoader.getSystemResource("cost/" + mnu[z + 2] + ".png")));
@@ -129,7 +121,7 @@ public class MainFrame extends JFrame implements ActionListener {
 
 	static private JMenuItem getMenuFromName(String s) {
 		for(int z = 0; menu[z] != null; z++)
-			if (s.equals(menu[z].getActionCommand())) return menu[z];
+			if (s.equals(menu[z].getText())) return menu[z];
 		return null;
 	}
 
@@ -146,7 +138,7 @@ public class MainFrame extends JFrame implements ActionListener {
 					return;
 				}
 			}
-		} catch (Exception e) {}
+		} catch (IOException e) {}
 	}
 
 	public void saveCost() {
@@ -168,7 +160,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				}
 			}
 			LoadSaveFile.save(s, (Saveable) costs.get());
-			if (s != costs.getPos()) {
+			if (!s.equals(costs.getPos())) {
 				costs.add(s, costs.remove());
 				updateMenus();
 			}
@@ -186,7 +178,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			String s = fc.getSelectedFile().getCanonicalPath();
 			if (!s.endsWith(".cost")) s += ".cost";
 			openCost(s);
-		} catch (Exception ex) {}
+		} catch (HeadlessException | IOException ex) {}
 	}
 
 	static private void openCost(String file) {
@@ -222,10 +214,10 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 
 	private void updateMenus() {
-		getMenuFromName("save").setEnabled(costs.getPos() != null);
-		getMenuFromName("close").setEnabled(costs.getPos() != null);
-		getMenuFromName("export").setEnabled(costs.getPos() != null);
-		JMenu window = (JMenu) getMenuFromName("costs");
+		getMenuFromName("Αποθήκευση Δαπάνης...").setEnabled(costs.getPos() != null);
+		getMenuFromName("Κλείσιμο Δαπάνης").setEnabled(costs.getPos() != null);
+		getMenuFromName("Εξαγωγή").setEnabled(costs.getPos() != null);
+		JMenu window = (JMenu) getMenuFromName("Δαπάνες");
 		window.setEnabled(costs.getPos() != null);
 
 		if (costs.getPos() != null) {
@@ -258,34 +250,21 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 
 	public final void addOptionsMenu() {
-		JMenu options = (JMenu) getMenuFromName("options");
+		JMenu options = (JMenu) getMenuFromName("Ρυθμίσεις");
 		HashObject h = (HashObject) data.get("Ρυθμίσεις");
 		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Μόνο μια φορά", new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")), Boolean.TRUE.equals(h.get("ΜιαΦορά")));
 		cbmi.addActionListener(this);
-		cbmi.setActionCommand("only_one");
 		options.add(cbmi);
 
-		JMenuItem skins = getMenuFromName("skins");
+		JMenuItem skins = getMenuFromName("Κέλυφος ");
 		LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
 		String s = (String) h.get("Κέλυφος");
 		if (s == null) s = UIManager.getSystemLookAndFeelClassName();
 		ButtonGroup btg = new ButtonGroup();
-		for (int z = 0; z < laf.length; z++) {
-			String s1 = laf[z].getClassName();
-			JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(laf[z].getName(), s1.equals(s));
+		for (LookAndFeelInfo laf1 : laf) {
+			String s1 = laf1.getClassName();
+			JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(laf1.getName(), s1.equals(s));
 			jmi.setActionCommand(s1);
-			jmi.addActionListener(this);
-			btg.add(jmi);
-			skins.add(jmi);
-		}
-
-		skins = getMenuFromName("fexport");
-		s = (String) h.get("Εξαγωγή");
-		if (s == null) s = ExportReport.x[0][1];
-		btg = new ButtonGroup();
-		for (int z = 0; z < ExportReport.x.length; z++) {
-			JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(ExportReport.x[z][0], ExportReport.x[z][1].equals(s));
-			jmi.setActionCommand(ExportReport.x[z][1]);
 			jmi.addActionListener(this);
 			btg.add(jmi);
 			skins.add(jmi);
@@ -295,18 +274,18 @@ public class MainFrame extends JFrame implements ActionListener {
 	static public void setSkin() {
 		try {
 			UIManager.setLookAndFeel(((HashObject) data.get("Ρυθμίσεις")).get("Κέλυφος").toString());
-		} catch(Exception e) {
+		} catch(NullPointerException | ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch(Exception ex) {}
+			} catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {}
 		}
 	}
 
 	public static void main(String[] args) {
 		// check for other running instance and setup listening server
 		if (!OnlyOneInstance.check()) {
-			for (int z = 0; z < args.length; z++)
-				OnlyOneInstance.send(args[z].getBytes());
+			for (String arg : args)
+				OnlyOneInstance.send(arg.getBytes());
 			System.exit(0);
 		}
 
@@ -341,7 +320,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
 		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject());
 		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject());
-		if (!(data.get("Κρατήσεις") instanceof VectorObject)) data.put("Κρατήσεις", new VectorObject());
+		if (!(data.get("Ανάλυση Κρατήσεων") instanceof VectorObject)) data.put("Ανάλυση Κρατήσεων", new VectorObject());
 		if (!(data.get("ΑμετάβληταΣτοιχείαΔαπάνης") instanceof HashObject)) data.put("ΑμετάβληταΣτοιχείαΔαπάνης", new HashObject());
 		if (!(data.get("Ρυθμίσεις") instanceof HashObject)) data.put("Ρυθμίσεις", new HashObject());
 		if (!(data.get("ΑνοικτέςΔαπάνες") instanceof IteratorHashObject)) data.put("ΑνοικτέςΔαπάνες", new IteratorHashObject());
@@ -349,8 +328,8 @@ public class MainFrame extends JFrame implements ActionListener {
 
 		setSkin();
 		try {
-			for (int z = 0; z < args.length; z++)
-				openCost(new File(args[z]).getCanonicalPath());
+			for (String arg : args)
+				openCost(new File(arg).getCanonicalPath());
 		} catch (IOException ex) {}
 
 		ths = new MainFrame();
@@ -360,64 +339,58 @@ public class MainFrame extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String ac = e.getActionCommand();
 		JMenuItem j = (JMenuItem) e.getSource();
+		String ac = j.getText();
+		int order = -1;
 
-		// if we must output a draft order
-		Map<String, String> env = new HashMap<String, String>();
+		// if we must output only one copy
+		Map<String, String> env = new HashMap<>();
 		Map<String, Object> options = (HashObject) data.get("Ρυθμίσεις");
 		if (Boolean.TRUE.equals(options.get("ΜιαΦορά"))) env.put("one", "true");
 
-		if (((JMenu) getMenuFromName("fexport")).isMenuComponent(j))
-			options.put("Εξαγωγή", ac);
-		else if (((JMenu) getMenuFromName("skins")).isMenuComponent(j)) {
-			options.put("Κέλυφος", ac);
-			JOptionPane.showMessageDialog(this, "Το Κέλυφος θα αλλάξει όταν ξαναξεκινήσετε το πρόγραμμα", "Αλλαγή κελύφους", JOptionPane.INFORMATION_MESSAGE);
-		} else if (((JMenu) getMenuFromName("costs")).isMenuComponent(j)) {
-			costs.setPos(ac);
+		if (((JMenu) getMenuFromName("Κέλυφος ")).isMenuComponent(j)) {
+			options.put("Κέλυφος", e.getActionCommand());
+			setSkin(); dispose(); ths = new MainFrame();
+		} else if (((JMenu) getMenuFromName("Δαπάνες")).isMenuComponent(j)) {
+			costs.setPos(e.getActionCommand());
 			updatePanels();
-		} else if (ac == "openwith") {
-			String editor = (String) options.get("Επεξεργαστής");
-			JFileChooser fc = new JFileChooser();
-			if (editor != null) fc.setSelectedFile(new File(editor));
-			fc.setDialogTitle("Επέλεξε επεξεργαστή κειμένου που θα ανοίγει τα εξαγόμενα αρχεία");
-			if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-				File f = fc.getSelectedFile();
-				if (f.exists()) options.put("Επεξεργαστής", f.getPath());
-				else {
-					options.remove("Επεξεργαστής");
-					JOptionPane.showMessageDialog(this, "<html>Δεν βρέθηκε το πρόγραμμα:<br><b>" + f.getPath() + "</b>", "Επεξεργαστής κειμένου", JOptionPane.ERROR_MESSAGE);
-				}
-			}
 		}
-		else if (ac == "new") newCost();
-		else if (ac == "open") openCost();
-		else if (ac == "save") saveCost();
-		else if (ac == "close") closeCost();
-		else if (ac == "exit") dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		else if (ac == "cost") ExportReport.exportReport("cost.php", env);
-		else if (ac == "taxis") ExportReport.exportReport("fe_tax.php");
-		else if (ac == "provider") ExportReport.exportReport("fe_provider.php");
-		else if (ac.startsWith("order_")) {
-			final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
-			Object b = JOptionPane.showInputDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
-			if (b == null) return; else if (a[1].equals(b)) env.put("draft", "true");
-			ExportReport.exportReport(ac.substring(6) + ".php", env);
-		}
-		else if (ac == "contest_proposal") ExportReport.exportReport("contest_proposal.php");
-		else if (ac == "contest_record") ExportReport.exportReport("contest_record.php");
-		else if (ac == "hold") ExportReport.exportReport("holds.php");
-		else if (ac == "bills") ExportReport.exportReport("bills.php");
-		else if (ac == "ticket") ExportReport.exportReport("ticket.php");
-		else if (ac == "only_one") options.put("ΜιαΦορά", !Boolean.TRUE.equals(options.get("ΜιαΦορά")));
-		else if (ac == "help_open") {
-			try {
-				BrowserLauncher.openURL(rootPath + "help/index.html");
-			} catch(Exception ex) {
+		else if (ac.equals("Νέα Δαπάνη")) newCost();
+		else if (ac.equals("’νοιγμα Δαπάνης...")) openCost();
+		else if (ac.equals("Αποθήκευση Δαπάνης...")) saveCost();
+		else if (ac.equals("Κλείσιμο Δαπάνης")) closeCost();
+		else if (ac.equals("Έξοδος")) dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		else if (ac.equals("Δαπάνη")) ExportReport.exportReport("Δαπάνη.php", env);
+		else if (ac.equals("Εφορία")) ExportReport.exportReport("ΦΕ για την Εφορία.php");
+		else if (ac.equals("Προμηθευτής")) ExportReport.exportReport("ΦΕ για τον Προμηθευτή.php");
+		else if (ac.equals("Συγκρότηση Επιτροπών")) order = 0;
+		else if (ac.equals("Διακήρυξη")) order = 1;
+		else if (ac.equals("Κατακύρωση")) order = 2;
+		else if (ac.equals("Διαβιβαστικό Δαπάνης")) order = 3;
+		else if (ac.equals("Έκθεση Απαιτούμενης Δαπάνης")) order = 4;
+		else if (ac.equals("Εισηγητική Έκθεση")) ExportReport.exportReport("Εισηγητική Έκθεση Διαγωνισμού.php");
+		else if (ac.equals("Πρακτικό")) ExportReport.exportReport("Πρακτικό Διαγωνισμού.php");
+		else if (ac.equals("Ανάλυση Κρατήσεων")) ExportReport.exportReport("Κρατήσεις υπέρ Τρίτων.php");
+		else if (ac.equals("Πρόχειρη Λίστα Τιμολογίων")) ExportReport.exportReport("Πρόχειρη Λίστα Τιμολογίων.php");
+		else if (ac.equals("Απόδειξη για Προκαταβολή")) ExportReport.exportReport("Απόδειξη για Προκαταβολή.php");
+		else if (ac.equals("Μόνο μια φορά")) options.put("ΜιαΦορά", !Boolean.TRUE.equals(options.get("ΜιαΦορά")));
+		else if (ac.equals("Εγχειρίδιο")) {
+			try {	// open help
+				Desktop.getDesktop().open(new File(rootPath + "help/index.html"));
+			} catch(IllegalArgumentException | IOException ex) {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.9</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>’δεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>20 Σεπ 13</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.5.0 beta</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>’δεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>20 Νοε 13</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		
+		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο
+		if (order != -1) {
+			final String[] file = { "Δγη Συγκρότησης Επιτροπών", "Δγη Διακήρυξης Διαγωνισμού", "Δγη Κατακύρωσης Διαγωνισμού", "Διαβιβαστικό Δαπάνης", "Έκθεση Απαιτούμενης Δαπάνης" };
+			final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
+			Object b = JOptionPane.showInputDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
+			if (b == null) return; else if (a[1].equals(b)) env.put("draft", "true");
+			ExportReport.exportReport(file[order] + ".php", env);
+		}
 	}
 
 
@@ -428,15 +401,13 @@ public class MainFrame extends JFrame implements ActionListener {
 				ss = new ServerSocket(666);
 				new Thread(new OnlyOneInstance()).start();
 				return true;
-			} catch(Exception e) { return false; }
+			} catch(IOException e) { return false; }
 		}
 
 		public static void send(byte[] a) {
 			try {
-				OutputStream s = new Socket("127.0.0.1", 666).getOutputStream();
-				s.write(a);
-				s.close();
-			} catch(Exception e) {}
+				try (OutputStream s = new Socket("127.0.0.1", 666).getOutputStream()) { s.write(a); }
+			} catch(IOException e) {}
 		}
 
 		@Override

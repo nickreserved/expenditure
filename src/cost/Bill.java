@@ -55,7 +55,7 @@ public class Bill extends DynHashObject {
 
 			Hold hold = (Hold) get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
 			h = new HashObject();
-			TreeMap<Number, String> tm = new TreeMap<Number, String>();
+			TreeMap<Number, String> tm = new TreeMap<>();
 			Number sum = M.round(M.mul(ka, M.div((Number) hold.getDynamic().get("Σύνολο"), 100)), 2);
 			h.put("Σύνολο", thold = sum);
 			Iterator en = hold.keySet().iterator();
@@ -97,20 +97,18 @@ public class Bill extends DynHashObject {
 			getDynamic().put("ΦΕΣεΕυρώ", fe = M.round(M.mul(kak, ((Number) get("ΠοσοστόΦΕ")).doubleValue() / 100), 2));
 
 			getDynamic().put("ΥπόλοιποΠληρωτέο", M.round(M.sub(pl, fe), 2));
-		} catch(Exception e) {}
+		} catch(NullPointerException | NumberFormatException e) {}
 	}
 
 	protected void setFe() {
 		byte a = ((Number) get("ΠοσοστόΦΕ")).byteValue();
+		if (a == 0) return;
 		String c = (String) get("Κατηγορία");
-		if (c.equals("Τεχνικών έργων") && a != 3) {
-			super.put("ΠοσοστόΦΕ", 3);
-			super.put("Τύπος", "Τιμολόγιο");
-		}
-		else if (!get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", 0);
-		else if (a == 0);
-		else if (c.equals("Παροχή υπηρεσιών") && a == 4) super.put("ΠοσοστόΦΕ", 8);
-		else if (c.equals("Προμήθεια υλικών") && a == 8) super.put("ΠοσοστόΦΕ", 4);
+		if (!get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", 0);
+		else if (((Hold) get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά")).get("ΤΠΕΔΕ") != null) { if (a != 3) super.put("ΠοσοστόΦΕ", 3); }
+		else if (a != 8 && a != 4 && a != 1 && a != 3) {}
+		else if (c.equals("Παροχή υπηρεσιών") && a != 8) super.put("ΠοσοστόΦΕ", 8);
+		else if (c.equals("Προμήθεια υλικών") && a != 4) super.put("ΠοσοστόΦΕ", 4);
 		else if (c.equals("Αγορά υγρών καυσίμων") && a != 1) super.put("ΠοσοστόΦΕ", 1);
 	}
 
@@ -119,10 +117,7 @@ public class Bill extends DynHashObject {
 		String a = (String) get("Τύπος");
 		for (int z = 0; z < items.size(); z++) {
 			BillItem bi = (BillItem) items.get(z);
-			if (a.equals("ΣΠ/ΚΨΜ") || a.equals("Απόδειξη ενοικιασης"))
-				bi.put("ΦΠΑ", 0);
-			else if (((Number) bi.get("ΦΠΑ")).doubleValue() == 0)
-				bi.put("ΦΠΑ", 23);
+			if (a.equals("ΣΠ/ΚΨΜ") || a.equals("Απόδειξη ενοικιασης")) bi.put("ΦΠΑ", 0);
 		}
 	}
 }

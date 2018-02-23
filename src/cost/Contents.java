@@ -9,7 +9,7 @@ import common.*;
 import java.awt.event.*;
 
 public class Contents extends JPanel implements DataTransmitter, ItemListener {
-	private ResizableTableModel rtm;
+	private final ResizableTableModel rtm;
 	public Contents() {
 		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Δικαιολογητικό", "Πλήθος"}, null, ContentItem.class), true, false);
 		JComboBox cbMany = new JComboBox(new Byte[] {1, 2, 3, 4, 5});
@@ -56,6 +56,6 @@ public class Contents extends JPanel implements DataTransmitter, ItemListener {
 		if (e.getItem().toString().indexOf("Διαγωνισμό") != -1) b = e.getItem().toString();
 		else a = e.getItem().toString();
 		c.put("ΦύλλοΚαταχώρησης", a != null && b != null ?
-			load(3 - Arrays.binarySearch(CostData.cosT, a) + 4 * (2 - Arrays.binarySearch(CostData.contesT, b))) : null);
+			load(1 - Arrays.binarySearch(CostData.cosT, a) + 2 * (2 - Arrays.binarySearch(CostData.contesT, b))) : null);
 	}
 }

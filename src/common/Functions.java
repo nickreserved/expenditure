@@ -67,7 +67,7 @@ public class Functions {
 		if (e != null) {
 			info += "Σφάλμα: <b>" + e.getClass().getName() + "</b>";
 			String s = e.getLocalizedMessage();
-			if (s != null && s.length() > 7) info += "<br>Λόγος: <b>" + s + "</b>";
+			if (s != null && s.length() > 7) info += "<br>Λόγος: <b>" + s;
 		}
 		JOptionPane.showMessageDialog(null, "<html>" + info, title, JOptionPane.ERROR_MESSAGE);
 	}

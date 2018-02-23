@@ -1,10 +1,10 @@
 ﻿# -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.4.9"
+!define VERSION "1.5.0"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_RE_URL "http://www.java.com/"
-!define JAVA_VERSION "1.5"
+!define JAVA_VERSION "1.7"
 !define PHP_RE_URL "http://sourceforge.net/projects/ha-expenditure/files/current/php_cli.exe/download"
 
 # ------------------------------------------------------------------ general ---

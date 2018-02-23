@@ -12,5 +12,6 @@ public class Men extends JPanel implements DataTransmitter {
 		add(new JScrollPane(new ResizableTable(new ResizableTableModel(this, new String[] { "Βαθμός", "Ονοματεπώνυμο", "Μονάδα" }, new String[] { null, null, "<html>Μονάδα <font color=gray size=2>(γενική με άρθρο)" }, Man.class), true, true)));
 	}
 
+	@Override
 	public Object getData() { return MainFrame.data.get("Προσωπικό"); }
 }

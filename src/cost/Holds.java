@@ -2,7 +2,6 @@ package cost;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.String;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
@@ -16,16 +15,13 @@ public class Holds extends JPanel implements DataTransmitter, ActionListener {
 	public Holds() {
 		holds = new JComboBox(new ComboDataModel(this, new Hold()));
 
-		ArrayList<String> heads = new ArrayList<String>(Arrays.asList(new String[]
+		ArrayList<String> heads = new ArrayList<>(Arrays.asList(new String[]
 			{"Óıíïëï", "ÌÔÓ", "ÅÌĞ", "ÔÓÌÅÄÅ", "ÁÏÏÁ", "ÅÊÏÅÌÓ", "×áñôüóçìï", "ÏÃÁ"} ));
 		ArrayList<Hold> lst = (ArrayList<Hold>) getData();
 		for (HashMap z : lst) {
 			Set<String> hold = z.keySet();
-			Iterator iter = hold.iterator();
-			while (iter.hasNext()) {
-				String head = (String) iter.next();
+			for (String head : hold)
 				if (!heads.contains(head)) heads.add(head);
-			}
 		}
 		String[] hash = new String[heads.size()];
 		hash = heads.toArray(hash);
@@ -41,7 +37,7 @@ public class Holds extends JPanel implements DataTransmitter, ActionListener {
 	}
 
 	@Override
-	public Object getData() { return MainFrame.data.get("ÊñáôŞóåéò"); }
+	public final Object getData() { return MainFrame.data.get("ÊñáôŞóåéò"); }
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

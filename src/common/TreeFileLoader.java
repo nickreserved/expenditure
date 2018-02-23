@@ -35,10 +35,12 @@ public class TreeFileLoader {
 		String s = html.substring(a, pos);
 		Constructor[] cs = Class.forName(s).getConstructors();
 		Constructor c0 = null, c1 = null;
-		for (int z = 0; z < cs.length; z++) {
-			Class[] cl = cs[z].getParameterTypes();
-			if (cl.length == 0) c0 = cs[z];
-			else if (cl.length == 1 && cl[0].equals(String.class)) c1 = cs[z];
+		for (Constructor c : cs) {
+			Class[] cl = c.getParameterTypes();
+			if (cl.length == 0) c0 = c;
+			else if (cl.length == 1 && cl[0].equals(String.class)) {
+				c1 = c;
+			}
 		}
 
 		if (c1 == null) v = c0.newInstance(new Object[0]);

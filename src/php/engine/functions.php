@@ -224,16 +224,19 @@ function getEnvironment($a, $b = null) {
 	}
 }
 
+// convert a string to uppercase (in Greek capital letters has no tone)
+// if we have e.g. "1ος Λόχος" it returns "1ΟΣ ΛΟΧΟΣ"
+function toUppercaseFull($s) {
+	static $pre = array('/Ά/', '/Έ/', '/Ή/', '/Ί/', '/Ό/', '/Ύ/', '/Ώ/', '/ς/');
+	static $aft = array('Α', 'Ε', 'Η', 'Ι', 'Ο', 'Υ', 'Ω', 'Σ');
+	return preg_replace($pre, $aft, strtoupper($s));
+}
 
 // convert a string to uppercase (in Greek capital letters has no tone)
 // if we have e.g. "1ος Λόχος" it returns "1ος ΛΟΧΟΣ" and not "1ΟΣ ΛΌΧΟΣ"
 function toUppercase($s) {
-	static $pre = array('/Ά/', '/Έ/', '/Ή/', '/Ί/', '/Ό/', '/Ύ/', '/Ώ/', '/ς/');
-	static $aft = array('Α', 'Ε', 'Η', 'Ι', 'Ο', 'Υ', 'Ω', 'Σ');
-	$t = preg_replace_callback('/(\W|^)\D\w*/', create_function('$m', 'return strtoupper($m[0]);'), $s);
-	return preg_replace($pre, $aft, $t);
+	return preg_replace_callback('/(\W|^)\D\w+/', create_function('$m', 'return toUppercaseFull($m[0]);'), $s);
 }
-
 
 // όπως η wordInflection αλλά κλίνει όλες τις λέξεις της πρότασης
 // αρκεί να είναι μεγαλύτερες από 2 γράμματα
@@ -242,7 +245,7 @@ function inflection($a, $w) {
 		create_function('$m', "return wordInflection(\$m[0], $w);"), $a);
 }
 
-// μετατρέπει την ονομαστική ενός αρσενικού ή θυλικού σε
+// μετατρέπει την ονομαστική ενός αρσενικού ή θηλυκού σε
 // (1) γενική, (2) αιτιατική, (3) κλιτική μόνο του ενικού
 // δεν υποστηρίζει τρελά πράματα
 // η λέξη πρέπει να είναι με μικρά γράμματα (η κατάληξη)

@@ -10,9 +10,9 @@ import common.*;
 
 public class Bills extends JPanel implements ListSelectionListener, DataTransmitter, TableModelListener {
 	static protected JComboBox cbMeasures = new JComboBox(new String[] { "τεμάχια", "lt", "Kgr", "ton", "mm", "cm", "<html>cm<sup>2", "<html>cm<sup>3", "m", "<html>m<sup>2", "<html>m<sup>3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "<html>Km<sup>2" });
-	private ResizableTableModel billModel;
-	private PropertiesTable tblSum;
-	private JTable tblBills;
+	private final ResizableTableModel billModel;
+	private final PropertiesTable tblSum;
+	private final JTable tblBills;
 	private String cost;
 
 	public Bills() {
