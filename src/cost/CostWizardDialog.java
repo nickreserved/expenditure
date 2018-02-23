@@ -60,7 +60,7 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 		tpInfo.setContentType("text/html");
 		getContentPane().add(new JScrollPane(tpInfo), BorderLayout.CENTER);
 
-		setSize(600, 450);
+		setSize(650, 450);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		
 		cbMoney.addActionListener(this);
@@ -113,19 +113,14 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 				case 1 /*Δημόσιο*/:
 					switch(idxProvider) {
 						case 0 /*Ιδιώτης*/:
-							if (idxCost == 0 /*Κατασκευή Έργων*/ && idxBill == 1 /*Παροχή Υπηρεσιών*/)
-								if (valueprovider < 2500) hold = 5.12; else { hold = 5.2236; agreement = true; }
-							else
-								if (valueprovider < 2500) hold = 4.096; else { hold = 4.1996; agreement = true; }
+							if (valueprovider < 2500) hold = 4.096; else { hold = 4.1996; agreement = true; }
 							break;
 						case 1 /*Στρατός*/:
-							cbCost.setSelectedIndex(idxCost = 1);	// Λοιπές δαπάνες
-							if (idxBill == 1 /*Παροχή Υπηρεσιών*/) cbBill.setSelectedIndex(idxBill = 0); //Προμήθεια υλικών
-							hold = 4;
-							break;
 						case 2 /*Δημόσιο*/:
 							cbCost.setSelectedIndex(idxCost = 1);	// Λοιπές δαπάνες
-							if (valueprovider < 2500) hold = 4.096; else { hold = 4.1996; agreement = true; }
+							if (idxProvider == 1 /*Στρατός*/ && idxBill == 1 /*Παροχή Υπηρεσιών*/)
+								cbBill.setSelectedIndex(idxBill = 0); //Προμήθεια υλικών
+							hold = 4;
 							break;
 						default /*Ενοικιαστής*/:
 							cbCost.setSelectedIndex(idxCost = 1);	// Λοιπές δαπάνες
@@ -137,7 +132,7 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 					cbCost.setSelectedIndex(idxCost = 1);
 					cbProvider.setSelectedIndex(idxProvider = 0);
 					if (idxBill == 1) cbBill.setSelectedIndex(idxBill = 0);
-					hold = 4.6092;
+					hold = 4.302;
 			}
 
 			if (idxProvider == 1 /*Στρατός*/ || idxProvider == 3 /*Ενοικιαστής*/) fpa = false;
@@ -161,16 +156,13 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 					(fe == 3 ? "" : " μειον κρατήσεις") + " (" + Math.round(valueforfe * fe) / 100 + " €)<br>";
 			}
 	
-			if (idxCost == 0 /*Κατασκευή Έργων*/ && idxBill == 1 /*Παροχή Υπηρεσιών*/) {
-				double a = Functions.round(0.005 * value, 2);
-				text += "<br>Ο εργολάβος πρέπει να μας υποβάλει αποδεικτικά κατάθεσης για:<ul><li>0.5% <b>ΕΜΠ</b> της καθαρής αξίας (" +
-						a + " €)<li>0.5% <b>ΤΣΜΕΔΕ</b> της καθαρής αξίας (" + a + " €)<li>0.5% <b>ΤΠΕΔΕ</b> της καθαρής αξίας (" + a +
-						" €)</ul>Εργολάβος ασφαλισμένος στο <b>ΤΣΜΕΔΕ</b> είναι υποχρεωμένος να μας υποβάλλει αποδεικτικά κατάθεσης για <b>ΤΣΜΕΔΕ</b>:" +
+			if (idxCost == 0 /*Κατασκευή Έργων*/ && idxBill == 1 /*Παροχή Υπηρεσιών*/)
+				text += "<br>Ο εργολάβος πρέπει να μας υποβάλει αποδεικτικά κατάθεσης για 1% <b>ΤΠΕΔΕ</b> της καθαρής αξίας (" + Functions.round(0.01 * value, 2) +
+						" €).<br>Εργολάβος ασφαλισμένος στο <b>ΤΣΜΕΔΕ</b> είναι υποχρεωμένος να μας υποβάλλει αποδεικτικά κατάθεσης για <b>ΤΣΜΕΔΕ</b>:" +
 						"<ul><li><b>Προσωπική Εισφορά:</b><ul><li>Αν το έργο είναι <b>Γενική Εργολαβία</b>: 2% του 10% της καθαρής αξίας (" +
 						Functions.round(0.002 * value, 2) + " €)<li>Αν το έργο είναι <b>Τμηματικές Εργολαβίες</b>: 2% του 25% της καθαρής αξίας (" +
-						a + " €)</ul><li><b>Υπέρ Τρίτων (Ν2166/93):</b> 0.6% της καθαρής αξίας (" +
+						Functions.round(0.005 * value, 2) + " €)</ul><li><b>Υπέρ Τρίτων (Ν2166/93):</b> 0.6% της καθαρής αξίας (" +
 						Functions.round(0.006 * value, 2) + " €)</ul>";
-			}
 			
 			if (idxProvider == 0 /*Ιδιώτης*/) {
 				if (valueprovider > 1500) text += "<br>Απαιτείται Φορολογική Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».";
@@ -185,7 +177,7 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 			
 			tpInfo.setText(text);
 		} catch(NumberFormatException e) {
-			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.");
+			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/131/864670/Σ.7834/24 Οκτ 14/ΓΕΣ/ΔΟΙ/3α.");
 		}
 	}
 }
