@@ -1,5 +1,6 @@
 package common;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,18 @@ public class TreeFileLoader {
 	private Object value;
 	private TreeFileLoader() {}
 
+	/** Workaround for JRE 1.8.
+	 * @param is InputStream
+	 * @return byte array
+	 * @throws java.io.IOException */
+	static public byte[] readAllBytes(InputStream is) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(131072);
+		byte[] b = new byte[131072];
+		int c;
+		while((c = is.read(b)) != -1) baos.write(b, 0, c);
+		return baos.toByteArray();
+	}
+        
 	static public Object loadResource(String file) throws Exception {
 		return load(loadFile(ClassLoader.getSystemResourceAsStream(file)));
 	}
@@ -31,7 +44,7 @@ public class TreeFileLoader {
 	public static String loadFile(InputStream is) throws IOException {
 		// Backward compatibility for older saves with charset windows-1253.
 		// Replace after year 2020 with: return new String(is.readAllBytes(), UTF_8);
-		byte[] b = is.readAllBytes();
+		byte[] b = readAllBytes(is);
 		int count = 0;
 		// Dumb guessing, if file is in windows-1253 or utf8 encoding
 		for (byte i : b) {

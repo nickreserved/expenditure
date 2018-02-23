@@ -1,6 +1,7 @@
 package common;
 
 import static common.TreeFileLoader.GREEK;
+import static common.TreeFileLoader.readAllBytes;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +47,10 @@ public class PhpScriptRunner {
 	/** Execute PHP script.
 	 * @param in stdin. If null, no stdin.
 	 * @param flags one of NONE, STDOUT, STDOUT_STDERR_REDIRECT, STDOUT_STDERR
-	 * @return error code, stdout and stderr */
+	 * @return error code, stdout and stderr
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws ExecutionException */
 	@SuppressWarnings("null")
 	public Result exec(String in, int flags) throws IOException, InterruptedException, ExecutionException {
 		pb.redirectErrorStream(flags == STDOUT_STDERR_REDIRECT);
@@ -91,7 +95,7 @@ public class PhpScriptRunner {
 		Exception error;
 		String out;
 		@Override public void run() {
-			try { out = new String(stdout.readAllBytes(), GREEK); }
+			try { out = new String(readAllBytes(stdout), GREEK); }
 			catch (IOException e) { error = e; }
 		}
 	}

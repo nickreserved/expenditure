@@ -52,14 +52,14 @@ import javax.swing.UnsupportedLookAndFeelException;
 final public class MainFrame extends JFrame implements ActionListener {
 	private static JMenuItem[] menu;
 
-	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	final public static Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 	public static String rootPath;
-	public static String ini = System.getProperty("user.home") + "/cost.ini";
+	final public static String INI = System.getProperty("user.home") + "/cost.ini";
 	static protected HashObject data;
 	static protected IteratorHashObject costs;
 	static protected MainFrame ths;
 	static protected CostWizardDialog cwf;
-	static private final String VERSION = "1.7.0";
+	static private final String VERSION = "1.7.1";
 	
 	public MainFrame() {
 		super("Στρατιωτικές Δαπάνες " + VERSION);
@@ -104,7 +104,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 		addOptionsMenu();
 
 		setSize(750, 450);
-		setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
+		setLocation((SCREEN_SIZE.width - getWidth()) / 2, (SCREEN_SIZE.height - getHeight()) / 2);
 		setVisible(true);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 	}
@@ -256,7 +256,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 
 	private void importCost() {
 		try {
-			JFileChooser fc = new JFileChooser(ini);
+			JFileChooser fc = new JFileChooser(INI);
 			fc.setMultiSelectionEnabled(true);
 			fc.setFileFilter(new ExtensionFileFilter("ini:cost", "Αρχείο Δαπάνης και Ρυθμίσεων"));
 			int returnVal = fc.showOpenDialog(this);
@@ -376,7 +376,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			try {
-				Saveable.save(ini, data);
+				Saveable.save(INI, data);
 			} catch(IOException ex) {
 				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this,
 						"<html>Αποτυχία κατά την αποθήκευση του <b>cost.ini</b>.<br>Να κλείσω τo πρόγραμμα;",
@@ -466,7 +466,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 		// load ini file and create data structure
 		Object o = null;
 		try {
-			o = TreeFileLoader.loadFile(ini);
+			o = TreeFileLoader.loadFile(INI);
 		} catch(Exception e) {
 			showExceptionMessage(null, e, "Πρόβλημα",
 				"Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>"
@@ -503,7 +503,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 		
 		// Autosave ini file every 5 minutes.
 		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-				try { Saveable.save(ini, data); }
+				try { Saveable.save(INI, data); }
 				catch(IOException ex) {}
 			}, 5, 5, TimeUnit.MINUTES);
 	}
@@ -573,7 +573,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 				"<font size=3>Έκδοση " + VERSION + "</font></b></center><br>" +
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
-				"Δημοσίευση: <b>1 Ιαν 18</b><br>" +
+				"Δημοσίευση: <b>3 Ιαν 18</b><br>" +
 				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
 				"<center>Το Πρόγραμμα είναι 13 χρονών!</center>",
 				getTitle(), JOptionPane.PLAIN_MESSAGE);

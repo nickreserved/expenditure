@@ -28,11 +28,7 @@ if (isset($data['Διεύθυνση'])) echo ', ' . chk($data['Διεύθυνση']);
 if (isset($data['ΤΚ'])) echo ', ' . chk($data['ΤΚ']);
 ?>
 \line\b Διεύθυνση (Πόλη - Οδός - Τ.Κ.)\b0\line\line 090153025\line\b Α.Φ.Μ.\b0\cell
-Στρατιωτική Μονάδα\line\b Νομική Μορφή\b0\line\line
-<?
-if (isset($data['ΕξωτερικόΤηλέφωνο'])) echo 'Εξωτ.: ' . chk($data['ΕξωτερικόΤηλέφωνο']);
-if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤηλέφωνο']);
-?>
+Στρατιωτική Μονάδα\line\b Νομική Μορφή\b0\line\line <?=chk($data['Τηλέφωνο']) ?>
 \line\b Αρ. Τηλεφώνου\b0\line\line ΔΟΥ Ν. Ψυχικού\line\b Δ.Ο.Υ.\b0\cell\row
 
 \pard\plain\par\par

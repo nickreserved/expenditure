@@ -48,8 +48,8 @@ public class ExportReport {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		dlg.add(scroll);
 		dlg.pack();
-		dlg.setLocation((int) (MainFrame.screenSize.getWidth() - dlg.getWidth()) / 2,
-				(int) (MainFrame.screenSize.getHeight() - dlg.getHeight()) / 2);
+		dlg.setLocation((int) (MainFrame.SCREEN_SIZE.getWidth() - dlg.getWidth()) / 2,
+				(int) (MainFrame.SCREEN_SIZE.getHeight() - dlg.getHeight()) / 2);
 		dlg.setVisible(true);
 	}
 }

@@ -19,7 +19,7 @@ function preOrder($order, $to, $info, $draft = false, $add = null) {
 			if (!$v) $v = isset($ord) ? $ord['Εκδότης'] : $data['ΣύντμησηΜονάδας'];
 			if ($v) echo '\tab ' . chk($v) . '\line';
 		}
-	?>\cell <?=chk(toUppercase($data['Μονάδα']))?>\line <?=chk(toUppercase($data['Γραφείο']))?>\line Τηλ (Εσωτ.) <?=chk($data['ΕσωτερικόΤηλέφωνο'])?>\line <?
+	?>\cell <?=chk(toUppercase($data['Μονάδα']))?>\line <?=chk(toUppercase($data['Γραφείο']))?>\line Τηλ. <?=chk($data['Τηλέφωνο'])?>\line <?
 	if (!$draft)
 		echo chk($ord['Φάκελος']) . '/' . chk($ord['Υποφάκελος']) . '/' . chk($ord['Πρωτόκολλο']) . '\line ' . chk($ord['Σχέδιο']) . '\line ' . chk($data['Πόλη']) . ', ' . chk($ord['Ημερομηνία']);
 	else {
