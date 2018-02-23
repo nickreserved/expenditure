@@ -3,7 +3,6 @@ package cost;
 import java.io.*;
 import java.util.*;
 import java.net.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -39,6 +38,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			"other", "export", null, "Διάφορα",
 				"hold", "other", null, "Ανάλυση Κρατήσεων",
 				"bills", "other", null, "Λίστα Τιμολογίων",
+				"ticket", "other", null, "Απόδειξη για Προκαταβολή",
 		"options", null, null, "Ρυθμίσεις",
 			"skins", "options", "skins", "Κέλυφος ",
 		"costs", null, null, "Δαπάνες",
@@ -51,23 +51,21 @@ public class MainFrame extends JFrame implements ActionListener {
 	public static String rootPath;
 	static protected HashObject data;
 	static protected IteratorHashObject costs;
-	
 	static protected MainFrame ths;
-	static private Bills bills;
 	
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.1.0");
-		ths = this;
-		
-		this.setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
+		super("Στρατιωτικές Δαπάνες 1.2.0");
+		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 		
 		Providers prov = new Providers();
 		Men men = new Men();
 		Holds holds = new Holds();
-		
+		Contents contents = new Contents();
+			
 		JTabbedPane mainTab = new JTabbedPane();
-		mainTab.addTab("Στοιχεία Δαπάνης", new CostData());
-		mainTab.addTab("Τιμολόγια", bills = new Bills());
+		mainTab.addTab("Στοιχεία Δαπάνης", new CostData(contents));
+		mainTab.addTab("Τιμολόγια", new Bills());
+		mainTab.addTab("Φύλλο καταχώρησης", contents);
 		mainTab.addTab("Αμετάβλητα Στοιχεία", new StaticData());
 		mainTab.addTab("Προμηθευτές", prov);
 		mainTab.addTab("Κρατήσεις", holds);
@@ -79,9 +77,9 @@ public class MainFrame extends JFrame implements ActionListener {
 		mainTab.setBackgroundAt(1, c);
 		mainTab.setBackgroundAt(2, c);
 		c = Color.decode("#e0e0b0");
-		mainTab.setBackgroundAt(3, c);
 		mainTab.setBackgroundAt(4, c);
 		mainTab.setBackgroundAt(5, c);
+		mainTab.setBackgroundAt(6, c);
 		
 		updatePanels();
 		
@@ -107,8 +105,8 @@ public class MainFrame extends JFrame implements ActionListener {
 			}
 			menu[c].setActionCommand(mnu[z]);
 			if (mnu[z + 2] != null) {
-				if (mnu[z + 2] == "") menu[c].setIcon(new MenuBlankIcon());
-				else menu[c].setIcon(new ImageIcon(ClassLoader.getSystemResource("cost/" + mnu[z + 2] + ".png")));
+				/*if (mnu[z + 2] == "") menu[c].setIcon(new MenuBlankIcon());
+				else*/ menu[c].setIcon(new ImageIcon(ClassLoader.getSystemResource("cost/" + mnu[z + 2] + ".png")));
 			}
 			if (mnu[z + 1] == null) jtb.add(menu[c++]);
 			else ((JMenu) getMenuFromName(mnu[z + 1])).add(menu[c++]);
@@ -147,7 +145,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			File f = fc.getSelectedFile();
 			String s = f.getCanonicalPath();
 			if (!s.endsWith(".cost")) s += ".cost";
-			if (s != costs.getPos()) {
+			if (!s.equals(costs.getPos())) {
 				if (costs.containsKey(s)) {
 					JOptionPane.showMessageDialog(this, "Το όνομα αυτό ανοίκει σε άλλη ανοικτή δαπάνη.\nΠαρακαλώ δώστε άλλο όνομα.", "Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -204,8 +202,10 @@ public class MainFrame extends JFrame implements ActionListener {
 	
 	private void updatePanels() {
 		JTabbedPane j = (JTabbedPane) getContentPane().getComponent(0);
-		j.setBackgroundAt(2, Color.decode(costs.getPos() == null ? "#e0e0b0" : "#b0d0b0"));
-		bills.updateObject();
+		j.setBackgroundAt(3, Color.decode(costs.getPos() == null ? "#e0e0b0" : "#b0d0b0"));
+		for (int z = 0; z < 3; z++)
+			j.setEnabledAt(z, costs.getPos() != null);
+		if (costs.getPos() == null && j.getSelectedIndex() < 3) j.setSelectedIndex(3);
 		repaint();
 	}
 	
@@ -248,10 +248,9 @@ public class MainFrame extends JFrame implements ActionListener {
 	public void addOptionsMenu() {
 		JMenuItem skins = getMenuFromName("skins");
 		LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
-		HashObject ho = (HashObject) data.get("Ρυθμίσεις");
-		String s = (String) ho.get("Κέλυφος");
+		String s = (String) ((HashObject) data.get("Ρυθμίσεις")).get("Κέλυφος");
 		if (s == null) s = UIManager.getSystemLookAndFeelClassName();
-
+		
 		ButtonGroup btg = new ButtonGroup();
 		for (int z = 0; z < laf.length; z++) {
 			String s1 = laf[z].getClassName();
@@ -273,23 +272,37 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		// check for other running instance and setup listening server
 		if (!OnlyOneInstance.check()) {
 			for (int z = 0; z < args.length; z++)
 				OnlyOneInstance.send(args[z].getBytes());
 			System.exit(0);
 		}
-		
-		// init php engine
-		PhpScriptRunner.init(null);
-		
-		// get application path
-		rootPath = URLDecoder.decode(ClassLoader.getSystemResource("cost/MainFrame.class").getPath().
-				replaceAll("(Cost\\.jar!/)?cost/MainFrame\\.class$|^(file\\:)?/", ""), "UTF-8");
+
+		try {
+			// init php engine
+			PhpScriptRunner.init(null);
+		} catch (Exception e) {
+			Functions.showExceptionMessage(null, e, "Πρόβλημα του PHP cli", "Πρόβλημα κατά την αρχικοποίηση του <b>PHP cli</b>.<br>Το πρόγραμμα θα τερματίσει.");
+			System.exit(0);
+		}
+
+		try {
+			// get application path
+			rootPath = URLDecoder.decode(ClassLoader.getSystemResource("cost/MainFrame.class").getPath().
+					replaceAll("(Cost\\.jar!/)?cost/MainFrame\\.class$|^(file\\:)?/", ""), "UTF-8");
+		} catch (UnsupportedEncodingException ex) {
+			rootPath = "";
+		}
 		
 		// load ini file and create data structure
-		Object o = TreeFileLoader.loadFile(rootPath + "main.ini");
+		Object o = null;
+		try {
+			o = TreeFileLoader.loadFile(rootPath + "main.ini");
+		} catch(Exception e) {
+			Functions.showExceptionMessage(null, e, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του <b>main.ini</b>");
+		}
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
 		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject());
 		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject());
@@ -300,11 +313,12 @@ public class MainFrame extends JFrame implements ActionListener {
 		costs = (IteratorHashObject) data.get("ΑνοικτέςΔαπάνες");			// shortcut
 		
 		setSkin();
-		
-		for (int z = 0; z < args.length; z++)
-			openCost(new File(args[z]).getCanonicalPath());
-		
-		MainFrame m = new MainFrame();
+		try {
+			for (int z = 0; z < args.length; z++)
+				openCost(new File(args[z]).getCanonicalPath());
+		} catch (IOException ex) {}
+
+		ths = new MainFrame();
 	}
 	
 	// ----- ActionListener ----- //
@@ -320,12 +334,10 @@ public class MainFrame extends JFrame implements ActionListener {
 		if (((JMenu) getMenuFromName("skins")).isMenuComponent(j)) {
 			((HashObject) data.get("Ρυθμίσεις")).put("Κέλυφος", ac);
 			JOptionPane.showMessageDialog(this, "Το Κέλυφος θα αλλάξει όταν ξαναξεκινήσετε το πρόγραμμα", "Αλλαγή κελύφους", JOptionPane.INFORMATION_MESSAGE);
-		}
-		else if (((JMenu) getMenuFromName("costs")).isMenuComponent(j)) {
+		} else if (((JMenu) getMenuFromName("costs")).isMenuComponent(j)) {
 			costs.setPos(ac);
 			updatePanels();
-		}
-		else if (ac == "new") newCost();
+		} else if (ac == "new") newCost();
 		else if (ac == "open") openCost();
 		else if (ac == "save") saveCost();
 		else if (ac == "close") closeCost();
@@ -337,8 +349,9 @@ public class MainFrame extends JFrame implements ActionListener {
 		else if (ac == "prereport_nodraft") ExportReport.exportReport("templates/prereport.php");
 		else if (ac == "hold") ExportReport.exportReport("templates/holds.php");
 		else if (ac == "bills") ExportReport.exportReport("templates/bills.php");
-		else if (ac == "committee_draft") ExportReport.exportReport("templates/order00.php", env);
-		else if (ac == "committee_nodraft") ExportReport.exportReport("templates/order00.php");
+		else if (ac == "ticket") ExportReport.exportReport("templates/ticket.php");
+		else if (ac == "committee_draft") ExportReport.exportReport("templates/order.php", env);
+		else if (ac == "committee_nodraft") ExportReport.exportReport("templates/order.php");
 		else if (ac == "route_slip_draft") ExportReport.exportReport("templates/route_slip.php", env);
 		else if (ac == "route_slip_nodraft") ExportReport.exportReport("templates/route_slip.php");
 		else if (ac == "help_open") {
@@ -379,9 +392,9 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 	}
 	
-	class MenuBlankIcon implements Icon {
+	/*class MenuBlankIcon implements Icon {
 		public int getIconHeight() { return 16; }
 		public int getIconWidth() { return 16; }
 		public void paintIcon(Component c, Graphics g, int x, int y) {}
-	}
+	}*/
 }

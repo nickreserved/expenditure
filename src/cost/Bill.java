@@ -35,7 +35,7 @@ public class Bill extends DynHashObject {
 			for (int z = 0; z < items.size(); z++) {
 				BillItem bi = (BillItem) items.get(z);
 				Number fpa = (Number) bi.get("ΦΠΑ");
-				d = (Number) h.get(fpa);
+				d = (Number) h.get(fpa.toString());
 				Number va = (Number) bi.getDynamic().get("ΣυνολικήΤιμή");
 				if (fpa.doubleValue() != 0) {
 					if (d == null) h.put(fpa.toString(), va); else h.put(fpa.toString(), M.add(d, va));

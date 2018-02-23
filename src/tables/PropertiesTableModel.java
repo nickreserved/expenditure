@@ -6,12 +6,13 @@ import javax.swing.table.*;
 public class PropertiesTableModel extends AbstractTableModel {
   
   protected String[] hash;
-  protected String[] hHeader = null;
+  protected String[] hHeader;
   protected String[] vHeader;
   protected DataTransmitter transmitter;
   
+	protected PropertiesTableModel() {}
+	
   public PropertiesTableModel(String[] hash, DataTransmitter dt, String[] vHeader) {
-    super();
     this.hash = hash;
     transmitter = dt;
     this.vHeader = vHeader;

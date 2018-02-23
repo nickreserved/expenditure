@@ -25,28 +25,27 @@ public class TreeFileLoader {
 		String k = key = null;
 		skipRegex("\\s*");
 		if (skipRegex("\\}\\s*;\\s*")) return value;
-		
+
 		int a = pos;
 		skipRegex("\\S+");
 		String s = html.substring(a, pos);
 		Constructor[] cs = Class.forName(s).getConstructors();
-		Constructor c0 = null;
-		Constructor c1 = null;
+		Constructor c0 = null, c1 = null;
 		for (int z = 0; z < cs.length; z++) {
 			Class[] cl = cs[z].getParameterTypes();
 			if (cl.length == 0) c0 = cs[z];
 			else if (cl.length == 1 && cl[0].equals(String.class)) c1 = cs[z];
 		}
-		
+
 		if (c1 == null) v = c0.newInstance(new Object[0]);
-		
+
 		skipRegex("\\s*");
 		if (html.startsWith("\"", pos)) {
 			a = Functions.getStringClosePosition(html, pos);
 			if (a == -1) throw new Exception();
 			s = html.substring(++pos, a).replaceAll("\\\\\\\\", "\\\\").replaceAll("\\\\\\\"", "\\\"");
 			int b = pos; pos = a + 1;
-			if (skipRegex("\\s*=\\s*")) k = s; else pos = b;
+			if (skipRegex("\\s*=\\s*")) k = s; else pos = b - 1;
 		} else {
 			a = Functions.findEndOfRegex(html, pos, "[^\\\"\\{;\\s]+\\s*=\\s*");
 			if (a != -1) {
@@ -56,7 +55,7 @@ public class TreeFileLoader {
 				pos = a;
 			}
 		}
-		
+try{
 		if (html.startsWith("{", pos) && (v instanceof List || v instanceof Map)) {
 			pos++;
 			while(load() != null)
@@ -75,13 +74,12 @@ public class TreeFileLoader {
 				s = html.substring(a, pos);
 				skipRegex("\\s*;\\s*");
 			}
-			
-			Object[] par = new Object[1];
-			par[0] = s;
+			Object[] par = { s };
 			if (c1 != null) v = c1.newInstance(par);
 		}
 		value = v; key = k;
-		return v;
+		return v;}catch(Exception e) {System.out.println("fuck here: " + e.getMessage());throw e;}
+
 	}
 	
 	private final boolean skipRegex(String regex) {

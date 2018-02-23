@@ -8,42 +8,32 @@ import javax.swing.table.*;
 import tables.*;
 import common.*;
 
-public class Bills extends JPanel implements ListSelectionListener, DataTransmitter,
-    TableModelListener {
-  private static final String[] itemHeader = { "Είδος", "Ποσότητα", "Τιμή μονάδας", "Συνολική τιμή",
-      "ΦΠΑ", "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"};
-  private static final String[] itemHash = { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή",
-      "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"};
-
-  protected static final String[] measures = { "τεμάχια", "lt", "Kgr", "cm", "cm^2", "cm^3", "m", "m^2",
-      "m^3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "Km^2" };
-  protected static final Number[] fpaList = { new Byte((byte) 36), new Byte((byte) 19), new Byte((byte) 9), new Byte((byte) 0) };
-
-  private static final String[] billHeader = { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής",
-      "Κρατήσεις", "ΦΕ" };
-  private static final String[] billHash = { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής",
-      "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" };
-
-  protected static final Number[] feList = { new Byte((byte) 8), new Byte((byte) 4), new Byte((byte) 3), new Byte((byte) 1), new Byte((byte) 0) };
-  private static final String[] billTypes = { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο" };
-  private static final String[] categories = { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" };
-
-  private static int currentBill = -1;
-  
-  private static ResizableTableModel billsModel;
-  private static ResizableTableModel billModel;
-  private static PropertiesTableModel propertiesModel;
-  private static JTable billsTable;
-  
-  protected JComboBox cbMeasures = new JComboBox(measures);
-  
+public class Bills extends JPanel implements ListSelectionListener, DataTransmitter, TableModelListener {
+	private ResizableTableModel billModel;
+	private PropertiesTable tblSum;
+	private JTable tblBills;
+	private String cost;
+	
 	public Bills() {
-		billsModel = new ResizableTableModel(this, billHash, billHeader, Bill.class);
-		billsTable = new ResizableTable(billsModel, false);
-		billsTable.getSelectionModel().addListSelectionListener(this);
+		final String[] itemHeader = { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"};
+		final String[] itemHash = { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"};
+		
+		final String[] measures = { "τεμάχια", "lt", "Kgr", "cm", "cm^2", "cm^3", "m", "m^2", "m^3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "Km^2" };
+		final Number[] fpaList = { new Byte((byte) 36), new Byte((byte) 19), new Byte((byte) 9), new Byte((byte) 0) };
+		
+		final String[] billHeader = { null, null, null, null, "Κρατήσεις", "ΦΕ" };
+		final String[] billHash = { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" };
+		
+		final Number[] feList = { new Byte((byte) 8), new Byte((byte) 4), new Byte((byte) 3), new Byte((byte) 1), new Byte((byte) 0) };
+		final String[] billTypes = { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο" };
+		final String[] categories = { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" };
+		
+		ResizableTableModel billsModel = new ResizableTableModel(this, billHash, billHeader, Bill.class);
 		billsModel.addTableModelListener(this);
-		billsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		TableColumnModel cm = billsTable.getColumnModel();
+		tblBills = new ResizableTable(billsModel, false);
+		tblBills.getSelectionModel().addListSelectionListener(this);
+		tblBills.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		TableColumnModel cm = tblBills.getColumnModel();
 		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(billTypes)));
 		cm.getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(categories)));
 		cm.getColumn(3).setCellEditor(new DefaultCellEditor(Providers.providers));
@@ -56,18 +46,17 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		JComboBox fpa = new JComboBox(fpaList);
 		fpa.setEditable(true);
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(fpa));
+		JComboBox cbMeasures = new JComboBox(measures);
+		cbMeasures.setEditable(true);
 		cm.getColumn(7).setCellEditor(new DefaultCellEditor(cbMeasures));
 		billModel.addTableModelListener(this);
-		cbMeasures.setEditable(true);
-
+		
 		setLayout(new BorderLayout());
-		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				new JScrollPane(billsTable),
-				new JScrollPane(billTable));
+		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(tblBills), new JScrollPane(billTable));
 		sp.setDividerSize(3);
 		sp.setDividerLocation(75);
 		add(sp, BorderLayout.CENTER);
-		add(PropertiesTable.getBoxed(new PropertiesTable(propertiesModel = new ReportTableModel(), null)), BorderLayout.SOUTH);
+		add(PropertiesTable.getBoxed(tblSum = new PropertiesTable(new ReportTableModel(), null)), BorderLayout.SOUTH);
 	}
 	
 	public Object getData() {
@@ -77,53 +66,46 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 	
 	public void tableChanged(TableModelEvent e) {
 		Vector v = (Vector) getData();
-		if (v == null || currentBill == -1 || currentBill >= v.size()) return;
-		((Bill) v.get(currentBill)).recalculate();
+		int cb = tblBills.getSelectionModel().getLeadSelectionIndex();
+		if (v == null || cb == -1 || cb >= v.size()) return;
+		((Bill) v.get(cb)).recalculate();
 		repaint();
 	}
 	
 	public void valueChanged(ListSelectionEvent e) {
-		int a = billsTable.getSelectedRow();
+		int a = tblBills.getSelectionModel().getLeadSelectionIndex();
 		Vector v = (Vector) getData();
-		if (a != -1) {
-			if (v.size() > a) {
-				currentBill = a;
-				billModel.setData((Vector) ((Bill) v.get(a)).get("Είδη"));
-			} else {
-				currentBill = -1;
-				billModel.setData((Vector) null);
-			}
+		billModel.setData(a < 0 || a >= v.size() ? null : (Vector) ((Map) v.get(a)).get("Είδη"));
+	}
+	
+	public void paint(Graphics g) {
+		if (cost != MainFrame.costs.getPos()) {
+			cost = MainFrame.costs.getPos();
+			valueChanged(null);
+			((ResizableTableModel) tblBills.getModel()).fireTableRowsDeleted(10000, 10000);
 		}
-		propertiesModel.fireTableDataChanged();
-	}
-	
-	public void updateObject() {
-		currentBill = -1;
-		billModel.setData((Vector) null);
-		billsModel.fireTableDataChanged();
-		propertiesModel.fireTableDataChanged();
+		super.paint(g);
 	}
 	
 	
-	// =============================== ReportTableModel ===================================== //
-	
-	protected static class ReportTableModel extends PropertiesTableModel {
-		final static String[] hHdr = { "Τρέχον Τιμολόγιο", "Όλα τα Τιμολόγια" };
-		final static String[] hash = { "ΚαθαρήΑξία", "ΚατηγορίεςΦΠΑ", "Καταλογιστέο", "ΑνάλυσηΚρατήσεωνΣεΕυρώ", "Πληρωτέο",
-				"ΦΕΣεΕυρώ", "ΥπόλοιποΠληρωτέο", null, null, null, null, null, null, null };
-		final static String[] vHdr = { "Καθαρή Αξία", "ΦΠΑ", null, "Κρατήσεις", null, "ΦΕ", "Υπόλοιπο" };
-
-		public ReportTableModel() { super(hash, null, vHdr, hHdr); }
+	private class ReportTableModel extends PropertiesTableModel {
+		public ReportTableModel() {
+			final String[] hHdr = { "Τρέχον Τιμολόγιο", "Όλα τα Τιμολόγια" };
+			final String[] hsh = { "ΚαθαρήΑξία", "ΚατηγορίεςΦΠΑ", "Καταλογιστέο", "ΑνάλυσηΚρατήσεωνΣεΕυρώ", "Πληρωτέο", "ΦΕΣεΕυρώ", "ΥπόλοιποΠληρωτέο", null, null, null, null, null, null, null };
+			final String[] vHdr = { "Καθαρή Αξία", "ΦΠΑ", null, "Κρατήσεις", null, "ΦΕ", "Υπόλοιπο" };
+			hHeader = hHdr; hash = hsh; vHeader = vHdr;
+		}
 		public boolean isCellEditable(int row, int col) { return false; }
 		public Object getValueAt(int row, int col) {
 			try {
 				Object t, o = null;
-				VectorObject bv = (VectorObject) billsModel.getData();
+				VectorObject bv = (VectorObject) ((ResizableTableModel) tblBills.getModel()).getData();
+				int cb = tblBills.getSelectionModel().getLeadSelectionIndex();
 				switch (col) {
 					case -1: return super.getValueAt(row, col);
 					case 0:
-						if (currentBill == -1 || currentBill >= bv.size()) return null;
-						o = ((Bill) bv.get(currentBill)).get(hash[row]);
+						if (cb == -1 || cb >= bv.size()) return null;
+						o = ((Bill) bv.get(cb)).get(hash[row]);
 						if ((row == 1 || row == 3) && o != null)
 							o = ((Map) o).get("Σύνολο");
 						break;

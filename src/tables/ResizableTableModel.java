@@ -13,7 +13,6 @@ public class ResizableTableModel extends AbstractTableModel {
 
 
   public ResizableTableModel(Vector data, String[] hash, String[] title, Class classType) {
-    super();
     this.data = data;
     this.title = title;
     this.hash = hash;
@@ -21,7 +20,6 @@ public class ResizableTableModel extends AbstractTableModel {
   }
 
   public ResizableTableModel(DataTransmitter dt, String[] hash, String[] title, Class classType) {
-    super();
     transmitter = dt;
     this.title = title;
     this.hash = hash;
@@ -41,9 +39,9 @@ public class ResizableTableModel extends AbstractTableModel {
   }
 
   public Vector getData() { return (transmitter != null) ? (Vector) transmitter.getData() : data; }
-  public int getColumnCount() { return title.length; }
+  public int getColumnCount() { return hash.length; }
   public int getRowCount() { return getData() == null ? 0 : getData().size() + 1; }
-  public String getColumnName(int col) { return title == null ? null : title[col]; }
+  public String getColumnName(int col) { return title != null && title[col] != null ? title[col] : hash[col]; }
   public boolean isCellEditable(int row, int col) { return true; }
 
   public Object getValueAt(int row, int col) {

@@ -7,17 +7,17 @@ $prereport = false;
 $draft = false;
 
 require_once('engine/functions.php');
+require_once('engine/order.php');
+require_once('header.php');
 
-$type1 = 0;
-switch($data['ΤύποςΔαπάνης']) {
-	case 'Κατασκευή Έργων με Υλικά Δημοσίου ή Εμπορίου και Οπλίτες ή Εργατοτεχνίτες': $type1++;
-	case 'Κατασκευή Έργων από Εργοληπτική Επιχείρηση': $type1++;
-}
-$type2 = 0;
-switch($data['ΤύποςΔιαγωνισμού']) {
-	case 'Δημόσιος Διαγωνισμός': $type2++;
-	case 'Πρόχειρος Διαγωνισμός': $type2++;
-}
 
-require("cost$type1$type2.php");
+foreach($data['ΦύλλοΚαταχώρησης'] as $cost_item)
+	if (isset($cost_item['Αρχείο'])) {
+		// Αν μπει ρύθμιση για να μην εκτυπώνει πάνω από 1, εδώ.
+		// Να μπει με include_once γιατί μπορεί να υπάρχουν διάσπαρτα τα αρχεία.
+		ob_start();
+		require("{$cost_item['Αρχείο']}.php");
+		$a = ob_get_clean();
+		for($z = 0; $z < $cost_item['Πλήθος']; $z++) echo $a;
+	}
 ?>
