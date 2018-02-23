@@ -16,7 +16,7 @@ function preOrder($order, $to, $info, $draft = false, $add = null) {
 	if (chk_order($order, !$draft)) $ord = get_order($order);
 	if (is_array($info))
 		foreach($info as $v) {
-			if (!$v && isset($ord)) $v = $ord['Εκδότης'];
+			if (!$v) $v = isset($ord) ? $ord['Εκδότης'] : $data['ΣύντμησηΜονάδας'];
 			if ($v) echo '\tab ' . chk($v) . '\line';
 		}
 	?>\cell <?=chk(toUppercase($data['Μονάδα']))?>\line <?=chk(toUppercase($data['Γραφείο']))?>\line Τηλ (Εσωτ.) <?=chk($data['ΕσωτερικόΤηλέφωνο'])?>\line <?

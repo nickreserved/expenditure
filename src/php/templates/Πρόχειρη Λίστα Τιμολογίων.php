@@ -32,7 +32,7 @@ foreach($v['Είδη'] as $i) { ?>
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx10206
 \line\b ΚΑΘΑΡΗ ΑΞΙΑ:\tab <?=euro($v['ΚαθαρήΑξία'])?>\b0\cell\row
-<? if ($v['Τύπος'] == 'ΣΠ/ΚΨΜ') { ?>
+<? if ($v['Προμηθευτής']['Τύπος'] == 'Στρατός') { ?>
 Προστίθενται Κρατήσεις <?=percent($v['ΑνάλυσηΚρατήσεωνΣεΠοσοστά']['Σύνολο'])?>:\tab <?=euro($v['ΑνάλυσηΚρατήσεωνΣεΕυρώ']['Σύνολο'])?>\b0\cell\row
 <? }
 foreach($v['ΚατηγορίεςΦΠΑ'] as $k => $i) {

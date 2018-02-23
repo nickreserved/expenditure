@@ -6,7 +6,6 @@ import common.*;
 public class Bill extends DynHashObject {
 	public Bill() {
 		super.put("ΠοσοστόΦΕ", 4);
-		super.put("Τύπος", "Τιμολόγιο");
 		super.put("Κατηγορία", "Προμήθεια υλικών");
 		super.put("Είδη", new VectorObject());
 	}
@@ -22,16 +21,18 @@ public class Bill extends DynHashObject {
 	}
 
 	protected final void recalculate() {
+		boolean check = MainFrame.data == null ? false :
+				!Boolean.TRUE.equals(((HashObject) MainFrame.data.get("Ρυθμίσεις")).get("ΤιμολόγιοΧειροκίνητα"));
 		try {
 			ArrayList<BillItem> items = (ArrayList) get("Είδη");
-			Number kak, ka, kat, pl, fe, tfpa, thold, d = 0d;
+			Number ka, pl, tfpa, thold, d = 0d;
 
 			for (int z = 0; z < items.size(); z++)
 				d = M.add(d, (Number) items.get(z).getDynamic().get("ΣυνολικήΤιμή"));
 			getDynamic().put("ΚαθαρήΑξία", ka = M.round(d, 2));
 
 			HashObject h = new HashObject();
-			setFpa();
+			if (check) setFpa();
 			for (int z = 0; z < items.size(); z++) {
 				BillItem bi = items.get(z);
 				Number fpa = (Number) bi.get("ΦΠΑ");
@@ -86,15 +87,17 @@ public class Bill extends DynHashObject {
 			}
 			getDynamic().put("ΑνάλυσηΚρατήσεωνΣεΕυρώ", h);
 
-			kat = "ΣΠ/ΚΨΜ".equals(get("Τύπος")) || "Δημόσιο".equals(get("Τύπος")) ? M.add(thold, tfpa) : tfpa;
+			String type = (String) ((Provider) get("Προμηθευτής")).get("Τύπος");
+			Number kat = "Δημόσιο".equals(type) || "Στρατός".equals(type) ? M.add(thold, tfpa) : tfpa;
 			getDynamic().put("Καταλογιστέο", kat = M.round(M.add(kat, ka), 2));
 
 			getDynamic().put("Πληρωτέο", pl = M.round(M.sub(kat, thold), 2));
 
-			getDynamic().put("ΚαθαρήΑξίαΜείονΚρατήσεις", kak = M.round(M.sub(ka, thold), 2));
-
-			setFe();
-			getDynamic().put("ΦΕΣεΕυρώ", fe = M.round(M.mul(kak, ((Number) get("ΠοσοστόΦΕ")).doubleValue() / 100), 2));
+			if (check) setFe();
+			Number fe = (Number) get("ΠοσοστόΦΕ");
+			Number kak = fe.intValue() == 3 ? ka : M.round(M.sub(ka, thold), 2);
+			getDynamic().put("ΚαθαρήΑξίαΓιαΦΕ", kak);
+			getDynamic().put("ΦΕΣεΕυρώ", fe = M.round(M.mul(kak, fe.doubleValue() / 100), 2));
 
 			getDynamic().put("ΥπόλοιποΠληρωτέο", M.round(M.sub(pl, fe), 2));
 		} catch(NullPointerException | NumberFormatException e) {}
@@ -104,20 +107,20 @@ public class Bill extends DynHashObject {
 		byte a = ((Number) get("ΠοσοστόΦΕ")).byteValue();
 		if (a == 0) return;
 		String c = (String) get("Κατηγορία");
-		if (!get("Τύπος").equals("Τιμολόγιο")) super.put("ΠοσοστόΦΕ", 0);
-		else if (((Hold) get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά")).get("ΤΠΕΔΕ") != null) { if (a != 3) super.put("ΠοσοστόΦΕ", 3); }
-		else if (a != 8 && a != 4 && a != 1 && a != 3) {}
-		else if (c.equals("Παροχή υπηρεσιών") && a != 8) super.put("ΠοσοστόΦΕ", 8);
-		else if (c.equals("Προμήθεια υλικών") && a != 4) super.put("ΠοσοστόΦΕ", 4);
-		else if (c.equals("Αγορά υγρών καυσίμων") && a != 1) super.put("ΠοσοστόΦΕ", 1);
+		if (!"Ιδιώτης".equals(((Provider) get("Προμηθευτής")).get("Τύπος"))) super.put("ΠοσοστόΦΕ", 0);
+		else if (((Hold) get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά")).get("ΑΟΟΑ") != null) { if (a != 3) super.put("ΠοσοστόΦΕ", 3); }
+		else if (c.equals("Παροχή υπηρεσιών")) { if (a != 8) super.put("ΠοσοστόΦΕ", 8); }
+		else if (c.equals("Προμήθεια υλικών")) { if (a != 4) super.put("ΠοσοστόΦΕ", 4); }
+		else if (c.equals("Αγορά υγρών καυσίμων")) { if (a != 1) super.put("ΠοσοστόΦΕ", 1); }
 	}
 
 	protected void setFpa() {
 		List items = (List) get("Είδη");
-		String a = (String) get("Τύπος");
+		String a = (String) ((Provider) get("Προμηθευτής")).get("Τύπος");
 		for (int z = 0; z < items.size(); z++) {
 			BillItem bi = (BillItem) items.get(z);
-			if (a.equals("ΣΠ/ΚΨΜ") || a.equals("Απόδειξη ενοικιασης")) bi.put("ΦΠΑ", 0);
+			if ("Στρατός".equals(a) || "Ενοικιαστής".equals(a)) bi.put("ΦΠΑ", 0);
+
 		}
 	}
 }

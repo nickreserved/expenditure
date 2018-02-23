@@ -29,10 +29,10 @@ public class LoadSaveFile {
 		String[] d = s.split("\r\n");
 		s = "";
 		int c = 0;
-		for (int z = 0; z < d.length; z++) {
-			if (d[z].startsWith("}") && c > 0) c--;
-			s += "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t".substring(0, c) + d[z] + "\r\n";
-			if (d[z].endsWith("{")) c++;
+		for (String d1 : d) {
+			if (d1.startsWith("}") && c > 0) c--;
+			s += "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t".substring(0, c) + d1 + "\r\n";
+			if (d1.endsWith("{")) c++;
 		}
 
 		saveStringFile(file, s);

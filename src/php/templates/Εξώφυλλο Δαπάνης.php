@@ -26,6 +26,7 @@ $a = $bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ'];
 \b ΚΑΤΑΛΟΓΙΣΤΕΟ\tab <?=euro($bills_info['Καταλογιστέο'])?>\par
 ΠΛΗΡΩΤΕΟ\tab <?=euro($bills_info['Πληρωτέο'])?>\par
 ΥΠΟΛΟΙΠΟ ΠΛΗΡΩΤΕΟ\tab <?=euro($bills_info['ΥπόλοιποΠληρωτέο'])?>\par\par
+ΦΕ\tab <?=euro($bills_info['ΦΕΣεΕυρώ'])?>\par\par
 ΚΡΑΤΗΣΕΙΣ\tab <?=euro($a['Σύνολο'], true)?>\par\b0\tx6520\tqdec\tx9922
 <?
 	foreach($a as $k => $v)

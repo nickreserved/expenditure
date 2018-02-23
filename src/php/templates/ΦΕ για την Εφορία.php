@@ -48,14 +48,14 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 	$b = bills_by_fe($v);
 	foreach($b as $i) {
 		$d = calc_bills($i);
-		echo '\ql ' . chk($i[0]['Κατηγορία']) . '\cell\qr ' . euro($d['ΚαθαρήΑξίαΜείονΚρατήσεις']) . '\cell\qc ' . percent($i[0]['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($d['ΦΕΣεΕυρώ']) . '\cell\row';
+		echo '\ql ' . chk($i[0]['Κατηγορία']) . '\cell\qr ' . euro($d['ΚαθαρήΑξίαΓιαΦΕ']) . '\cell\qc ' . percent($i[0]['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($d['ΦΕΣεΕυρώ']) . '\cell\row';
 	}
 ?>
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\cellx3118
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\cellx5386
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx10206
-\qr ΣΥΝΟΛΟ\cell <?=euro($a['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell <?=euro($a['ΦΕΣεΕυρώ'])?>\cell\row
+\qr ΣΥΝΟΛΟ\cell <?=euro($a['ΚαθαρήΑξίαΓιαΦΕ'])?>\cell <?=euro($a['ΦΕΣεΕυρώ'])?>\cell\row
 \ql Φόρος λόγω εκπρόθεσμου\cell\cell\cell\row
 \qr ΓΕΝΙΚΟ ΣΥΝΟΛΟ\cell\cell\cell\row
 
@@ -101,14 +101,14 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 		if (isset($d['Πόλη'])) echo chk($d['Πόλη']);
 		if (isset($d['Διεύθυνση']) && isset($d['Πόλη'])) echo ', ';
 		if (isset($d['Διεύθυνση'])) echo chk($d['Διεύθυνση']);
-		echo '\cell\qc ' . chk($i['Κατηγορία']) . '\cell ' . chk_bill($i['Τιμολόγιο']) . '\cell\qr ' . euro($i['ΚαθαρήΑξίαΜείονΚρατήσεις']) . '\cell\qc ' . percent($i['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($i['ΦΕΣεΕυρώ']) . '\cell\row';
+		echo '\cell\qc ' . chk($i['Κατηγορία']) . '\cell ' . chk_bill($i['Τιμολόγιο']) . '\cell\qr ' . euro($i['ΚαθαρήΑξίαΓιαΦΕ']) . '\cell\qc ' . percent($i['ΠοσοστόΦΕ']) . '\cell\qr ' . euro($i['ΦΕΣεΕυρώ']) . '\cell\row';
 	}
 ?>
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28\fs20
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx11169
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx12416
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx15137
-\qr ΣΥΝΟΛΟ:\cell <?=euro($a['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell <?=euro($a['ΦΕΣεΕυρώ'])?>\cell\row
+\qr ΣΥΝΟΛΟ:\cell <?=euro($a['ΚαθαρήΑξίαΓιαΦΕ'])?>\cell <?=euro($a['ΦΕΣεΕυρώ'])?>\cell\row
 \pard\plain\qr <?=chk($data['Πόλη']) . ', ' . now()?>\par
 
 \pard\plain\fs23\par

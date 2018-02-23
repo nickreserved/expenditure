@@ -66,13 +66,13 @@ if (isset($a['Διεύθυνση'])) echo chk($a['Διεύθυνση']);
 \clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx11961
 \clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx15136
 <? foreach ($v as $i) { ?>
-\qc <?=chk($i['Κατηγορία'])?>\cell <?=chk_bill($i['Τιμολόγιο'])?>\cell\qr <?=euro($i['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell\qc <?=percent($i['ΠοσοστόΦΕ'])?>\cell\qr <?=euro($i['ΦΕΣεΕυρώ'])?>\cell\row
+\qc <?=chk($i['Κατηγορία'])?>\cell <?=chk_bill($i['Τιμολόγιο'])?>\cell\qr <?=euro($i['ΚαθαρήΑξίαΓιαΦΕ'])?>\cell\qc <?=percent($i['ΠοσοστόΦΕ'])?>\cell\qr <?=euro($i['ΦΕΣεΕυρώ'])?>\cell\row
 <? } ?>
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx5669
 \clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx8787
 \clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx15136
-\qr ΣΥΝΟΛΟ\cell \qr <?=euro($b['ΚαθαρήΑξίαΜείονΚρατήσεις'])?>\cell\qr <?=euro($b['ΦΕΣεΕυρώ'])?>\cell\row
+\qr ΣΥΝΟΛΟ\cell \qr <?=euro($b['ΚαθαρήΑξίαΓιαΦΕ'])?>\cell\qr <?=euro($b['ΦΕΣεΕυρώ'])?>\cell\row
 
 \pard\plain\qr <?=chk($data['Πόλη']) . ', ' . now()?>\par
 

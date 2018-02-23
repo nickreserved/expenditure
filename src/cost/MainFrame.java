@@ -2,6 +2,7 @@ package cost;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.net.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import javax.swing.UIManager.*;
 
 import common.*;
+import static cost.StaticData.hash;
 
 
 public class MainFrame extends JFrame implements ActionListener {
@@ -16,12 +18,14 @@ public class MainFrame extends JFrame implements ActionListener {
 
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	public static String rootPath;
+	public static String ini = System.getProperty("user.home") + "/cost.ini";
 	static protected HashObject data;
 	static protected IteratorHashObject costs;
 	static protected MainFrame ths;
+	static protected CostWizardDialog cwf;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.5.0 beta");
+		super("Στρατιωτικές Δαπάνες 1.6.0");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -63,6 +67,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 	}
 
+	
 	private JMenuBar createMenus(JMenuBar jtb) {
 		final String[] mnu = {
 			"Αρχείο", null, null,
@@ -70,6 +75,8 @@ public class MainFrame extends JFrame implements ActionListener {
 				"’νοιγμα Δαπάνης...", "Αρχείο", "open",
 				"Αποθήκευση Δαπάνης...", "Αρχείο", "save",
 				"Κλείσιμο Δαπάνης", "Αρχείο", "close",
+				null, "Αρχείο", null,
+				"Εισαγωγή στοιχείων...", "Αρχείο", "import",
 				null, "Αρχείο", null,
 				"Έξοδος", "Αρχείο", "exit",
 			"Εξαγωγή", null, null,
@@ -92,6 +99,8 @@ public class MainFrame extends JFrame implements ActionListener {
 					"Πρόχειρη Λίστα Τιμολογίων", "Διάφορα", null,
 					"Απόδειξη για Προκαταβολή", "Διάφορα", null,
 			"Ρυθμίσεις", null, null,
+				"Οδηγός Τιμολογίου", "Ρυθμίσεις", "wizard",
+				null, "Ρυθμίσεις", null,
 				"Κέλυφος ", "Ρυθμίσεις", "skins",
 			"Δαπάνες", null, null,
 			"Βοήθεια", null, null,
@@ -197,6 +206,79 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 	}
 
+	private void importCost() {
+		try {
+			JFileChooser fc = new JFileChooser(ini);
+			fc.setMultiSelectionEnabled(true);
+			fc.setFileFilter(new ExtensionFileFilter("ini:cost", "Αρχείο Δαπάνης και Ρυθμίσεων"));
+			int returnVal = fc.showOpenDialog(this);
+			if(returnVal != JFileChooser.APPROVE_OPTION) return;
+			File[] files = fc.getSelectedFiles();
+			for (File f1 : files) System.out.println(f1);///////////////////////////////////////////////////////////////////
+			final String choices[] = new String[] { "Προμηθευτές, Κρατήσεις, Προσωπικό", "Προμηθευτές, Προσωπικό",
+				"Αμετάβλητα στοιχεία", "Προμηθευτές", "Κρατήσεις", "Προσωπικό" };
+			final char fchoices[] = new char[] { 7, 5, 8, 4, 2, 1 };
+			Object a = JOptionPane.showInputDialog(this, "Επιλέξτε τι θα εξάγετε από τα επιλεχθέντα αρχεία δαπανών και ρυθμίσεων\nγια εισαγωγή στα δεδομένα του προγράμματος",
+					"Εισαγωγή στοιχείων από αρχεία δαπανών και ρυθμίσεων", JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
+			if (a == null) return;
+			char flags = fchoices[Arrays.asList(choices).indexOf(a)];
+			for (File f1 : files) {
+				importCost(f1.getCanonicalPath(), flags);
+				flags &= 7;
+			}
+		} catch (HeadlessException | IOException ex) {}
+		repaint();
+	}
+
+	// flags: 1: Man, 2: Hold, 4: Provider, 8: StaticData
+	static private void importCost(String file, char flags) {
+		ArrayList<Hold> holds = (ArrayList<Hold>) data.get("Κρατήσεις");
+		ArrayList<Man> men = (ArrayList<Man>) data.get("Προσωπικό");
+		ArrayList<Provider> providers = (ArrayList<Provider>) data.get("Προμηθευτές");
+		HashObject staticdata = (HashObject) data.get("ΑμετάβληταΣτοιχείαΔαπάνης");
+		try {
+			Object o = TreeFileLoader.loadFile(file);
+			if (o instanceof Cost) {
+				Cost c = (Cost) o;
+				if ((flags & 1) != 0)
+					for (Object man : c.values())
+						if (man instanceof Man && !men.contains((Man) man))
+							men.add((Man) man);
+				ArrayList<Bill> b = (ArrayList<Bill>) c.get("Τιμολόγια");
+				for (int z = 0; z < b.size(); z++) {
+					if ((flags & 2) != 0) {
+						Hold h = (Hold) b.get(z).get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
+						if (h != null && !holds.contains(h)) holds.add(h);
+					}
+					if ((flags & 4) != 0) {
+						Provider p = (Provider) b.get(z).get("Προμηθευτής");
+						if (p != null && !providers.contains(p)) providers.add(p);
+					}
+				}
+				if ((flags & 8) != 0)
+					for (String hash : StaticData.hash)
+						if (c.containsKey(hash))
+							staticdata.put(hash, c.get(hash));
+			} else if (o instanceof HashObject) {
+				if ((flags & 1) != 0)
+					for (Man m : (VectorObject<Man>) ((HashObject) o).get("Προσωπικό"))
+						if (!men.contains(m)) men.add(m);
+				if ((flags & 2) != 0)
+					for (Hold h : (VectorObject<Hold>) ((HashObject) o).get("Κρατήσεις"))
+						if (!holds.contains(h)) holds.add(h);
+				if ((flags & 4) != 0)
+					for (Provider p : (VectorObject<Provider>) ((HashObject) o).get("Προμηθευτές"))
+						if (!providers.contains(p)) providers.add(p);
+				if ((flags & 8) != 0) {
+						staticdata.clear();
+						staticdata.putAll((HashObject) ((HashObject) o).get("ΑμετάβληταΣτοιχείαΔαπάνης"));
+				}
+			}
+		} catch (Exception e) {
+			Functions.showExceptionMessage(ths, e, "’νοιγμα αρχείου", "Πρόβλημα κατά το άνοιγμα του αρχείου δαπάνης ή ρυθμίσεων<br><b>" + file + "</b>");
+		}
+	}
+
 	private void closeCost() {
 		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this, "<html>Να κλείσω την τρέχουσα δαπάνη;", "Κλείσιμο Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) {
 			costs.remove();
@@ -239,7 +321,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			try {
-				LoadSaveFile.save(System.getProperty("user.home") + "/cost.ini", data);
+				LoadSaveFile.save(ini, data);
 			} catch(Exception ex) {
 				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αποτυχία κατά την αποθήκευση του <b>cost.ini</b>.<br>Να κλείσω τo πρόγραμμα;", "Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 					return;
@@ -252,7 +334,11 @@ public class MainFrame extends JFrame implements ActionListener {
 	public final void addOptionsMenu() {
 		JMenu options = (JMenu) getMenuFromName("Ρυθμίσεις");
 		HashObject h = (HashObject) data.get("Ρυθμίσεις");
-		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Μόνο μια φορά", new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")), Boolean.TRUE.equals(h.get("ΜιαΦορά")));
+		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Ένα αντίγραφο", new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")), Boolean.TRUE.equals(h.get("ΜιαΦορά")));
+		cbmi.addActionListener(this);
+		options.add(cbmi);
+		
+		cbmi = new JCheckBoxMenuItem("Χειροκίνητη ρύθμιση τιμολογίου", new ImageIcon(ClassLoader.getSystemResource("cost/chain.png")), Boolean.TRUE.equals(h.get("ΤιμολόγιοΧειροκίνητα")));
 		cbmi.addActionListener(this);
 		options.add(cbmi);
 
@@ -308,7 +394,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		// load ini file and create data structure
 		Object o = null;
 		try {
-			o = TreeFileLoader.loadFile(System.getProperty("user.home") + "/cost.ini");
+			o = TreeFileLoader.loadFile(ini);
 		} catch(Exception e) {
 			Functions.showExceptionMessage(null, e, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>Αν τρέχετε για πρώτη φορά το πρόγραμμα δεν υπάρχει λόγος ανησυχίας.<br>Θα φορτώσω τη default έκδοσή του.");
 			try {
@@ -318,9 +404,9 @@ public class MainFrame extends JFrame implements ActionListener {
 			}
 		}
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
-		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject());
-		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject());
-		if (!(data.get("Ανάλυση Κρατήσεων") instanceof VectorObject)) data.put("Ανάλυση Κρατήσεων", new VectorObject());
+		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject<Man>());
+		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject<Provider>());
+		if (!(data.get("Κρατήσεις") instanceof VectorObject)) data.put("Κρατήσεις", new VectorObject<Hold>());
 		if (!(data.get("ΑμετάβληταΣτοιχείαΔαπάνης") instanceof HashObject)) data.put("ΑμετάβληταΣτοιχείαΔαπάνης", new HashObject());
 		if (!(data.get("Ρυθμίσεις") instanceof HashObject)) data.put("Ρυθμίσεις", new HashObject());
 		if (!(data.get("ΑνοικτέςΔαπάνες") instanceof IteratorHashObject)) data.put("ΑνοικτέςΔαπάνες", new IteratorHashObject());
@@ -333,6 +419,17 @@ public class MainFrame extends JFrame implements ActionListener {
 		} catch (IOException ex) {}
 
 		ths = new MainFrame();
+		
+		// Autosave ini file every 5 minutes.
+		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(
+			new Runnable() {
+				@Override
+				public void run() {
+					try {
+						LoadSaveFile.save(ini, data);
+					} catch(Exception ex) {}
+				}					
+			}, 5, 5, TimeUnit.MINUTES);
 	}
 
 	// ----- ActionListener ----- //
@@ -358,6 +455,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		else if (ac.equals("Νέα Δαπάνη")) newCost();
 		else if (ac.equals("’νοιγμα Δαπάνης...")) openCost();
 		else if (ac.equals("Αποθήκευση Δαπάνης...")) saveCost();
+		else if (ac.equals("Εισαγωγή στοιχείων...")) importCost();
 		else if (ac.equals("Κλείσιμο Δαπάνης")) closeCost();
 		else if (ac.equals("Έξοδος")) dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		else if (ac.equals("Δαπάνη")) ExportReport.exportReport("Δαπάνη.php", env);
@@ -374,6 +472,21 @@ public class MainFrame extends JFrame implements ActionListener {
 		else if (ac.equals("Πρόχειρη Λίστα Τιμολογίων")) ExportReport.exportReport("Πρόχειρη Λίστα Τιμολογίων.php");
 		else if (ac.equals("Απόδειξη για Προκαταβολή")) ExportReport.exportReport("Απόδειξη για Προκαταβολή.php");
 		else if (ac.equals("Μόνο μια φορά")) options.put("ΜιαΦορά", !Boolean.TRUE.equals(options.get("ΜιαΦορά")));
+		else if (ac.equals("Οδηγός Τιμολογίου")) {
+			if (cwf == null) cwf = new CostWizardDialog(this);
+			cwf.setVisible(true);
+		}
+		else if (ac.equals("Χειροκίνητη ρύθμιση τιμολογίου")) {
+			boolean a = Boolean.TRUE.equals(options.get("ΤιμολόγιοΧειροκίνητα"));
+			options.put("ΤιμολόγιοΧειροκίνητα", !a);
+			Cost c = (Cost) MainFrame.costs.get();
+			if (a && c != null) {
+				ArrayList<Bill> b = (ArrayList<Bill>) c.get("Τιμολόγια");
+				for (int z = 0; z < b.size(); z++)
+					b.get(z).recalculate();
+				repaint();
+			}
+		}
 		else if (ac.equals("Εγχειρίδιο")) {
 			try {	// open help
 				Desktop.getDesktop().open(new File(rootPath + "help/index.html"));
@@ -381,14 +494,15 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.5.0 beta</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>’δεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>20 Νοε 13</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.6.0</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>’δεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>01 Ιαν 14</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br><center><font size=4>Το Πρόγραμμα γίνεται 10 Ετών!!!</font></center>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
 		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο
 		if (order != -1) {
 			final String[] file = { "Δγη Συγκρότησης Επιτροπών", "Δγη Διακήρυξης Διαγωνισμού", "Δγη Κατακύρωσης Διαγωνισμού", "Διαβιβαστικό Δαπάνης", "Έκθεση Απαιτούμενης Δαπάνης" };
 			final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
-			Object b = JOptionPane.showInputDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
-			if (b == null) return; else if (a[1].equals(b)) env.put("draft", "true");
+			int b = JOptionPane.showOptionDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
+			if (b == JOptionPane.CLOSED_OPTION) return;
+			else if (b == 1) env.put("draft", "true");
 			ExportReport.exportReport(file[order] + ".php", env);
 		}
 	}

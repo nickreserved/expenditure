@@ -8,7 +8,7 @@ function calc_bills($a) {
 		calc_bills_sum($b, $v, 'Καταλογιστέο');
 		calc_bills_sum($b, $v, 'Πληρωτέο');
 		calc_bills_sum($b, $v, 'ΚαθαρήΑξία');
-		calc_bills_sum($b, $v, 'ΚαθαρήΑξίαΜείονΚρατήσεις');
+		calc_bills_sum($b, $v, 'ΚαθαρήΑξίαΓιαΦΕ');
 		calc_bills_sum($b, $v, 'ΦΕΣεΕυρώ');
 		calc_bills_sum($b, $v, 'ΥπόλοιποΠληρωτέο');
 		calc_bills_sum_arr($b, $v, 'ΚατηγορίεςΦΠΑ');
@@ -41,12 +41,12 @@ function getBillsCategory($a, $i, $f = true) {
 function getBillsType($a, $i) {
 	$b = null;
 	foreach($a as $v)
-		if (strpos($i, "*{$v['Τύπος']}*") !== false) $b[] = $v;
+		if (strpos($i, "*{$v['Προμηθευτής']['Τύπος']}*") !== false) $b[] = $v;
 	return $b;
 }
 
 
-// Επιστρέφει ενα array με τιμολόγια που έχουν ΦΕ.
+// Επιστρέφει ένα array με τιμολόγια που έχουν ΦΕ.
 function bills_with_fe($a) {
 	$b = null;
 	foreach($a as $v)
@@ -54,7 +54,7 @@ function bills_with_fe($a) {
 	return $b;
 }
 
-// Επιστρέφει ενα array με keys τις κρατήσεις σε ποσοστό και
+// Επιστρέφει ένα array με keys τις κρατήσεις σε ποσοστό και
 // values array με όλα τα τιμολόγια που έχουν τέτοια κράτηση.
 // Αν $zero == false δεν επιστρέφει τα τιμολόγια που έχουν
 // κρατήσεις 0 (σπάνιο να έχουν 0 αλλά όχι απίθανο)
@@ -79,9 +79,8 @@ function bills_by_fe($a) {
 	return $b;
 }
 
-// Επιστρέφει ενα array με keys τον προμηθευτή και
+// Επιστρέφει ένα array με keys τον προμηθευτή και
 // values array με όλα τα τιμολόγια από αυτόν.
-// Δεν επιστρέφει τιμολόγια δίχως ΦΕ.
 function bills_by_provider($a) {
 	$b = null;
 	foreach($a as $v)
@@ -91,7 +90,6 @@ function bills_by_provider($a) {
 
 // Επιστρέφει ενα array με keys τον "μήνα έτος" π.χ. "Νοε 2005" και
 // values array με όλα τα τιμολόγια του μηνός.
-// Δεν επιστρέφει τιμολόγια δίχως ΦΕ.
 function bills_by_month($a) {
 	$b = null;
 	foreach($a as $v)
@@ -241,7 +239,7 @@ function toUppercase($s) {
 // όπως η wordInflection αλλά κλίνει όλες τις λέξεις της πρότασης
 // αρκεί να είναι μεγαλύτερες από 2 γράμματα
 function inflection($a, $w) {
-	return preg_replace_callback('/[Α-Ωα-ω’-Ώά-ώΐΰΪΫ]{3,}/',
+	return !$w ? $a : preg_replace_callback('/[Α-Ωα-ω’-Ώά-ώΐΰΪΫ]{3,}|\d+(ος|η|ο)/',
 		create_function('$m', "return wordInflection(\$m[0], $w);"), $a);
 }
 

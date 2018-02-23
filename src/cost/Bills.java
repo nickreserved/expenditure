@@ -16,17 +16,16 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 	private String cost;
 
 	public Bills() {
-		ResizableTableModel billsModel = new ResizableTableModel(this, new String[] { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" }, new String[] { null, null, null, null, "Κρατήσεις", "ΦΕ" }, Bill.class);
+		ResizableTableModel billsModel = new ResizableTableModel(this, new String[] { "Τιμολόγιο", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" }, new String[] { null, null, null, "Κρατήσεις", "ΦΕ" }, Bill.class);
 		billsModel.addTableModelListener(this);
 		tblBills = new ResizableTable(billsModel, false, false);
 		tblBills.getSelectionModel().addListSelectionListener(this);
 		tblBills.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		TableColumnModel cm = tblBills.getColumnModel();
-		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο", "Απόδειξη ενοικιασης" })));
-		cm.getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων", "Τεχνικών έργων" })));
-		cm.getColumn(3).setCellEditor(new DefaultCellEditor(Providers.providers));
-		cm.getColumn(4).setCellEditor(new DefaultCellEditor(Holds.holds));
-		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1, 3, 20 })));
+		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" })));
+		cm.getColumn(2).setCellEditor(new DefaultCellEditor(Providers.providers));
+		cm.getColumn(3).setCellEditor(new DefaultCellEditor(Holds.holds));
+		cm.getColumn(4).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1, 3, 20 })));
 
 		billModel = new ResizableTableModel((ArrayList) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
 		JTable billTable = new ResizableTable(billModel, true, true);
@@ -63,9 +62,9 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		int a = tblBills.getSelectionModel().getLeadSelectionIndex();
 		ArrayList v = (ArrayList) getData();
-		billModel.setData(a < 0 || a >= v.size() ? null : (ArrayList) ((Map) v.get(a)).get("Είδη"));
+		int cb = tblBills.getSelectionModel().getLeadSelectionIndex();
+		billModel.setData(cb < 0 || cb >= v.size() ? null : (ArrayList) ((Map) v.get(cb)).get("Είδη"));
 	}
 
 	@Override

@@ -25,7 +25,7 @@ public class M {
   static public Number parseString(String a) {
     try {
       return new Double(a);
-    } catch (Exception e) {
+    } catch (NumberFormatException | NullPointerException e) {
       return null;
     }
   }

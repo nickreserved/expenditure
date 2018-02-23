@@ -1,7 +1,7 @@
 ﻿# -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.5.0"
+!define VERSION "1.6.0"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.7"
@@ -32,9 +32,8 @@ VIAddVersionKey /LANG=${LANG_GREEK} "FileVersion" "${VERSION}"
 
 # ----------------------------------------------------- check for php & java ---
 Function .onInit
-	IfFileExists $WINDIR\php.exe 0 +3
+	IfFileExists $WINDIR\php.exe 0 +2
 	IfFileExists $WINDIR\php5ts.dll phpexists
-	IfFileExists $WINDIR\php4ts.dll phpexists
 	IfFileExists $EXEDIR\php_cli.exe 0 +3
 	ExecWait '"$EXEDIR\php_cli.exe" /S'
 	Goto phpexists
@@ -43,6 +42,20 @@ Function .onInit
 	Abort
 phpexists:
 
+	SetRegView 32	# Check 32-bit registry
+	ReadRegStr $1 HKLM "Software\JavaSoft\Java Runtime Environment" "CurrentVersion"
+	StrCmp $1 "" java64	# javanotexist
+	ReadRegStr $0 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\$1" "JavaHome"
+	StrCpy $0 "$0\bin\javaw.exe"
+	StrCpy $2 $1 1
+	StrCpy $3 $1 1 2
+	StrCpy $4 "${JAVA_VERSION}" 1
+	StrCpy $5 "${JAVA_VERSION}" 1 2
+	IntCmp $2 $4 0 javaoldexists javaexists
+	IntCmp $3 $5 0 javaoldexists
+	Goto javaexists
+java64:
+	SetRegView 64	# Check 64-bit registry
 	ReadRegStr $1 HKLM "Software\JavaSoft\Java Runtime Environment" "CurrentVersion"
 	StrCmp $1 "" javanotexist
 	ReadRegStr $0 HKLM "SOFTWARE\JavaSoft\Java Runtime Environment\$1" "JavaHome"
@@ -75,9 +88,6 @@ Section
 	File ..\*.txt
 	File ..\cost.ico
 
-	IfFileExists $INSTDIR\main.ini 0 +2		# Backward compatibility
-	Rename $INSTDIR\main.ini $PROFILE\cost.ini
-	
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayName" "${PROGRAM}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayIcon" '"$INSTDIR\uninstall.exe"'

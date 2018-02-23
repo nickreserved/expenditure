@@ -2,7 +2,7 @@ package common;
 
 import java.util.*;
 
-public class VectorObject extends ArrayList implements Saveable, PhpSerialize {
+public class VectorObject<E> extends ArrayList<E> implements Saveable, PhpSerialize {
 
 	@Override
 	public String save() {

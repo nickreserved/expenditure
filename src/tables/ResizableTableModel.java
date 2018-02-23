@@ -9,6 +9,7 @@ public class ResizableTableModel extends AbstractTableModel {
   protected String[] title;
   protected String[] hash;
   protected Class classType;
+	protected int old = -1;
 
   public ResizableTableModel(ArrayList data, String[] hash, String[] title, Class classType) {
     this.data = data;
@@ -30,20 +31,24 @@ public class ResizableTableModel extends AbstractTableModel {
   public void setData(ArrayList data) {
     transmitter = null;
     this.data = data;
-    fireTableDataChanged();
+		fireTableDataChanged();
   }
 
   public void setData(DataTransmitter dt) {
     this.data = null;
     transmitter = dt;
-    fireTableDataChanged();
+		fireTableDataChanged();
   }
 
   public ArrayList getData() { return (transmitter != null) ? (ArrayList) transmitter.getData() : data; }
 	@Override
   public int getColumnCount() { return hash.length; }
 	@Override
-  public int getRowCount() { return getData() == null ? 0 : getData().size() + 1; }
+  public int getRowCount() {
+		int a = getData() == null ? 0 : getData().size() + 1;
+		if (a != old) { old = a; fireTableDataChanged(); }
+		return a;
+	}
 	@Override
   public String getColumnName(int col) { return title != null && title[col] != null ? title[col] : hash[col]; }
 	@Override

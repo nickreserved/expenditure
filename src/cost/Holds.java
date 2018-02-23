@@ -16,7 +16,7 @@ public class Holds extends JPanel implements DataTransmitter, ActionListener {
 		holds = new JComboBox(new ComboDataModel(this, new Hold()));
 
 		ArrayList<String> heads = new ArrayList<>(Arrays.asList(new String[]
-			{"Óıíïëï", "ÌÔÓ", "ÅÌĞ", "ÔÓÌÅÄÅ", "ÁÏÏÁ", "ÅÊÏÅÌÓ", "×áñôüóçìï", "ÏÃÁ"} ));
+			{"Óıíïëï", "ÌÔÓ", "×áñôüóçìï", "ÏÃÁ", "ÅÁÁÄÇÓÕ"} ));
 		ArrayList<Hold> lst = (ArrayList<Hold>) getData();
 		for (HashMap z : lst) {
 			Set<String> hold = z.keySet();

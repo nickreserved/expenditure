@@ -16,7 +16,7 @@ public class ExportReport {
 		try {
 			int a = php.exec(((Cost) MainFrame.costs.get()).serialize(), php, php, false);
 			String err = php.getStderr();
-			if (a != 0) err += "<html><font color=red><b>Το php script τερμάτισε με \"γερό\" σφάλμα";
+			if (a != 0) err += "<html><font color=red><b>Το php script τερμάτισε με σοβαρό σφάλμα";
 			if (err != null && !err.equals("")) throw new Exception(err);
 			JFileChooser fc = new JFileChooser(MainFrame.costs.getPos());
 			fc.setFileFilter(new ExtensionFileFilter("rtf", "Rich Text"));
