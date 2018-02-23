@@ -5,6 +5,7 @@ import java.io.*;
 public class LoadSaveFile {
 
 	static public String loadResource(String file) throws Exception {
+		
 		return loadFile(ClassLoader.getSystemResourceAsStream(file));
 	}
 

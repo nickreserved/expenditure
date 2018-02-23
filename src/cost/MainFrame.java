@@ -64,7 +64,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.8");
+		super("Στρατιωτικές Δαπάνες 1.4.9");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -249,7 +249,7 @@ public class MainFrame extends JFrame implements ActionListener {
 			try {
 				LoadSaveFile.save(System.getProperty("user.home") + "/cost.ini", data);
 			} catch(Exception ex) {
-				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αποτυχία κατά την αποθήκευση του <b>main.ini</b>.<br>Να κλείσω τo πρόγραμμα;", "Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αποτυχία κατά την αποθήκευση του <b>cost.ini</b>.<br>Να κλείσω τo πρόγραμμα;", "Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 					return;
 			}
 			System.exit(0);
@@ -331,7 +331,12 @@ public class MainFrame extends JFrame implements ActionListener {
 		try {
 			o = TreeFileLoader.loadFile(System.getProperty("user.home") + "/cost.ini");
 		} catch(Exception e) {
-			Functions.showExceptionMessage(null, e, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του <b>main.ini</b>");
+			Functions.showExceptionMessage(null, e, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>Αν τρέχετε για πρώτη φορά το πρόγραμμα δεν υπάρχει λόγος ανησυχίας.<br>Θα φορτώσω τη default έκδοσή του.");
+			try {
+				o = TreeFileLoader.loadResource("cost.ini");
+			} catch(Exception e2) {
+				Functions.showExceptionMessage(null, e2, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του default <b>cost.ini</b>.");
+			}
 		}
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
 		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject());
@@ -412,7 +417,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.8</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>12 Απρ 2013</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.9</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>20 Σεπ 13</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 
 

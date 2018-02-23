@@ -10,6 +10,10 @@ public class TreeFileLoader {
 	private Object value;
 	private TreeFileLoader() {}
 
+	static public Object loadResource(String file) throws Exception {
+		return load(LoadSaveFile.loadResource(file));
+	}
+	
 	static public Object loadFile(String file) throws Exception {
 		return load(LoadSaveFile.loadFile(file));
 	}

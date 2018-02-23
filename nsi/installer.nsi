@@ -1,7 +1,7 @@
 ﻿# -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.4.8"
+!define VERSION "1.4.9"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"
@@ -77,11 +77,6 @@ Section
 
 	IfFileExists $INSTDIR\main.ini 0 +2		# Backward compatibility
 	Rename $INSTDIR\main.ini $PROFILE\cost.ini
-	IfFileExists $PROFILE\cost.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο φάκελο εγκατάστασης βρέθηκε το παλιό σας αρχείο cost.ini$\nΔεν προτείνεται να το διαγράψετε$\nΘέλετε να το διαγράψω;" IDNO +2
-	SetOutPath $PROFILE
-	File ..\src\cost.ini
-	SetOutPath $INSTDIR
 	
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayName" "${PROGRAM}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
