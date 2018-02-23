@@ -1,14 +1,13 @@
 !define PROGRAM "PHP Command Line Interpreter"
 !define SHORTNAME "PHP_cli"
-!define VERSION "5.1.0.0"
+!define VERSION "5.1.1.1"
 !define ΜΕ "www.php.net"
 
 
 Name "${PROGRAM} ${VERSION}"
 OutFile "..\php_cli.exe"
-SilentInstall Silent
 
-VIProductVersion "${VERSION}.0"
+VIProductVersion "${VERSION}"
 VIAddVersionKey "ProductName" "${PROGRAM}"
 VIAddVersionKey "FileDescription" "The Command Line Interpreter for PHP Scripts"
 VIAddVersionKey "LegalCopyright" "${ΜΕ}"
@@ -21,5 +20,5 @@ Section
 write:	SetOutPath $WINDIR
 	File c:\windows\php.exe
 	File c:\windows\php5ts.dll
-end:	MessageBox MB_OK|MB_ICONINFORMATION "Η εγκατάσταση του ${PROGRAM} ${VERSION} ολοκληρώθηκε."
+end:
 SectionEnd

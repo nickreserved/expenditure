@@ -40,10 +40,10 @@ function subjectOrder($subject, $orders) { ?>
 		$a = count($orders);
 		if ($a > 1) {
 			for($z = 0; $z < $a - 1; $z++)
-				echo '\tab\b ' . countGreek($z + 1) . '.\b0\tab ' . chk_order($orders[$z]) . '\par';
+				echo '\tab\b ' . countGreek($z + 1) . '.\b0\tab ' . chk($orders[$z]) . '\par';
 			echo '\tab\b ' . countGreek($a) . '.';
 		}
-		echo '\tab\ul ' . chk_order($orders[$a - 1]) . '\par';
+		echo '\tab\ul ' . chk($orders[$a - 1]) . '\par';
 	}
 	echo '\par';
 }

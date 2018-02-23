@@ -7,7 +7,7 @@ $a = $bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ'];
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn2835\margbsxn1134
 \pard\plain\qc\fs32\b\i\ul <?=chk($data['ΣύντμησηΜονάδας'])?>\line\line\line\fs36 Φάκελος Γενομένης Δαπάνης\line\line\line\line\par
-\pard\plain\box\brdrs\brdrw1\brsp28 {\b ΕΡΓΟ:} «<?=chk($data['Τίτλος'])?>»\par
+\pard\plain\box\brdrs\brdrw1\brsp28 {\b ΕΡΓΟ:} «<?=chk(ucwords($data['Τίτλος']))?>»\par
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28 {\b ΠΟΣΟ:} <?=euro($data['Ποσό'])?>\par
 \pard\par

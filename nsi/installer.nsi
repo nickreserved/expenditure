@@ -1,7 +1,7 @@
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.3.0"
+!define VERSION "1.4.0"
 !define ME "Υπλγος(ΜΧ) Γκέσος Παύλος"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"
@@ -35,6 +35,9 @@ Function .onInit
 	IfFileExists $WINDIR\php.exe 0 +3
 	IfFileExists $WINDIR\php5ts.dll phpexists
 	IfFileExists $WINDIR\php4ts.dll phpexists
+	IfFileExists $EXEDIR\php_cli.exe 0 +3
+	ExecWait '"$EXEDIR\php_cli.exe" /S'
+	Goto phpexists
 	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Για να λειτουργήσει το πρόγραμμα πρέπει να$\nκατεβάσετε το PHP Command Line Interpreter.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +2
 	ExecShell "open" "${PHP_RE_URL}"
 	Abort
@@ -67,12 +70,13 @@ Section
 
 	SetOutPath $INSTDIR
 
-	File /r ..\dist\*.*
+	File ..\dist\Cost.jar
+	File /r ..\dist\php
 	File ..\*.txt
 	File ..\cost.ico
 
 	IfFileExists $INSTDIR\main.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Στο φάκελο εγκατάστασης βρέθηκε το παλιό σας αρχείο main.ini$\nΔεν προτείνεται να το διαγράψετε$\nΘέλετε να το διαγράψω;" IDNO +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο φάκελο εγκατάστασης βρέθηκε το παλιό σας αρχείο main.ini$\nΔεν προτείνεται να το διαγράψετε$\nΘέλετε να το διαγράψω;" IDNO +2
 	File ..\dist\main.ini
 
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayName" "${PROGRAM}"
@@ -131,20 +135,21 @@ SectionEnd
 
 Section "Uninstall"
 
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}"
-  Delete "$SMPROGRAMS\${PROGRAM}.lnk"
-  DeleteRegKey HKCR ".cost"
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}"
+	Delete "$SMPROGRAMS\${PROGRAM}.lnk"
+	DeleteRegKey HKCR ".cost"
 
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Στο αρχείο main.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +3
-  RMDir /r $INSTDIR
+	IfFileExists $INSTDIR\main.ini 0 +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο αρχείο main.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +3
+	RMDir /r $INSTDIR
 	Goto end
 
-  Delete "$INSTDIR\Cost.*"
-  Delete "$INSTDIR\*.txt"
-  Delete "$INSTDIR\*.exe"
-  RMDir /r "$INSTDIR\php"
-  RMDir /r "$INSTDIR\help"
-  RMDir /r "$INSTDIR\source"
-  RMDir /r "$INSTDIR\scripts"
+	Delete "$INSTDIR\Cost.*"
+	Delete "$INSTDIR\*.txt"
+	Delete "$INSTDIR\*.exe"
+	RMDir /r "$INSTDIR\php"
+	RMDir /r "$INSTDIR\help"
+	RMDir /r "$INSTDIR\source"
+	RMDir /r "$INSTDIR\scripts"
 end:
 SectionEnd

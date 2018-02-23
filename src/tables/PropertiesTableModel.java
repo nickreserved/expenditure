@@ -5,13 +5,11 @@ import javax.swing.table.*;
 
 public class PropertiesTableModel extends AbstractTableModel {
   
-  protected String[] hash;
-  protected String[] hHeader;
-  protected String[] vHeader;
-  protected DataTransmitter transmitter;
+  private String[] hash;
+  private String[] hHeader;
+  private String[] vHeader;
+  private DataTransmitter transmitter;
   
-	protected PropertiesTableModel() {}
-	
   public PropertiesTableModel(String[] hash, DataTransmitter dt, String[] vHeader) {
     this.hash = hash;
     transmitter = dt;
@@ -24,7 +22,8 @@ public class PropertiesTableModel extends AbstractTableModel {
     this.hHeader = hHeader;
   }
   
-  public String[] getHeaders(boolean horizontal) { return horizontal ? hHeader : vHeader; }
+  public String[] getHash() { return hash; }
+	public String[] getHeaders(boolean horizontal) { return horizontal ? hHeader : vHeader; }
   
   public int getColumnCount() { return hash.length / getRowCount(); }
   public int getRowCount() { return vHeader.length; }

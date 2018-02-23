@@ -3,7 +3,7 @@ require_once('engine/init.php');
 require_once('header.php');
 
 if (!strpos($data['ΤύποςΔαπάνης'], 'Εργοληπτική Επιχείρηση'))
-	trigger_error('Η Επιτροπή Αφανών Εργσιών ορίζεται με ξεχωριστή Δγη μόνο για ανάθεση Έργου σε Εργολαβικές Επιχειρήσεις', E_USER_ERROR);
+	trigger_error('Η Επιτροπή Αφανών Εργασιών ορίζεται με ξεχωριστή Δγη μόνο για ανάθεση Έργου σε Εργολαβικές Επιχειρήσεις', E_USER_ERROR);
 ?>
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134

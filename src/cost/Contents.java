@@ -11,10 +11,8 @@ import java.awt.event.*;
 public class Contents extends JPanel implements DataTransmitter, ItemListener {
 	private ResizableTableModel rtm;
 	public Contents() {
-		final String[] header = {"Δικαιολογητικό", "Πλήθος"};
-		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, header, header, ContentItem.class), true);
-		final Byte[] many = {1, 2, 3, 4, 5};
-		JComboBox cbMany = new JComboBox(many);
+		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Δικαιολογητικό", "Πλήθος"}, null, ContentItem.class), true);
+		JComboBox cbMany = new JComboBox(new Byte[] {1, 2, 3, 4, 5});
 		JComboBox cbContents = new JComboBox((Vector) load(-1));
 		cbContents.setEditable(true);
 		TableColumnModel cm = tbl.getColumnModel();
@@ -27,8 +25,7 @@ public class Contents extends JPanel implements DataTransmitter, ItemListener {
 	
 	private Object load(int a) {
 		try {
-			String[] args = { new Integer(a).toString() };
-			PhpScriptRunner php = new PhpScriptRunner(MainFrame.rootPath + "php/", "engine/contents.php", args);
+			PhpScriptRunner php = new PhpScriptRunner(MainFrame.rootPath + "php/", "engine/contents.php", new String[] { new Integer(a).toString() });
 			php.exec(null, php, null, false);
 			return TreeFileLoader.load(php.getStdout());
 		} catch(Exception e) {

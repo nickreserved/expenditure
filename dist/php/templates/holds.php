@@ -36,7 +36,10 @@ for($z = 1; $z < count($bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ']); $z++) { ?>
 
 \qc\b A/A\cell Τιμολόγιο\cell Καθαρή Αξία\cell<? if (($bills_info ['ΚατηγορίεςΦΠΑ']['Σύνολο']) > 0) echo ' ΦΠΑ\cell' ?> Καταλογιστέο\cell
 <?
-if ($bills_fe) echo 'ΦΕ' . (count($bills_fe) == 1 ? '\line ' . percent(key($bills_fe)) : '') . '\cell';
+if ($bills_fe) {
+	$a = array_keys($bills_fe);
+	echo 'ΦΕ' . (count($a) == 1 ? '\line ' . percent($a[0]) : '') . '\cell';
+}
 foreach($bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ'] as $k => $v)
 	if ($k != 'Σύνολο')
 		echo " $k" . (count($bills_hold_all) == 1 ? '\line ' . percent($bills[0]['ΑνάλυσηΚρατήσεωνΣεΠοσοστά'][$k]): '') . '\cell';

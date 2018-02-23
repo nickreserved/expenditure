@@ -27,13 +27,19 @@ public class MainFrame extends JFrame implements ActionListener {
 				"provider", "fe", null, "Προμηθευτής",
 			"mail", "export", null, "Αλληλογραφία",
 				"order_order", "mail", null, "Συγκρότηση Επιτροπών",
-				"contract_order", "mail", null, "Διαταγές για Εργολαβίες",
-					"order_order_contractor", "contract_order", null, "Ανάθεση Εργολαβίας",
-					"order_order_work_officer", "contract_order", null, "Ορισμός Αξκου Έργου",
-					"order_order_obscure_work", "contract_order", null, "Συγκρότηση Επιτροπής Αφανών Εργασιών",
-					"order_order_temporary_finally_taking", "contract_order", null, "Συγκρότηση Επιτροπής Προσωρινής και Οριστικής Παραλαβής",
-					"order_order_quality_quantity", "contract_order", null, "Συγκρότηση Επιτροπής Ποιοτικής και Ποσοτικής Παραλαβής",
-					"order_order_buy_service", "contract_order", null, "Συγκρότηση Επιτροπής Αγοράς και Διάθεσης",
+				"contract", "mail", null, "Εργολαβίες",
+					"order_order_contractor", "contract", null, "Ανάθεση Εργολαβίας",
+					"order_order_work_officer", "contract", null, "Ορισμός Αξκου Έργου",
+					"order_order_obscure_work", "contract", null, "Συγκρότηση Επιτροπής Αφανών Εργασιών",
+					"order_order_temporary_finally_taking", "contract", null, "Συγκρότηση Επιτροπής Προσωρινής και Οριστικής Παραλαβής",
+					"order_order_quality_quantity", "contract", null, "Συγκρότηση Επιτροπής Ποιοτικής και Ποσοτικής Παραλαβής",
+					"order_order_buy_service", "contract", null, "Συγκρότηση Επιτροπής Αγοράς και Διάθεσης",
+				"contest", "mail", null, "Διαγωνισμοί",
+					"order_order_contest", "contest", null, "Συγκρότηση Επιτροπής Διαγωνισμού",
+					"order_order_declaration", "contest", null, "Διακήρυξη Διαγωνισμού",
+					"contest_record", "contest", null, "Πρακτικό Διαγωνισμού...",
+					"contest_proposal", "contest", null, "Εισηγητική Έκθεση...",
+					"order_order_adjudication", "contest", null, "Κατακύρωση του Διαγωνισμού...",
 				"order_route_slip", "mail", null, "Διαβιβαστικό Δαπάνης",
 				"order_prereport", "mail", null, "Έκθεση Απαιτούμενης Δαπάνης",
 			"other", "export", null, "Διάφορα",
@@ -56,7 +62,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 	
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.3.0");
+		super("Στρατιωτικές Δαπάνες 1.4.0");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 		
 		Providers prov = new Providers();
@@ -357,11 +363,13 @@ public class MainFrame extends JFrame implements ActionListener {
 		else if (ac == "taxis") ExportReport.exportReport("templates/fe_tax.php");
 		else if (ac == "provider") ExportReport.exportReport("templates/fe_provider.php");
 		else if (ac.startsWith("order_")) {
-			String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
+			final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
 			Object b = JOptionPane.showInputDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.", "Επιλογή", JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
 			if (b == null) return; else if (a[1].equals(b)) env.put("draft", "true");
 			ExportReport.exportReport("templates/" + ac.substring(6) + ".php", env);
 		}
+		else if (ac == "contest_proposal") ExportReport.exportReport("templates/contest_proposal.php");
+		else if (ac == "contest_record") ExportReport.exportReport("templates/contest_record.php");
 		else if (ac == "hold") ExportReport.exportReport("templates/holds.php");
 		else if (ac == "bills") ExportReport.exportReport("templates/bills.php");
 		else if (ac == "ticket") ExportReport.exportReport("templates/ticket.php");
@@ -373,7 +381,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.3.0 alpha</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>GNU GPL</b><br>Δημοσίευση: <b>12 Δεκ 2005</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/cost/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.0 beta</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>GNU GPL</b><br>Δημοσίευση: <b>31 Δεκ 2005</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/cost/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	

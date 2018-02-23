@@ -9,41 +9,29 @@ import tables.*;
 import common.*;
 
 public class Bills extends JPanel implements ListSelectionListener, DataTransmitter, TableModelListener {
-	static private final String[] measures = { "τεμάχια", "lt", "Kgr", "ton", "mm", "cm", "<html>cm<sup>2", "<html>cm<sup>3", "m", "<html>m<sup>2", "<html>m<sup>3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "<html>Km<sup>2" };
-	static protected JComboBox cbMeasures = new JComboBox(measures);
+	static protected JComboBox cbMeasures = new JComboBox(new String[] { "τεμάχια", "lt", "Kgr", "ton", "mm", "cm", "<html>cm<sup>2", "<html>cm<sup>3", "m", "<html>m<sup>2", "<html>m<sup>3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "<html>Km<sup>2" });
 	private ResizableTableModel billModel;
 	private PropertiesTable tblSum;
 	private JTable tblBills;
 	private String cost;
 	
 	public Bills() {
-		final String[] itemHeader = { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"};
-		final String[] itemHash = { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"};
-		
-		final String[] billHeader = { null, null, null, null, "Κρατήσεις", "ΦΕ" };
-		final String[] billHash = { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" };
-		
-		final Byte[] fpaList = { 19, 9, 0 };
-		final Byte[] feList = { 4, 8, 0, 1 };
-		final String[] billTypes = { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο", "Απόδειξη ενοικιασης" };
-		final String[] categories = { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" };
-
-		ResizableTableModel billsModel = new ResizableTableModel(this, billHash, billHeader, Bill.class);
+		ResizableTableModel billsModel = new ResizableTableModel(this, new String[] { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" }, new String[] { null, null, null, null, "Κρατήσεις", "ΦΕ" }, Bill.class);
 		billsModel.addTableModelListener(this);
 		tblBills = new ResizableTable(billsModel, false);
 		tblBills.getSelectionModel().addListSelectionListener(this);
 		tblBills.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		TableColumnModel cm = tblBills.getColumnModel();
-		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(billTypes)));
-		cm.getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(categories)));
+		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Τιμολόγιο", "ΣΠ/ΚΨΜ", "Δημόσιο", "Απόδειξη ενοικιασης" })));
+		cm.getColumn(2).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" })));
 		cm.getColumn(3).setCellEditor(new DefaultCellEditor(Providers.providers));
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(Holds.holds));
-		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(feList)));
+		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1 })));
 		
-		billModel = new ResizableTableModel((Vector) null, itemHash, itemHeader, BillItem.class);
+		billModel = new ResizableTableModel((Vector) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
 		JTable billTable = new ResizableTable(billModel, true);
 		cm = billTable.getColumnModel();
-		JComboBox fpa = new JComboBox(fpaList);
+		JComboBox fpa = new JComboBox(new Byte[] { 19, 9, 0 });
 		fpa.setEditable(true);
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(fpa));
 		cbMeasures.setEditable(true);
@@ -89,10 +77,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 	
 	private class ReportTableModel extends PropertiesTableModel {
 		public ReportTableModel() {
-			final String[] hHdr = { "Τρέχον Τιμολόγιο", "Όλα τα Τιμολόγια" };
-			final String[] hsh = { "ΚαθαρήΑξία", "ΚατηγορίεςΦΠΑ", "Καταλογιστέο", "ΑνάλυσηΚρατήσεωνΣεΕυρώ", "Πληρωτέο", "ΦΕΣεΕυρώ", "ΥπόλοιποΠληρωτέο", null, null, null, null, null, null, null };
-			final String[] vHdr = { "Καθαρή Αξία", "ΦΠΑ", null, "Κρατήσεις", null, "ΦΕ", "Υπόλοιπο" };
-			hHeader = hHdr; hash = hsh; vHeader = vHdr;
+			super(new String[] { "ΚαθαρήΑξία", "ΚατηγορίεςΦΠΑ", "Καταλογιστέο", "ΑνάλυσηΚρατήσεωνΣεΕυρώ", "Πληρωτέο", "ΦΕΣεΕυρώ", "ΥπόλοιποΠληρωτέο", null, null, null, null, null, null, null }, null, new String[] { "Καθαρή Αξία", "ΦΠΑ", null, "Κρατήσεις", null, "ΦΕ", "Υπόλοιπο" }, new String[] { "Τρέχον Τιμολόγιο", "Όλα τα Τιμολόγια" });
 		}
 		public boolean isCellEditable(int row, int col) { return false; }
 		public Object getValueAt(int row, int col) {
@@ -104,14 +89,14 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 					case -1: return super.getValueAt(row, col);
 					case 0:
 						if (cb == -1 || cb >= bv.size()) return null;
-						o = ((Bill) bv.get(cb)).get(hash[row]);
+						o = ((Bill) bv.get(cb)).get(getHash()[row]);
 						if ((row == 1 || row == 3) && o != null)
 							o = ((Map) o).get("Σύνολο");
 						break;
 					case 1:
 						o = 0d;
 						for (int z = 0; z < bv.size(); z++) {
-							t = ((Bill) bv.get(z)).get(hash[row]);
+							t = ((Bill) bv.get(z)).get(getHash()[row]);
 							if ((row == 1 || row == 3) && t != null)
 								t = ((Map) t).get("Σύνολο");
 							o = M.round(M.add((Number) o, (Number) t), 2);

@@ -10,7 +10,7 @@ if ($data['ΤύποςΔαπάνης'] == 'Προμήθεια - Συντήρηση - Επισκευή') trigger_error('
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
 \fs28\ul\qc ΟΡΙΣΤΙΚΗ ΕΠΙΜΕΤΡΗΣΗ\par\par
-\pard\plain\qj Σήμερα την <?=$data['ΗμερομηνίαΟριστικήςΕπιμέτρησης']?> ο επιβλέπων του έργου «<?=$data['Έργο']?>» (<?=chk($data['ΠεριοχήΈργου'])?>), <?=man_ext($data['ΑξκοςΈργου'], 0)?> πραγματοποίησε την οριστική επιμέτρηση όλων των εργασιών που εκτελέσθηκαν απολογιστικά όπως παρακάτω:\par\par
+\pard\plain\qj <?=chk(ucfirst($data['ΠεριοχήΈργου']))?> σήμερα την <?=$data['ΗμερομηνίαΟριστικήςΕπιμέτρησης']?> ο επιβλέπων του έργου «<?=$data['Έργο']?>», <?=man_ext($data['ΑξκοςΈργου'], 0)?> πραγματοποίησε την οριστική επιμέτρηση όλων των εργασιών που εκτελέσθηκαν απολογιστικά όπως παρακάτω:\par\par
 
 \pard\trowd\trhdr\fs23\trautofit1\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx567
