@@ -1,6 +1,7 @@
 package cost;
 
 import java.io.*;
+import common.*;
 
 public class TemplateParser {
 
@@ -8,41 +9,19 @@ public class TemplateParser {
 
   static public String parse(String file, TemplateTagCompiler c) throws Exception {
     String html = LoadSaveFile.loadFileToString("templates/" + file);
-    if (html == null) return "";
-
     String s = "";
-    int bst, st = 0, en = 0;
-    int line = 0, col = 0;
-
-    for (;;)
-    {
-      // find first '%' & second '%'
-      if ((st = html.indexOf("%", bst = st)) == -1) st = bst;
-      if ((en = html.indexOf("%", st + 1)) == -1) {
-        s += StaticFunctions.safeObject2String(c.compileTag(new Keyword(html.substring(bst), -1)));
-        return s;
-      }
-
-      // add text which is not tag
-      s += StaticFunctions.safeObject2String(c.compileTag(new Keyword(html.substring(bst, st), -1)));
-
-      // check if it is a tag with forbidden chars
-      String tag = html.substring(st + 1, en);
-      st = en + 1;
-      if (hasForbiddenChars(tag)) {
-        if (tag.length() != 0) tag = "%" + tag;
-        st = en;
-        s += StaticFunctions.safeObject2String(c.compileTag(new Keyword(tag, -1)));
-      } else {
-        Object o = StaticFunctions.safeObject2String(c.compileTag(new Keyword(tag, en + 1)));
-        if (o instanceof Integer) st = ((Integer) o).intValue();
-        else s += o;
-      }
+    int st = 0, en;
+    for (;;) {
+      en = html.indexOf("<?", st);
+      s += Functions.safeObject2String(c.compileTag(new Keyword(
+	  html.substring(st, en == -1 ? html.length() : en), -1)));
+      if (en == -1) return s;
+      if ((st = html.indexOf("?>", en += 2)) == -1) st = html.length();
+      Object o = Functions.safeObject2String(c.compileTag(new Keyword(html.substring(en, st), st += 2)));
+      if (o instanceof Integer) st = ((Integer) o).intValue();
+      else s += o;
     }
   }
-
-//  protected static boolean hasForbiddenChars(String s) { return !s.matches("[0-9a-zA-Z_.]+"); }
-  protected static boolean hasForbiddenChars(String s) { return !s.matches("[\\w.]+(\"[\\s\\S]+\")?"); }
 
 
   // =================== this is a class for passing keywords ================== //

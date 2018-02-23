@@ -1,0 +1,35 @@
+%request_sxedio_boolean_"Εκτύπωση του εγγράφου σαν <b>σχέδιο</b>;"%
+
+<div class="Paper_A4_Portrait_20x20x20x35">
+
+<table class="f"><tr>
+<td width=99%><b>ΠΡΟΣ: %cost_approval_order_from%<br><br><br>ΚΟΙΝ.: %static_outfit_short%/%static_office_short%</b></td>
+<td nowrap><b>%capital_static_outfit%<br>%capital_static_office%</b><br>Τηλ (Εσωτ.) %static_phone_internal%<br>%cost_diabibastiko_fakelos%/%if_parameter_sxedio%&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;/<br>Σ.%else%%cost_diabibastiko_ypofakelos%/%cost_diabibastiko_prwtokollo%<br>%cost_diabibastiko_sxedio%%endif%<br>%static_city%, %cost_diabibastiko_date%<br>Συν: Ένας (-1-) Φάκελος</td>
+</tr></table>
+<br><br><br>
+<p><b>ΘΕΜΑ: <u>Διάθεση Πιστώσεως</u><br>ΣΧΕΤ.: <u>%cost_approval_order%</u></b></p>
+<p class="para1">1. Σας υποβάλλουμε συνημμένα για τεχνοοικονομικό έλεγχο, φάκελο γενομένης δαπάνης για «%cost_title% %euro_cost_money%».</p>
+<p class="para1">2. Παρακαλούμε για τις ενέργειές σας.</p>
+
+<center>
+<table class="f"><tr>
+
+%if_parameter_sxedio%
+
+<td class="c">-Το-<br><u>%static_office%</u><br><br><br><br>%static_office_officer_name%<br>%static_office_officer_rank%</td>
+<td class="c">-Ο-<br><u>Υδκτης</u><br><br><br><br>%static_eoy_name%<br>%static_eoy_rank%</td>
+<td class="c">-Ο-<br><u>Δκτης</u><br><br><br><br>%static_commander_name%<br>%static_commander_rank%</td>
+
+%else%
+
+<td class="c">Ακριβές Αντίγραφο<br><br><br><br>%static_office_officer%<br>%static_office_officer_speciality%</td>
+<td class="c">%static_commander%<br><span style="letter-spacing: 3mm">ΔΙΟΙΚΗΤΗΣ</span></td>
+
+%endif%
+
+</tr></table>
+</center>
+
+</div>
+
+<br class="nextPage">

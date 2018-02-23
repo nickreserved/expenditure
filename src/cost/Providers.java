@@ -1,47 +1,40 @@
 package cost;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.event.*;
+import common.*;
+import tables.*;
 
-public class Providers extends JPanel implements ActionListener {
-  protected static final String iniFile = "providers.ini";
+public class Providers extends JPanel implements DataTransmitter, TableModelListener {
+  static final protected JComboBox providers = new JComboBox();
+  static private final String[] header = { "Επωνυμία", "ΑΦΜ", "ΔΟΥ", "Τηλέφωνο", "Τ.Κ.", "Πόλη", "Διεύθυνση"};
+  private ResizableTableModel rtm = new ResizableTableModel(this, header, header, Provider.class);
 
-  JButton load = new JButton("Επανάκτηση");
-  JButton save = new JButton("Αποθήκευση");
-
-  ResizableTableModel providersModel;
-  MainFrame main;
-
-  public Providers(MainFrame m) throws Exception {
-    main = m;
-    load.addActionListener(this);
-    save.addActionListener(this);
-
-    Box box_h = Box.createHorizontalBox();
-    box_h.add(save);
-    box_h.add(load);
+  public Providers() {
+    rtm.addTableModelListener(this);
     setLayout(new BorderLayout());
-    providersModel = new ResizableTableModel(null, Provider.header, Provider.class);
-    actionPerformed(null);
-    add(new JScrollPane(new JTable(providersModel)), BorderLayout.CENTER);
-    add(box_h, BorderLayout.SOUTH);
-    setVisible(true);
+    add(new JScrollPane(new JTable(rtm)));
   }
 
+  public void tableChanged(TableModelEvent e) {
+    Vector v = (Vector) getData();
+    providers.removeAllItems();
+    for (int z = 0; z < v.size(); z++) providers.addItem(v.get(z));
+    providers.addItem(null);
+  }
 
-  // ================================ ActionListener ==================================== //
+  public Object getData() {
+    if (!(MainFrame.data instanceof HashObject)) MainFrame.data = new HashObject();
+    Object v = MainFrame.data.get("Προμηθευτές");
+    if (!(v instanceof VectorObject))
+      MainFrame.data.put("Προμηθευτές", v = new VectorObject());
+    return v;
+  }
 
-  public void actionPerformed(ActionEvent e) {
-    try {
-      if (e != null && e.getSource() == save)
-        LoadSaveFile.saveFileLines(iniFile, providersModel.getData());
-      providersModel.setData(
-          LoadSaveFile.loadFileLineObjects(LoadSaveFile.loadFileLines(iniFile), Provider.class));
-      main.bills.setProviders(providersModel.getData());
-    } catch(Exception ex) {
-      StaticFunctions.showExceptionMessage(ex, "Σφάλμα κατά τη φόρτωση/αποθήκευση των Προμηθευτών");
-    }
+  public void updateObject() {
+    rtm.fireTableDataChanged();
+    tableChanged(null);
   }
 }

@@ -2,25 +2,24 @@ package cost;
 
 import javax.swing.*;
 import java.util.*;
+import common.*;
 
 public class ExportReport {
   private ExportReport() {}
 
-  static public void exportReport(String file, MainFrame m, Hashtable param) {
+  static public void exportReport(String file, Hashtable param) {
     try {
-      HashTable ht = new HashTable(m, param);
-      Vector v = new Vector();
-      v.add(LoadSaveFile.loadFileToString("templates/header.html") +
-            ht.openFile(file));
+      HashTable ht = new HashTable(param);
+      String s = LoadSaveFile.loadFileToString("templates/header.html") + ht.openFile(file);
       JFileChooser fc = new JFileChooser();
       fc.setFileFilter(new ExtensionFileFilter("html", "Αρχείο Εξόδου"));
-      int returnVal = fc.showSaveDialog(m);
+      int returnVal = fc.showSaveDialog(null);
       if(returnVal != JFileChooser.APPROVE_OPTION) return;
-      String f = fc.getSelectedFile().getPath();
-      if (!f.endsWith(".html")) f += ".html";
-      LoadSaveFile.saveFileLines(f, v);
+      file = fc.getSelectedFile().getPath();
+      if (!file.endsWith(".html")) file += ".html";
+      LoadSaveFile.saveStringFile(file, s);
     } catch (Exception e) {
-      StaticFunctions.showExceptionMessage(e, "Εξαγωγή Δαπάνης");
+      Functions.showExceptionMessage(e, "Εξαγωγή Δαπάνης");
     }
   }
 }

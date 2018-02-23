@@ -1,29 +1,32 @@
 package cost;
 
-public class OrderId implements FromString, Hashing {
-  protected static final String[] hashKeys = { "fakelos", "ypofakelos", "prwtokollo",
-      "sxedio", "date", "from" };
+import java.util.*;
+import common.*;
 
-  String order;
+public class OrderId extends Dictionary {
+  private static final String[] hashKeys = { "Φάκελος", "Υποφάκελος", "Πρωτόκολλο", "Σχέδιο",
+      "Ημερομηνία", "Εκδότης" };
+  private String order;
 
-  public OrderId() {}
-  public OrderId(String s) { fromString(s); }
-
-  public String toString() { return (order == null) ? "" : order; }
-
-  // ---------------------------- FromString --------------------------------------------- //
-
-  public void fromString(String s) {
-    if (s.matches("Φ\\.?\\d{3}/\\d+/\\d+/Σ\\.?\\d+/\\d{2} \\p{InGreek}{3,4} \\d{4}/.+")) order = s;
+  public OrderId(String s) {
+    if (s.matches("Φ\\.?\\d+/\\d+/\\d+/Σ\\.?\\d+/\\d{2} \\p{InGreek}{3,4} \\d{4}/.+")) order = s;
   }
 
-  // ---------------------------- Hashing --------------------------------------------- //
+  public String toString() { return (order == null) ? "" : order; }
+//  public String toString() { return order; }
+  public int size() { return order == null ? 0 : 6; }
+  public boolean isEmpty() { return order == null; }
+  public Enumeration elements() { return null; }
+  public Enumeration keys() { return null; }
+  public Object put(Object key, Object value) { return null; }
+  public Object remove(Object key) { return null; }
 
-  public Object hash(String s) throws Exception {
-    if (order == null) throw new Exception("Δεν αρχικοποιήθηκε η κλάση <b>OrderId</b>");
+  public Object get(Object key) {
+    if (order == null) return null;
     String[] d = order.split("/", 6);
-    for (int z = 0; z < hashKeys.length; z++)
-      if (s.equals(hashKeys[z])) return d[z];
-    throw new Exception("Η κλάση <b>Order</b> δεν υποστηρίζει τη φράση <b>" + s + "</b>");
+    if (d.length != 6) return null;
+    for (int z = 0; z < 6; z++)
+      if (key.equals(hashKeys[z])) return d[z];
+    return null;
   }
 }

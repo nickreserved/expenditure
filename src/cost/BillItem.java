@@ -1,118 +1,59 @@
 package cost;
 
-public class BillItem implements RowTable, FileLineData, Hashing {
-  protected static final String[] header = { "Είδος", "Ποσότητα", "Τιμή μονάδας", "Συνολική τιμή",
-      "ΦΠΑ", "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"};
-  public static final String[] measures = {
-      "τεμάχια", "lt", "Kgr", "cm", "cm^2", "cm^3", "m", "m^2", "m^3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "Km^2" };
-  protected static final Byte[] fpaList = { new Byte((byte) 19), new Byte((byte) 9), new Byte((byte) 0) };
-  protected static final String[] hashKeys = { "name", "many", "cost", "total_cost", "fpa",
-      "cost_with_fpa", "total_cost_with_fpa", "measure" };
+import common.*;
 
-  protected String name;
-  protected int measure = 0;
-  protected Digit many = new Digit(1, 6, true, true);
-  protected Digit cost = new Digit(0, 4, true, true);
-  protected Byte fpa = fpaList[0];
+public class BillItem extends HashString2Object {
+  public BillItem() {
+    classes.put("ΦΠΑ", Byte.class);
+    classes.put("Ποσότητα", Double.class);
+    classes.put("ΤιμήΜονάδας", Double.class);
+    classes.put("ΣυνολικήΤιμή", Double.class);
+    classes.put("ΤιμήMονάδαςMεΦΠΑ", Double.class);
+    classes.put("ΣυνολικήΤιμήΜεΦΠΑ", Double.class);
+    super.put("ΦΠΑ", new Byte((byte) 19));
+    super.put("Ποσότητα", new Double(1));
+    super.put("ΜονάδαMέτρησης", "τεμάχια");
+  }
 
-  public static final int NAME = 0;
-  public static final int MANY = 1;
-  public static final int COST = 2;
-  public static final int TOTAL_COST = 3;
-  public static final int FPA = 4;
-  public static final int COST_WITH_FPA = 5;
-  public static final int TOTAL_COST_WITH_FPA = 6;
-  public static final int MEASURE = 7;
-
-  public BillItem() {}
-  public BillItem(String s) throws Exception { load(s); }
-
-
-  // ---------------------------- RowTable --------------------------------------------- //
+  public String toString() { return super.get("Είδος").toString(); }
+  public boolean equals(Object o) { return o instanceof BillItem && toString().equals(o.toString()); }
 
   public boolean isEmpty() {
-    return (name == null || name.length() == 0) && many.doubleValue() * cost.doubleValue() == 0;
+    return super.get("Είδος") == null && super.get("ΤιμήΜονάδας") == null &&
+	super.get("Ποσότητα") == null;
   }
 
-  public Object getCell(int col) {
-    switch (col) {
-      case NAME: return name;
-      case MANY: return many;
-      case COST: return cost;
-      case TOTAL_COST:
-        Digit d = Digit.mul(cost, many);
-        d.round(2);
-        return d;
-      case FPA: return fpa;
-      case COST_WITH_FPA: return Digit.mul(cost, (100 + fpa.intValue()) / (double) 100);
-      case TOTAL_COST_WITH_FPA: return Digit.mul( (Digit) getCell(TOTAL_COST), (100 + fpa.intValue()) / (double) 100);
-      case MEASURE: return measures[measure];
-      default: return null;
-    }
+  public Object get(Object key) {
+    Object o = super.get(key);
+    if (o != null) return o;
+    if (key.equals("ΣυνολικήΤιμή"))
+      o = M.round(M.mul((Number) super.get("ΤιμήΜονάδας"), (Number) super.get("Ποσότητα")), 2);
+    else if (key.equals("ΤιμήMονάδαςMεΦΠΑ"))
+      o = M.round(M.mul((Number) super.get("ΤιμήΜονάδας"),
+		    (100 + ((Number) super.get("ΦΠΑ")).doubleValue()) / (double) 100), 4);
+    else if (key.equals("ΣυνολικήΤιμήΜεΦΠΑ"))
+      o = M.round(M.mul((Number) get("ΣυνολικήΤιμή"),
+		    (100 + ((Number) super.get("ΦΠΑ")).doubleValue()) / (double) 100), 2);
+    super.put("$" + key, o);
+    return o;
   }
 
-  public void setCell(Object o, int col) {
-    try {
-      switch (col) {
-        case NAME:
-          name = o.toString();
-          break;
-        case MANY:
-          many.setDigit(o.toString());
-          break;
-        case COST:
-          cost.setDigit(o.toString());
-          break;
-        case TOTAL_COST:
-          if (many.doubleValue() == 0) return;
-          cost.setDigit(Digit.parseDigit(o.toString()) / many.doubleValue());
-          break;
-        case FPA:
-          fpa = (Byte) o;
-          break;
-        case COST_WITH_FPA:
-          cost.setDigit(Digit.parseDigit(o.toString()) / (100 + fpa.intValue()) * 100);
-          break;
-        case TOTAL_COST_WITH_FPA:
-          cost.setDigit(Digit.parseDigit(o.toString()) / many.doubleValue()
-                        / (100 + fpa.intValue()) * 100);
-          break;
-        case MEASURE:
-          measure = StaticFunctions.findInArray(measures, o);
-      }
-    } catch (Exception e) {}
-  }
-
-
-  // ---------------------------- FileLineData --------------------------------------------- //
-
-  public boolean isValid() {
-    return name == null || name.length() * many.doubleValue() * cost.doubleValue() == 0;
-  }
-
-  public String load(String s) throws Exception {
-    String[] d = s.split("\t", 6);
-    if (d.length < 5) throw new Exception();
-    name = d[0];
-    setCell(d[1], MEASURE);
-    setCell(d[2], MANY);
-    setCell(d[3], COST);
-    setCell(new Byte(d[4]), FPA);
-    return d.length == 6 ? d[5] : null;
-  }
-
-  public String save() {
-    return name + "\t" + getCell(MEASURE) + "\t" + getCell(MANY) + "\t" + getCell(COST)
-	 + "\t" + getCell(FPA);
-  }
-
-  // ---------------------------- Hashing --------------------------------------------- //
-
-  public Object hash(String s) throws Exception {
-    if (s.startsWith("item_")) s = s.substring(5);
-    for (int z = 0; z < hashKeys.length; z++)
-      if (s.equals(hashKeys[z]))
-        return getCell(z);
-    throw new Exception("Η κλάση <b>BillItem</b> δεν υποστηρίζει τη φράση <b>" + s + "</b>");
+  public Object put(Object key, Object value) {
+    if (value instanceof String) value = super.fromString(key, value.toString());
+    if (value instanceof Number && ((Number) value).doubleValue() == 0 && !key.equals("ΦΠΑ")) value = null;
+    if (key.equals("ΣυνολικήΤιμή")) {
+      Number d = value == null ? null : M.round(M.div((Number) value, (Number) super.get("Ποσότητα")), 4);
+      super.put("ΤιμήΜονάδας", d);
+    } else if (key.equals("ΣυνολικήΤιμήΜεΦΠΑ")) {
+      Number d = value == null ? null : M.round(M.div((Number) value, M.mul(
+          (Number) super.get("Ποσότητα"), 1 + ((Number) super.get("ΦΠΑ")).doubleValue() / 100)), 4);
+      super.put("ΤιμήΜονάδας", d);
+    } else if (key.equals("ΤιμήMονάδαςMεΦΠΑ")) {
+      Number d = value == null ? null : M.round(M.div((Number) value,
+          1 + ((Number) super.get("ΦΠΑ")).doubleValue() / 100), 4);
+      super.put("ΤιμήΜονάδας", d);
+    } else
+      return super.put(key, value);
+    return get(key);
   }
 }

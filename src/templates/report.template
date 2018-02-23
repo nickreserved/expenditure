@@ -1,0 +1,70 @@
+%request_prereport_boolean_"Εκτύπωση της <b>έκθεσης</b> σαν <b>απαιτούμενης</b> δαπάνης;"%
+
+<div class="Paper_A4_Portrait_20x20x20x35">
+<h1 class="t">ΕΚΘΕΣΗ</h1>
+<table class="f"><tr><td width=99%> </td><td nowrap><b>ΣΧΗΜ. <u>%static_supervisor%</u><br>ΜΟΝΑΔΑ <u>%static_outfit_short%</u></b><br>Μήνας <u>%system_month%</u><br>Χρήση <u>%system_year%</u><br>ΦΟΡΕΑΣ <u>%cost_ef%</u><br>KA <u>%cost_ka%</u></td></tr></table>
+<p class="para"><u>%if_parameter_prereport%Απαιτουμένης%else%Γενόμενης%endif% Δαπάνης για &laquo;%cost_title%&raquo;.</u></p>
+<table class="f">
+<tr><th class="l">A/A</th><th class="l">ΕΙΔΟΣ ΥΛΙΚΩΝ</th><th class="l">ΠΟΣΟΤΗΤΑ</th><th class="l">ΤΙΜΗ ΜΟΝΑΔΑΣ</th>%if_greater_1_sizeof_bills_fpa_list%<th class="l">ΦΠΑ</th>%endif%<th class="l">ΣΥΝΟΛΟ</th></tr>
+%start_counter_aa%
+%enum_bills%
+%if_greater_1_sizeof_bills%
+<tr><td class="lc" colspan=%if_greater_1_sizeof_bills_fpa_list%6%else%5%endif%><b>%b_type%: %b_name%</b> (Κρατήσεις: %percent_b_hold_percent_total%%if_greater_0_b_fe_percent%, ΦΕ: %percent_b_fe_percent%%endif%)</td></tr>
+%endif%
+%enum_b_items%
+<tr><td class="lc">%counter_aa%</td><td class="l">%i_name%</td><td class="lc">%i_many%</td><td class="lr">%euro_i_cost%</td>%if_greater_1_sizeof_bills_fpa_list%<td class="lr">%percent_i_fpa%</td>%endif%<td class="lr">%euro_i_total_cost%</td></tr>
+%end_enum%%end_enum%
+%end_counter%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%><b>Καθαρή Αξία</b></td><td class="lr"><b>%euro_bills_clear_cost%</b></td></tr>
+%enum_bills_fpa_list%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%>Προστίθεται ΦΠΑ %percent_bfl_key%</td><td class="lr">%euro_bfl_value%</td></tr>
+%end_enum%
+%if_greater_0_sizeof_bills_warrants%
+%enum_bills_warrants_bills_by_hold%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%>Προστίθενται Κρατήσεις %percent_bwbbh_key_hold_total%</td><td class="lr">%euro_bwbbh_value_bills_hold_euro_total%</td></tr>
+%end_enum%
+%endif%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%><b>Καταλογιστέο</b></td><td class="lr"><b>%euro_bills_katalogisteo%</b></td></tr>
+%enum_bills_by_hold%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%>Αφαιρούνται Κρατήσεις %percent_bbh_key_hold_total%</td><td class="lr">%euro_bbh_value_bills_hold_euro_total%</td></tr>
+%end_enum%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%><b>Πληρωτέο</b></td><td class="lr"><b>%euro_bills_plhrwteo%</b></td></tr>
+%if_greater_0_sizeof_bills_with_fe%
+%enum_bills_with_fe_bills_by_fe%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%>Κρατήθηκε ΦΕ %percent_bwfbbf_key%</td><td class="lr">%euro_bwfbbf_value_bills_fe_euro%</td></tr>
+%end_enum%
+<tr><td class="lr" colspan=%if_greater_1_sizeof_bills_fpa_list%5%else%4%endif%><b>Υπόλοιπο Πληρωτέο</b></td><td class="lr"><b>%euro_bills_ypoloipo_plhrwteo%</b></td></tr>
+%endif%
+</table>
+<p align="right">%static_city%, %system_date%</p>
+<table class="f">
+<tr><td class="c" nowrap>-Ο-<br>ΔΙΟΙΚΗΤΗΣ<br><br><br><br>%static_commander_name%<br>%static_commander_rank%</td>
+%if_parameter_prereport%
+<td class="c" nowrap>-ΤΟ-<br>%capital_static_office%<br><br><br><br>%static_office_officer_name%<br>%static_office_officer_rank%</td>
+%else%
+<td class="c" nowrap>-Ο-<br>ΕΠΟΠΤΗΣ<br><br><br><br>%static_eoy_name%<br>%static_eoy_rank%</td><td class="c" nowrap>-Ο-<br>ΑΞΚΟΣ ΔΑΠΑΝΗΣ<br><br><br><br>%cost_work_officer_name%<br>%cost_work_officer_rank%</td>
+%endif%
+</tr>
+</table>
+</div>
+<br class="nextPage">
+
+%if_not_parameter_prereport%
+
+%if_greater_0_sizeof_bills_agoras%
+<div class="Paper_A4_Portrait_20x20x20x35">
+<table class="f"><tr><td width=99%> </td><td nowrap><b>%static_supervisor%<br>%static_outfit_short%</td></tr></table>
+<h1 class="t">ΒΕΒΑΙΩΣΗ</h1>
+<p class="para">Βεβαιώνεται η αγορά, παραλαβή, χρέωση ή μη χρέωση και διάθεση των υλικών που αναγράφονται στην έκθεση γενομένης δαπάνης σύμφωνα με την Φ.092.5/49/307251/02 Οκτ 85 Απόφ. ΥΕΘΑ (ΣΔ - ΝΔΑ 35/86) ΓΕΕΘΑ και την Φ.801/27/4144342414/24 Ιαν 83/ΓΕΣ/ΔΟΙ/1β Γενική Δγη.</p>
+<br><br>
+<table class="f"><tr><td class="c" nowrap>-Ο-<br>ΔΙΟΙΚΗΤΗΣ<br><br><br><br>%static_commander_name%<br>%static_commander_rank%</td><td class="c" nowrap>-Ο-<br>ΕOY<br><br><br><br>%static_eoy_name%<br>%static_eoy_rank%</td><td class="c" nowrap>-Ο-<br>ΔΧΣΤΗΣ<br><br><br><br>%static_dxsths_name%<br>%static_dxsths_rank%</td></tr></table>
+<br><br><br>
+<p class="para">Βεβαιώνουμε ότι αφού επισκεφθήκαμε τα διάφορα καταστήματα για να βρούμε τα καλύτερα ποιοτικά και συμφέροντα κατά τιμή είδη ενεργήσαμε την προμήθεια των υλικών που αναγράφονται στην έκθεση γενομένης δαπάνης.</p>
+
+<table class="f"><tr>
+<td class="c" nowrap>-Ο-<br>ΠΡΟΕΔΡΟΣ<br><br><br><br>%cost_proedros_agoras_name%<br>%cost_proedros_agoras_rank%</td>
+<td class="c" nowrap>-ΤΑ-<br>ΜΕΛΗ<br><br><br><br>%cost_melos1_agoras_name%<br>%cost_melos1_agoras_rank%<br><br><br><br>%cost_melos2_agoras_name%<br>%cost_melos2_agoras_rank%</td>
+</tr></table>
+</div>
+<br class="nextPage">
+%endif%%endif%

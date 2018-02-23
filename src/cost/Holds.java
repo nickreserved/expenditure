@@ -1,60 +1,50 @@
 package cost;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import java.util.*;
-import javax.swing.table.*;
 
-public class Holds extends JPanel implements ActionListener {
-  protected static final String iniFile = "holds.ini";
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.event.*;
 
-  JButton load = new JButton("Επανάκτηση");
-  JButton save = new JButton("Αποθήκευση");
+import common.*;
+import tables.*;
 
-  ResizableTableModel holdModel;
-  MainFrame main;
+public class Holds extends JPanel implements TableModelListener {
+  static final protected JComboBox holds = new JComboBox();
+  private static final String[] header = { "ΜΤΣ", "ΤΑΣ", "ΕΜΠ", "ΤΣΜΕΔΕ", "ΑΟΟΑ", "ΥΠΚ", "ΤΠΕΔΕ", "ΕΚΟΕΜΣ",
+      "Χαρτόσημο", "ΟΓΑ", "Σύνολο" };
+  private static HoldTableModel htm = new HoldTableModel();
 
-  public Holds(MainFrame m) throws Exception {
-    main = m;
-    load.addActionListener(this);
-    save.addActionListener(this);
-
-    Box box_h = Box.createHorizontalBox();
-    box_h.add(save);
-    box_h.add(load);
+  public Holds() {
     setLayout(new BorderLayout());
-    holdModel = new HoldTableModel(null, Provider.header, Hold.class);
-    actionPerformed(null);
-    add(new JScrollPane(new JTable(holdModel)), BorderLayout.CENTER);
-    add(box_h, BorderLayout.SOUTH);
-    setVisible(true);
+    htm.addTableModelListener(this);
+    add(new JScrollPane(new JTable(htm)));
   }
 
+  public void tableChanged(TableModelEvent e) {
+    Vector v = htm.getData();
+    holds.removeAllItems();
+    for (int z = 0; z < v.size(); z++) holds.addItem(v.get(z));
+    holds.addItem(new Hold());
+  }
 
-  // ================================ ActionListener ==================================== //
-
-  public void actionPerformed(ActionEvent e) {
-    try {
-      if (e != null && e.getSource() == save)
-        LoadSaveFile.saveFileLines(iniFile, holdModel.getData());
-      holdModel.setData(
-          LoadSaveFile.loadFileLineObjects(LoadSaveFile.loadFileLines(iniFile), Hold.class));
-      main.bills.setHolds(holdModel.getData());
-    } catch(Exception ex) {
-      StaticFunctions.showExceptionMessage(ex, "Σφάλμα κατά τη φόρτωση/αποθήκευση των Κρατήσεων");
-    }
+  public void updateObject() {
+    htm.fireTableDataChanged();
+    tableChanged(null);
   }
 
 
   // =============================== HoldTableModel ===================================== //
 
-  class HoldTableModel extends ResizableTableModel {
-    public HoldTableModel(Vector data, String[] title, Class cls) {
-      super(data, Hold.header, cls);
-    }
-    public boolean isCellEditable(int row, int col) {
-      if (col != Hold.TOTAL) return true; else return false;
+  protected static class HoldTableModel extends ResizableTableModel {
+    public HoldTableModel() { super((Vector) null, header, header, Hold.class); }
+    public boolean isCellEditable(int row, int col) { return col < header.length - 1 ? true : false; }
+    public Vector getData() {
+      if (!(MainFrame.data instanceof HashObject)) MainFrame.data = new HashObject();
+      Object v = MainFrame.data.get("Κρατήσεις");
+      if (!(v instanceof VectorObject))
+	MainFrame.data.put("Κρατήσεις", v = new VectorObject());
+      return (Vector) v;
     }
   }
 }

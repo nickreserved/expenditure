@@ -1,0 +1,30 @@
+<div class="Paper_A4_Portrait_20x15x20x15">
+<center><img style="width: 35mm; height: 40mm" width="150" height="170" src="shield.jpg"></center>
+<h2 class="outpaper">%static_outfit_short%</h2>
+<h1 class="outpaper">жэЙЕКОР цЕМОЛщМГР дАПэМГР</h1><br><br>
+
+<table class="f">
+<tr><td class="l"><b>еяцо:</b> &laquo;%cost_title%&raquo;</td></tr><tr><td> </td></tr>
+<tr><td class="l"><b>посо:</b> %euro_cost_money%</td></tr><tr><td> </td></tr>
+<tr><td class="l"><b>аниылатийос еяцоу:</b> %cost_work_officer_rank% %cost_work_officer_name%</td></tr><tr><td> </td></tr>
+<tr><td class="l"><b>ецйяитийг диатацг:</b> %cost_approval_order%</td></tr><tr><td> </td></tr>
+<tr><td class="l"><b>еж:</b> %cost_ef%</td></tr><tr><td> </td></tr>
+<tr><td class="l"><b>йа:</b> %cost_ka%</td></tr></table><br><br><br>
+
+<table class="f">
+<tr><th class="l" colspan="2">амакусг йяатгсеым</th><th class="l">йатакоцистео посо</th></tr>
+<tr><td class="l">лтс</td><td class="lr">%euro_bills_hold_euro_mts%</td><td class="lc">%euro_bills_katalogisteo%</td></tr>
+<tr><td class="l">тас</td><td class="lr">%euro_bills_hold_euro_tas%</td><th class="l">пкгяытео посо</th></tr>
+<tr><td class="l">елп</td><td class="lr">%euro_bills_hold_euro_emp%</td><td class="lc">%euro_bills_plhrwteo%</td></tr>
+<tr><td class="l">тследе</td><td class="lr">%euro_bills_hold_euro_tsmede%</td></tr>
+<tr><td class="l">тпеде</td><td class="lr">%euro_bills_hold_euro_tpede%</td></tr>
+<tr><td class="l">аооа</td><td class="lr">%euro_bills_hold_euro_aooa%</td></tr>
+<tr><td class="l">упй</td><td class="lr">%euro_bills_hold_euro_ypk%</td></tr>
+<tr><td class="l">ваятосгло</td><td class="lr">%euro_bills_hold_euro_stamp%</td></tr>
+<tr><td class="l">оца ваятосглоу</td><td class="lr">%euro_bills_hold_euro_oga%</td></tr>
+<tr><td class="l">ейоелс</td><td class="lr">%euro_bills_hold_euro_ekoems%</td></tr>
+<tr><td class="l"><b>сумоко йяатгсеым</b></td><td class="lr">%euro_bills_hold_euro_total%</td></tr>
+</table>
+</div>
+
+<br class="nextPage">

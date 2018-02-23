@@ -1,0 +1,22 @@
+Features
+--------
+echo		Na spaei se sta8era strings kai mh sta8eres synarthseis (me <? ... ?>) kai sto "toString" kai sto "simplify"
+block		Elegxei an kapoia Function entolh den kanei ekxwrhsh kai thn kanei discard (p.x. sum(a, 5))
+for		simplify
+line		better code line system
+
+
+Notes
+-----
+1.	to function pou 8a brisketai mesa sto block? pws 8a domeitai?
+2.	To throw pws 8a kanei rethrow? pws 8a to kanei handle to catch?
+3.	pws 8a energopoiountai oi extra synarthseis? to package pws kanei enum tis class tou?
+
+
+Bugs
+----
+1.	H break continue return den ypologizoun compile-time ta nested blocks prokeimenou na petoun compile-time error
+
+Dokimes
+-------
+1.

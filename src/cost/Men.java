@@ -1,47 +1,40 @@
 package cost;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.event.*;
+import common.*;
+import tables.*;
 
-public class Men extends JPanel implements ActionListener {
-  protected static final String iniFile = "men.ini";
+public class Men extends JPanel implements DataTransmitter, TableModelListener {
+  static final protected JComboBox men = new JComboBox();
+  static private final String[] header = { "Βαθμός", "Ονοματεπώνυμο", "Μονάδα" };
+  private ResizableTableModel rtm = new ResizableTableModel(this, header, header, Man.class);
 
-  JButton load = new JButton("Επανάκτηση");
-  JButton save = new JButton("Αποθήκευση");
-
-  ResizableTableModel menModel;
-  MainFrame main;
-
-  public Men(MainFrame m) throws Exception {
-    main = m;
-    load.addActionListener(this);
-    save.addActionListener(this);
-
-    Box box_h = Box.createHorizontalBox();
-    box_h.add(save);
-    box_h.add(load);
+  public Men() {
+    rtm.addTableModelListener(this);
     setLayout(new BorderLayout());
-    menModel = new ResizableTableModel(null, Man.header, Man.class);
-    actionPerformed(null);
-    add(new JScrollPane(new JTable(menModel)), BorderLayout.CENTER);
-    add(box_h, BorderLayout.SOUTH);
-    setVisible(true);
+    add(new JScrollPane(new JTable(rtm)));
   }
 
+  public Object getData() {
+    if (!(MainFrame.data instanceof HashObject)) MainFrame.data = new HashObject();
+    Object v = MainFrame.data.get("Προσωπικό");
+    if (!(v instanceof VectorObject))
+      MainFrame.data.put("Προσωπικό", v = new VectorObject());
+    return v;
+  }
 
-  // ================================ ActionListener ==================================== //
+  public void tableChanged(TableModelEvent e) {
+    Vector v = (Vector) getData();
+    men.removeAllItems();
+    for (int z = 0; z < v.size(); z++) men.addItem(v.get(z));
+    men.addItem(null);
+  }
 
-  public void actionPerformed(ActionEvent e) {
-    try {
-      if (e != null && e.getSource() == save)
-        LoadSaveFile.saveFileLines(iniFile, menModel.getData());
-      menModel.setData(
-          LoadSaveFile.loadFileLineObjects(LoadSaveFile.loadFileLines(iniFile), Man.class));
-      main.staticData.setMen(menModel.getData());
-    } catch(Exception ex) {
-      StaticFunctions.showExceptionMessage(ex, "Σφάλμα κατά τη φόρτωση/αποθήκευση του Προσωπικού");
-    }
+  public void updateObject() {
+    rtm.fireTableDataChanged();
+    tableChanged(null);
   }
 }
