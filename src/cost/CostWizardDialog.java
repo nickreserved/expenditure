@@ -49,8 +49,7 @@ final public class CostWizardDialog extends JDialog implements ActionListener, D
 		bh.add(cbContractor = new JComboBox(new String[] {
 			"Ιδιώτης (προμηθευτές, εργολάβοι, μάστορες κ.τ.λ.)",
 			"Νομικά Πρόσωπα Δημοσίου Δικαίου (π.χ. ΟΣΕ)",
-			"Στρατιωτικά Πρατήρια",
-			"Λογαριασμοί ύδρευσης-αποχέτευσης ή έργα της ΔΕΗ"
+			"Στρατιωτικά Πρατήρια"
 		}));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 
@@ -58,7 +57,8 @@ final public class CostWizardDialog extends JDialog implements ActionListener, D
 		bh.add(new JLabel("Τύπος τιμολογίου:"));
 		bh.add(Box.createHorizontalStrut(5));
 		bh.add(cbInvoiceType = new JComboBox(new String[] {
-			"Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων"
+			"Προμήθεια υλικών", "Παροχή υπηρεσιών", "Προμήθεια υγρών καυσίμων", "Μισθώματα ακινήτων",
+			"Λογαριασμοί ύδρευσης-αποχέτευσης ή έργα της ΔΕΗ", "Εκπόνηση μελετών"
 		}));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 		
@@ -107,46 +107,52 @@ final public class CostWizardDialog extends JDialog implements ActionListener, D
 			int invoiceType = cbInvoiceType.getSelectedIndex();
 			double net = round(Double.parseDouble(tfValue.getText()), 2);
 			
-			// Σε κατασκευαστικές δαπάνες, προμηθευτής είναι πάντα ιδιώτης
-			if (construction && contractor != 0 /*Όχι ιδιώτης*/) {
-				construction = false;
-				cbCost.setSelectedIndex(0 /*Όχι έργο ΜΧ*/);
-			}
-			// Σε δαπάνες που προμηθευτής είναι ο Στρατός, τα τιμολόγια είναι πάντα προμήθειας υλικών
-			if (contractor == 2 /*Στρατός*/ && invoiceType != 0 /*Προμήθεια υλικών*/)
-				cbInvoiceType.setSelectedIndex(invoiceType = 0); //Προμήθεια υλικών
-			// Σε δαπάνες ρεύματος-νερού, τα τιμολόγια είναι πάντα παροχής υπηρεσιών
-			if (contractor == 3 /*Ύδρευση-Ρεύμα*/ && invoiceType != 1 /*Παροχή υπηρεσιών*/)
-				cbInvoiceType.setSelectedIndex(invoiceType = 1); // Παροχή υπηρεσιών
 			// Σε δαπάνες προϋπολογισμού ΠΔΕ, ο εργολάβος είναι πάντα ιδιώτης
 			if (financing == 2 /*Προϋπολογισμός ΠΔΕ*/ && contractor != 0 /*Ιδιώτης*/)
 					cbContractor.setSelectedIndex(contractor = 0); // Ιδιώτης
 
+			// Σε κατασκευαστικές δαπάνες, προμηθευτής είναι πάντα ιδιώτης
+			if (construction && contractor != 0 /*Όχι ιδιώτης*/)
+				cbContractor.setSelectedIndex(contractor = 0 /*Ιδιώτης*/);
+			// Σε κατασκευαστικές δαπάνες, τιμολόγια προμήθειας υλικών, παροχής υπηρεσιών ή εκπόνησης
+			// μελετών μόνο
+			if (construction && invoiceType != 0 /*Προμήθεια υλικών*/ &&
+					invoiceType != 1 /*Παροχή υπηρεσιών*/ && invoiceType != 5 /*Εκπόνηση μελετών*/)
+				cbInvoiceType.setSelectedIndex(invoiceType = 0 /*Προμήθεια υλικών*/);
+			
+			// Σε δαπάνες που προμηθευτής είναι ο Στρατός, τα τιμολόγια είναι πάντα προμήθειας υλικών
+			if (contractor == 2 /*Στρατός*/ && invoiceType != 0 /*Προμήθεια υλικών*/)
+				cbInvoiceType.setSelectedIndex(invoiceType = 0); //Προμήθεια υλικών
+
 			boolean fpa = contractor != 2 /*Όχι Στρατός*/;
 			double hold = 0, valueforfe = net;
 			int fe = 0;
-			
+
 			// Υπολογισμός κρατήσεων
-			if (contractor == 0 /*Ιδιώτης*/) {
-				if (net > 2500)
-					switch(financing) {
-						case 0: /*Τακτικός Π/Υ*/ hold = 4.22032; break;
-						case 1: /*Ιδιοι πόροι*/ hold = 14.22032; break;
-						case 2: /*Π/Υ ΠΔΕ*/ hold = 0.12432; break;
-					}
-				else
+			if (invoiceType == 4 /*Λογαριασμοί νερού/ΔΕΗ*/) /*hold = 0*/;
+			else if (contractor == 0 /*Ιδιώτης*/) {
+				if (invoiceType == 3 /*Μισθώματα ακινήτων*/)
 					switch(financing) {
 						case 0: /*Τακτικός Π/Υ*/ hold = 4.096; break;
 						case 1: /*Ιδιοι πόροι*/ hold = 14.096; break;
-						//case 2: /*Π/Υ ΠΔΕ*/ hold = 0; break;
+						//case 2: /*Π/Υ ΠΔΕ*/ hold = 0;
+					}
+				else if (net >= 2500)
+					if (financing == 2 /*Π/Υ ΠΔΕ*/)
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 0.32432 : 0.12432;
+					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 4.42032 : 4.22032;
+						if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
+					}
+				else
+					if (financing == 2 /*Π/Υ ΠΔΕ*/)
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 0.26216 : 0.06216;
+					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 4.35816 : 4.15816;
+						if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
 					}
 			} else if (contractor == 1 /*ΝΠΔΔ*/ || contractor == 2 /*Στρατος*/)
-				switch (financing) {
-					case 0: /*Τακτικός Π/Υ */ hold = 4; break;
-					case 1: /*Ιδιοι πόροι */ hold = 14; break;
-					//case 2: /* Π/Υ ΠΔΕ */ hold = 0; break;
-				}
-			// else if (contractor == 3 /*Ύδρευση-Ρεύμα*/) hold = 0;
+				hold = financing == 1 /*Ιδιοι πόροι*/ ? 14 : 4;
 			
 			StringBuilder sb = new StringBuilder(4096);
 			sb.append("<html><style>ul {margin-top: -15px; margin-bottom: 0}</style><b>Καθαρή Αξία:</b> ");
@@ -167,7 +173,7 @@ final public class CostWizardDialog extends JDialog implements ActionListener, D
 			}
 
 			// Υπολογισμός του ΦΕ
-			if (net > 150 && contractor == 0 /*Ίδιώτης*/)
+			if (construction || net > 150 && contractor == 0 /*Ίδιώτης*/)
 				switch (invoiceType) {
 					case 0: /*Προμήθεια υλικών*/ fe = 4; break;
 					case 1: /*Παροχή υπηρεσιών*/
@@ -177,15 +183,27 @@ final public class CostWizardDialog extends JDialog implements ActionListener, D
 						} else fe = 8;
 						break;
 					case 2: /*Προμήθεια υγρών καυσίμων*/ fe = 1; break;
+					//case 3: /*Μισθώματα ακινήτων*/ fe = 0; break;
+					//case 4: /*Λογαριασμοί νερού/ΔΕΗ*/ fe = 0; break;
+					case 5: /*Εκπόνηση μελετών*/ fe = 4; break;
 				}
+
+			if (invoiceType == 5 /*Εκπόνηση μελετών*/)
+				sb.append("<br>Αν η δαπάνη αφορά εκπόνηση σχεδίων ή μελέτης έργου πολιτικού ή"
+						+ " τοπογράφου μηχανικού, τότε:");
 
 			sb.append("<br><b>ΦΕ:</b> ").append(fe).append("% της καθαρής αξίας");
 			if (fe != 3) sb.append(" μειον κρατήσεις");
 			sb.append(" (").append(Math.round(valueforfe * fe) / 100.0).append("€)<br>");
+			
+			if (invoiceType == 5 /*Εκπόνηση μελετών*/)
+				sb.append("Αν η δαπάνη αφορά εκπόνηση σχεδίων ή μελέτης άλλου επιστημονικού τομέα ή"
+						+ " αφορά επίβλεψη εφαρμογής μελέτης, τότε:<br><b>ΦΕ:</b> 10% της καθαρής"
+						+ " αξίας (").append(Math.round(valueforfe * 10) / 100.0).append("€)<br>");
 	
 			if (construction /*Κατασκευή Έργων*/ && invoiceType == 1 /*Παροχή Υπηρεσιών*/)
 				sb.append("<br>Ο εργολάβος πρέπει να μας υποβάλει τα πρωτότυπα αποδεικτικά κατάθεσης"
-						+ "για 1% <b>ΤΠΕΔΕ</b> (")
+						+ " για 1% <b>ΤΠΕΔΕ</b> (")
 						.append(round(0.01 * net, 2))
 						.append("€) στο λογαριασμό ______, 0.5% <b>ΕΜΠ</b> (")
 						.append(round(0.005 * net, 2))
@@ -216,7 +234,7 @@ final public class CostWizardDialog extends JDialog implements ActionListener, D
 			
 			tpInfo.setText(sb.toString());
 		} catch(NumberFormatException e) {
-			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/60/918814/Σ.5965/2 Σεπ 16/ΓΕΣ/ΔΟΙ/3α και ΚΥΑ 1191/14 Μαι 17 (ΦΕΚ Β' 969).");
+			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/5/1386358/Σ.759/14 Φεβ 18/ΓΕΣ/ΔΟΙ/3α.");
 		}
 	}
 }

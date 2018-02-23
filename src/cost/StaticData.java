@@ -10,7 +10,7 @@ import tables.PropertiesTableModel;
 
 final public class StaticData extends JPanel implements DataTransmitter {
 	static final protected String[] HASH = {
-		"ΣύντμησηΜονάδας", "Μονάδα", "ΓραφείοΣχηματισμού", "Γραφείο", "ΙδιότηταΑξκου", "Πόλη",
+		"ΣύντμησηΜονάδας", "Μονάδα", "ΕλέγχουσαΑρχή", "Γραφείο", "ΙδιότηταΑξκου", "Πόλη",
 		"Διεύθυνση", "Τηλέφωνο", "ΤΚ", "Δκτης", "ΕΟΥ", "ΑξκοςΓραφείου", "Δχστης"
 	};
 	public StaticData() {
@@ -21,7 +21,7 @@ final public class StaticData extends JPanel implements DataTransmitter {
 				HASH, this,
 				new String[] {
 					"<html>Μονάδα <font color=gray size=2>(σύντμηση)",
-					"<html>Μονάδα <font color=gray size=2>(πλήρης)", "Γραφείο Σχηματισμού", null,
+					"<html>Μονάδα <font color=gray size=2>(πλήρης)", "Ελέγχουσα Αρχή", null,
 					"Ιδιότητα Αξκού", "Πόλη ή Χωρίο", null, "Τηλέφωνο", "Τ.Κ.",	null, null,
 					"Αξκος Γραφείου", null
 				}

@@ -21,7 +21,10 @@ phpend:
 	# Check for Java
 	SetRegView 32	# Check 32-bit registry
 	ReadRegStr $1 HKLM "Software\JavaSoft\Java Runtime Environment" "CurrentVersion"
-	StrCmp $1 "" java64	# javanotexist
+	StrCmp $1 "" 0 java32_8	# java 8 not exist
+	ReadRegStr $1 HKLM "Software\JavaSoft\JRE" "CurrentVersion"
+	StrCmp $1 "" java64	# java 9 not exist
+java32_8:
 	StrCpy $2 $1 1
 	StrCpy $3 $1 1 2
 	StrCpy $4 "${JAVA_VERSION}" 1
@@ -32,7 +35,10 @@ phpend:
 java64:
 	SetRegView 64	# Check 64-bit registry
 	ReadRegStr $1 HKLM "Software\JavaSoft\Java Runtime Environment" "CurrentVersion"
-	StrCmp $1 "" javanotexist
+	StrCmp $1 "" 0 java64_8	# java 8 not exist
+	ReadRegStr $1 HKLM "Software\JavaSoft\JRE" "CurrentVersion"
+	StrCmp $1 "" javanotexist	# java 9 not exist
+java64_8:
 	StrCpy $2 $1 1
 	StrCpy $3 $1 1 2
 	StrCpy $4 "${JAVA_VERSION}" 1

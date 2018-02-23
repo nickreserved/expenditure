@@ -1,14 +1,14 @@
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.7.1"
+!define VERSION "2018.2.25"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_VERSION "1.8"
 !define PHP_VERSION "5.6.15"
 !define VER1 0x00050006
 !define VER2 0x000F0000
 !define PHP_RE_URL "https://sourceforge.net/projects/ha-expenditure/files/redistributable/x32/php_cli.exe/download"
-!define JAVA_RE_URL "http://java.com/en/download/manual.jsp"
+!define JAVA_RE_URL "http://www.oracle.com/technetwork/java/javase/downloads/"
 
 # ------------------------------------------------------------------ general ---
 Name "${PROGRAM} ${VERSION}"

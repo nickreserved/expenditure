@@ -10,7 +10,7 @@ $connect = $prereport ? null : array($data['ΔγηΔιάθεσης']);
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134
 
-<?=preOrder(!$draft || isset($data['Διαβιβαστικό']) ? $data['Διαβιβαστικό'] : null, array($data['ΓραφείοΣχηματισμού']), array(null), $draft, $attached)?>
+<?=preOrder(!$draft || isset($data['Διαβιβαστικό']) ? $data['Διαβιβαστικό'] : null, array($data['ΕλέγχουσαΑρχή']), array(null), $draft, $attached)?>
 <?=subjectOrder('Δαπάνες', $connect)?>
 \pard\plain\fs24\tx567\tx1134\tx1701\tx2268\qj
 <? if ($prereport) { ?>

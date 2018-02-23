@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="toc.xsl"?>
+
+<menu name="Στρατιωτικές Δαπάνες">
+	<menu name="Γενικά" url="about.html">
+		<menu name="Τι κάνει το πρόγραμμα" url="about.html#what" />
+		<menu name="Περί του Προγραμματιστή" url="about.html#who" />
+		<menu name="Απαιτήσεις" url="about.html#requirements" />
+		<menu name="Το ανέκδοτο του προγράμματος" url="about.html#lol" />
+	</menu>
+	<menu name="Άδεια Χρήσης" url="license.html">
+		<menu name="Άδεια χρήσης" url="license.html#license" />
+		<menu name="BSD (Αγγλικά)" url="license.html#bsd_en" />
+		<menu name="BSD (Ελληνικά)" url="license.html#bsd_gr" />
+	</menu>
+	<menu name="Διάφορα" url="general.html">
+		<menu name="Το παράθυρο σφαλμάτων του PHP" url="general.html#log" />
+		<menu name="Οι πίνακες" url="general.html#tables" />
+		<menu name="Εκκίνηση και τερματισμός" url="general.html#run_close">
+			<menu name="Εκκίνηση" url="general.html#run" />
+			<menu name="Τερματισμός και αυτόματη αποθήκευση" url="general.html#close" />
+		</menu>
+		<menu name="Γραμμή εντολών" url="general.html#commandline" />
+		<menu name="Επικοινωνία" url="general.html#contactus" />
+	</menu>
+	<menu name="Καρτέλες" url="tabs.html">
+		<menu name="Στοιχεία δαπάνης" url="tabs.html#cost">
+			<menu name="Κοινές δαπάνες" url="tabs.html#costtypical" />
+			<menu name="Δαπάνες έργων" url="tabs.html#costworks" />
+			<menu name="Διαγωνισμοί" url="tabs.html#costcontest" />
+			<menu name="Αμετάβλητα στοιχεία" url="tabs.html#coststatic" />
+		</menu>
+		<menu name="Τιμολόγια" url="tabs.html#bills">
+			<menu name="Λίστα τιμολογίων" url="tabs.html#billsbills" />
+			<menu name="Λίστα ειδών" url="tabs.html#billsitems" />
+			<menu name="Λίστα παρατήρησης" url="tabs.html#billswatch" />
+		</menu>
+		<menu name="Φύλλο καταχώρησης" url="tabs.html#contents" />
+		<menu name="Εργασίες" url="tabs.html#works">
+			<menu name="Λίστα εργασιών" url="tabs.html#worksworks" />
+			<menu name="Λίστα υλικών" url="tabs.html#worksitems" />
+		</menu>
+		<menu name="Αμετάβλητα στοιχεία" url="tabs.html#static" />
+		<menu name="Προμηθευτές" url="tabs.html#provider" />
+		<menu name="Κρατήσεις" url="tabs.html#hold" />
+		<menu name="Προσωπικό μονάδας" url="tabs.html#personel" />
+	</menu>
+	<menu name="Menus" url="menus.html">
+		<menu name="Αρχείο" url="menus.html#file" />
+		<menu name="Εξαγωγή" url="menus.html#export" />
+		<menu name="Ρυθμίσεις" url="menus.html#options" />
+		<menu name="Δαπάνες" url="menus.html#costs" />
+		<menu name="Βοήθεια" url="menus.html#help" />
+	</menu>
+</menu>

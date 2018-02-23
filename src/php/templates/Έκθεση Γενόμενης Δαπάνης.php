@@ -31,8 +31,7 @@ $c2 = ob_get_clean();
 
 \pard\plain\trowd\fs21\trqr\trautofit1
 \clftsWidth1\clNoWrap\cellx2948
-\b ΣΧΗΜ. \ul <?=chk(getBrigate($data['ΓραφείοΣχηματισμού']))?>\ul0\line
-ΜΟΝΑΔΑ \ul <?=chk($data['ΣύντμησηΜονάδας'])?>\ul0\b0\line
+\b ΜΟΝΑΔΑ \ul <?=chk($data['ΣύντμησηΜονάδας'])?>\ul0\b0\line
 <? $a = explode(' ', ($prereport ? now() : $data['ΗμερομηνίαΤελευταίουΤιμολογίου'])); ?>
 Μήνας \ul <?=$a[1]?>\ul0\line
 Χρήση \ul <?=$a[2]?>\ul0\line

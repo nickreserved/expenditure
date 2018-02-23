@@ -28,9 +28,9 @@ import java.net.Socket;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.TreeMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -59,10 +59,10 @@ final public class MainFrame extends JFrame implements ActionListener {
 	static protected IteratorHashObject costs;
 	static protected MainFrame ths;
 	static protected CostWizardDialog cwf;
-	static private final String VERSION = "1.7.1";
+	static private final String VERSION = "25 Φεβ 2018";
 	
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες " + VERSION);
+		super("Στρατιωτικές Δαπάνες");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		// Πρέπει να δημιουργηθούν πρώτα!
@@ -573,9 +573,8 @@ final public class MainFrame extends JFrame implements ActionListener {
 				"<font size=3>Έκδοση " + VERSION + "</font></b></center><br>" +
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
-				"Δημοσίευση: <b>3 Ιαν 18</b><br>" +
-				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
-				"<center>Το Πρόγραμμα είναι 13 χρονών!</center>",
+				"Σελίδα: <b>http://ha-expenditure.sourceforge.net/</b><br><br>" +
+				"<center>Το Πρόγραμμα είναι 14 χρονών!</center>",
 				getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
 		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο
