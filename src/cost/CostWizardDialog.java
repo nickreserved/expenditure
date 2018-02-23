@@ -17,7 +17,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class CostWizardDialog extends JDialog implements ActionListener, DocumentListener {
+final public class CostWizardDialog extends JDialog implements ActionListener, DocumentListener {
 
 	public CostWizardDialog(Window w) {
 		super(w, "Οδηγός Τιμολογίου");
@@ -124,7 +124,7 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 				case 1 /*Δημόσιο*/:
 					switch(idxProvider) {
 						case 0 /*Ιδιώτης*/:
-							if (valueprovider < 2500) hold = 4.096; else { hold = 4.15816; agreement = true; }
+							if (valueprovider < 2500) hold = 4.15816; else { hold = 4.22032; agreement = true; }
 							break;
 						case 1 /*Στρατός*/:
 						case 2 /*Δημόσιο*/:
@@ -183,7 +183,7 @@ public class CostWizardDialog extends JDialog implements ActionListener, Documen
 			
 			tpInfo.setText(text);
 		} catch(NumberFormatException e) {
-			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/60/918814/Σ.5965/2 Σεπ 16/ΓΕΣ/ΔΟΙ/3α.");
+			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/60/918814/Σ.5965/2 Σεπ 16/ΓΕΣ/ΔΟΙ/3α και ΚΥΑ 1191/14 Μαι 17 (ΦΕΚ Β' 969).");
 		}
 	}
 }

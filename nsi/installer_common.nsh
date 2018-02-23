@@ -1,8 +1,8 @@
-ο»Ώ# -------------------------------------------------------------- definitions ---
-!define PROGRAM "Ξ£Ο„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΞ­Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚"
+# -------------------------------------------------------------- definitions ---
+!define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
 !define VERSION "1.6.7"
-!define ME "Ξ“ΞΊΞ­ΟƒΞΏΟ‚ Ξ Ξ±ΟΞ»ΞΏΟ‚ (Ξ£.Ξ£.Ξ•. 2002)"
+!define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_VERSION "1.8"
 !define PHP_VERSION "5.6.15"
 !define VER1 0x00050006
@@ -12,7 +12,7 @@
 
 # ------------------------------------------------------------------ general ---
 Name "${PROGRAM} ${VERSION}"
-InstallDir "$PROGRAMFILES\Ξ£Ο„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΞ­Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚"
+InstallDir "$PROGRAMFILES\Στρατιωτικές Δαπάνες"
 InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString"
 Icon "..\cost.ico"
 UninstallIcon "..\cost.ico"
@@ -28,7 +28,7 @@ UninstPage instfiles
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Greek.nlf"
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey /LANG=${LANG_GREEK} "ProductName" "${PROGRAM}"
-VIAddVersionKey /LANG=${LANG_GREEK} "FileDescription" "Ξ ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ξ³ΞΉΞ± ΟƒΟΞ½Ο„Ξ±ΞΎΞ· Ξ΄ΞΉΞΊΞ±ΞΉΞΏΞ»ΞΏΞ³Ξ·Ο„ΞΉΞΊΟΞ½ ΟƒΟ„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΟΞ½ Ξ΄Ξ±Ο€Ξ±Ξ½ΟΞ½"
+VIAddVersionKey /LANG=${LANG_GREEK} "FileDescription" "Πρόγραμμα για σύνταξη δικαιολογητικών στρατιωτικών δαπανών"
 VIAddVersionKey /LANG=${LANG_GREEK} "LegalCopyright" "${ME}"
 VIAddVersionKey /LANG=${LANG_GREEK} "FileVersion" "${VERSION}"
 
@@ -50,23 +50,23 @@ Section
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoRepair" 1
 	WriteUninstaller "uninstall.exe"
 
-	WriteRegStr HKLM "Software\Classes\.cost" "" "Ξ‘ΟΟ‡ΞµΞ―ΞΏ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚"
+	WriteRegStr HKLM "Software\Classes\.cost" "" "Αρχείο δαπάνης"
 	WriteRegStr HKLM "Software\Classes\.cost\DefaultIcon" "" "$INSTDIR\cost.ico"
-	WriteRegStr HKLM "Software\Classes\.cost\Shell" "" "Ξ¬Ξ½ΞΏΞΉΞ³ΞΌΞ±"
-	WriteRegStr HKLM "Software\Classes\.cost\Shell\Ξ¬Ξ½ΞΏΞΉΞ³ΞΌΞ±\Command" "" '"$0" -jar "$INSTDIR\cost.jar" "%1"'
+	WriteRegStr HKLM "Software\Classes\.cost\Shell" "" "άνοιγμα"
+	WriteRegStr HKLM "Software\Classes\.cost\Shell\άνοιγμα\Command" "" '"$0" -jar "$INSTDIR\cost.jar" "%1"'
 
 SectionEnd
 
 # --------------------------------------------------------------- start menu ---
-Section 'Ξ£Ο…Ξ½Ο„ΞΏΞΌΞµΟΟƒΞµΞΉΟ‚ ΟƒΟ„ΞΏ ΞΌΞµΞ½ΞΏΟ "ΞΞ½Ξ±ΟΞΎΞ·"'
+Section 'Συντομεύσεις στο μενού "Έναρξη"'
 
-	#CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$0" "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Ξ ΟΟΞ³ΟΞ±ΞΌΞΌΞ± ΟƒΟ…Ξ½Ο„Ξ¬ΞΎΞµΟ‰Ο‚ ΟƒΟ„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΟΞ½ Ξ΄Ξ±Ο€Ξ±Ξ½ΟΞ½$\nΞΞΊΞ΄ΞΏΟƒΞ·: ${VERSION}$\nΞ ΟΞΏΞ³ΟΞ±ΞΌΞΌΞ±Ο„ΞΉΟƒΟ„Ξ®Ο‚: ${ME}$\nΞ†Ξ΄ΞµΞΉΞ± Ο‡ΟΞ®ΟƒΞ·Ο‚: BSD"
-	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$INSTDIR\cost.jar" "" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Ξ ΟΟΞ³ΟΞ±ΞΌΞΌΞ± ΟƒΟ…Ξ½Ο„Ξ¬ΞΎΞµΟ‰Ο‚ ΟƒΟ„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΟΞ½ Ξ΄Ξ±Ο€Ξ±Ξ½ΟΞ½$\nΞΞΊΞ΄ΞΏΟƒΞ·: ${VERSION}$\nΞ ΟΞΏΞ³ΟΞ±ΞΌΞΌΞ±Ο„ΞΉΟƒΟ„Ξ®Ο‚: ${ME}$\nΞ†Ξ΄ΞµΞΉΞ± Ο‡ΟΞ®ΟƒΞ·Ο‚: BSD"
+	#CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$0" "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
+	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$INSTDIR\cost.jar" "" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
 
 SectionEnd
 
 # -------------------------------------------------------------- source code ---
-Section /o 'Ξ Ξ·Ξ³Ξ±Ξ―ΞΏΟ‚ ΞΟΞ΄ΞΉΞΊΞ±Ο‚'
+Section /o 'Πηγαίος Κώδικας'
 
 	SetOutPath "$INSTDIR\source"
 
@@ -78,7 +78,7 @@ Section /o 'Ξ Ξ·Ξ³Ξ±Ξ―ΞΏΟ‚ ΞΟΞ΄ΞΉΞΊΞ±Ο‚'
 SectionEnd
 
 # --------------------------------------------------------------------- help ---
-Section 'Ξ’ΞΏΞ®ΞΈΞµΞΉΞ±'
+Section 'Βοήθεια'
 
 	SetOutPath $INSTDIR
 
@@ -96,7 +96,7 @@ Section "Uninstall"
 	DeleteRegKey HKCR ".cost"
 
 	IfFileExists $PROFILE\cost.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Ξ£Ο„ΞΏ Ξ±ΟΟ‡ΞµΞ―ΞΏ cost.ini Ο†Ο…Ξ»Ξ¬Ξ³ΞΏΞ½Ο„Ξ±ΞΉ ΟΞ»Ξ± Ο„Ξ± Ξ΄ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ± Ο„ΞΏΟ… Ο€ΟΞΏΞ³ΟΞ¬ΞΌΞΌΞ±Ο„ΞΏΟ‚.$\nΞ”ΞµΞ½ Ο€ΟΞΏΟ„ΞµΞ―Ξ½ΞµΟ„Ξ±ΞΉ Ξ½Ξ± Ο„ΞΏ Ξ΄ΞΉΞ±Ξ³ΟΞ¬ΟΞµΟ„Ξµ.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ Ξ΄ΞΉΞ±Ξ³ΟΞ¬ΟΟ‰;" IDNO +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο αρχείο cost.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +2
 	Delete $PROFILE\cost.ini
 	RMDir /r $INSTDIR
 

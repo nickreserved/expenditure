@@ -1,4 +1,4 @@
-ο»Ώ!include installer_common.nsh
+!include installer_common.nsh
 !include functions.nsh
 
 OutFile "..\cost_${VERSION}.exe"
@@ -13,7 +13,7 @@ Function .onInit
 	ExecWait '"$EXEDIR\php_cli.exe" /S'
 	Goto phpend
 	IntCmp  0 $0 0 phpend
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Ξ“ΞΉΞ± Ξ½Ξ± Ξ»ΞµΞΉΟ„ΞΏΟ…ΟΞ³Ξ®ΟƒΞµΞΉ Ο„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ±$\nΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΞΏ PHP Command Line Interpreter.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΟΟΞ±;" IDNO +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Για να λειτουργήσει το πρόγραμμα πρέπει να$\nκατεβάσετε το PHP Command Line Interpreter.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +2
 	ExecShell "open" "${PHP_RE_URL}"
 	Abort
 phpend:
@@ -42,9 +42,9 @@ java64:
 	Goto javaexists
 
 javaoldexists:
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "ΞΟ‡ΞµΟ„Ξµ ΞµΞ³ΞΊΞ±Ο„ΞµΟƒΟ„Ξ·ΞΌΞ­Ξ½ΞΏ Ο„ΞΏ Java Runtime Environment $1$\nΞΊΞ±ΞΉ Ο„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ― Ο„ΞΏ ${JAVA_VERSION} ΞΊΞ±ΞΉ Ο€Ξ¬Ξ½Ο‰.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΟΟΞ±;" IDNO +3 IDYES +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Έχετε εγκατεστημένο το Java Runtime Environment $1$\nκαι το πρόγραμμα απαιτεί το ${JAVA_VERSION} και πάνω.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +3 IDYES +2
 javanotexist:
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Ξ“ΞΉΞ± Ξ½Ξ± Ξ»ΞµΞΉΟ„ΞΏΟ…ΟΞ³Ξ®ΟƒΞµΞΉ Ο„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ο€ΟΞ­Ο€ΞµΞΉ$\nΞ½Ξ± ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΞΏ Java Runtime Environment ${JAVA_VERSION}.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΟΟΞ±;" IDNO +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Για να λειτουργήσει το πρόγραμμα πρέπει$\nνα κατεβάσετε το Java Runtime Environment ${JAVA_VERSION}.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +2
 	ExecShell "open" "${JAVA_RE_URL}"
 	Abort
 javaexists:

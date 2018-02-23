@@ -59,7 +59,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected CostWizardDialog cwf;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.6.7");
+		super("Στρατιωτικές Δαπάνες 1.6.7b");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		// Πρέπει να δημιουργηθούν πρώτα!
@@ -552,12 +552,12 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this,
 				"<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br>" +
-				"<font size=3>Έκδοση 1.6.7</font></b></center><br>" +
+				"<font size=3>Έκδοση 1.6.7b</font></b></center><br>" +
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
-				"Δημοσίευση: <b>17 Σεπ 16</b><br>" +
+				"Δημοσίευση: <b>11 Ιουλ 17</b><br>" +
 				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
-				"<center>Το Πρόγραμμα είναι 12 χρονών!</center>",
+				"<center>Το Πρόγραμμα είναι 13 χρονών!</center>",
 				getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
 		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο

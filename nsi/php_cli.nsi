@@ -1,9 +1,9 @@
-ο»Ώ!define PROGRAM "PHP Command Line Interpreter"
+!define PROGRAM "PHP Command Line Interpreter"
 !define SHORTNAME "PHP_cli"
 !define VERSION "5.6.15"
 !define VER1 0x00050006
 !define VER2 0x000F0000
-!define ΞΞ• "http://www.php.net"
+!define ΜΕ "http://www.php.net"
 !define VCREDIST_URL "http://www.microsoft.com/en-us/download/details.aspx?id=30679"
 
 Name "${PROGRAM} ${VERSION}"
@@ -12,7 +12,7 @@ OutFile "..\php_cli.exe"
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "${PROGRAM}"
 VIAddVersionKey "FileDescription" "The Command Line Interpreter for PHP Scripts"
-VIAddVersionKey "LegalCopyright" "${ΞΞ•}"
+VIAddVersionKey "LegalCopyright" "${ΜΕ}"
 VIAddVersionKey "FileVersion" "${VERSION}"
 
 
@@ -38,7 +38,7 @@ Function .onInit
 	Goto redistexist
 
 redistdownload:
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Ξ“ΞΉΞ± Ξ½Ξ± Ξ»ΞµΞΉΟ„ΞΏΟ…ΟΞ³Ξ®ΟƒΞµΞΉ Ο„ΞΏ PHP Command Line Interpreter$\nΟ€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ ΞΊΞ±ΞΉ ΞµΞ³ΞΊΞ±Ο„Ξ±ΟƒΟ„Ξ®ΟƒΞµΟ„Ξµ$\nΟ„ΞΏ Microsoft Visual C++ 2012 Redistributable.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΟΟΞ±;" /SD IDNO IDNO redistabort
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Για να λειτουργήσει το PHP Command Line Interpreter$\nπρέπει να κατεβάσετε και εγκαταστήσετε$\nτο Microsoft Visual C++ 2012 Redistributable.$\nΘέλετε να το κατεβάσετε τώρα;" /SD IDNO IDNO redistabort
 	ExecShell "open" "${VCREDIST_URL}"
 	Abort
 
@@ -53,7 +53,7 @@ FunctionEnd
 Section
 	Call PHPstatus
 	IntCmp $0 2 0 phpinstall phpend
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Ξ’ΟΞ­ΞΈΞ·ΞΊΞµ Ξ· Ξ­ΞΊΞ΄ΞΏΟƒΞ· PHP Command Line Interpreter $1 ΞΊΞ±ΞΉ ΞΌΟ€ΞΏΟΞµΞ― Ξ½Ξ± Ξ³Ξ―Ξ½ΞµΞΉ Ξ±Ξ½Ξ±Ξ²Ξ¬ΞΈΞΌΞΉΟƒΞ· ΟƒΟ„Ξ·Ξ½ Ξ­ΞΊΞ΄ΞΏΟƒΞ· ${VERSION}.$\n$\nΞ©ΟƒΟ„ΟΟƒΞΏ Ο…Ο€Ξ¬ΟΟ‡ΞµΞΉ Ο…Ο€ΞΏΟΞ―Ξ± ΟΟ„ΞΉ Ξ· Ο€Ξ±Ξ»Ξ±ΞΉΟΟ„ΞµΟΞ· Ξ­ΞΊΞ΄ΞΏΟƒΞ· Ο‡ΟΞ·ΟƒΞΉΞΌΞΏΟ€ΞΏΞΉΞµΞ―Ο„Ξ±ΞΉ Ξ±Ο€Ο ΞΊΞ¬Ο€ΞΏΞΉΞΏ web server. Ξ‘Ξ½ ΞΉΟƒΟ‡ΟΞµΞΉ ΞΊΞ¬Ο„ΞΉ Ο„Ξ­Ο„ΞΏΞΉΞΏ, ΞΌΞ·Ξ½ Ο€ΟΞΏΟ‡Ο‰ΟΞ®ΟƒΞµΟ„Ξµ ΟƒΞµ Ξ±Ξ½Ξ±Ξ²Ξ¬ΞΈΞΌΞΉΟƒΞ·.$\n$\nΞ‘Ξ½ Ο€Ξ¬Ξ»ΞΉ ΞΏ Ο…Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΟ„Ξ®Ο‚ Ξ±Ο…Ο„ΟΟ‚ Ο‡ΟΞ·ΟƒΞΉΞΌΞΏΟ€ΞΏΞΉΞµΞ―Ο„Ξ±ΞΉ ΞΞΞΞ Ξ±Ο€Ο ΞµΟƒΞ¬Ο‚ ΞΊΞ±ΞΉ Ξ΄ΞµΞ½ Ξ­Ο‡ΞµΟ„Ξµ ΞµΞ³ΞΊΞ±Ο„Ξ±ΟƒΟ„Ξ®ΟƒΞµΞΉ ΞΊΞ¬Ο€ΞΏΞΉΞΏ web server Ξ® Ξ΄ΞµΞ½ ΞΊΞ±Ο„Ξ±Ξ»Ξ±Ξ²Ξ±Ξ―Ξ½ΞµΟ„Ξµ Ο„Ξ―Ο€ΞΏΟ„Ξ± Ξ±Ο€Ο Ξ±Ο…Ο„Ξ¬, Ο€ΟΞΏΟ‡Ο‰ΟΞ®ΟƒΟ„Ξµ ΟƒΞµ Ξ±Ξ½Ξ±Ξ²Ξ¬ΞΈΞΌΞΉΟƒΞ· Ο„ΞΏΟ… PHP ΟƒΟ„Ξ·Ξ½ Ξ­ΞΊΞ΄ΞΏΟƒΞ· ${VERSION}.$\n$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ Ξ±Ξ½Ξ±Ξ²Ξ±ΞΈΞΌΞ―ΟƒΞµΟ„Ξµ;" /SD IDNO IDNO phpend
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Βρέθηκε η έκδοση PHP Command Line Interpreter $1 και μπορεί να γίνει αναβάθμιση στην έκδοση ${VERSION}.$\n$\nΩστόσο υπάρχει υποψία ότι η παλαιότερη έκδοση χρησιμοποιείται από κάποιο web server. Αν ισχύει κάτι τέτοιο, μην προχωρήσετε σε αναβάθμιση.$\n$\nΑν πάλι ο υπολογιστής αυτός χρησιμοποιείται ΜΟΝΟ από εσάς και δεν έχετε εγκαταστήσει κάποιο web server ή δεν καταλαβαίνετε τίποτα από αυτά, προχωρήστε σε αναβάθμιση του PHP στην έκδοση ${VERSION}.$\n$\nΘέλετε να το αναβαθμίσετε;" /SD IDNO IDNO phpend
 
 phpinstall:
 	SetOutPath $WINDIR
