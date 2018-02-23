@@ -1,8 +1,8 @@
-# -------------------------------------------------------------- definitions ---
-!define PROGRAM "Στρατιωτικές Δαπάνες"
+ο»Ώ# -------------------------------------------------------------- definitions ---
+!define PROGRAM "Ξ£Ο„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΞ­Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚"
 !define SHORTNAME "Cost"
-!define VERSION "1.4.5"
-!define ME "Υπλγος(ΜΧ) Γκέσος Παύλος"
+!define VERSION "1.4.6"
+!define ME "Ξ¥Ο€Ξ»Ξ³ΞΏΟ‚(ΞΞ§) Ξ“ΞΊΞ­ΟƒΞΏΟ‚ Ξ Ξ±ΟΞ»ΞΏΟ‚"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"
 !define PHP_RE_URL "http://programs.agiasofia.gr/cost/program/php_cli.exe"
@@ -10,7 +10,7 @@
 # ------------------------------------------------------------------ general ---
 Name "${PROGRAM} ${VERSION}"
 OutFile "..\cost_${VERSION}.exe"
-InstallDir "$PROGRAMFILES\Στρατιωτικές Δαπάνες"
+InstallDir "$PROGRAMFILES\Ξ£Ο„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΞ­Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚"
 InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString"
 Icon "..\cost.ico"
 UninstallIcon "..\cost.ico"
@@ -26,8 +26,8 @@ UninstPage instfiles
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\Greek.nlf"
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey /LANG=${LANG_GREEK} "ProductName" "${PROGRAM}"
-VIAddVersionKey /LANG=${LANG_GREEK} "FileDescription" "Πρόγραμμα για σύνταξη δικαιολογητικών στρατιωτικών δαπανών"
-VIAddVersionKey /LANG=${LANG_GREEK} "LegalCopyright" "${ΜΕ}"
+VIAddVersionKey /LANG=${LANG_GREEK} "FileDescription" "Ξ ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ξ³ΞΉΞ± ΟƒΟΞ½Ο„Ξ±ΞΎΞ· Ξ΄ΞΉΞΊΞ±ΞΉΞΏΞ»ΞΏΞ³Ξ·Ο„ΞΉΞΊΟΞ½ ΟƒΟ„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΟΞ½ Ξ΄Ξ±Ο€Ξ±Ξ½ΟΞ½"
+VIAddVersionKey /LANG=${LANG_GREEK} "LegalCopyright" "${ΞΞ•}"
 VIAddVersionKey /LANG=${LANG_GREEK} "FileVersion" "${VERSION}"
 
 # ----------------------------------------------------- check for php & java ---
@@ -38,7 +38,7 @@ Function .onInit
 	IfFileExists $EXEDIR\php_cli.exe 0 +3
 	ExecWait '"$EXEDIR\php_cli.exe" /S'
 	Goto phpexists
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Για να λειτουργήσει το πρόγραμμα πρέπει να$\nκατεβάσετε το PHP Command Line Interpreter.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Ξ“ΞΉΞ± Ξ½Ξ± Ξ»ΞµΞΉΟ„ΞΏΟ…ΟΞ³Ξ®ΟƒΞµΞΉ Ο„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ±$\nΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΞΏ PHP Command Line Interpreter.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΟΟΞ±;" IDNO +2
 	ExecShell "open" "${PHP_RE_URL}"
 	Abort
 phpexists:
@@ -56,9 +56,9 @@ phpexists:
 	Goto javaexists
 
 javaoldexists:
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Έχετε εγκατεστημένο το Java Runtime Environment $1$\nκαι το πρόγραμμα απαιτεί το ${JAVA_VERSION} και πάνω.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +3 IDYES +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "ΞΟ‡ΞµΟ„Ξµ ΞµΞ³ΞΊΞ±Ο„ΞµΟƒΟ„Ξ·ΞΌΞ­Ξ½ΞΏ Ο„ΞΏ Java Runtime Environment $1$\nΞΊΞ±ΞΉ Ο„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ― Ο„ΞΏ ${JAVA_VERSION} ΞΊΞ±ΞΉ Ο€Ξ¬Ξ½Ο‰.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΟΟΞ±;" IDNO +3 IDYES +2
 javanotexist:
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Για να λειτουργήσει το πρόγραμμα πρέπει$\nνα κατεβάσετε το Java Runtime Environment ${JAVA_VERSION}.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Ξ“ΞΉΞ± Ξ½Ξ± Ξ»ΞµΞΉΟ„ΞΏΟ…ΟΞ³Ξ®ΟƒΞµΞΉ Ο„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ο€ΟΞ­Ο€ΞµΞΉ$\nΞ½Ξ± ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΞΏ Java Runtime Environment ${JAVA_VERSION}.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ ΞΊΞ±Ο„ΞµΞ²Ξ¬ΟƒΞµΟ„Ξµ Ο„ΟΟΞ±;" IDNO +2
 	ExecShell "open" "${JAVA_RE_URL}"
 	Abort
 javaexists:
@@ -76,7 +76,7 @@ Section
 	File ..\cost.ico
 
 	IfFileExists $INSTDIR\main.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο φάκελο εγκατάστασης βρέθηκε το παλιό σας αρχείο main.ini$\nΔεν προτείνεται να το διαγράψετε$\nΘέλετε να το διαγράψω;" IDNO +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Ξ£Ο„ΞΏ Ο†Ξ¬ΞΊΞµΞ»ΞΏ ΞµΞ³ΞΊΞ±Ο„Ξ¬ΟƒΟ„Ξ±ΟƒΞ·Ο‚ Ξ²ΟΞ­ΞΈΞ·ΞΊΞµ Ο„ΞΏ Ο€Ξ±Ξ»ΞΉΟ ΟƒΞ±Ο‚ Ξ±ΟΟ‡ΞµΞ―ΞΏ main.ini$\nΞ”ΞµΞ½ Ο€ΟΞΏΟ„ΞµΞ―Ξ½ΞµΟ„Ξ±ΞΉ Ξ½Ξ± Ο„ΞΏ Ξ΄ΞΉΞ±Ξ³ΟΞ¬ΟΞµΟ„Ξµ$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ Ξ΄ΞΉΞ±Ξ³ΟΞ¬ΟΟ‰;" IDNO +2
 	File ..\dist\main.ini
 
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayName" "${PROGRAM}"
@@ -86,22 +86,22 @@ Section
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoRepair" 1
 	WriteUninstaller "uninstall.exe"
 
-	WriteRegStr HKCR ".cost" "" "Αρχείο δαπάνης"
+	WriteRegStr HKCR ".cost" "" "Ξ‘ΟΟ‡ΞµΞ―ΞΏ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚"
 	WriteRegStr HKCR ".cost\DefaultIcon" "" "$INSTDIR\cost.ico"
-	WriteRegStr HKCR ".cost\Shell" "" "άνοιγμα"
-	WriteRegStr HKCR ".cost\Shell\άνοιγμα\Command" "" '"$0" -jar "$INSTDIR\cost.jar" "%1"'
+	WriteRegStr HKCR ".cost\Shell" "" "Ξ¬Ξ½ΞΏΞΉΞ³ΞΌΞ±"
+	WriteRegStr HKCR ".cost\Shell\Ξ¬Ξ½ΞΏΞΉΞ³ΞΌΞ±\Command" "" '"$0" -jar "$INSTDIR\cost.jar" "%1"'
 
 SectionEnd
 
 # --------------------------------------------------------------- start menu ---
-Section 'Συντομεύσεις στο μενού "Έναρξη"'
+Section 'Ξ£Ο…Ξ½Ο„ΞΏΞΌΞµΟΟƒΞµΞΉΟ‚ ΟƒΟ„ΞΏ ΞΌΞµΞ½ΞΏΟ "ΞΞ½Ξ±ΟΞΎΞ·"'
 
-	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" $SYSDIR\javaw.exe "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
+	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" $SYSDIR\javaw.exe "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Ξ ΟΟΞ³ΟΞ±ΞΌΞΌΞ± ΟƒΟ…Ξ½Ο„Ξ¬ΞΎΞµΟ‰Ο‚ ΟƒΟ„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΟΞ½ Ξ΄Ξ±Ο€Ξ±Ξ½ΟΞ½$\nΞΞΊΞ΄ΞΏΟƒΞ·: ${VERSION}$\nΞ ΟΞΏΞ³ΟΞ±ΞΌΞΌΞ±Ο„ΞΉΟƒΟ„Ξ®Ο‚: ${ME}$\nΞ†Ξ΄ΞµΞΉΞ± Ο‡ΟΞ®ΟƒΞ·Ο‚: BSD"
 
 SectionEnd
 
 # -------------------------------------------------------------- source code ---
-Section /o 'Πηγαίος Κώδικας'
+Section /o 'Ξ Ξ·Ξ³Ξ±Ξ―ΞΏΟ‚ ΞΟΞ΄ΞΉΞΊΞ±Ο‚'
 
 	SetOutPath "$INSTDIR\source"
 
@@ -114,7 +114,7 @@ Section /o 'Πηγαίος Κώδικας'
 SectionEnd
 
 # --------------------------------------------------------------------- help ---
-Section 'Βοήθεια'
+Section 'Ξ’ΞΏΞ®ΞΈΞµΞΉΞ±'
 
 	SetOutPath $INSTDIR
 
@@ -123,7 +123,7 @@ Section 'Βοήθεια'
 SectionEnd
 
 # ------------------------------------------------------------------ scripts ---
-Section 'Χρήσιμα Scripts'
+Section 'Ξ§ΟΞ®ΟƒΞΉΞΌΞ± Scripts'
 
 	SetOutPath $INSTDIR
 
@@ -140,7 +140,7 @@ Section "Uninstall"
 	DeleteRegKey HKCR ".cost"
 
 	IfFileExists $INSTDIR\main.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο αρχείο main.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +3
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Ξ£Ο„ΞΏ Ξ±ΟΟ‡ΞµΞ―ΞΏ main.ini Ο†Ο…Ξ»Ξ¬Ξ³ΞΏΞ½Ο„Ξ±ΞΉ ΟΞ»Ξ± Ο„Ξ± Ξ΄ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ± Ο„ΞΏΟ… Ο€ΟΞΏΞ³ΟΞ¬ΞΌΞΌΞ±Ο„ΞΏΟ‚.$\nΞ”ΞµΞ½ Ο€ΟΞΏΟ„ΞµΞ―Ξ½ΞµΟ„Ξ±ΞΉ Ξ½Ξ± Ο„ΞΏ Ξ΄ΞΉΞ±Ξ³ΟΞ¬ΟΞµΟ„Ξµ.$\nΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΏ Ξ΄ΞΉΞ±Ξ³ΟΞ¬ΟΟ‰;" IDNO +3
 	RMDir /r $INSTDIR
 	Goto end
 

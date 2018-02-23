@@ -179,14 +179,14 @@ function getBrigate($a) {
 
 // Επιστρέφει array με τις εφημερίδες
 function getNewspapers($a) {
-	$a = split('[ ]{0,},[ ]{0,}', $a);
+	$a = preg_split("/([ ]*,[ ]*)/", $a);
 	foreach($a as & $v)
 		$v = 'Εφημερίδα «' . toUppercase($v) . '»';
 	return $a;
 }
 
 function getDates($a) {
-	$a = split('[ ]{0,},[ ]{0,}', $a);
+	$a = preg_split("/([ ]*,[ ]*)/", $a);
 	if (count($a) == 1) return chk_date($a[0]);
 	$b = null;
 	for ($z = 0; $z < count($a) - 1; $z++)
@@ -262,13 +262,13 @@ function wordInflection($o, $w) {
 function now($a = null) { return strftime('%d %b %Y', $a == null ? time() : $a); }
 
 
-// returns the greek enumeration system for numbers 1 to 89
-// not over 89 because 90 is a non printable character
+// returns the greek enumeration system for numbers 1 to 999
 function countGreek($n) {
-	if ($n < 1 || $n > 89) trigger_error("Για να μεταφραστεί το '<b>$n</b>' σε ελληνική αρίθμηση πρέπει να είναι ακέραιος και να ανήκει στο [1, 89]");
+	if ($n < 1 || $n > 999) trigger_error("Για να μεταφραστεί το '<b>$n</b>' σε ελληνική αρίθμηση πρέπει να είναι ακέραιος και να ανήκει στο [1, 999]");
 	static $m = array(null, 'α', 'β', 'γ', 'δ', 'ε', 'στ', 'ζ', 'η', 'θ');
-	static $d = array(null, 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π');
-	return $d[floor($n / 10)] . $m[$n % 10];
+	static $d = array(null, 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', '\u991 ');
+	static $e = array(null, 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω', '\u993 ');
+	return $e[floor($n / 100)] . $d[floor($n / 10)] . $m[$n % 10];
 }
 
 

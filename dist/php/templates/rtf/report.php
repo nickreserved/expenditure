@@ -14,7 +14,7 @@ if (!$bills_hold_all) trigger_error('Δεν υπάρχουν τιμολόγια', E_USER_ERROR);
 \clftsWidth1\clNoWrap\cellx2948
 \b ΣΧΗΜ. \ul <?=chk(getBrigate($data['ΓραφείοΣχηματισμού']))?>\ul0\line
 ΜΟΝΑΔΑ \ul <?=chk($data['ΣύντμησηΜονάδας'])?>\ul0\b0\line
-<? $a = split(' ', ($prereport ? now() : $data['ΗμερομηνίαΤελευταίουΤιμολογίου'])); ?>
+<? $a = explode(' ', ($prereport ? now() : $data['ΗμερομηνίαΤελευταίουΤιμολογίου'])); ?>
 Μήνας \ul <?=$a[1]?>\ul0\line
 Χρήση \ul <?=$a[2]?>\ul0\line
 Φορέας \ul <?=chk($data['ΕΦ'])?>\ul0\line

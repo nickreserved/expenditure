@@ -1,6 +1,6 @@
 !define PROGRAM "PHP Command Line Interpreter"
 !define SHORTNAME "PHP_cli"
-!define VERSION "5.2.6.6"
+!define VERSION "5.3.2.0"
 !define ле "http://www.php.net"
 
 

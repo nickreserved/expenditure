@@ -1,6 +1,7 @@
 <?
 
 set_time_limit(10);
+date_default_timezone_set('Europe/Athens');
 require_once('unserialize.php');
 require_once('contents.php');
 
@@ -9,7 +10,7 @@ function errorHandler($errno, $str, $file, $line)
 	if ($errno == E_STRICT) return;
 
 	// Εμφάνιση του αρχείου όσο γίνεται πιο ανθρώπινα
-	$file = split('[\/]', $file);
+	$file = preg_split("/[\\/]/", $file);
 	$a = count($file) - 2;
 	$path = $file[$a];
 	$file = $file[++$a];

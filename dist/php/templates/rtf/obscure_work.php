@@ -18,10 +18,11 @@ if ($data['ΤύποςΔαπάνης'] == 'Προμήθεια - Συντήρηση - Επισκευή') trigger_error('
 
 \pard\trowd\trhdr\fs23\trautofit1\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx567
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx7540
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx8787
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx6064
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx7311
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx8730
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx10206
-\qc\b A/A\cell ΕΡΓΑΣΙΑ\cell ΜΟΝΑΔΑ\cell ΠΟΣΟΤΗΤΑ\b0\cell\row<?
+\qc\b A/A\cell ΕΡΓΑΣΙΑ\cell ΜΟΝΑΔΑ\cell ΠΟΣΟΤΗΤΑ\cell ΥΠΟΓΡΑΦΗ\b0\cell\row<?
 $count = 0;
 foreach($data['Εργασίες'] as $v) {
 	?>\qr <?=++$count?>\cell\qj <?=chk($v['Εργασία'])?>\cell\qc <?=chk_measure($v['ΜονάδαMέτρησης'])?>\cell <?=num($v['Ποσότητα'])?>\cell\row<?
