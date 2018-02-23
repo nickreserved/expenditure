@@ -1,12 +1,12 @@
 package common;
 
-import java.util.*;
+import java.util.TreeMap;
 
-public class HashObject extends HashMap<String, Object> implements Saveable, PhpSerialize {
+public class HashObject<V> extends TreeMap<String, V> implements Saveable, PhpSerialize {
 	@Override
-	public Object put(String key, Object value) {
+	public V put(String key, V value) {
 		if (value instanceof String) {
-			value = ((String) value).trim();
+			value = (V) ((String) value).trim();
 			if (value.equals("")) value = null;
 		}
 		if (value == null) return super.remove(key);
@@ -14,24 +14,19 @@ public class HashObject extends HashMap<String, Object> implements Saveable, Php
 	}
 
 	@Override
-	public String save() {
-		String s = "{\r\n";
-		Iterator<Map.Entry<String, Object>> it = entrySet().iterator();
-		while(it.hasNext()) {
-			Map.Entry<String, Object> e = it.next();
-			s += Functions.saveable(e.getKey(), e.getValue());
-		}
-		return s + "}";
+	public StringBuilder save(StringBuilder out) {
+		out.append("{\r\n");
+		entrySet().stream().forEach(i-> Saveable.save(out, i.getKey(), i.getValue()));
+		return out.append("}");
 	}
 
 	@Override
-	public String serialize() {
-		String s = "a:" + size() + ":{";
-		Iterator<Map.Entry<String, Object>> it = entrySet().iterator();
-		while(it.hasNext()) {
-			Map.Entry<String, Object> e = it.next();
-			s += Functions.phpSerialize(e.getKey()) + Functions.phpSerialize(e.getValue());
-		}
-		return s + "}";
+	public StringBuilder serialize(StringBuilder out) {
+		out.append("a:").append(size()).append(":{");
+		entrySet().stream().forEach(i -> {
+			PhpSerialize.serialize(out, i.getKey());
+			PhpSerialize.serialize(out, i.getValue());
+		});
+		return out.append("}");
 	}
 }

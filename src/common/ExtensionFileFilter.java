@@ -1,8 +1,9 @@
 package common;
 
-import java.io.*;
+import java.io.File;
+import javax.swing.filechooser.FileFilter;
 
-public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
+public class ExtensionFileFilter extends FileFilter {
 	String s = "";
 	String t = "";
 

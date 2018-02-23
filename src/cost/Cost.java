@@ -1,12 +1,13 @@
 package cost;
 
-import common.*;
+import common.HashString2Object;
+import common.VectorObject;
 
-public class Cost extends HashString2Object {
+final public class Cost extends HashString2Object {
 	public Cost() {
-		classes.put("Ποσό", Double.class);
-		put("Τιμολόγια", new VectorObject());
-		put("Εργασίες", new VectorObject());
-		put("ΕΦ", "11-200");
+		classes.put("Ξ ΞΏΟƒΟ", Double.class);
+		put("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ±", new VectorObject());
+		put("Ξ•ΟΞ³Ξ±ΟƒΞ―ΞµΟ‚", new VectorObject());
+		put("Ξ•Ξ¦", "11-200");
 	}
 }

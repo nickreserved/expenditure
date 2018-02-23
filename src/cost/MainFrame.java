@@ -1,16 +1,17 @@
 package cost;
 
 import common.ExtensionFileFilter;
-import common.Functions;
 import common.HashObject;
 import common.IteratorHashObject;
-import common.LoadSaveFile;
 import common.PhpScriptRunner;
 import common.Saveable;
 import common.TreeFileLoader;
+import static common.TreeFileLoader.loadFile;
+import static common.TreeFileLoader.loadResource;
 import common.VectorObject;
 import java.awt.AWTEvent;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
@@ -27,9 +28,10 @@ import java.net.Socket;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javax.swing.ButtonGroup;
@@ -47,7 +49,7 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
-public class MainFrame extends JFrame implements ActionListener {
+final public class MainFrame extends JFrame implements ActionListener {
 	private static JMenuItem[] menu;
 
 	public static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -57,30 +59,31 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected IteratorHashObject costs;
 	static protected MainFrame ths;
 	static protected CostWizardDialog cwf;
-
+	static private final String VERSION = "1.7.0";
+	
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.6.7b");
+		super("Ξ£Ο„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΞ­Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚ " + VERSION);
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
-		// Πρέπει να δημιουργηθούν πρώτα!
+		// Ξ ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± Ξ΄Ξ·ΞΌΞΉΞΏΟ…ΟΞ³Ξ·ΞΈΞΏΟΞ½ Ο€ΟΟΟ„Ξ±!
 		Providers prov = new Providers();
 		Men men = new Men();
 		Holds holds = new Holds();
 		Contents contents = new Contents();
 
-		// Το tabbed panel πρέπει να είναι πρώτο στοιχείο της φορμας και
-		// οι Εργασίες το 4ο στοιχείο του tabbed panel.
-		// Ειδάλλως στο Bills θα έχουμε προβλήματα.
-		// Και στην ενεργοποίηση-απενεργοποίηση καρτελών όταν ανοίγει-κλείνει δαπάνη.
+		// Ξ¤ΞΏ tabbed panel Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± ΞµΞ―Ξ½Ξ±ΞΉ Ο€ΟΟΟ„ΞΏ ΟƒΟ„ΞΏΞΉΟ‡ΞµΞ―ΞΏ Ο„Ξ·Ο‚ Ο†ΞΏΟΞΌΞ±Ο‚ ΞΊΞ±ΞΉ
+		// ΞΏΞΉ Ξ•ΟΞ³Ξ±ΟƒΞ―ΞµΟ‚ Ο„ΞΏ 4ΞΏ ΟƒΟ„ΞΏΞΉΟ‡ΞµΞ―ΞΏ Ο„ΞΏΟ… tabbed panel.
+		// Ξ•ΞΉΞ΄Ξ¬Ξ»Ξ»Ο‰Ο‚ ΟƒΟ„ΞΏ Bills ΞΈΞ± Ξ­Ο‡ΞΏΟ…ΞΌΞµ Ο€ΟΞΏΞ²Ξ»Ξ®ΞΌΞ±Ο„Ξ±.
+		// ΞΞ±ΞΉ ΟƒΟ„Ξ·Ξ½ ΞµΞ½ΞµΟΞ³ΞΏΟ€ΞΏΞ―Ξ·ΟƒΞ·-Ξ±Ο€ΞµΞ½ΞµΟΞ³ΞΏΟ€ΞΏΞ―Ξ·ΟƒΞ· ΞΊΞ±ΟΟ„ΞµΞ»ΟΞ½ ΟΟ„Ξ±Ξ½ Ξ±Ξ½ΞΏΞ―Ξ³ΞµΞΉ-ΞΊΞ»ΞµΞ―Ξ½ΞµΞΉ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·.
 		JTabbedPane mainTab = new JTabbedPane();
-		mainTab.addTab("Στοιχεία Δαπάνης", new CostData(contents));
-		mainTab.addTab("Τιμολόγια", new Bills());
-		mainTab.addTab("Φύλλο καταχώρησης", contents);
-		mainTab.addTab("Εργασίες", new Works());
-		mainTab.addTab("Αμετάβλητα Στοιχεία", new StaticData());
-		mainTab.addTab("Προμηθευτές", prov);
-		mainTab.addTab("Ανάλυση Κρατήσεων", holds);
-		mainTab.addTab("Προσωπικό Μονάδας", men);
+		mainTab.addTab("Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ± Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", new CostData(contents));
+		mainTab.addTab("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ±", new Bills());
+		mainTab.addTab("Ξ¦ΟΞ»Ξ»ΞΏ ΞΊΞ±Ο„Ξ±Ο‡ΟΟΞ·ΟƒΞ·Ο‚", contents);
+		mainTab.addTab("Ξ•ΟΞ³Ξ±ΟƒΞ―ΞµΟ‚", new Works());
+		mainTab.addTab("Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ± Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ±", new StaticData());
+		mainTab.addTab("Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚", prov);
+		mainTab.addTab("Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΟΞ±Ο„Ξ®ΟƒΞµΟ‰Ξ½", holds);
+		mainTab.addTab("Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ ΞΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚", men);
 
 		getContentPane().add(mainTab);
 		Color c = Color.decode("#b0d0b0");
@@ -109,42 +112,42 @@ public class MainFrame extends JFrame implements ActionListener {
 	
 	private JMenuBar createMenus(JMenuBar jtb) {
 		final String[] mnu = {
-			"Αρχείο", null, null,
-				"Νέα Δαπάνη", "Αρχείο", "new",
-				"Άνοιγμα Δαπάνης...", "Αρχείο", "open",
-				"Αποθήκευση Δαπάνης...", "Αρχείο", "save",
-				"Κλείσιμο Δαπάνης", "Αρχείο", "close",
-				null, "Αρχείο", null,
-				"Εισαγωγή στοιχείων...", "Αρχείο", "import",
-				null, "Αρχείο", null,
-				"Έξοδος", "Αρχείο", "exit",
-			"Εξαγωγή", null, null,
-				"Δαπάνη", "Εξαγωγή", null,
-				"ΦΕ", "Εξαγωγή", null,
-					"Εφορία", "ΦΕ", null,
-					"Προμηθευτής", "ΦΕ", null,
-				"Αλληλογραφία", "Εξαγωγή", null,
-					"Συγκρότηση Επιτροπών", "Αλληλογραφία", null,
-					"Διαγωνισμοί", "Αλληλογραφία", null,
-						"Διακήρυξη", "Διαγωνισμοί", null,
-						null, "Διαγωνισμοί", null,
-						"Πρακτικό", "Διαγωνισμοί", null,
-						"Εισηγητική Έκθεση", "Διαγωνισμοί", null,
-						"Κατακύρωση", "Διαγωνισμοί", null,
-					"Διαβιβαστικό Δαπάνης", "Αλληλογραφία", null,
-					"Έκθεση Απαιτούμενης Δαπάνης", "Αλληλογραφία", null,
-				"Διάφορα", "Εξαγωγή", null,
-					"Ανάλυση Κρατήσεων", "Διάφορα", null,
-					"Πρόχειρη Λίστα Τιμολογίων", "Διάφορα", null,
-					"Απόδειξη για Προκαταβολή", "Διάφορα", null,
-			"Ρυθμίσεις", null, null,
-				"Οδηγός Τιμολογίου", "Ρυθμίσεις", "wizard",
-				null, "Ρυθμίσεις", null,
-				"Κέλυφος ", "Ρυθμίσεις", "skins",
-			"Δαπάνες", null, null,
-			"Βοήθεια", null, null,
-				"Εγχειρίδιο", "Βοήθεια", "help",
-				"Περί...", "Βοήθεια", "about"
+			"Ξ‘ΟΟ‡ΞµΞ―ΞΏ", null, null,
+				"ΞΞ­Ξ± Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", "new",
+				"Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚...", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", "open",
+				"Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚...", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", "save",
+				"ΞΞ»ΞµΞ―ΟƒΞΉΞΌΞΏ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", "close",
+				null, "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", null,
+				"Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® ΟƒΟ„ΞΏΞΉΟ‡ΞµΞ―Ο‰Ξ½...", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", "import",
+				null, "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", null,
+				"ΞΞΎΞΏΞ΄ΞΏΟ‚", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ", "exit",
+			"Ξ•ΞΎΞ±Ξ³Ο‰Ξ³Ξ®", null, null,
+				"Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·", "Ξ•ΞΎΞ±Ξ³Ο‰Ξ³Ξ®", null,
+				"Ξ¦Ξ•", "Ξ•ΞΎΞ±Ξ³Ο‰Ξ³Ξ®", null,
+					"Ξ•Ο†ΞΏΟΞ―Ξ±", "Ξ¦Ξ•", null,
+					"Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®Ο‚", "Ξ¦Ξ•", null,
+				"Ξ‘Ξ»Ξ»Ξ·Ξ»ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±", "Ξ•ΞΎΞ±Ξ³Ο‰Ξ³Ξ®", null,
+					"Ξ£Ο…Ξ³ΞΊΟΟΟ„Ξ·ΟƒΞ· Ξ•Ο€ΞΉΟ„ΟΞΏΟ€ΟΞ½", "Ξ‘Ξ»Ξ»Ξ·Ξ»ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±", null,
+					"Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΞ―", "Ξ‘Ξ»Ξ»Ξ·Ξ»ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±", null,
+						"Ξ”ΞΉΞ±ΞΊΞ®ΟΟ…ΞΎΞ·", "Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΞ―", null,
+						null, "Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΞ―", null,
+						"Ξ ΟΞ±ΞΊΟ„ΞΉΞΊΟ", "Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΞ―", null,
+						"Ξ•ΞΉΟƒΞ·Ξ³Ξ·Ο„ΞΉΞΊΞ® ΞΞΊΞΈΞµΟƒΞ·", "Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΞ―", null,
+						"ΞΞ±Ο„Ξ±ΞΊΟΟΟ‰ΟƒΞ·", "Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΞ―", null,
+					"Ξ”ΞΉΞ±Ξ²ΞΉΞ²Ξ±ΟƒΟ„ΞΉΞΊΟ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", "Ξ‘Ξ»Ξ»Ξ·Ξ»ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±", null,
+					"ΞΞΊΞΈΞµΟƒΞ· Ξ‘Ο€Ξ±ΞΉΟ„ΞΏΟΞΌΞµΞ½Ξ·Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", "Ξ‘Ξ»Ξ»Ξ·Ξ»ΞΏΞ³ΟΞ±Ο†Ξ―Ξ±", null,
+				"Ξ”ΞΉΞ¬Ο†ΞΏΟΞ±", "Ξ•ΞΎΞ±Ξ³Ο‰Ξ³Ξ®", null,
+					"Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΟΞ±Ο„Ξ®ΟƒΞµΟ‰Ξ½", "Ξ”ΞΉΞ¬Ο†ΞΏΟΞ±", null,
+					"Ξ ΟΟΟ‡ΞµΞΉΟΞ· Ξ›Ξ―ΟƒΟ„Ξ± Ξ¤ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―Ο‰Ξ½", "Ξ”ΞΉΞ¬Ο†ΞΏΟΞ±", null,
+					"Ξ‘Ο€ΟΞ΄ΞµΞΉΞΎΞ· Ξ³ΞΉΞ± Ξ ΟΞΏΞΊΞ±Ο„Ξ±Ξ²ΞΏΞ»Ξ®", "Ξ”ΞΉΞ¬Ο†ΞΏΟΞ±", null,
+			"Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚", null, null,
+				"ΞΞ΄Ξ·Ξ³ΟΟ‚ Ξ¤ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―ΞΏΟ…", "Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚", "wizard",
+				null, "Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚", null,
+				"ΞΞ­Ξ»Ο…Ο†ΞΏΟ‚ ", "Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚", "skins",
+			"Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚", null, null,
+			"Ξ’ΞΏΞ®ΞΈΞµΞΉΞ±", null, null,
+				"Ξ•Ξ³Ο‡ΞµΞΉΟΞ―Ξ΄ΞΉΞΏ", "Ξ’ΞΏΞ®ΞΈΞµΞΉΞ±", "help",
+				"Ξ ΞµΟΞ―...", "Ξ’ΞΏΞ®ΞΈΞµΞΉΞ±", "about"
 		};
 		menu = new JMenuItem[mnu.length / 3];
 			
@@ -176,10 +179,10 @@ public class MainFrame extends JFrame implements ActionListener {
 	public void newCost() {
 		try {
 			for(int z = 0;; z++) {
-				String s = new File("Νέα Δαπάνη - " + z + ".cost").getCanonicalPath();
+				String s = new File("ΞΞ­Ξ± Ξ”Ξ±Ο€Ξ¬Ξ½Ξ· - " + z + ".cost").getCanonicalPath();
 				if (!costs.containsKey(s)) {
 					Cost c = new Cost();
-					c.putAll((Map) data.get("ΑμετάβληταΣτοιχείαΔαπάνης"));
+					c.putAll((Map) data.get("Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ±Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ±Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚"));
 					costs.add(s, c);
 					updateMenus();
 					updatePanels();
@@ -193,37 +196,37 @@ public class MainFrame extends JFrame implements ActionListener {
 		try {
 			JFileChooser fc = new JFileChooser(costs.getPos());
 			fc.setSelectedFile(new File(costs.getPos()));
-			fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
+			fc.setFileFilter(new ExtensionFileFilter("cost", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚"));
 			if(fc.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) return;
 			File f = fc.getSelectedFile();
 			String s = f.getCanonicalPath();
 			if (!s.endsWith(".cost")) s += ".cost";
 			if (!s.equals(costs.getPos())) {
 				if (costs.containsKey(s)) {
-					JOptionPane.showMessageDialog(this, "Το όνομα αυτό ανοίκει σε άλλη ανοικτή δαπάνη.\n"
-							+ "Παρακαλώ δώστε άλλο όνομα.", "Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, "Ξ¤ΞΏ ΟΞ½ΞΏΞΌΞ± Ξ±Ο…Ο„Ο Ξ±Ξ½ΞΏΞ―ΞΊΞµΞΉ ΟƒΞµ Ξ¬Ξ»Ξ»Ξ· Ξ±Ξ½ΞΏΞΉΞΊΟ„Ξ® Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·.\n"
+							+ "Ξ Ξ±ΟΞ±ΞΊΞ±Ξ»Ο Ξ΄ΟΟƒΟ„Ξµ Ξ¬Ξ»Ξ»ΞΏ ΟΞ½ΞΏΞΌΞ±.", "Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", JOptionPane.ERROR_MESSAGE);
 					return;
 				} else if (f.exists()) {
 					if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this,
-							"Το αρχείο αυτό υπάρχει και θα χαθεί.\nΘελετε να συνεχίσω;",
-							"Αποθήκευση Δαπάνης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+							"Ξ¤ΞΏ Ξ±ΟΟ‡ΞµΞ―ΞΏ Ξ±Ο…Ο„Ο Ο…Ο€Ξ¬ΟΟ‡ΞµΞΉ ΞΊΞ±ΞΉ ΞΈΞ± Ο‡Ξ±ΞΈΞµΞ―.\nΞΞµΞ»ΞµΟ„Ξµ Ξ½Ξ± ΟƒΟ…Ξ½ΞµΟ‡Ξ―ΟƒΟ‰;",
+							"Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 						return;
 				}
 			}
-			LoadSaveFile.save(s, (Saveable) costs.get());
+			Saveable.save(s, costs.get());
 			if (!s.equals(costs.getPos())) {
 				costs.add(s, costs.remove());
 				updateMenus();
 			}
-		} catch(Exception e) {
-			Functions.showExceptionMessage(this, e, "Αποθήκευση Δαπάνης", "Πρόβλημα κατά την αποθήκευση της δαπάνης");
+		} catch(HeadlessException | IOException e) {
+			showExceptionMessage(this, e, "Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", "Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ Ξ±Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ο„Ξ·Ο‚ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚");
 		}
 	}
 
 	private void openCost() {
 		try {
 			JFileChooser fc = new JFileChooser(costs.getPos());
-			fc.setFileFilter(new ExtensionFileFilter("cost", "Αρχείο Δαπάνης"));
+			fc.setFileFilter(new ExtensionFileFilter("cost", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚"));
 			int returnVal = fc.showOpenDialog(this);
 			if(returnVal != JFileChooser.APPROVE_OPTION) return;
 			String s = fc.getSelectedFile().getCanonicalPath();
@@ -235,9 +238,9 @@ public class MainFrame extends JFrame implements ActionListener {
 	static private void openCost(String file) {
 		try {
 			if (costs.containsKey(file)) {
-				JOptionPane.showMessageDialog(ths, "Το όνομα αυτό ανοίκει σε ανοικτή δαπάνη.\n"
-						+ "Για να ανοίξετε αυτή τη δαπάνη θα πρέπει να κλείσετε την ομόνυμη ανοικτή.",
-						"Άνοιγμα Δαπάνης", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(ths, "Ξ¤ΞΏ ΟΞ½ΞΏΞΌΞ± Ξ±Ο…Ο„Ο Ξ±Ξ½ΞΏΞ―ΞΊΞµΞΉ ΟƒΞµ Ξ±Ξ½ΞΏΞΉΞΊΟ„Ξ® Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·.\n"
+						+ "Ξ“ΞΉΞ± Ξ½Ξ± Ξ±Ξ½ΞΏΞ―ΞΎΞµΟ„Ξµ Ξ±Ο…Ο„Ξ® Ο„Ξ· Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ· ΞΈΞ± Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± ΞΊΞ»ΞµΞ―ΟƒΞµΟ„Ξµ Ο„Ξ·Ξ½ ΞΏΞΌΟΞ½Ο…ΞΌΞ· Ξ±Ξ½ΞΏΞΉΞΊΟ„Ξ®.",
+						"Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			costs.add(file, TreeFileLoader.loadFile(file));
@@ -246,8 +249,8 @@ public class MainFrame extends JFrame implements ActionListener {
 				ths.updatePanels();
 			}
 		} catch (Exception e) {
-			Functions.showExceptionMessage(ths, e, "Άνοιγμα αρχείου",
-					"Πρόβλημα κατά το άνοιγμα της δαπάνης<br><b>" + file + "</b>");
+			showExceptionMessage(ths, e, "Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± Ξ±ΟΟ‡ΞµΞ―ΞΏΟ…",
+					"Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„ΞΏ Ξ¬Ξ½ΞΏΞΉΞ³ΞΌΞ± Ο„Ξ·Ο‚ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚<br><b>" + file + "</b>");
 		}
 	}
 
@@ -255,19 +258,19 @@ public class MainFrame extends JFrame implements ActionListener {
 		try {
 			JFileChooser fc = new JFileChooser(ini);
 			fc.setMultiSelectionEnabled(true);
-			fc.setFileFilter(new ExtensionFileFilter("ini:cost", "Αρχείο Δαπάνης και Ρυθμίσεων"));
+			fc.setFileFilter(new ExtensionFileFilter("ini:cost", "Ξ‘ΟΟ‡ΞµΞ―ΞΏ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚ ΞΊΞ±ΞΉ Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΟ‰Ξ½"));
 			int returnVal = fc.showOpenDialog(this);
 			if(returnVal != JFileChooser.APPROVE_OPTION) return;
 			File[] files = fc.getSelectedFiles();
-			final String choices[] = new String[] { "Προμηθευτές, Κρατήσεις, Προσωπικό", "Προμηθευτές, Προσωπικό",
-				"Αμετάβλητα στοιχεία", "Προμηθευτές", "Κρατήσεις", "Προσωπικό" };
-			final char fchoices[] = new char[] { 7, 5, 8, 4, 2, 1 };
+			final String choices[] = new String[] { "Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚, ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚, Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ", "Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚, Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ",
+				"Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ± ΟƒΟ„ΞΏΞΉΟ‡ΞµΞ―Ξ±", "Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚", "ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚", "Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ" };
+			final int fchoices[] = new int[] { 7, 5, 8, 4, 2, 1 };
 			Object a = JOptionPane.showInputDialog(this,
-					"Επιλέξτε τι θα εξάγετε από τα επιλεχθέντα αρχεία δαπανών και ρυθμίσεων\n"
-					+ "για εισαγωγή στα δεδομένα του προγράμματος", "Εισαγωγή στοιχείων από αρχεία δαπανών και ρυθμίσεων",
+					"Ξ•Ο€ΞΉΞ»Ξ­ΞΎΟ„Ξµ Ο„ΞΉ ΞΈΞ± ΞµΞΎΞ¬Ξ³ΞµΟ„Ξµ Ξ±Ο€Ο Ο„Ξ± ΞµΟ€ΞΉΞ»ΞµΟ‡ΞΈΞ­Ξ½Ο„Ξ± Ξ±ΟΟ‡ΞµΞ―Ξ± Ξ΄Ξ±Ο€Ξ±Ξ½ΟΞ½ ΞΊΞ±ΞΉ ΟΟ…ΞΈΞΌΞ―ΟƒΞµΟ‰Ξ½\n"
+					+ "Ξ³ΞΉΞ± ΞµΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® ΟƒΟ„Ξ± Ξ΄ΞµΞ΄ΞΏΞΌΞ­Ξ½Ξ± Ο„ΞΏΟ… Ο€ΟΞΏΞ³ΟΞ¬ΞΌΞΌΞ±Ο„ΞΏΟ‚", "Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® ΟƒΟ„ΞΏΞΉΟ‡ΞµΞ―Ο‰Ξ½ Ξ±Ο€Ο Ξ±ΟΟ‡ΞµΞ―Ξ± Ξ΄Ξ±Ο€Ξ±Ξ½ΟΞ½ ΞΊΞ±ΞΉ ΟΟ…ΞΈΞΌΞ―ΟƒΞµΟ‰Ξ½",
 					JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 			if (a == null) return;
-			char flags = fchoices[Arrays.asList(choices).indexOf(a)];
+			int flags = fchoices[Arrays.asList(choices).indexOf(a)];
 			for (File f1 : files) {
 				importCost(f1.getCanonicalPath(), flags);
 				flags &= 7;
@@ -277,58 +280,61 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 
 	// flags: 1: Man, 2: Hold, 4: Provider, 8: StaticData
-	static private void importCost(String file, char flags) {
-		ArrayList<Hold> holds = (ArrayList<Hold>) data.get("Κρατήσεις");
-		ArrayList<Man> men = (ArrayList<Man>) data.get("Προσωπικό");
-		ArrayList<Provider> providers = (ArrayList<Provider>) data.get("Προμηθευτές");
-		HashObject staticdata = (HashObject) data.get("ΑμετάβληταΣτοιχείαΔαπάνης");
-		try {
-			Object o = TreeFileLoader.loadFile(file);
-			if (o instanceof Cost) {
-				Cost c = (Cost) o;
-				if ((flags & 1) != 0)
-					for (Object man : c.values())
-						if (man instanceof Man && !men.contains((Man) man))
-							men.add((Man) man);
-				ArrayList<Bill> b = (ArrayList<Bill>) c.get("Τιμολόγια");
-				for (Bill b1 : b) {
-					if ((flags & 2) != 0) {
-						Hold h = (Hold) b1.get("ΑνάλυσηΚρατήσεωνΣεΠοσοστά");
-						if (h != null && !holds.contains(h)) holds.add(h);
-					}
-					if ((flags & 4) != 0) {
-						Provider p = (Provider) b1.get("Προμηθευτής");
-						if (p != null && !providers.contains(p)) providers.add(p);
-					}
-				}
-				if ((flags & 8) != 0)
-					for (String hash : StaticData.hash)
-						if (c.containsKey(hash))
-							staticdata.put(hash, c.get(hash));
-			} else if (o instanceof HashObject) {
-				if ((flags & 1) != 0)
-					for (Man m : (VectorObject<Man>) ((HashObject) o).get("Προσωπικό"))
-						if (!men.contains(m)) men.add(m);
-				if ((flags & 2) != 0)
-					for (Hold h : (VectorObject<Hold>) ((HashObject) o).get("Κρατήσεις"))
-						if (!holds.contains(h)) holds.add(h);
-				if ((flags & 4) != 0)
-					for (Provider p : (VectorObject<Provider>) ((HashObject) o).get("Προμηθευτές"))
-						if (!providers.contains(p)) providers.add(p);
-				if ((flags & 8) != 0) {
-						staticdata.clear();
-						staticdata.putAll((HashObject) ((HashObject) o).get("ΑμετάβληταΣτοιχείαΔαπάνης"));
-				}
+	static private void importCost(String file, int flags) {
+		try { importCostContents(loadFile(file), flags); }
+		catch (Exception e) {
+			showExceptionMessage(ths, e, "Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± Ξ±ΟΟ‡ΞµΞ―ΞΏΟ…",
+					"Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„ΞΏ Ξ¬Ξ½ΞΏΞΉΞ³ΞΌΞ± Ο„ΞΏΟ… Ξ±ΟΟ‡ΞµΞ―ΞΏΟ… Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚ Ξ® ΟΟ…ΞΈΞΌΞ―ΟƒΞµΟ‰Ξ½<br><b>" + file + "</b>");
+		}
+	}
+
+	// flags: 1: Man, 2: Hold, 4: Provider, 8: StaticData
+	static private void importCostContents(Object o, int flags) throws Exception {
+		ArrayList<Hold> holds = (ArrayList<Hold>) data.get("ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚");
+		ArrayList<Man> men = (ArrayList<Man>) data.get("Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ");
+		ArrayList<Provider> providers = (ArrayList<Provider>) data.get("Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚");
+		HashObject staticdata = (HashObject) data.get("Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ±Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ±Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚");
+		if (o instanceof Cost) {
+			Cost c = (Cost) o;
+			if ((flags & 1) != 0)
+				c.values().stream().filter(i -> i instanceof Man && !men.contains((Man) i))
+						.forEach(i -> men.add((Man) i));
+			ArrayList<Bill> b = (ArrayList<Bill>) c.get("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ±");
+			if ((flags & 2) != 0) b.stream()
+					.map(i -> (Hold) i.get("Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞ·ΞΟΞ±Ο„Ξ®ΟƒΞµΟ‰Ξ½Ξ£ΞµΞ ΞΏΟƒΞΏΟƒΟ„Ξ¬"))
+					.filter(i -> i != null && !holds.contains(i))
+					.forEach(i -> holds.add(i));
+			if ((flags & 4) != 0) b.stream()
+					.map(i -> (Provider) i.get("Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®Ο‚"))
+					.filter(i -> i != null && !providers.contains(i))
+					.forEach(i -> providers.add(i));
+			if ((flags & 8) != 0)
+				for (String hash : StaticData.HASH)
+					if (c.containsKey(hash))
+						staticdata.put(hash, c.get(hash));
+		} else if (o instanceof HashObject) {
+			if ((flags & 1) != 0)
+				((VectorObject<Man>) ((HashObject) o).get("Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ")).stream()
+						.filter(i -> !men.contains(i))
+						.forEach(i -> men.add(i));
+			if ((flags & 2) != 0)
+				((VectorObject<Hold>) ((HashObject) o).get("ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚")).stream()
+						.filter(i -> !holds.contains(i))
+						.forEach(i -> holds.add(i));
+			if ((flags & 4) != 0)
+				((VectorObject<Provider>) ((HashObject) o).get("Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚")).stream()
+						.filter(i -> !providers.contains(i))
+						.forEach(i -> providers.add(i));
+			if ((flags & 8) != 0) {
+					staticdata.clear();
+					staticdata.putAll((HashObject) ((HashObject) o).get("Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ±Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ±Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚"));
 			}
-		} catch (Exception e) {
-			Functions.showExceptionMessage(ths, e, "Άνοιγμα αρχείου",
-					"Πρόβλημα κατά το άνοιγμα του αρχείου δαπάνης ή ρυθμίσεων<br><b>" + file + "</b>");
 		}
 	}
 
 	private void closeCost() {
 		if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this,
-				"<html>Να κλείσω την τρέχουσα δαπάνη;", "Κλείσιμο Δαπάνης",
+				"<html>ΞΞ± ΞΊΞ»ΞµΞ―ΟƒΟ‰ Ο„Ξ·Ξ½ Ο„ΟΞ­Ο‡ΞΏΟ…ΟƒΞ± Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·;", "ΞΞ»ΞµΞ―ΟƒΞΉΞΌΞΏ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚",
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) {
 			costs.remove();
 			updatePanels();
@@ -345,10 +351,10 @@ public class MainFrame extends JFrame implements ActionListener {
 	}
 
 	private void updateMenus() {
-		getMenuFromName("Αποθήκευση Δαπάνης...").setEnabled(costs.getPos() != null);
-		getMenuFromName("Κλείσιμο Δαπάνης").setEnabled(costs.getPos() != null);
-		getMenuFromName("Εξαγωγή").setEnabled(costs.getPos() != null);
-		JMenu window = (JMenu) getMenuFromName("Δαπάνες");
+		getMenuFromName("Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚...").setEnabled(costs.getPos() != null);
+		getMenuFromName("ΞΞ»ΞµΞ―ΟƒΞΉΞΌΞΏ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚").setEnabled(costs.getPos() != null);
+		getMenuFromName("Ξ•ΞΎΞ±Ξ³Ο‰Ξ³Ξ®").setEnabled(costs.getPos() != null);
+		JMenu window = (JMenu) getMenuFromName("Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚");
 		window.setEnabled(costs.getPos() != null);
 
 		if (costs.getPos() != null) {
@@ -370,11 +376,11 @@ public class MainFrame extends JFrame implements ActionListener {
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			try {
-				LoadSaveFile.save(ini, data);
-			} catch(Exception ex) {
+				Saveable.save(ini, data);
+			} catch(IOException ex) {
 				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this,
-						"<html>Αποτυχία κατά την αποθήκευση του <b>cost.ini</b>.<br>Να κλείσω τo πρόγραμμα;",
-						"Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+						"<html>Ξ‘Ο€ΞΏΟ„Ο…Ο‡Ξ―Ξ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ Ξ±Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ο„ΞΏΟ… <b>cost.ini</b>.<br>ΞΞ± ΞΊΞ»ΞµΞ―ΟƒΟ‰ Ο„o Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ±;",
+						"Ξ¤ΞµΟΞΌΞ±Ο„ΞΉΟƒΞΌΟΟ‚", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 					return;
 			}
 			System.exit(0);
@@ -382,24 +388,24 @@ public class MainFrame extends JFrame implements ActionListener {
 		super.processWindowEvent(e);
 	}
 
-	public final void addOptionsMenu() {
-		JMenu options = (JMenu) getMenuFromName("Ρυθμίσεις");
-		HashObject h = (HashObject) data.get("Ρυθμίσεις");
-		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("Ένα αντίγραφο",
+	private void addOptionsMenu() {
+		JMenu options = (JMenu) getMenuFromName("Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚");
+		HashObject h = (HashObject) data.get("Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚");
+		JCheckBoxMenuItem cbmi = new JCheckBoxMenuItem("ΞΞ½Ξ± Ξ±Ξ½Ο„Ξ―Ξ³ΟΞ±Ο†ΞΏ",
 				new ImageIcon(ClassLoader.getSystemResource("cost/only_one.png")),
-				Boolean.TRUE.equals(h.get("ΜιαΦορά")));
+				Boolean.TRUE.equals(h.get("ΞΞΉΞ±Ξ¦ΞΏΟΞ¬")));
 		cbmi.addActionListener(this);
 		options.add(cbmi);
 		
-		cbmi = new JCheckBoxMenuItem("Χειροκίνητη ρύθμιση τιμολογίου",
+		cbmi = new JCheckBoxMenuItem("Ξ§ΞµΞΉΟΞΏΞΊΞ―Ξ½Ξ·Ο„Ξ· ΟΟΞΈΞΌΞΉΟƒΞ· Ο„ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―ΞΏΟ…",
 				new ImageIcon(ClassLoader.getSystemResource("cost/chain.png")),
-				Boolean.TRUE.equals(h.get("ΤιμολόγιοΧειροκίνητα")));
+				Boolean.TRUE.equals(h.get("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞΏΞ§ΞµΞΉΟΞΏΞΊΞ―Ξ½Ξ·Ο„Ξ±")));
 		cbmi.addActionListener(this);
 		options.add(cbmi);
 
-		JMenuItem skins = getMenuFromName("Κέλυφος ");
+		JMenuItem skins = getMenuFromName("ΞΞ­Ξ»Ο…Ο†ΞΏΟ‚ ");
 		LookAndFeelInfo[] laf = UIManager.getInstalledLookAndFeels();
-		String s = (String) h.get("Κέλυφος");
+		String s = (String) h.get("ΞΞ­Ξ»Ο…Ο†ΞΏΟ‚");
 		if (s == null) s = UIManager.getSystemLookAndFeelClassName();
 		ButtonGroup btg = new ButtonGroup();
 		for (LookAndFeelInfo laf1 : laf) {
@@ -412,15 +418,25 @@ public class MainFrame extends JFrame implements ActionListener {
 		}
 	}
 
-	static public void setSkin() {
+	static private void setSkin() {
 		try {
-			UIManager.setLookAndFeel(((HashObject) data.get("Ρυθμίσεις")).get("Κέλυφος").toString());
+			UIManager.setLookAndFeel(((HashObject) data.get("Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚")).get("ΞΞ­Ξ»Ο…Ο†ΞΏΟ‚").toString());
 		} catch(NullPointerException | ClassNotFoundException | IllegalAccessException
 				| InstantiationException | UnsupportedLookAndFeelException e) {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {}
 		}
+	}
+	
+	static void showExceptionMessage(Component c, Exception e, String title, String info) {
+		if (info == null) info = ""; else info += "<br>";
+		if (e != null) {
+			info += "Ξ£Ο†Ξ¬Ξ»ΞΌΞ±: <b>" + e.getClass().getName() + "</b>";
+			String s = e.getLocalizedMessage();
+			if (s != null && s.length() > 7) info += "<br>Ξ›ΟΞ³ΞΏΟ‚: <b>" + s;
+		}
+		JOptionPane.showMessageDialog(null, "<html>" + info, title, JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static void main(String[] args) {
@@ -431,12 +447,11 @@ public class MainFrame extends JFrame implements ActionListener {
 			System.exit(0);
 		}
 
-		try {
-			// init php engine
-			PhpScriptRunner.init(null);
-		} catch (Exception e) {
-			Functions.showExceptionMessage(null, e, "Πρόβλημα του PHP cli",
-				"Πρόβλημα κατά την αρχικοποίηση του <b>PHP cli</b>.<br>Το πρόγραμμα θα τερματίσει.");
+		// init php engine
+		try { PhpScriptRunner.init(null); }
+		catch (ExecutionException e) {
+			showExceptionMessage(null, e, "Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± Ο„ΞΏΟ… PHP cli",
+				"Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ Ξ±ΟΟ‡ΞΉΞΊΞΏΟ€ΞΏΞ―Ξ·ΟƒΞ· Ο„ΞΏΟ… <b>PHP cli</b>.<br>Ξ¤ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± ΞΈΞ± Ο„ΞµΟΞΌΞ±Ο„Ξ―ΟƒΞµΞΉ.");
 			System.exit(0);
 		}
 
@@ -453,26 +468,31 @@ public class MainFrame extends JFrame implements ActionListener {
 		try {
 			o = TreeFileLoader.loadFile(ini);
 		} catch(Exception e) {
-			Functions.showExceptionMessage(null, e, "Πρόβλημα",
-				"Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>"
-				+ "Αν τρέχετε για πρώτη φορά το πρόγραμμα δεν υπάρχει λόγος ανησυχίας.<br>"
-				+ "Θα φορτώσω τη default έκδοσή του.");
+			showExceptionMessage(null, e, "Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ±",
+				"Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ· Ο†ΟΟΟ„Ο‰ΟƒΞ· Ο„ΞΏΟ… <b>cost.ini</b><br>"
+				+ "Ξ‘Ξ½ Ο„ΟΞ­Ο‡ΞµΟ„Ξµ Ξ³ΞΉΞ± Ο€ΟΟΟ„Ξ· Ο†ΞΏΟΞ¬ Ο„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ± Ξ΄ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞµΞΉ Ξ»ΟΞ³ΞΏΟ‚ Ξ±Ξ½Ξ·ΟƒΟ…Ο‡Ξ―Ξ±Ο‚.<br>"
+				+ "ΞΞ± Ο†ΞΏΟΟ„ΟΟƒΟ‰ Ο„Ξ· default Ξ­ΞΊΞ΄ΞΏΟƒΞ® Ο„ΞΏΟ….");
 			try {
 				o = TreeFileLoader.loadResource("cost.ini");
 			} catch(Exception e2) {
-				Functions.showExceptionMessage(null, e2, "Πρόβλημα",
-					"Πρόβλημα κατά τη φόρτωση του default <b>cost.ini</b>.");
+				showExceptionMessage(null, e2, "Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ±",
+					"Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ· Ο†ΟΟΟ„Ο‰ΟƒΞ· Ο„ΞΏΟ… default <b>cost.ini</b>.");
 			}
 		}
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
-		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject<>());
-		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject<>());
-		if (!(data.get("Κρατήσεις") instanceof VectorObject)) data.put("Κρατήσεις", new VectorObject<>());
-		if (!(data.get("ΑμετάβληταΣτοιχείαΔαπάνης") instanceof HashObject)) data.put("ΑμετάβληταΣτοιχείαΔαπάνης", new HashObject());
-		if (!(data.get("Ρυθμίσεις") instanceof HashObject)) data.put("Ρυθμίσεις", new HashObject());
-		if (!(data.get("ΑνοικτέςΔαπάνες") instanceof IteratorHashObject)) data.put("ΑνοικτέςΔαπάνες", new IteratorHashObject());
-		costs = (IteratorHashObject) data.get("ΑνοικτέςΔαπάνες");			// shortcut
+		if (!(data.get("Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ") instanceof VectorObject)) data.put("Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ", new VectorObject<>());
+		if (!(data.get("Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚") instanceof VectorObject)) data.put("Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚", new VectorObject<>());
+		if (!(data.get("ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚") instanceof VectorObject)) data.put("ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚", new VectorObject<>());
+		if (!(data.get("Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ±Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ±Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚") instanceof HashObject)) data.put("Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ±Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ±Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", new HashObject());
+		if (!(data.get("Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚") instanceof HashObject)) data.put("Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚", new HashObject());
+		if (!(data.get("Ξ‘Ξ½ΞΏΞΉΞΊΟ„Ξ­Ο‚Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚") instanceof IteratorHashObject)) data.put("Ξ‘Ξ½ΞΏΞΉΞΊΟ„Ξ­Ο‚Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚", new IteratorHashObject());
+		costs = (IteratorHashObject) data.get("Ξ‘Ξ½ΞΏΞΉΞΊΟ„Ξ­Ο‚Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚");			// shortcut
 
+		// Ξ‘Ξ½ Ξ­Ο‡ΞΏΟ…ΞΌΞµ Ξ½Ξ­Ξ± Ξ­ΞΊΞ΄ΞΏΟƒΞ· ΟƒΟ„ΞΏ Ο€ΟΟΞ³ΟΞ±ΞΌΞΌΞ±, Ο€ΟΞΏΟƒΟ„Ξ―ΞΈΞµΞ½Ο„Ξ±ΞΉ ΞΏΞΉ Ξ½Ξ­ΞµΟ‚ ΞΊΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚ Ξ±Ο€Ο Ο„ΞΏ ΞµΞ½ΟƒΟ‰ΞΌΞ±Ο„Ο‰ΞΌΞ­Ξ½ΞΏ Ξ±ΟΟ‡ΞµΞ―ΞΏ ΟΟ…ΞΈΞΌΞ―ΟƒΞµΟ‰Ξ½
+		if (!VERSION.equals(data.put("version", VERSION)))
+			try { importCostContents(loadResource("cost.ini"), 2); }
+			catch(Exception e) {}
+		
 		setSkin();
 		try {
 			for (String arg : args)
@@ -483,9 +503,8 @@ public class MainFrame extends JFrame implements ActionListener {
 		
 		// Autosave ini file every 5 minutes.
 		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-				try {
-					LoadSaveFile.save(ini, data);
-				} catch(Exception ex) {}
+				try { Saveable.save(ini, data); }
+				catch(IOException ex) {}
 			}, 5, 5, TimeUnit.MINUTES);
 	}
 
@@ -498,75 +517,74 @@ public class MainFrame extends JFrame implements ActionListener {
 		int order = -1;
 
 		// if we must output only one copy
-		Map<String, String> env = new HashMap<>();
-		Map<String, Object> options = (HashObject) data.get("Ρυθμίσεις");
-		if (Boolean.TRUE.equals(options.get("ΜιαΦορά"))) env.put("one", "true");
+		Map<String, String> env = new TreeMap<>();
+		Map<String, Object> options = (HashObject) data.get("Ξ΅Ο…ΞΈΞΌΞ―ΟƒΞµΞΉΟ‚");
+		if (Boolean.TRUE.equals(options.get("ΞΞΉΞ±Ξ¦ΞΏΟΞ¬"))) env.put("one", "true");
 
-		if (((JMenu) getMenuFromName("Κέλυφος ")).isMenuComponent(j)) {
-			options.put("Κέλυφος", e.getActionCommand());
+		if (((JMenu) getMenuFromName("ΞΞ­Ξ»Ο…Ο†ΞΏΟ‚ ")).isMenuComponent(j)) {
+			options.put("ΞΞ­Ξ»Ο…Ο†ΞΏΟ‚", e.getActionCommand());
 			setSkin(); dispose(); ths = new MainFrame();
-		} else if (((JMenu) getMenuFromName("Δαπάνες")).isMenuComponent(j)) {
+		} else if (((JMenu) getMenuFromName("Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚")).isMenuComponent(j)) {
 			costs.setPos(e.getActionCommand());
 			updatePanels();
 		}
-		else if (ac.equals("Νέα Δαπάνη")) newCost();
-		else if (ac.equals("Άνοιγμα Δαπάνης...")) openCost();
-		else if (ac.equals("Αποθήκευση Δαπάνης...")) saveCost();
-		else if (ac.equals("Εισαγωγή στοιχείων...")) importCost();
-		else if (ac.equals("Κλείσιμο Δαπάνης")) closeCost();
-		else if (ac.equals("Έξοδος")) dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-		else if (ac.equals("Δαπάνη")) ExportReport.exportReport("Δαπάνη.php", env);
-		else if (ac.equals("Εφορία")) ExportReport.exportReport("ΦΕ για την Εφορία.php");
-		else if (ac.equals("Προμηθευτής")) ExportReport.exportReport("ΦΕ για τον Προμηθευτή.php");
-		else if (ac.equals("Συγκρότηση Επιτροπών")) order = 0;
-		else if (ac.equals("Διακήρυξη")) order = 1;
-		else if (ac.equals("Κατακύρωση")) order = 2;
-		else if (ac.equals("Διαβιβαστικό Δαπάνης")) order = 3;
-		else if (ac.equals("Έκθεση Απαιτούμενης Δαπάνης")) order = 4;
-		else if (ac.equals("Εισηγητική Έκθεση")) ExportReport.exportReport("Εισηγητική Έκθεση Διαγωνισμού.php");
-		else if (ac.equals("Πρακτικό")) ExportReport.exportReport("Πρακτικό Διαγωνισμού.php");
-		else if (ac.equals("Ανάλυση Κρατήσεων")) ExportReport.exportReport("Κρατήσεις υπέρ Τρίτων.php");
-		else if (ac.equals("Πρόχειρη Λίστα Τιμολογίων")) ExportReport.exportReport("Πρόχειρη Λίστα Τιμολογίων.php");
-		else if (ac.equals("Απόδειξη για Προκαταβολή")) ExportReport.exportReport("Απόδειξη για Προκαταβολή.php");
-		else if (ac.equals("Ένα αντίγραφο")) options.put("ΜιαΦορά", Boolean.FALSE.equals(options.get("ΜιαΦορά")));
-		else if (ac.equals("Οδηγός Τιμολογίου")) {
+		else if (ac.equals("ΞΞ­Ξ± Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·")) newCost();
+		else if (ac.equals("Ξ†Ξ½ΞΏΞΉΞ³ΞΌΞ± Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚...")) openCost();
+		else if (ac.equals("Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚...")) saveCost();
+		else if (ac.equals("Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® ΟƒΟ„ΞΏΞΉΟ‡ΞµΞ―Ο‰Ξ½...")) importCost();
+		else if (ac.equals("ΞΞ»ΞµΞ―ΟƒΞΉΞΌΞΏ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚")) closeCost();
+		else if (ac.equals("ΞΞΎΞΏΞ΄ΞΏΟ‚")) dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+		else if (ac.equals("Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·")) ExportReport.exportReport("Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·.php", env);
+		else if (ac.equals("Ξ•Ο†ΞΏΟΞ―Ξ±")) ExportReport.exportReport("Ξ¦Ξ• Ξ³ΞΉΞ± Ο„Ξ·Ξ½ Ξ•Ο†ΞΏΟΞ―Ξ±.php");
+		else if (ac.equals("Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®Ο‚")) ExportReport.exportReport("Ξ¦Ξ• Ξ³ΞΉΞ± Ο„ΞΏΞ½ Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®.php");
+		else if (ac.equals("Ξ£Ο…Ξ³ΞΊΟΟΟ„Ξ·ΟƒΞ· Ξ•Ο€ΞΉΟ„ΟΞΏΟ€ΟΞ½")) order = 0;
+		else if (ac.equals("Ξ”ΞΉΞ±ΞΊΞ®ΟΟ…ΞΎΞ·")) order = 1;
+		else if (ac.equals("ΞΞ±Ο„Ξ±ΞΊΟΟΟ‰ΟƒΞ·")) order = 2;
+		else if (ac.equals("Ξ”ΞΉΞ±Ξ²ΞΉΞ²Ξ±ΟƒΟ„ΞΉΞΊΟ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚")) order = 3;
+		else if (ac.equals("ΞΞΊΞΈΞµΟƒΞ· Ξ‘Ο€Ξ±ΞΉΟ„ΞΏΟΞΌΞµΞ½Ξ·Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚")) order = 4;
+		else if (ac.equals("Ξ•ΞΉΟƒΞ·Ξ³Ξ·Ο„ΞΉΞΊΞ® ΞΞΊΞΈΞµΟƒΞ·")) ExportReport.exportReport("Ξ•ΞΉΟƒΞ·Ξ³Ξ·Ο„ΞΉΞΊΞ® ΞΞΊΞΈΞµΟƒΞ· Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΟ.php");
+		else if (ac.equals("Ξ ΟΞ±ΞΊΟ„ΞΉΞΊΟ")) ExportReport.exportReport("Ξ ΟΞ±ΞΊΟ„ΞΉΞΊΟ Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΟ.php");
+		else if (ac.equals("Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞ· ΞΟΞ±Ο„Ξ®ΟƒΞµΟ‰Ξ½")) ExportReport.exportReport("ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚ Ο…Ο€Ξ­Ο Ξ¤ΟΞ―Ο„Ο‰Ξ½.php");
+		else if (ac.equals("Ξ ΟΟΟ‡ΞµΞΉΟΞ· Ξ›Ξ―ΟƒΟ„Ξ± Ξ¤ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―Ο‰Ξ½")) ExportReport.exportReport("Ξ ΟΟΟ‡ΞµΞΉΟΞ· Ξ›Ξ―ΟƒΟ„Ξ± Ξ¤ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―Ο‰Ξ½.php");
+		else if (ac.equals("Ξ‘Ο€ΟΞ΄ΞµΞΉΞΎΞ· Ξ³ΞΉΞ± Ξ ΟΞΏΞΊΞ±Ο„Ξ±Ξ²ΞΏΞ»Ξ®")) ExportReport.exportReport("Ξ‘Ο€ΟΞ΄ΞµΞΉΞΎΞ· Ξ³ΞΉΞ± Ξ ΟΞΏΞΊΞ±Ο„Ξ±Ξ²ΞΏΞ»Ξ®.php");
+		else if (ac.equals("ΞΞ½Ξ± Ξ±Ξ½Ο„Ξ―Ξ³ΟΞ±Ο†ΞΏ")) options.put("ΞΞΉΞ±Ξ¦ΞΏΟΞ¬", Boolean.FALSE.equals(options.get("ΞΞΉΞ±Ξ¦ΞΏΟΞ¬")));
+		else if (ac.equals("ΞΞ΄Ξ·Ξ³ΟΟ‚ Ξ¤ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―ΞΏΟ…")) {
 			if (cwf == null) cwf = new CostWizardDialog(this);
 			cwf.setVisible(true);
 		}
-		else if (ac.equals("Χειροκίνητη ρύθμιση τιμολογίου")) {
-			boolean a = Boolean.TRUE.equals(options.get("ΤιμολόγιοΧειροκίνητα"));
-			options.put("ΤιμολόγιοΧειροκίνητα", !a);
+		else if (ac.equals("Ξ§ΞµΞΉΟΞΏΞΊΞ―Ξ½Ξ·Ο„Ξ· ΟΟΞΈΞΌΞΉΟƒΞ· Ο„ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―ΞΏΟ…")) {
+			boolean a = Boolean.TRUE.equals(options.get("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞΏΞ§ΞµΞΉΟΞΏΞΊΞ―Ξ½Ξ·Ο„Ξ±"));
+			options.put("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞΏΞ§ΞµΞΉΟΞΏΞΊΞ―Ξ½Ξ·Ο„Ξ±", !a);
 			Cost c = (Cost) costs.get();
 			if (a && c != null) {
-				ArrayList<Bill> b = (ArrayList<Bill>) c.get("Τιμολόγια");
-				for (Bill b1 : b) b1.recalculate();
+				((ArrayList<Bill>) c.get("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ±")).forEach(i -> i.recalculate());
 				repaint();
 			}
 		}
-		else if (ac.equals("Εγχειρίδιο")) {
+		else if (ac.equals("Ξ•Ξ³Ο‡ΞµΞΉΟΞ―Ξ΄ΞΉΞΏ")) {
 			try {	// open help
 				Desktop.getDesktop().open(new File(rootPath + "help/index.html"));
 			} catch(IllegalArgumentException | IOException ex) {
-				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
+				showExceptionMessage(this, ex, "Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΟƒΟ„Ξ·Ξ½ ΞµΞΊΞΊΞ―Ξ½Ξ·ΟƒΞ· Ο„ΞΏΟ… browser", null);
 			}
 		}
-		else if (ac.equals("Περί...")) JOptionPane.showMessageDialog(this,
-				"<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br>" +
-				"<font size=3>Έκδοση 1.6.7b</font></b></center><br>" +
-				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
-				"Άδεια χρήσης: <b>BSD</b><br>" +
-				"Δημοσίευση: <b>11 Ιουλ 17</b><br>" +
-				"Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
-				"<center>Το Πρόγραμμα είναι 13 χρονών!</center>",
+		else if (ac.equals("Ξ ΞµΟΞ―...")) JOptionPane.showMessageDialog(this,
+				"<html><center><b><font size=4>Ξ£Ο„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΞ­Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½ΞµΟ‚</font><br>" +
+				"<font size=3>ΞΞΊΞ΄ΞΏΟƒΞ· " + VERSION + "</font></b></center><br>" +
+				"Ξ ΟΞΏΞ³ΟΞ±ΞΌΞΌΞ±Ο„ΞΉΟƒΞΌΟΟ‚: <b>Ξ“ΞΊΞ­ΟƒΞΏΟ‚ Ξ Ξ±ΟΞ»ΞΏΟ‚ (Ξ£Ξ£Ξ• 2002)</b><br>" +
+				"Ξ†Ξ΄ΞµΞΉΞ± Ο‡ΟΞ®ΟƒΞ·Ο‚: <b>BSD</b><br>" +
+				"Ξ”Ξ·ΞΌΞΏΟƒΞ―ΞµΟ…ΟƒΞ·: <b>1 Ξ™Ξ±Ξ½ 18</b><br>" +
+				"Ξ£ΞµΞ»Ξ―Ξ΄Ξ±: <b>http://sourceforge.net/projects/ha-expenditure/</b><br><br>" +
+				"<center>Ξ¤ΞΏ Ξ ΟΟΞ³ΟΞ±ΞΌΞΌΞ± ΞµΞ―Ξ½Ξ±ΞΉ 13 Ο‡ΟΞΏΞ½ΟΞ½!</center>",
 				getTitle(), JOptionPane.PLAIN_MESSAGE);
 		
-		// αν ειναι διαταγή απαιτεί extra dialog για σχέδιο ή ακριβές αντίγραφο
+		// Ξ±Ξ½ ΞµΞΉΞ½Ξ±ΞΉ Ξ΄ΞΉΞ±Ο„Ξ±Ξ³Ξ® Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ― extra dialog Ξ³ΞΉΞ± ΟƒΟ‡Ξ­Ξ΄ΞΉΞΏ Ξ® Ξ±ΞΊΟΞΉΞ²Ξ­Ο‚ Ξ±Ξ½Ο„Ξ―Ξ³ΟΞ±Ο†ΞΏ
 		if (order != -1) {
-			final String[] file = { "Δγη Συγκρότησης Επιτροπών", "Δγη Διακήρυξης Διαγωνισμού",
-				"Δγη Κατακύρωσης Διαγωνισμού", "Διαβιβαστικό Δαπάνης", "Έκθεση Απαιτούμενης Δαπάνης" };
-			final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
-			int b = JOptionPane.showOptionDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.",
-					"Επιλογή", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
+			final String[] file = { "Ξ”Ξ³Ξ· Ξ£Ο…Ξ³ΞΊΟΟΟ„Ξ·ΟƒΞ·Ο‚ Ξ•Ο€ΞΉΟ„ΟΞΏΟ€ΟΞ½", "Ξ”Ξ³Ξ· Ξ”ΞΉΞ±ΞΊΞ®ΟΟ…ΞΎΞ·Ο‚ Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΟ",
+				"Ξ”Ξ³Ξ· ΞΞ±Ο„Ξ±ΞΊΟΟΟ‰ΟƒΞ·Ο‚ Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΟ", "Ξ”ΞΉΞ±Ξ²ΞΉΞ²Ξ±ΟƒΟ„ΞΉΞΊΟ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", "ΞΞΊΞΈΞµΟƒΞ· Ξ‘Ο€Ξ±ΞΉΟ„ΞΏΟΞΌΞµΞ½Ξ·Ο‚ Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚" };
+			final String[] a = { "Ξ‘ΞΊΟΞΉΞ²Ξ­Ο‚ Ξ‘Ξ½Ο„Ξ―Ξ³ΟΞ±Ο†ΞΏ", "Ξ£Ο‡Ξ­Ξ΄ΞΉΞΏ" };
+			int b = JOptionPane.showOptionDialog(this, "Ξ•Ο€ΞΉΞ»Ξ­ΞΎΟ„Ξµ ΟƒΞ±Ξ½ Ο„ΞΉ ΞΈΞ± Ξ²Ξ³ΞµΞ― Ξ· Ξ΄ΞΉΞ±Ο„Ξ±Ξ³Ξ®.",
+					"Ξ•Ο€ΞΉΞ»ΞΏΞ³Ξ®", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, a, a[0]);
 			if (b == JOptionPane.CLOSED_OPTION) return;
 			else if (b == 1) env.put("draft", "true");
 			ExportReport.exportReport(file[order] + ".php", env);
@@ -586,18 +604,17 @@ public class MainFrame extends JFrame implements ActionListener {
 
 		public static void send(byte[] a) {
 			try {
-				try (OutputStream s = new Socket("127.0.0.1", 666).getOutputStream()) { s.write(a); }
+				OutputStream s = new Socket("127.0.0.1", 666).getOutputStream();
+				s.write(a);
 			} catch(IOException e) {}
 		}
 
 		@Override
 		public void run() {
 			try {
-				for(;;) {
-					Socket s = ss.accept();
-					openCost(new File(LoadSaveFile.loadFile(s.getInputStream())).getCanonicalPath());
-				}
-			} catch(Exception e) {}
+				for(;;)
+					openCost(new File(loadFile(ss.accept().getInputStream())).getCanonicalPath());
+			} catch(IOException e) {}
 		}
 	}
 

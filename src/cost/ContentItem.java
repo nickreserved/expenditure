@@ -1,8 +1,8 @@
 package cost;
 
-import common.*;
+import common.HashObject;
 
 public class ContentItem extends HashObject {
-	public ContentItem() { super.put("Πλήθος", (byte) 1); }
-	public String toString() { return (String) get("Δικαιολογητικό"); }
+	public ContentItem() { super.put("Ξ Ξ»Ξ®ΞΈΞΏΟ‚", (byte) 1); }
+	@Override public String toString() { return (String) get("Ξ”ΞΉΞΊΞ±ΞΉΞΏΞ»ΞΏΞ³Ξ·Ο„ΞΉΞΊΟ"); }
 }

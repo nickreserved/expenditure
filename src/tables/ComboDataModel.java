@@ -1,24 +1,23 @@
 package tables;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import java.util.*;
+import java.util.ArrayList;
+import javax.swing.ComboBoxModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 public class ComboDataModel<T> implements ComboBoxModel {
 	private final ArrayList<ListDataListener> v = new ArrayList<>();
 	private Object idx;
 	private final Object last;
 	private final boolean hasLast;
-	private ArrayTransmitter<T> dtr;
+	final private ArrayTransmitter<T> dtr;
 	public ComboDataModel(ArrayTransmitter<T> dt) { dtr = dt; hasLast = false; last = null; }
 	public ComboDataModel(ArrayTransmitter<T> dt, Object o) { dtr = dt; hasLast = true; last = o; }
-	@Override
-	public Object getSelectedItem() { return idx; }
+	@Override public Object getSelectedItem() { return idx; }
 	@Override
 	public void setSelectedItem(Object o) {
 		idx = o;
-		for (ListDataListener v1 : v)
-			v1.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, getSize()));
+		v.forEach(i -> i.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, getSize())));
 	}
 	@Override
 	public int getSize() { return (hasLast ? 1 : 0) + ((ArrayList) dtr.getData()).size(); }

@@ -1,127 +1,109 @@
 package common;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
+import static common.TreeFileLoader.GREEK;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
-public class PhpScriptRunner implements PipeHandler {
-	private static boolean runScript = false;
-	private static String interpreter = "php";
-
-	private OutputStream stdin;
-	private InputStream stdout;
-	private InputStream stderr;
-
-	private ProcessBuilder pb;
-	private Map<String, String> env;
-
-	private Object cin;
-	private PipeHandler cout, cerr;
-	private boolean throwthread = false;
-	private String sout, serr;
-
+public class PhpScriptRunner {
+	private final ProcessBuilder pb;
 
 	public PhpScriptRunner(String directory, String script, String[] argv) {
 		ArrayList<String> v = new ArrayList<>();
-		if (!runScript || script == null) {
-			v.add(interpreter);
-			v.add("-n");
-			v.add("-d");
-			v.add("log_errors=On");
-			v.add("-d");
-			v.add("display_errors=Off");
-		}
+		v.add("php");
+		v.add("-n");
+		v.add("-d");
+		v.add("log_errors=On");
+		v.add("-d");
+		v.add("display_errors=Off");
 		if (script != null) v.add(script);
 		if (argv != null) {
-			if (!runScript) v.add("--");
+			v.add("--");
 			v.addAll(Arrays.asList(argv));
 		}
 
 		pb = new ProcessBuilder(v);
-		pb.directory(directory == null ? null : new File(directory));
-		env = pb.environment();
+		if (directory != null) pb.directory(new File(directory));
 	}
 
-	public Map<String, String> getEnvironment() { return env; }
-	public String getStdout() { return sout; }
-	public String getStderr() { return serr; }
+	public Map<String, String> getEnvironment() { return pb.environment(); }
+	
+	static public final int NONE = 0;
+	static public final int STDOUT = 1;
+	static public final int STDERR = 2;
+	static public final int STDOUT_STDERR = 3;
+	static public final int STDOUT_STDERR_REDIRECT = 4;
 
-	public int exec(Object in, PipeHandler out, PipeHandler err, boolean redirect) throws Exception {
-
-		if (err == null && redirect) pb.redirectErrorStream(true);
+	public static final class Result {
+		public int errCode;
+		public String stdout, stderr;
+	}
+	
+	/** Execute PHP script.
+	 * @param in stdin. If null, no stdin.
+	 * @param flags one of NONE, STDOUT, STDOUT_STDERR_REDIRECT, STDOUT_STDERR
+	 * @return error code, stdout and stderr */
+	@SuppressWarnings("null")
+	public Result exec(String in, int flags) throws IOException, InterruptedException, ExecutionException {
+		pb.redirectErrorStream(flags == STDOUT_STDERR_REDIRECT);
 
 		Process p = pb.start();
-		stdin = p.getOutputStream();
-		stdout = p.getInputStream();
-		stderr = p.getErrorStream();
+		Thread tout = null, terr = null;
+		StdOut rout = null, rerr = null;
+		Result r = new Result();
 
-		cin = in; cout = out; cerr = err;
+		if (in != null) p.getOutputStream().write(in.getBytes(GREEK));
+		p.getOutputStream().close();
+		if (flags == NONE || flags == STDERR) p.getInputStream().close();
+		else {
+			rout = new StdOut(p.getInputStream());
+			tout = new Thread(rout);
+			tout.start();
+		}
+		if (flags != STDERR && flags != STDOUT_STDERR) p.getErrorStream().close();
+		else {
+			rerr = new StdOut(p.getErrorStream());
+			terr = new Thread(rerr);
+			terr.start();
+		}
 
-		if (out == null) stdout.close(); else new Thread(new RunPipe(1)).start();
-		if (in == null) stdin.close(); else new Thread(new RunPipe(0)).start();
-		if (err == null) stderr.close(); else new Thread(new RunPipe(2)).start();
-
-		int r = p.waitFor();
-		if (throwthread) throw new Exception("�������� ��� stdin, stdout, stderr ��� php script");
+		r.errCode = p.waitFor();
+		if (tout != null) {
+			tout.join();
+			if (rout.error != null) throw new ExecutionException("Πρόβλημα στο stdout του php script", rout.error);
+			r.stdout = rout.out;
+		}
+		if (terr != null) {
+			terr.join();
+			if (rerr.error != null) throw new ExecutionException("Πρόβλημα στο stderr του php script", rerr.error);
+			r.stderr = rerr.out;
+		}
 		return r;
-
 	}
-
-	private class RunPipe implements Runnable {
-		private int what;
-		public RunPipe(int what_run) { what = what_run; }
-		@Override
-		public void run() {
-			try {
-				switch(what) {
-					case 0:
-						if (cin instanceof PipeHandler)
-							((PipeHandler) cin).processOutputStream(0, stdin);
-						else processOutputStream(0, stdin);
-						break;
-					case 1:
-						cout.processInputStream(0, stdout);
-						break;
-					case 2:
-						cerr.processInputStream(1, stderr);
-				}
-			} catch(Exception e) {
-				throwthread = true;
-			}
+	
+	private static class StdOut implements Runnable {
+		StdOut(InputStream stdout) { this.stdout = stdout; }
+		private final InputStream stdout;
+		Exception error;
+		String out;
+		@Override public void run() {
+			try { out = new String(stdout.readAllBytes(), GREEK); }
+			catch (IOException e) { error = e; }
 		}
 	}
 
-	@Override
-	public void processOutputStream(int id, OutputStream os) {
-		try {
-			int size = cin instanceof byte[] ? ((byte[]) cin).length : cin.toString().length();
-			for(int z = 0; size > 0; z++, size -= 16384) {
-				os.write(cin instanceof byte[] ? (byte[]) cin : cin.toString().getBytes(), z *16384, size < 16384 ? size : 16384);
-				os.flush();
-			}
-			os.close();
-		} catch(Exception e) {}
-	}
-
-	@Override
-	public void processInputStream(int id, InputStream is) throws Exception {
-		byte[] b = new byte[16384];
-		if (id == 0) sout = ""; else serr = "";
-		int c = 0;
-		while((c = is.read(b)) > 0)
-			if (id == 0) sout += new String(b, 0, c); else serr += new String(b, 0, c);
-	}
-
-
-	static public void init(String directory) throws Exception {
+	static public void init(String directory) throws ExecutionException {
 		try {
 			PhpScriptRunner p = new PhpScriptRunner(null, null, null);
-			if (p.exec("<?echo 5+5;exit(51);?>", p, null, true) != 51)
-				throw null;
-			String f = p.getStdout();
-			if (f == null || !f.equals("10")) throw null;
-		} catch(Exception e) {
-			throw new ExecutionException("�������� ���� ������������ ��� php �������", null);
+			Result r = p.exec("<?echo 5+5;exit(51);?>", STDOUT_STDERR_REDIRECT);
+			if (r.errCode != 51 || !"10".equals(r.stdout))
+				throw new ExecutionException("Μη αναμενόμενα αποτελέσματα από την εκτέλεση του php script", null);
+		} catch(IOException | InterruptedException | ExecutionException e) {
+			throw new ExecutionException("Πρόβλημα στην αρχικοποίηση της php μηχανής", e);
 		}
 	}
 }

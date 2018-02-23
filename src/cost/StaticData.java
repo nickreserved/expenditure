@@ -1,28 +1,30 @@
 package cost;
 
 import common.HashObject;
-import java.awt.*;
-import javax.swing.*;
-import tables.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import javax.swing.JPanel;
+import tables.DataTransmitter;
+import tables.PropertiesTable;
+import tables.PropertiesTableModel;
 
-public class StaticData extends JPanel implements DataTransmitter {
-	static final protected String[] hash = { "ΣύντμησηΜονάδας", "Μονάδα", "ΓραφείοΣχηματισμού",
-			"Γραφείο", "ΙδιότηταΑξκου", "Πόλη", "Διεύθυνση", "ΕξωτερικόΤηλέφωνο",
-			"ΕσωτερικόΤηλέφωνο", "ΤΚ", "Δκτης", "ΕΟΥ", "ΑξκοςΓραφείου", "Δχστης"
+final public class StaticData extends JPanel implements DataTransmitter {
+	static final protected String[] HASH = { "Ξ£ΟΞ½Ο„ΞΌΞ·ΟƒΞ·ΞΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚", "ΞΞΏΞ½Ξ¬Ξ΄Ξ±", "Ξ“ΟΞ±Ο†ΞµΞ―ΞΏΞ£Ο‡Ξ·ΞΌΞ±Ο„ΞΉΟƒΞΌΞΏΟ",
+			"Ξ“ΟΞ±Ο†ΞµΞ―ΞΏ", "Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο„Ξ±Ξ‘ΞΎΞΊΞΏΟ…", "Ξ ΟΞ»Ξ·", "Ξ”ΞΉΞµΟΞΈΟ…Ξ½ΟƒΞ·", "Ξ•ΞΎΟ‰Ο„ΞµΟΞΉΞΊΟΞ¤Ξ·Ξ»Ξ­Ο†Ο‰Ξ½ΞΏ",
+			"Ξ•ΟƒΟ‰Ο„ΞµΟΞΉΞΊΟΞ¤Ξ·Ξ»Ξ­Ο†Ο‰Ξ½ΞΏ", "Ξ¤Ξ", "Ξ”ΞΊΟ„Ξ·Ο‚", "Ξ•ΞΞ¥", "Ξ‘ΞΎΞΊΞΏΟ‚Ξ“ΟΞ±Ο†ΞµΞ―ΞΏΟ…", "Ξ”Ο‡ΟƒΟ„Ξ·Ο‚"
 	};
 	public StaticData() {
-		Component[] cmp = new Component[hash.length];
-		for (int z = hash.length - 4; z < hash.length; z++) cmp[z] = Men.men;
+		Component[] cmp = new Component[HASH.length];
+		for (int z = HASH.length - 4; z < HASH.length; z++) cmp[z] = Men.men;
 		setLayout(new BorderLayout());
-		add(PropertiesTable.getScrolled(
-				new PropertiesTableModel(
-				hash, this,
-				new String[] { "<html>Μονάδα <font color=gray size=2>(σύντμηση)", "<html>Μονάδα <font color=gray size=2>(πλήρης)",
-						"Γραφείο Σχηματισμού", null, "Ιδιότητα Αξκού",	"Πόλη ή Χωρίο", null, "<html>Τηλέφωνο <font color=gray size=2>(εξωτερικό)",
-						"<html>Τηλέφωνο <font color=gray size=2>(εσωτερικό)", "Τ.Κ.",	null,	null, "Αξκος Γραφείου", null }
+		add(PropertiesTable.getScrolled(new PropertiesTableModel(
+				HASH, this,
+				new String[] { "<html>ΞΞΏΞ½Ξ¬Ξ΄Ξ± <font color=gray size=2>(ΟƒΟΞ½Ο„ΞΌΞ·ΟƒΞ·)", "<html>ΞΞΏΞ½Ξ¬Ξ΄Ξ± <font color=gray size=2>(Ο€Ξ»Ξ®ΟΞ·Ο‚)",
+						"Ξ“ΟΞ±Ο†ΞµΞ―ΞΏ Ξ£Ο‡Ξ·ΞΌΞ±Ο„ΞΉΟƒΞΌΞΏΟ", null, "Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο„Ξ± Ξ‘ΞΎΞΊΞΏΟ",	"Ξ ΟΞ»Ξ· Ξ® Ξ§Ο‰ΟΞ―ΞΏ", null, "<html>Ξ¤Ξ·Ξ»Ξ­Ο†Ο‰Ξ½ΞΏ <font color=gray size=2>(ΞµΞΎΟ‰Ο„ΞµΟΞΉΞΊΟ)",
+						"<html>Ξ¤Ξ·Ξ»Ξ­Ο†Ο‰Ξ½ΞΏ <font color=gray size=2>(ΞµΟƒΟ‰Ο„ΞµΟΞΉΞΊΟ)", "Ξ¤.Ξ.",	null,	null, "Ξ‘ΞΎΞΊΞΏΟ‚ Ξ“ΟΞ±Ο†ΞµΞ―ΞΏΟ…", null }
 		), cmp, 130));
 	}
 	
 	@Override
-	public HashObject getData() {	return (HashObject) MainFrame.data.get("ΑμετάβληταΣτοιχείαΔαπάνης");	}
+	public HashObject getData() {	return (HashObject) MainFrame.data.get("Ξ‘ΞΌΞµΟ„Ξ¬Ξ²Ξ»Ξ·Ο„Ξ±Ξ£Ο„ΞΏΞΉΟ‡ΞµΞ―Ξ±Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚");	}
 }

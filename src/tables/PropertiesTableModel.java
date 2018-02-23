@@ -1,6 +1,6 @@
 package tables;
 
-import javax.swing.table.*;
+import javax.swing.table.AbstractTableModel;
 
 public class PropertiesTableModel extends AbstractTableModel {
 

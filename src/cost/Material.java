@@ -1,23 +1,23 @@
 package cost;
 
-import common.*;
+import common.HashObject;
 
 public class Material extends HashObject {
   public Material() {
-    super.put("Ποσότητα", 1d);
-    super.put("ΜονάδαMέτρησης", "τεμάχια");
+    super.put("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", 1d);
+    super.put("ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚", "Ο„ΞµΞΌΞ¬Ο‡ΞΉΞ±");
   }
 	public Material(BillItem i) {
-		super.put("Υλικό", i.get("Είδος"));
-		super.put("ΜονάδαMέτρησης", i.get("ΜονάδαMέτρησης"));
-		super.put("Ποσότητα", i.get("Ποσότητα"));
+		super.put("Ξ¥Ξ»ΞΉΞΊΟ", i.get("Ξ•Ξ―Ξ΄ΞΏΟ‚"));
+		super.put("ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚", i.get("ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚"));
+		super.put("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", i.get("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±"));
 	}
 	@Override
-  public String toString() { return get("Υλικό").toString(); }
+  public String toString() { return get("Ξ¥Ξ»ΞΉΞΊΟ").toString(); }
 	@Override
   public Object put(String key, Object value) {
-    if (key.equals("Ποσότητα") && value instanceof String)
-      value = new Double(value.toString());
+    if (key.equals("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±") && value instanceof String)
+      value = Double.parseDouble(value.toString());
     return super.put(key, value);
   }
 }

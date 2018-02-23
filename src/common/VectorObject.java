@@ -1,32 +1,33 @@
 package common;
 
-import java.util.*;
+import java.util.ArrayList;
 
 public class VectorObject<E> extends ArrayList<E> implements Saveable, PhpSerialize {
 
 	@Override
-	public String save() {
+	public StringBuilder save(StringBuilder out) {
 		removeDead();
-		String s = "{\r\n";
-		for (int z = 0; z < size(); z++)
-			s += Functions.saveable(null, get(z));
-		return s + "}";
+		out.append("{\r\n");
+		stream().forEach(i -> Saveable.save(out, null, i));
+		return out.append("}");
 	}
 
 	@Override
-	public String serialize() {
+	public StringBuilder serialize(StringBuilder out) {
 		removeDead();
-		String s = "a:" + size() + ":{";
-		for (int z = 0; z < size(); z++)
-			s += "i:" + z + ";" + Functions.phpSerialize(get(z));
-		return s + "}";
+		out.append("a:").append(size()).append(":{");
+		for (int z = 0; z < size(); z++) {
+			out.append("i:").append(z).append(";");
+			PhpSerialize.serialize(out, get(z));
+		}
+		return out.append("}");
 	}
 
+	/** Remove null entries before save. */
+	//TODO: are there null entries?
 	private void removeDead() {
-		for (int z = 0; z < size(); z++) {
-			if (get(z) == null) {
-				remove(z);
-			}
-		}
+		int z = 0;
+		while(z < size())
+			if (get(z) == null) remove(z); else ++z;
 	}
 }

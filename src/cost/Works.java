@@ -1,26 +1,37 @@
 package cost;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import tables.*;
+import java.awt.BorderLayout;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.Map;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JScrollPane;
+import tables.ArrayTransmitter;
+import tables.ResizableTableModel;
+import javax.swing.JTable;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import tables.ResizableTable;
 
-public class Works extends JPanel implements ArrayTransmitter<Work>, ListSelectionListener {
+final public class Works extends JPanel implements ArrayTransmitter<Work>, ListSelectionListener {
 	private final ResizableTableModel matModel;
 	private final JTable tblWorks;
 	private String cost;
 
+	@SuppressWarnings("LeakingThisInConstructor")
 	public Works() {
-		final String[] commonHeader = { null, null, "Μονάδα μέτρησης"};
+		final String[] commonHeader = { null, null, "ΞΞΏΞ½Ξ¬Ξ΄Ξ± ΞΌΞ­Ο„ΟΞ·ΟƒΞ·Ο‚"};
 
-		ResizableTableModel workModel = new ResizableTableModel(this, new String[] { "Εργασία", "Ποσότητα", "ΜονάδαMέτρησης" }, commonHeader, Work.class);
+		ResizableTableModel workModel = new ResizableTableModel(this, new String[] { "Ξ•ΟΞ³Ξ±ΟƒΞ―Ξ±", "Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", "ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚" }, commonHeader, Work.class);
 		tblWorks = new ResizableTable(workModel, true, false);
 		tblWorks.getSelectionModel().addListSelectionListener(this);
 		tblWorks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblWorks.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
 
-		matModel = new ResizableTableModel((ArrayList) null, new String[] { "Υλικό", "Ποσότητα", "ΜονάδαMέτρησης"}, commonHeader, Material.class);
+		matModel = new ResizableTableModel((ArrayList) null, new String[] { "Ξ¥Ξ»ΞΉΞΊΟ", "Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", "ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚"}, commonHeader, Material.class);
 		JTable tblMaterial = new ResizableTable(matModel, false, true);
 		tblMaterial.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
 
@@ -39,14 +50,14 @@ public class Works extends JPanel implements ArrayTransmitter<Work>, ListSelecti
   @Override
 	public ArrayList<Work> getData() {
 		Cost c = (Cost) MainFrame.costs.get();
-		return c == null ? null : (ArrayList<Work>) c.get("Εργασίες");
+		return c == null ? null : (ArrayList<Work>) c.get("Ξ•ΟΞ³Ξ±ΟƒΞ―ΞµΟ‚");
 	}
 
   @Override
 	public void valueChanged(ListSelectionEvent e) {
 		int a = tblWorks.getSelectionModel().getLeadSelectionIndex();
 		ArrayList<Work> v = getData();
-		matModel.setData(v == null || a < 0 || a >= v.size() || v.get(a) == null ? null : (ArrayList) ((Map) v.get(a)).get("Υλικά"));
+		matModel.setData(v == null || a < 0 || a >= v.size() || v.get(a) == null ? null : (ArrayList) ((Map) v.get(a)).get("Ξ¥Ξ»ΞΉΞΊΞ¬"));
 	}
 
   @Override

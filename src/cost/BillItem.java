@@ -1,63 +1,63 @@
 package cost;
 
-import common.*;
+import common.HashString2Object;
 
 public class BillItem extends HashString2Object {
 	public BillItem() {
-		classes.put("ΦΠΑ", Byte.class);
-		classes.put("Ποσότητα", Double.class);
-		classes.put("ΤιμήΜονάδας", Double.class);
-		classes.put("ΣυνολικήΤιμή", Double.class);
-		classes.put("ΤιμήMονάδαςMεΦΠΑ", Double.class);
-		classes.put("ΣυνολικήΤιμήΜεΦΠΑ", Double.class);
-		super.put("ΦΠΑ", (byte) 24);
-		super.put("Ποσότητα", 1.0);
-		super.put("ΜονάδαMέτρησης", "τεμάχια");
+		classes.put("Ξ¦Ξ Ξ‘", Byte.class);
+		classes.put("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", Double.class);
+		classes.put("Ξ¤ΞΉΞΌΞ®ΞΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚", Double.class);
+		classes.put("Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®", Double.class);
+		classes.put("Ξ¤ΞΉΞΌΞ®MΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚MΞµΞ¦Ξ Ξ‘", Double.class);
+		classes.put("Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®ΞΞµΞ¦Ξ Ξ‘", Double.class);
+		super.put("Ξ¦Ξ Ξ‘", (byte) 24);
+		super.put("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", 1.0);
+		super.put("ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚", "Ο„ΞµΞΌΞ¬Ο‡ΞΉΞ±");
 	}
 
 	@Override
-	public String toString() { return super.get("Είδος").toString(); }
+	public String toString() { return super.get("Ξ•Ξ―Ξ΄ΞΏΟ‚").toString(); }
 
 	private void recalculate() {
-		byte fpa = ((Number) super.get("ΦΠΑ")).byteValue();
-		Number Many = (Number) super.get("Ποσότητα");
+		byte fpa = ((Number) super.get("Ξ¦Ξ Ξ‘")).byteValue();
+		Number Many = (Number) super.get("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±");
 		double many = Many == null ? 0.0 : Many.doubleValue();
-		Double Cost = (Double) super.get("ΤιμήΜονάδας");
+		Double Cost = (Double) super.get("Ξ¤ΞΉΞΌΞ®ΞΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚");
 		double cost = Cost == null ? 0.0 : Cost;
 		if (cost != 0 && many != 0) {
-			getDynamic().put("ΣυνολικήΤιμή", Functions.round(cost * many, 3));
-			getDynamic().put("ΣυνολικήΤιμήΜεΦΠΑ", Functions.round(cost * many * (1 + fpa / 100.0), 2));
+			getDynamic().put("Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®", Bill.round(cost * many, 3));
+			getDynamic().put("Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®ΞΞµΞ¦Ξ Ξ‘", Bill.round(cost * many * (1 + fpa / 100.0), 2));
 		} else {
-			getDynamic().remove("ΣυνολικήΤιμή");
-			getDynamic().remove("ΣυνολικήΤιμήΜεΦΠΑ");
+			getDynamic().remove("Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®");
+			getDynamic().remove("Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®ΞΞµΞ¦Ξ Ξ‘");
 		}
 		if (cost != 0)
-			getDynamic().put("ΤιμήMονάδαςMεΦΠΑ", Functions.round(cost * (1 + fpa / 100.0), 4));
+			getDynamic().put("Ξ¤ΞΉΞΌΞ®MΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚MΞµΞ¦Ξ Ξ‘", Bill.round(cost * (1 + fpa / 100.0), 4));
 		else
-			getDynamic().remove("ΤιμήMονάδαςMεΦΠΑ");
+			getDynamic().remove("Ξ¤ΞΉΞΌΞ®MΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚MΞµΞ¦Ξ Ξ‘");
 	}
 
 	@Override
 	public Object put(String key, Object value) {
 		if (value instanceof String) value = super.fromString(key, value.toString());
-		if (value instanceof Number && ((Number) value).doubleValue() == 0 && !key.equals("ΦΠΑ")) value = null;
+		if (value instanceof Number && ((Number) value).doubleValue() == 0 && !key.equals("Ξ¦Ξ Ξ‘")) value = null;
 		double d;
 		switch (key) {
-			case "ΣυνολικήΤιμή": d = ((Number) super.get("Ποσότητα")).doubleValue(); break;
-			case "ΣυνολικήΤιμήΜεΦΠΑ":
-				d = ((Number) super.get("Ποσότητα")).doubleValue() *
-						(1 + ((Number) super.get("ΦΠΑ")).byteValue() / 100.0);
+			case "Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®": d = ((Number) super.get("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±")).doubleValue(); break;
+			case "Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®ΞΞµΞ¦Ξ Ξ‘":
+				d = ((Number) super.get("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±")).doubleValue() *
+						(1 + ((Number) super.get("Ξ¦Ξ Ξ‘")).byteValue() / 100.0);
 				break;
-			case "ΤιμήMονάδαςMεΦΠΑ":
-				d = 1 + ((Number) super.get("ΦΠΑ")).byteValue() / 100.0;
+			case "Ξ¤ΞΉΞΌΞ®MΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚MΞµΞ¦Ξ Ξ‘":
+				d = 1 + ((Number) super.get("Ξ¦Ξ Ξ‘")).byteValue() / 100.0;
 				break;
 			default:
 				Object o = super.put(key, value);
 				recalculate();
 				return o;
 		}
-		d = Functions.round(((Double) value) / d, 4);
-		super.put("ΤιμήΜονάδας", d);
+		d = Bill.round(((Double) value) / d, 4);
+		super.put("Ξ¤ΞΉΞΌΞ®ΞΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚", d);
 		recalculate();
 		return get(key);
 	}

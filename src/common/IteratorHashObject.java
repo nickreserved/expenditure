@@ -1,9 +1,7 @@
 package common;
 
-import java.util.*;
-
 public class IteratorHashObject extends HashObject {
-	private static final String keyS = "*";
+	private static final String KEY_S = "*";
 	private String k;
 
 	public Object get() { return k == null ? null : get(k); }
@@ -14,22 +12,21 @@ public class IteratorHashObject extends HashObject {
 	@Override
 	public Object put(String key, Object val) {
 		if (k == null) k = key;
-		return key.equals(keyS) ? k = val.toString() : super.put(key, val);
+		return key.equals(KEY_S) ? k = val.toString() : super.put(key, val);
 	}
 
 	public Object remove() {
 		if (k == null) return null;
 		Object o = super.remove(k);
-		Iterator<String> it = keySet().iterator();
-		k = it.hasNext() ? it.next() : null;
+		k = (String) keySet().stream().findAny().orElse(null);
 		return o;
 	}
 
 	@Override
-	public String save() {
-		if (k != null) super.put(keyS, k);
-		String s = super.save();
-		super.remove(keyS);
-		return s;
+	public StringBuilder save(StringBuilder out) {
+		if (k != null) super.put(KEY_S, k);
+		super.save(out);
+		super.remove(KEY_S);
+		return out;
 	}
 }

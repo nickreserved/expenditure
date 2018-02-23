@@ -1,6 +1,6 @@
 package cost;
 
-import common.Functions;
+import static cost.Bill.round;
 import java.awt.BorderLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -19,49 +19,53 @@ import javax.swing.event.DocumentListener;
 
 final public class CostWizardDialog extends JDialog implements ActionListener, DocumentListener {
 
+	@SuppressWarnings("LeakingThisInConstructor")
 	public CostWizardDialog(Window w) {
-		super(w, "Οδηγός Τιμολογίου");
+		super(w, "ΞΞ΄Ξ·Ξ³ΟΟ‚ Ξ¤ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―ΞΏΟ…");
 		
 		setLayout(new BorderLayout());
 		((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		Box bv = Box.createVerticalBox();
 		
 		Box bh = Box.createHorizontalBox();
-		bh.add(new JLabel("Πηγή χρηματοδότησης της δαπάνης:"));
+		bh.add(new JLabel("Ξ Ξ·Ξ³Ξ® Ο‡ΟΞ·ΞΌΞ±Ο„ΞΏΞ΄ΟΟ„Ξ·ΟƒΞ·Ο‚ Ο„Ξ·Ο‚ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚:"));
 		bh.add(Box.createHorizontalStrut(5));
-		bh.add(cbMoney = new JComboBox(new String[] { "Ίδιοι πόροι", "Δημόσιο",
-				"Ενιαίο Πρόγραμμα Προμηθειών (Υπουργείο Ανάπτυξης)" }));
+		bh.add(cbFinancing = new JComboBox(new String[] {
+			"Ξ¤Ξ±ΞΊΟ„ΞΉΞΊΟΟ‚ Ξ ΟΞΏΟ‹Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΞΌΟΟ‚",
+			"ΞΞ΄ΞΉΞΏΞΉ Ο€ΟΟΞΏΞΉ",
+			"Ξ ΟΞΏΟ‹Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΞΌΟΟ‚ Ξ ΟΞΏΞ³ΟΞ¬ΞΌΞΌΞ±Ο„ΞΏΟ‚ Ξ”Ξ·ΞΌΞΏΟƒΞ―Ο‰Ξ½ Ξ•Ο€ΞµΞ½Ξ΄ΟΟƒΞµΟ‰Ξ½"
+		}));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 
 		bh = Box.createHorizontalBox();
-		bh.add(new JLabel("Τύπος δαπάνης:"));
+		bh.add(new JLabel("Ξ¤ΟΟ€ΞΏΟ‚ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚:"));
 		bh.add(Box.createHorizontalStrut(5));
-		bh.add(cbCost = new JComboBox(new String[] { "Κατασκευή, επισκευή, συντήρηση έργων ΜΧ", "Λοιπές" }));
+		bh.add(cbCost = new JComboBox(new String[] { "Ξ›ΞΏΞΉΟ€Ξ­Ο‚ (Ξ“Ξ•Ξ£/Ξ”Ξ¥Ξ ΞΞ£Ξ¤Ξ—)", "ΞΟΞ³ΞΏ ΞΞ§ (Ξ“Ξ•Ξ£/Ξ”Ξ¥Ξ Ξ Ξ•)" }));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 
 		bh = Box.createHorizontalBox();
-		bh.add(new JLabel("Τύπος προμηθευτή:"));
+		bh.add(new JLabel("Ξ¤ΟΟ€ΞΏΟ‚ Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®:"));
 		bh.add(Box.createHorizontalStrut(5));
-		bh.add(cbProvider = new JComboBox(new String[] { "Ιδιώτης (Εταιρίες, Καταστήματα, Εργολάβοι, Ιδιώτες)",
-				"Στρατός (Λέσχες, Πρατήρια, κ.τ.λ.)", "Δημόσιο (ΔΕΗ, ΟΣΕ, κ.τ.λ.)", "Ενοικιαστής (Ενοικίαση διαμερίσματος)" }));
+		bh.add(cbContractor = new JComboBox(new String[] {
+			"Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚ (Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ­Ο‚, ΞµΟΞ³ΞΏΞ»Ξ¬Ξ²ΞΏΞΉ, ΞΌΞ¬ΟƒΟ„ΞΏΟΞµΟ‚ ΞΊ.Ο„.Ξ».)",
+			"ΞΞΏΞΌΞΉΞΊΞ¬ Ξ ΟΟΟƒΟ‰Ο€Ξ± Ξ”Ξ·ΞΌΞΏΟƒΞ―ΞΏΟ… Ξ”ΞΉΞΊΞ±Ξ―ΞΏΟ… (Ο€.Ο‡. ΞΞ£Ξ•)",
+			"Ξ£Ο„ΟΞ±Ο„ΞΉΟ‰Ο„ΞΉΞΊΞ¬ Ξ ΟΞ±Ο„Ξ®ΟΞΉΞ±",
+			"Ξ›ΞΏΞ³Ξ±ΟΞΉΞ±ΟƒΞΌΞΏΞ― ΟΞ΄ΟΞµΟ…ΟƒΞ·Ο‚-Ξ±Ο€ΞΏΟ‡Ξ­Ο„ΞµΟ…ΟƒΞ·Ο‚ Ξ® Ξ­ΟΞ³Ξ± Ο„Ξ·Ο‚ Ξ”Ξ•Ξ—"
+		}));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 
 		bh = Box.createHorizontalBox();
-		bh.add(new JLabel("Τύπος τιμολογίου:"));
+		bh.add(new JLabel("Ξ¤ΟΟ€ΞΏΟ‚ Ο„ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―ΞΏΟ…:"));
 		bh.add(Box.createHorizontalStrut(5));
-		bh.add(cbBill = new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" }));
+		bh.add(cbInvoiceType = new JComboBox(new String[] {
+			"Ξ ΟΞΏΞΌΞ®ΞΈΞµΞΉΞ± Ο…Ξ»ΞΉΞΊΟΞ½", "Ξ Ξ±ΟΞΏΟ‡Ξ® Ο…Ο€Ξ·ΟΞµΟƒΞΉΟΞ½", "Ξ‘Ξ³ΞΏΟΞ¬ Ο…Ξ³ΟΟΞ½ ΞΊΞ±Ο…ΟƒΞ―ΞΌΟ‰Ξ½"
+		}));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 		
 		bh = Box.createHorizontalBox();
-		bh.add(new JLabel("Καθαρή αξία τιμολογίου:"));
+		bh.add(new JLabel("ΞΞ±ΞΈΞ±ΟΞ® Ξ±ΞΎΞ―Ξ± Ο„ΞΉΞΌΞΏΞ»ΞΏΞ³Ξ―ΞΏΟ…:"));
 		bh.add(Box.createHorizontalStrut(5));
 		bh.add(tfValue = new JTextField());
-		bv.add(bh); bv.add(Box.createVerticalStrut(5));
-
-		bh = Box.createHorizontalBox();
-		bh.add(new JLabel("<html>" + lblBills));
-		bh.add(Box.createHorizontalStrut(5));
-		bh.add(tfValueProvider = new JTextField());
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 
 		getContentPane().add(bv, BorderLayout.PAGE_START);
@@ -74,116 +78,145 @@ final public class CostWizardDialog extends JDialog implements ActionListener, D
 		setSize(650, 450);
 		setDefaultCloseOperation(HIDE_ON_CLOSE);
 		
-		cbMoney.addActionListener(this);
-		cbProvider.addActionListener(this);
+		cbFinancing.addActionListener(this);
+		cbContractor.addActionListener(this);
 		cbCost.addActionListener(this);
-		cbBill.addActionListener(this);
+		cbInvoiceType.addActionListener(this);
 		tfValue.getDocument().addDocumentListener(this);
-		tfValueProvider.getDocument().addDocumentListener(this);
 		
 		calc();
 	}
 
-	private final String lblBills = "Καθαρή αξία <b>όλων</b> των τιμολογίων του <b>ίδιου</b> προμηθευτή:";
-	private final JComboBox cbMoney;
-	private final JComboBox cbProvider;
+	private final JComboBox cbFinancing;
+	private final JComboBox cbContractor;
 	private final JComboBox cbCost;
-	private final JComboBox cbBill;
+	private final JComboBox cbInvoiceType;
 	private final JTextField tfValue;
-	private final JTextField tfValueProvider;
 	private final JTextPane tpInfo;
 
 	@Override public void actionPerformed(ActionEvent e) { calc(); }
 	@Override public void insertUpdate(DocumentEvent e) { calc(); }
 	@Override public void removeUpdate(DocumentEvent e) { calc(); }
 	@Override public void changedUpdate(DocumentEvent e) { calc(); }
-	
+
 	private void calc() {
 		try {
-			int idxMoney = cbMoney.getSelectedIndex();
-			int idxCost = cbCost.getSelectedIndex();
-			int idxProvider = cbProvider.getSelectedIndex();
-			int idxBill = cbBill.getSelectedIndex();
+			int financing = cbFinancing.getSelectedIndex();
+			boolean construction = cbCost.getSelectedIndex() == 1;
+			int contractor = cbContractor.getSelectedIndex();
+			int invoiceType = cbInvoiceType.getSelectedIndex();
+			double net = round(Double.parseDouble(tfValue.getText()), 2);
 			
-			double value = Functions.round(Double.parseDouble(tfValue.getText()), 2);
-			double valueprovider = 0;
-			boolean fpa = true;
-			double hold = 0;
-			boolean agreement = false;
-			int fe = 0;			
-			String text = "<html><style>ul {margin-top: -15px; margin-bottom: 0}</style>";
+			// Ξ£Ξµ ΞΊΞ±Ο„Ξ±ΟƒΞΊΞµΟ…Ξ±ΟƒΟ„ΞΉΞΊΞ­Ο‚ Ξ΄Ξ±Ο€Ξ¬Ξ½ΞµΟ‚, Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®Ο‚ ΞµΞ―Ξ½Ξ±ΞΉ Ο€Ξ¬Ξ½Ο„Ξ± ΞΉΞ΄ΞΉΟΟ„Ξ·Ο‚
+			if (construction && contractor != 0 /*ΞΟ‡ΞΉ ΞΉΞ΄ΞΉΟΟ„Ξ·Ο‚*/) {
+				construction = false;
+				cbCost.setSelectedIndex(0 /*ΞΟ‡ΞΉ Ξ­ΟΞ³ΞΏ ΞΞ§*/);
+			}
+			// Ξ£Ξµ Ξ΄Ξ±Ο€Ξ¬Ξ½ΞµΟ‚ Ο€ΞΏΟ… Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®Ο‚ ΞµΞ―Ξ½Ξ±ΞΉ ΞΏ Ξ£Ο„ΟΞ±Ο„ΟΟ‚, Ο„Ξ± Ο„ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ± ΞµΞ―Ξ½Ξ±ΞΉ Ο€Ξ¬Ξ½Ο„Ξ± Ο€ΟΞΏΞΌΞ®ΞΈΞµΞΉΞ±Ο‚ Ο…Ξ»ΞΉΞΊΟΞ½
+			if (contractor == 2 /*Ξ£Ο„ΟΞ±Ο„ΟΟ‚*/ && invoiceType != 0 /*Ξ ΟΞΏΞΌΞ®ΞΈΞµΞΉΞ± Ο…Ξ»ΞΉΞΊΟΞ½*/)
+				cbInvoiceType.setSelectedIndex(invoiceType = 0); //Ξ ΟΞΏΞΌΞ®ΞΈΞµΞΉΞ± Ο…Ξ»ΞΉΞΊΟΞ½
+			// Ξ£Ξµ Ξ΄Ξ±Ο€Ξ¬Ξ½ΞµΟ‚ ΟΞµΟΞΌΞ±Ο„ΞΏΟ‚-Ξ½ΞµΟΞΏΟ, Ο„Ξ± Ο„ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ± ΞµΞ―Ξ½Ξ±ΞΉ Ο€Ξ¬Ξ½Ο„Ξ± Ο€Ξ±ΟΞΏΟ‡Ξ®Ο‚ Ο…Ο€Ξ·ΟΞµΟƒΞΉΟΞ½
+			if (contractor == 3 /*ΞΞ΄ΟΞµΟ…ΟƒΞ·-Ξ΅ΞµΟΞΌΞ±*/ && invoiceType != 1 /*Ξ Ξ±ΟΞΏΟ‡Ξ® Ο…Ο€Ξ·ΟΞµΟƒΞΉΟΞ½*/)
+				cbInvoiceType.setSelectedIndex(invoiceType = 1); // Ξ Ξ±ΟΞΏΟ‡Ξ® Ο…Ο€Ξ·ΟΞµΟƒΞΉΟΞ½
+			// Ξ£Ξµ Ξ΄Ξ±Ο€Ξ¬Ξ½ΞµΟ‚ Ο€ΟΞΏΟ‹Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΞΌΞΏΟ Ξ Ξ”Ξ•, ΞΏ ΞµΟΞ³ΞΏΞ»Ξ¬Ξ²ΞΏΟ‚ ΞµΞ―Ξ½Ξ±ΞΉ Ο€Ξ¬Ξ½Ο„Ξ± ΞΉΞ΄ΞΉΟΟ„Ξ·Ο‚
+			if (financing == 2 /*Ξ ΟΞΏΟ‹Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΞΌΟΟ‚ Ξ Ξ”Ξ•*/ && contractor != 0 /*Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚*/)
+					cbContractor.setSelectedIndex(contractor = 0); // Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚
+
+			boolean fpa = contractor != 2 /*ΞΟ‡ΞΉ Ξ£Ο„ΟΞ±Ο„ΟΟ‚*/;
+			double hold = 0, valueforfe = net;
+			int fe = 0;
 			
-			try {
-				valueprovider = Functions.round(Double.parseDouble(tfValueProvider.getText()), 2);
-			} catch (NumberFormatException e) {}
-			if (valueprovider < value) valueprovider = value;
-			text += "<b>Καθαρή Αξία:</b> " + value + " €<br>" + lblBills + " " + valueprovider + " €";
-			
-			switch(idxMoney) {
-				case 0 /*Ίδιοι Πόροι*/:
-				case 1 /*Δημόσιο*/:
-					switch(idxProvider) {
-						case 0 /*Ιδιώτης*/:
-							if (valueprovider < 2500) hold = 4.15816; else { hold = 4.22032; agreement = true; }
-							break;
-						case 1 /*Στρατός*/:
-						case 2 /*Δημόσιο*/:
-							cbCost.setSelectedIndex(idxCost = 1);	// Λοιπές δαπάνες
-							if (idxProvider == 1 /*Στρατός*/ && idxBill == 1 /*Παροχή Υπηρεσιών*/)
-								cbBill.setSelectedIndex(idxBill = 0); //Προμήθεια υλικών
-							hold = 4;
-							break;
-						default /*Ενοικιαστής*/:
-							cbCost.setSelectedIndex(idxCost = 1);	// Λοιπές δαπάνες
-							cbBill.setSelectedIndex(idxBill = 1); // Παροχή υπηρεσιών
-							hold = 4.096;
+			// Ξ¥Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΞΌΟΟ‚ ΞΊΟΞ±Ο„Ξ®ΟƒΞµΟ‰Ξ½
+			if (contractor == 0 /*Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚*/) {
+				if (net > 2500)
+					switch(financing) {
+						case 0: /*Ξ¤Ξ±ΞΊΟ„ΞΉΞΊΟΟ‚ Ξ /Ξ¥*/ hold = 4.22032; break;
+						case 1: /*Ξ™Ξ΄ΞΉΞΏΞΉ Ο€ΟΟΞΏΞΉ*/ hold = 14.22032; break;
+						case 2: /*Ξ /Ξ¥ Ξ Ξ”Ξ•*/ hold = 0.12432; break;
 					}
-					if (idxMoney == 0 && hold != 0) hold = Functions.round(hold + 10, 5);
-					break;
-				case 2 /*Υπ.Αν.*/:
-					cbProvider.setSelectedIndex(idxProvider = 0);
-					if (valueprovider < 2500) hold = 0; else { hold = 0.06216; agreement = true; }
-			}
-
-			if (idxProvider == 1 /*Στρατός*/) fpa = false;
-			text += "<br><b>ΦΠΑ:</b> " + (fpa ? "Προβλέπεται και το γνωρίζει ο προμηθευτής" : "0%");
-
-			text += "<br><b>Κρατήσεις:</b> " + hold + "% της καθαρής αξίας (" +
-					Math.round(value * hold) / 100.0 + " €), που βαρύνουν " +
-					(idxProvider != 0 /*Ιδιώτης*/ && idxProvider != 3 /*Ενοικιαστής*/ ? "εμάς" : "τον προμηθευτή") +
-					"<br><b>Καταλογιστέο:</b> Καθαρή Αξία" + (fpa ? " + ΦΠΑ" : "") +
-					(idxProvider != 0 /*Ιδιώτης*/ && idxProvider != 3 /*Ενοικιαστής*/ ? " + Κρατήσεις" : "");			
+				else
+					switch(financing) {
+						case 0: /*Ξ¤Ξ±ΞΊΟ„ΞΉΞΊΟΟ‚ Ξ /Ξ¥*/ hold = 4.096; break;
+						case 1: /*Ξ™Ξ΄ΞΉΞΏΞΉ Ο€ΟΟΞΏΞΉ*/ hold = 14.096; break;
+						//case 2: /*Ξ /Ξ¥ Ξ Ξ”Ξ•*/ hold = 0; break;
+					}
+			} else if (contractor == 1 /*ΞΞ Ξ”Ξ”*/ || contractor == 2 /*Ξ£Ο„ΟΞ±Ο„ΞΏΟ‚*/)
+				switch (financing) {
+					case 0: /*Ξ¤Ξ±ΞΊΟ„ΞΉΞΊΟΟ‚ Ξ /Ξ¥ */ hold = 4; break;
+					case 1: /*Ξ™Ξ΄ΞΉΞΏΞΉ Ο€ΟΟΞΏΞΉ */ hold = 14; break;
+					//case 2: /* Ξ /Ξ¥ Ξ Ξ”Ξ• */ hold = 0; break;
+				}
+			// else if (contractor == 3 /*ΞΞ΄ΟΞµΟ…ΟƒΞ·-Ξ΅ΞµΟΞΌΞ±*/) hold = 0;
 			
-			{
-			double valueforfe = value;
-			if (idxProvider == 0 /*Ιδιώτης*/ && valueprovider > 150 /*ΚαθαρήΑξια του προμηθευτή*/) {
-				final int[] a = { 4, 8, 1 };
-				fe = a[idxBill];	// Είδος τιμολογίου
-				if (idxBill == 1 /*Παροχή Υπηρεσιών*/ && idxCost == 0 /*Κατασκευή Έργων*/) fe = 3;
-				else valueforfe = value - Math.round(hold * value) / 100.0;
+			StringBuilder sb = new StringBuilder(4096);
+			sb.append("<html><style>ul {margin-top: -15px; margin-bottom: 0}</style><b>ΞΞ±ΞΈΞ±ΟΞ® Ξ‘ΞΎΞ―Ξ±:</b> ");
+			sb.append(net).append("β‚¬");
+
+			sb.append("<br><b>Ξ¦Ξ Ξ‘:</b> ");
+			if (fpa) sb.append("Ξ ΟΞΏΞ²Ξ»Ξ­Ο€ΞµΟ„Ξ±ΞΉ ΞΊΞ±ΞΉ Ο„ΞΏ Ξ³Ξ½Ο‰ΟΞ―Ξ¶ΞµΞΉ ΞΏ Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®Ο‚");
+			else sb.append("0%");
+
+			sb.append("<br><b>ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚:</b> ").append(hold).append("% Ο„Ξ·Ο‚ ΞΊΞ±ΞΈΞ±ΟΞ®Ο‚ Ξ±ΞΎΞ―Ξ±Ο‚");
+			if (hold == 0) sb.append(".");
+			else {
+				sb.append(" (").append(Math.round(net * hold) / 100.0).append("β‚¬), Ο€ΞΏΟ… Ξ²Ξ±ΟΟΞ½ΞΏΟ…Ξ½ ");
+				if (contractor != 0 /*Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚*/) sb.append("ΞµΞΌΞ¬Ο‚"); else sb.append("Ο„ΞΏΞ½ Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®");
+				sb.append("<br><b>ΞΞ±Ο„Ξ±Ξ»ΞΏΞ³ΞΉΟƒΟ„Ξ­ΞΏ:</b> ΞΞ±ΞΈΞ±ΟΞ® Ξ‘ΞΎΞ―Ξ±");
+				if (fpa) sb.append(" + Ξ¦Ξ Ξ‘");
+				if (contractor != 0 /*Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚*/) sb.append(" + ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚");
 			}
-			text += "<br><b>ΦΕ:</b> " + fe + "% της καθαρής αξίας" +
-					(fe == 3 ? "" : " μειον κρατήσεις") + " (" + Math.round(valueforfe * fe) / 100.0 + " €)<br>";
-			}
+
+			// Ξ¥Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΞΌΟΟ‚ Ο„ΞΏΟ… Ξ¦Ξ•
+			if (net > 150 && contractor == 0 /*ΞΞ΄ΞΉΟΟ„Ξ·Ο‚*/)
+				switch (invoiceType) {
+					case 0: /*Ξ ΟΞΏΞΌΞ®ΞΈΞµΞΉΞ± Ο…Ξ»ΞΉΞΊΟΞ½*/ fe = 4; break;
+					case 1: /*Ξ Ξ±ΟΞΏΟ‡Ξ® Ο…Ο€Ξ·ΟΞµΟƒΞΉΟΞ½*/
+						if (construction /*ΞΞ±Ο„Ξ±ΟƒΞΊΞµΟ…Ξ® Ξ­ΟΞ³ΞΏΟ…*/) {
+							fe = 3;
+							valueforfe -= Math.round(hold * net) / 100.0;
+						} else fe = 8;
+						break;
+					case 2: /*Ξ ΟΞΏΞΌΞ®ΞΈΞµΞΉΞ± Ο…Ξ³ΟΟΞ½ ΞΊΞ±Ο…ΟƒΞ―ΞΌΟ‰Ξ½*/ fe = 1; break;
+				}
+
+			sb.append("<br><b>Ξ¦Ξ•:</b> ").append(fe).append("% Ο„Ξ·Ο‚ ΞΊΞ±ΞΈΞ±ΟΞ®Ο‚ Ξ±ΞΎΞ―Ξ±Ο‚");
+			if (fe != 3) sb.append(" ΞΌΞµΞΉΞΏΞ½ ΞΊΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚");
+			sb.append(" (").append(Math.round(valueforfe * fe) / 100.0).append("β‚¬)<br>");
 	
-			if (idxCost == 0 /*Κατασκευή Έργων*/ && idxBill == 1 /*Παροχή Υπηρεσιών*/)
-				text += "<br>Ο εργολάβος πρέπει να μας υποβάλει τα πρωτότυπα αποδεικτικά κατάθεσης για 1% <b>ΤΠΕΔΕ</b> (" + Functions.round(0.01 * value, 2) +
-						" €) και 0.5% <b>ΕΜΠ</b> (" + Functions.round(0.005 * value, 2) + " €) της καθαρής αξίας, καθώς και το χαρτόσημο και χαρτόσημο ΟΓΑ που αναλογεί σε αυτά.";
+			if (construction /*ΞΞ±Ο„Ξ±ΟƒΞΊΞµΟ…Ξ® ΞΟΞ³Ο‰Ξ½*/ && invoiceType == 1 /*Ξ Ξ±ΟΞΏΟ‡Ξ® Ξ¥Ο€Ξ·ΟΞµΟƒΞΉΟΞ½*/)
+				sb.append("<br>Ξ ΞµΟΞ³ΞΏΞ»Ξ¬Ξ²ΞΏΟ‚ Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± ΞΌΞ±Ο‚ Ο…Ο€ΞΏΞ²Ξ¬Ξ»ΞµΞΉ Ο„Ξ± Ο€ΟΟ‰Ο„ΟΟ„Ο…Ο€Ξ± Ξ±Ο€ΞΏΞ΄ΞµΞΉΞΊΟ„ΞΉΞΊΞ¬ ΞΊΞ±Ο„Ξ¬ΞΈΞµΟƒΞ·Ο‚"
+						+ "Ξ³ΞΉΞ± 1% <b>Ξ¤Ξ Ξ•Ξ”Ξ•</b> (")
+						.append(round(0.01 * net, 2))
+						.append("β‚¬) ΟƒΟ„ΞΏ Ξ»ΞΏΞ³Ξ±ΟΞΉΞ±ΟƒΞΌΟ ______, 0.5% <b>Ξ•ΞΞ </b> (")
+						.append(round(0.005 * net, 2))
+						.append("β‚¬) ΟƒΟ„ΞΏ Ξ»ΞΏΞ³Ξ±ΟΞΉΞ±ΟƒΞΌΟ ______, 0.6% <b>Ξ .Ξ. Ξ•ΞΞ”Ξ¥Ξ”Ξ‘Ξ£</b> (")
+						.append(round(0.006 * net, 2))
+						.append("β‚¬) ΟƒΟ„ΞΏ Ξ»ΞΏΞ³Ξ±ΟΞΉΞ±ΟƒΞΌΟ Ξ™Ξ’Ξ‘Ξ GR5701100800000008000587009,  ΞµΟ€Ξ― Ο„Ξ·Ο‚ ΞΊΞ±ΞΈΞ±ΟΞ®Ο‚"
+								+ " Ξ±ΞΎΞ―Ξ±Ο‚, ΞΊΞ±ΞΈΟΟ‚ ΞΊΞ±ΞΉ Ο„ΞΏ Ο‡Ξ±ΟΟ„ΟΟƒΞ·ΞΌΞΏ ΞΊΞ±ΞΉ Ο‡Ξ±ΟΟ„ΟΟƒΞ·ΞΌΞΏ ΞΞ“Ξ‘ Ο€ΞΏΟ… Ξ±Ξ½Ξ±Ξ»ΞΏΞ³ΞµΞ― ΟƒΞµ Ξ±Ο…Ο„Ξ¬.");
 			
-			if (idxProvider == 0 /*Ιδιώτης*/) {
-				if (valueprovider > 1500) text += "<br>Απαιτείται Φορολογική Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».";
-				else if (valueprovider > 1220) text += "<br>Αν το καταλογιστέο είναι πάνω από 1500€, απαιτείται Φορολογική Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».";
-				if (valueprovider > 3000) text += "<br>Απαιτείται Ασφαλιστική Ενημερότητα του προμηθευτή.";
-				else if (valueprovider > 2440) text += "<br>Αν το καταλογιστέο είναι πάνω από 3000€, απαιτείται Ασφαλιστική Ενημερότητα του προμηθευτή.";
+			if (contractor == 0 /*Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚*/) {
+				if (net > 1500)
+					sb.append("<br>Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ¦ΞΏΟΞΏΞ»ΞΏΞ³ΞΉΞΊΞ® Ξ•Ξ½Ξ·ΞΌΞµΟΟΟ„Ξ·Ο„Ξ± Ο„ΞΏΟ… Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®"
+							+ " Ξ³ΞΉΞ± Β«Ξ Ξ»Ξ·ΟΟ‰ΞΌΞ® Ξ±Ο€Ο Ο„ΞΏ Ξ”Ξ·ΞΌΟΟƒΞΉΞΏΒ».");
+				else if (net > 1220)
+					sb.append("<br>Ξ‘Ξ½ Ο„ΞΏ ΞΊΞ±Ο„Ξ±Ξ»ΞΏΞ³ΞΉΟƒΟ„Ξ­ΞΏ ΞµΞ―Ξ½Ξ±ΞΉ Ο€Ξ¬Ξ½Ο‰ Ξ±Ο€Ο 1500β‚¬, Ξ±Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ¦ΞΏΟΞΏΞ»ΞΏΞ³ΞΉΞΊΞ® "
+							+ "Ξ•Ξ½Ξ·ΞΌΞµΟΟΟ„Ξ·Ο„Ξ± Ο„ΞΏΟ… Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ® Ξ³ΞΉΞ± Β«Ξ Ξ»Ξ·ΟΟ‰ΞΌΞ® Ξ±Ο€Ο Ο„ΞΏ Ξ”Ξ·ΞΌΟΟƒΞΉΞΏΒ».");
+				if (net > 2500)
+					sb.append("<br>Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ‘ΟƒΟ†Ξ±Ξ»ΞΉΟƒΟ„ΞΉΞΊΞ® Ξ•Ξ½Ξ·ΞΌΞµΟΟΟ„Ξ·Ο„Ξ± Ο„ΞΏΟ… Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®."
+							+ "<br>Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ±Ο€ΟΟƒΟ€Ξ±ΟƒΞΌΞ± Ο€ΞΏΞΉΞ½ΞΉΞΊΞΏΟ ΞΌΞ·Ο„ΟΟΞΏΟ…."
+							+ "<br>Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ ΟƒΟΞ½Ξ±ΟΞ· ΟƒΟΞΌΞ²Ξ±ΟƒΞ·Ο‚ ΞΌΞµ Ο„ΞΏΞ½ Ο€ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®.");
 			}
-			if (valueprovider > 60000) { text += "<br>Απαιτείται Δημόσιος Διαγωνισμός."; agreement = true; }
-			else if (valueprovider > 15000 || idxCost == 0 /*Κατασκευή Έργων*/)
-				{ text += "<br>Απαιτείται Πρόχειρος Διαγωνισμός."; agreement = true; }
-			if (agreement) text += "<br>Απαιτείται σύναψη σύμβασης με τον προμηθευτή.";
 			
-			tpInfo.setText(text);
+			if (net > 60000) sb.append("<br>Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ”Ξ·ΞΌΟΟƒΞΉΞΏΟ‚ Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΟΟ‚.");
+			else if (net > 20000) sb.append("<br>Ξ‘Ο€Ξ±ΞΉΟ„ΞµΞ―Ο„Ξ±ΞΉ Ξ ΟΟΟ‡ΞµΞΉΟΞΏΟ‚ Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΟΟ‚.");
+
+			if (net > 20000)
+				sb.append("<br>Ξ ΞµΟΞ³ΞΏΞ»Ξ¬Ξ²ΞΏΟ‚ Ξ΄ΞµΞ½ Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± Ξ­Ο‡ΞµΞΉ Ξ±ΟΞΉΞΈΞΌΟ ΞΊΞ±Ο„Ξ±Ξ΄ΞΉΞΊΞ±ΟƒΟ„ΞΉΞΊΟΞ½ Ξ±Ο€ΞΏΟ†Ξ¬ΟƒΞµΟ‰Ξ½"
+						+ " ΞµΟΞ³Ξ±Ο„ΞΉΞΊΞ®Ο‚ Ο†ΟΟƒΞµΟ‰Ο‚ Ο„Ξ·Ξ½ Ο„ΞµΞ»ΞµΟ…Ο„Ξ±Ξ―Ξ± Ξ΄ΞΉΞµΟ„Ξ―Ξ±");
+			
+			tpInfo.setText(sb.toString());
 		} catch(NumberFormatException e) {
-			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/60/918814/Σ.5965/2 Σεπ 16/ΓΕΣ/ΔΟΙ/3α και ΚΥΑ 1191/14 Μαι 17 (ΦΕΚ Β' 969).");
+			tpInfo.setText("Ξ£Ο…ΞΌΟ€Ξ»Ξ·ΟΟΟƒΟ„Ξµ ΟƒΟ‰ΟƒΟ„Ξ¬ Ο„Ξ± Ο€Ξ±ΟΞ±Ο€Ξ¬Ξ½Ο‰ Ο€ΞµΞ΄Ξ―Ξ± Ξ³ΞΉΞ± Ξ½Ξ± Ξ»Ξ¬Ξ²ΞµΟ„Ξµ Ο€Ξ»Ξ·ΟΞΏΟ†ΞΏΟΞ―ΞµΟ‚ Ξ³ΞΉΞ± Ο„ΞΏ Ο„ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞΏ Ξ±Ξ»Ξ»Ξ¬ ΞΊΞ±ΞΉ Ο„Ξ· Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·.<br>ΞΞΉ ΞΊΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚ ΞΊΞ±ΞΉ Ο„ΞΏ Ξ¦Ξ• Ο…Ο€ΞΏΞ»ΞΏΞ³Ξ―Ξ¶ΞΏΞ½Ο„Ξ±ΞΉ Ξ²Ξ¬ΟƒΞ· Ο„Ξ·Ο‚ Ξ¦.830/60/918814/Ξ£.5965/2 Ξ£ΞµΟ€ 16/Ξ“Ξ•Ξ£/Ξ”ΞΞ™/3Ξ± ΞΊΞ±ΞΉ ΞΞ¥Ξ‘ 1191/14 ΞΞ±ΞΉ 17 (Ξ¦Ξ•Ξ Ξ’' 969).");
 		}
 	}
 }

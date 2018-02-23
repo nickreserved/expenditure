@@ -3,7 +3,7 @@ package cost;
 import common.*;
 
 public class Provider extends HashObject {
-	public Provider() { super.put("Τύπος", "Ιδιώτης"); } // backward compatibility
+	public Provider() { super.put("Ξ¤ΟΟ€ΞΏΟ‚", "Ξ™Ξ΄ΞΉΟΟ„Ξ·Ο‚"); } // backward compatibility
 	@Override
-  public String toString() { return get("Επωνυμία").toString(); }
+  public String toString() { return get("Ξ•Ο€Ο‰Ξ½Ο…ΞΌΞ―Ξ±").toString(); }
 }

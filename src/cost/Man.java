@@ -1,7 +1,7 @@
 package cost;
 
-import common.*;
+import common.HashObject;
 
 public class Man extends HashObject {
-  public String toString() { return get("Βαθμός") + " " + get("Ονοματεπώνυμο"); }
+  @Override public String toString() { return get("Ξ’Ξ±ΞΈΞΌΟΟ‚") + " " + get("ΞΞ½ΞΏΞΌΞ±Ο„ΞµΟ€ΟΞ½Ο…ΞΌΞΏ"); }
 }

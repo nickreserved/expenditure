@@ -1,33 +1,54 @@
 package cost;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import tables.*;
-import common.*;
-import java.awt.event.*;
+import common.VectorObject;
+import java.awt.BorderLayout;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Map;
+import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumnModel;
+import tables.ArrayTransmitter;
+import tables.PropertiesTable;
+import tables.PropertiesTableModel;
+import tables.ResizableTable;
+import tables.ResizableTableModel;
 
-public class Bills extends JPanel implements ListSelectionListener, ArrayTransmitter<Bill>, TableModelListener {
-	static protected JComboBox cbMeasures = new JComboBox(new String[] { "τεμάχια", "lt", "Kgr", "ton", "mm", "cm", "<html>cm<sup>2", "<html>cm<sup>3", "m", "<html>m<sup>2", "<html>m<sup>3", "ρολά", "πόδια", "λίβρες", "ζεύγη", "στρέμματα", "Km", "<html>Km<sup>2" });
+final public class Bills extends JPanel implements ListSelectionListener, ArrayTransmitter<Bill>, TableModelListener {
+	static protected JComboBox cbMeasures = new JComboBox(new String[] { "Ο„ΞµΞΌΞ¬Ο‡ΞΉΞ±", "lt", "Kgr", "ton", "mm", "cm", "<html>cm<sup>2", "<html>cm<sup>3", "m", "<html>m<sup>2", "<html>m<sup>3", "ΟΞΏΞ»Ξ¬", "Ο€ΟΞ΄ΞΉΞ±", "Ξ»Ξ―Ξ²ΟΞµΟ‚", "Ξ¶ΞµΟΞ³Ξ·", "ΟƒΟ„ΟΞ­ΞΌΞΌΞ±Ο„Ξ±", "Km", "<html>Km<sup>2" });
 	private final ResizableTableModel billModel;
 	private final JTable tblBills;
 	private String cost;
 
+	@SuppressWarnings("LeakingThisInConstructor")
 	public Bills() {
-		ResizableTableModel billsModel = new ResizableTableModel(this, new String[] { "Τιμολόγιο", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" }, new String[] { null, null, null, "Κρατήσεις", "ΦΕ" }, Bill.class);
+		ResizableTableModel billsModel = new ResizableTableModel(this, new String[] { "Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞΏ", "ΞΞ±Ο„Ξ·Ξ³ΞΏΟΞ―Ξ±", "Ξ ΟΞΏΞΌΞ·ΞΈΞµΟ…Ο„Ξ®Ο‚", "Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞ·ΞΟΞ±Ο„Ξ®ΟƒΞµΟ‰Ξ½Ξ£ΞµΞ ΞΏΟƒΞΏΟƒΟ„Ξ¬", "Ξ ΞΏΟƒΞΏΟƒΟ„ΟΞ¦Ξ•" }, new String[] { null, null, null, "ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚", "Ξ¦Ξ•" }, Bill.class);
 		billsModel.addTableModelListener(this);
 		tblBills = new ResizableTable(billsModel, false, false);
 		tblBills.getSelectionModel().addListSelectionListener(this);
 		tblBills.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		TableColumnModel cm = tblBills.getColumnModel();
-		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Προμήθεια υλικών", "Παροχή υπηρεσιών", "Αγορά υγρών καυσίμων" })));
+		cm.getColumn(1).setCellEditor(new DefaultCellEditor(new JComboBox(new String[] { "Ξ ΟΞΏΞΌΞ®ΞΈΞµΞΉΞ± Ο…Ξ»ΞΉΞΊΟΞ½", "Ξ Ξ±ΟΞΏΟ‡Ξ® Ο…Ο€Ξ·ΟΞµΟƒΞΉΟΞ½", "Ξ‘Ξ³ΞΏΟΞ¬ Ο…Ξ³ΟΟΞ½ ΞΊΞ±Ο…ΟƒΞ―ΞΌΟ‰Ξ½" })));
 		cm.getColumn(2).setCellEditor(new DefaultCellEditor(Providers.providers));
 		cm.getColumn(3).setCellEditor(new DefaultCellEditor(Holds.holds));
 		cm.getColumn(4).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1, 3, 20 })));
 
-		billModel = new ResizableTableModel((ArrayList) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
+		billModel = new ResizableTableModel((ArrayList) null, new String[] { "Ξ•Ξ―Ξ΄ΞΏΟ‚", "Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", "Ξ¤ΞΉΞΌΞ®ΞΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚", "Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®", "Ξ¦Ξ Ξ‘", "Ξ¤ΞΉΞΌΞ®MΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚MΞµΞ¦Ξ Ξ‘", "Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ®Ξ¤ΞΉΞΌΞ®ΞΞµΞ¦Ξ Ξ‘" ,"ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚"}, new String[] { null, null, "Ξ¤ΞΉΞΌΞ® ΞΌΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚", "Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ® Ο„ΞΉΞΌΞ®", null, "Ξ¤ΞΉΞΌΞ® ΞΌΞΏΞ½Ξ¬Ξ΄Ξ±Ο‚ ΞΌΞµ Ξ¦Ξ Ξ‘", "Ξ£Ο…Ξ½ΞΏΞ»ΞΉΞΊΞ® Ο„ΞΉΞΌΞ® ΞΌΞµ Ξ¦Ξ Ξ‘" ,"ΞΞΏΞ½Ξ¬Ξ΄Ξ± ΞΌΞ­Ο„ΟΞ·ΟƒΞ·Ο‚"}, BillItem.class);
 		final JTable billTable = new ResizableTable(billModel, true, true);
 		cm = billTable.getColumnModel();
 		JComboBox fpa = new JComboBox(new Byte[] { 24, 13, 6, 0 });
@@ -37,10 +58,10 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
 		cm.getColumn(7).setCellEditor(new DefaultCellEditor(cbMeasures));
 		billModel.addTableModelListener(this);
 
-		// Προσθήκη επιπλέον επιλογής στο popup menu για μεταφορά υλικών στις εργασίες
+		// Ξ ΟΞΏΟƒΞΈΞ®ΞΊΞ· ΞµΟ€ΞΉΟ€Ξ»Ξ­ΞΏΞ½ ΞµΟ€ΞΉΞ»ΞΏΞ³Ξ®Ο‚ ΟƒΟ„ΞΏ popup menu Ξ³ΞΉΞ± ΞΌΞµΟ„Ξ±Ο†ΞΏΟΞ¬ Ο…Ξ»ΞΉΞΊΟΞ½ ΟƒΟ„ΞΉΟ‚ ΞµΟΞ³Ξ±ΟƒΞ―ΞµΟ‚
 		JPopupMenu popupMenu = billTable.getComponentPopupMenu();
 		popupMenu.addSeparator();
-		JMenuItem item = new JMenuItem("Αντιγραφή επιλεγμένων γραμμών στην τρέχουσα εργασία",
+		JMenuItem item = new JMenuItem("Ξ‘Ξ½Ο„ΞΉΞ³ΟΞ±Ο†Ξ® ΞµΟ€ΞΉΞ»ΞµΞ³ΞΌΞ­Ξ½Ο‰Ξ½ Ξ³ΟΞ±ΞΌΞΌΟΞ½ ΟƒΟ„Ξ·Ξ½ Ο„ΟΞ­Ο‡ΞΏΟ…ΟƒΞ± ΞµΟΞ³Ξ±ΟƒΞ―Ξ±",
 				new ImageIcon(ClassLoader.getSystemResource("cost/import.png")));
 		popupMenu.add(item);
 		item.addActionListener((ActionEvent e) -> {
@@ -53,9 +74,9 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
 					((Works) ((JTabbedPane) MainFrame.ths.getContentPane().getComponent(0))
 							.getComponentAt(3)).addMaterialToCurrentWork(materials);
 					} catch(Exception ex) {
-						JOptionPane.showMessageDialog(MainFrame.ths, "Δεν υπάρχει επιλεγμένη εργασία για να προστεθούν υλικά.\n" +
-								"Επιλέξτε πρώτα μια εργασία στην καρτέλα «Εργασίες» και μετά προσθέστε υλικά, από τα τιμολόγια, σε αυτή.",
-								"Αποθήκευση Δαπάνης", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(MainFrame.ths, "Ξ”ΞµΞ½ Ο…Ο€Ξ¬ΟΟ‡ΞµΞΉ ΞµΟ€ΞΉΞ»ΞµΞ³ΞΌΞ­Ξ½Ξ· ΞµΟΞ³Ξ±ΟƒΞ―Ξ± Ξ³ΞΉΞ± Ξ½Ξ± Ο€ΟΞΏΟƒΟ„ΞµΞΈΞΏΟΞ½ Ο…Ξ»ΞΉΞΊΞ¬.\n" +
+								"Ξ•Ο€ΞΉΞ»Ξ­ΞΎΟ„Ξµ Ο€ΟΟΟ„Ξ± ΞΌΞΉΞ± ΞµΟΞ³Ξ±ΟƒΞ―Ξ± ΟƒΟ„Ξ·Ξ½ ΞΊΞ±ΟΟ„Ξ­Ξ»Ξ± Β«Ξ•ΟΞ³Ξ±ΟƒΞ―ΞµΟ‚Β» ΞΊΞ±ΞΉ ΞΌΞµΟ„Ξ¬ Ο€ΟΞΏΟƒΞΈΞ­ΟƒΟ„Ξµ Ο…Ξ»ΞΉΞΊΞ¬, Ξ±Ο€Ο Ο„Ξ± Ο„ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ±, ΟƒΞµ Ξ±Ο…Ο„Ξ®.",
+								"Ξ‘Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚", JOptionPane.ERROR_MESSAGE);
 					}
 				});
 
@@ -70,7 +91,7 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
 	@Override
 	public ArrayList<Bill> getData() {
 		Cost c = (Cost) MainFrame.costs.get();
-		return c == null ? null : (ArrayList<Bill>) c.get("Τιμολόγια");
+		return c == null ? null : (ArrayList<Bill>) c.get("Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ±");
 	}
 
 	@Override
@@ -86,7 +107,7 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
 	public void valueChanged(ListSelectionEvent e) {
 		ArrayList v = (ArrayList) getData();
 		int cb = tblBills.getSelectionModel().getLeadSelectionIndex();
-		billModel.setData(cb < 0 || cb >= v.size() ? null : (ArrayList) ((Map) v.get(cb)).get("Είδη"));
+		billModel.setData(cb < 0 || cb >= v.size() ? null : (ArrayList) ((Map) v.get(cb)).get("Ξ•Ξ―Ξ΄Ξ·"));
 	}
 
 	@Override
@@ -101,7 +122,7 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
 
 	private class ReportTableModel extends PropertiesTableModel {
 		public ReportTableModel() {
-			super(new String[] { "ΚαθαρήΑξία", "ΚατηγορίεςΦΠΑ", "Καταλογιστέο", "ΑνάλυσηΚρατήσεωνΣεΕυρώ", "Πληρωτέο", "ΦΕΣεΕυρώ", "ΥπόλοιποΠληρωτέο", null, null, null, null, null, null, null }, null, new String[] { "Καθαρή Αξία", "ΦΠΑ", null, "Κρατήσεις", null, "ΦΕ", "Υπόλοιπο" }, new String[] { "Τρέχον Τιμολόγιο", "Όλα τα Τιμολόγια" });
+			super(new String[] { "ΞΞ±ΞΈΞ±ΟΞ®Ξ‘ΞΎΞ―Ξ±", "ΞΞ±Ο„Ξ·Ξ³ΞΏΟΞ―ΞµΟ‚Ξ¦Ξ Ξ‘", "ΞΞ±Ο„Ξ±Ξ»ΞΏΞ³ΞΉΟƒΟ„Ξ­ΞΏ", "Ξ‘Ξ½Ξ¬Ξ»Ο…ΟƒΞ·ΞΟΞ±Ο„Ξ®ΟƒΞµΟ‰Ξ½Ξ£ΞµΞ•Ο…ΟΟ", "Ξ Ξ»Ξ·ΟΟ‰Ο„Ξ­ΞΏ", "Ξ¦Ξ•Ξ£ΞµΞ•Ο…ΟΟ", "Ξ¥Ο€ΟΞ»ΞΏΞΉΟ€ΞΏΞ Ξ»Ξ·ΟΟ‰Ο„Ξ­ΞΏ", null, null, null, null, null, null, null }, null, new String[] { "ΞΞ±ΞΈΞ±ΟΞ® Ξ‘ΞΎΞ―Ξ±", "Ξ¦Ξ Ξ‘", null, "ΞΟΞ±Ο„Ξ®ΟƒΞµΞΉΟ‚", null, "Ξ¦Ξ•", "Ξ¥Ο€ΟΞ»ΞΏΞΉΟ€ΞΏ" }, new String[] { "Ξ¤ΟΞ­Ο‡ΞΏΞ½ Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞΏ", "ΞΞ»Ξ± Ο„Ξ± Ξ¤ΞΉΞΌΞΏΞ»ΟΞ³ΞΉΞ±" });
 		}
 		@Override
 		public boolean isCellEditable(int row, int col) { return false; }
@@ -117,15 +138,15 @@ public class Bills extends JPanel implements ListSelectionListener, ArrayTransmi
 						if (cb == -1 || cb >= bv.size()) return null;
 						o = ((Bill) bv.get(cb)).get(getHash()[row]);
 						if ((row == 1 || row == 3) && o != null)
-							o = ((Map) o).get("Σύνολο");
+							o = ((Map) o).get("Ξ£ΟΞ½ΞΏΞ»ΞΏ");
 						break;
 					case 1:
 						o = 0d;
         for (Object bv1 : bv) {
           t = ((Bill) bv1).get(getHash()[row]);
           if ((row == 1 || row == 3) && t != null)
-            t = ((Map) t).get("Σύνολο");
-          o = Functions.round((Double) o + (Double) t, 2);
+            t = ((Map) t).get("Ξ£ΟΞ½ΞΏΞ»ΞΏ");
+          o = Bill.round((Double) o + (Double) t, 2);
         }
 				}
 				if (!(o instanceof Number) || ((Number) o).doubleValue() != 0) return o;

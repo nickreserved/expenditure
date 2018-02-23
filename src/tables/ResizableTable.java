@@ -1,26 +1,40 @@
 package tables;
 
-import java.awt.*;
-import java.util.*;
-import javax.swing.*;
-import java.awt.event.*;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
+import javax.swing.JTable;
+import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 
-public class ResizableTable extends JTable
+final public class ResizableTable extends JTable
 		implements ActionListener, KeyListener, MouseListener {
+	@SuppressWarnings("LeakingThisInConstructor")
 	public ResizableTable(ResizableTableModel rtm, boolean insert, boolean sort) {
 		super(rtm);
 
-		// Popup menu για εισαγωγή και διαγραφή γραμμής
+		// Popup menu Ξ³ΞΉΞ± ΞµΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® ΞΊΞ±ΞΉ Ξ΄ΞΉΞ±Ξ³ΟΞ±Ο†Ξ® Ξ³ΟΞ±ΞΌΞΌΞ®Ο‚
 		JPopupMenu popupMenu = new JPopupMenu();
 		if (insert) {
-			JMenuItem item = new JMenuItem("Εισαγωγή κενής γραμμής",
+			JMenuItem item = new JMenuItem("Ξ•ΞΉΟƒΞ±Ξ³Ο‰Ξ³Ξ® ΞΊΞµΞ½Ξ®Ο‚ Ξ³ΟΞ±ΞΌΞΌΞ®Ο‚",
 					new ImageIcon(ClassLoader.getSystemResource("cost/new.png")));
 			item.addActionListener(this);
 			item.setActionCommand("insert");
 			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0));
 			popupMenu.add(item);
 		}
-		JMenuItem item = new JMenuItem("Διαγραφή επιλεγμένων γραμμών",
+		JMenuItem item = new JMenuItem("Ξ”ΞΉΞ±Ξ³ΟΞ±Ο†Ξ® ΞµΟ€ΞΉΞ»ΞµΞ³ΞΌΞ­Ξ½Ο‰Ξ½ Ξ³ΟΞ±ΞΌΞΌΟΞ½",
 				new ImageIcon(ClassLoader.getSystemResource("cost/close.png")));
 		item.addActionListener(this);
 		item.setActionCommand("delete");
@@ -32,7 +46,7 @@ public class ResizableTable extends JTable
 		addKeyListener(this);
 		
 		if (sort) getTableHeader().addMouseListener(new MouseAdapter() {
-				// Κάνοντας κλικ σε μια στήλη στην επικεφαλίδα του πίνακα, ταξινομείται η συγκεκριμένη στήλη
+				// ΞΞ¬Ξ½ΞΏΞ½Ο„Ξ±Ο‚ ΞΊΞ»ΞΉΞΊ ΟƒΞµ ΞΌΞΉΞ± ΟƒΟ„Ξ®Ξ»Ξ· ΟƒΟ„Ξ·Ξ½ ΞµΟ€ΞΉΞΊΞµΟ†Ξ±Ξ»Ξ―Ξ΄Ξ± Ο„ΞΏΟ… Ο€Ξ―Ξ½Ξ±ΞΊΞ±, Ο„Ξ±ΞΎΞΉΞ½ΞΏΞΌΞµΞ―Ο„Ξ±ΞΉ Ξ· ΟƒΟ…Ξ³ΞΊΞµΞΊΟΞΉΞΌΞ­Ξ½Ξ· ΟƒΟ„Ξ®Ξ»Ξ·
 				@Override
 					public void mouseClicked(MouseEvent e) {
 						int a = convertColumnIndexToModel(getTableHeader().columnAtPoint(e.getPoint()));
@@ -40,7 +54,7 @@ public class ResizableTable extends JTable
 						ArrayList data = model.getData();
 						final String sortHeader = model.hash[a];
 						if (data != null)
-							Collections.sort(data,	// Ταξινόμηση των εγγραφών κατά τη στήλη που κάναμε κλικ, αύξουσα σειρά
+							Collections.sort(data,	// Ξ¤Ξ±ΞΎΞΉΞ½ΟΞΌΞ·ΟƒΞ· Ο„Ο‰Ξ½ ΞµΞ³Ξ³ΟΞ±Ο†ΟΞ½ ΞΊΞ±Ο„Ξ¬ Ο„Ξ· ΟƒΟ„Ξ®Ξ»Ξ· Ο€ΞΏΟ… ΞΊΞ¬Ξ½Ξ±ΞΌΞµ ΞΊΞ»ΞΉΞΊ, Ξ±ΟΞΎΞΏΟ…ΟƒΞ± ΟƒΞµΞΉΟΞ¬
 								(Map c, Map b) -> {
 									Object aa = c.get(sortHeader);
 									Object bb = b.get(sortHeader);
@@ -72,8 +86,8 @@ public class ResizableTable extends JTable
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// Στο δεξί κλικ εμφανίζεται το popup menu και πρέπει να είναι
-		// επιλεγμένη μια γραμμή οπωσδήποτε.
+		// Ξ£Ο„ΞΏ Ξ΄ΞµΞΎΞ― ΞΊΞ»ΞΉΞΊ ΞµΞΌΟ†Ξ±Ξ½Ξ―Ξ¶ΞµΟ„Ξ±ΞΉ Ο„ΞΏ popup menu ΞΊΞ±ΞΉ Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± ΞµΞ―Ξ½Ξ±ΞΉ
+		// ΞµΟ€ΞΉΞ»ΞµΞ³ΞΌΞ­Ξ½Ξ· ΞΌΞΉΞ± Ξ³ΟΞ±ΞΌΞΌΞ® ΞΏΟ€Ο‰ΟƒΞ΄Ξ®Ο€ΞΏΟ„Ξµ.
 		if (e.getButton() == MouseEvent.BUTTON3 && this.getSelectedRow() == -1) {
         Point point = e.getPoint();
         int currentRow = rowAtPoint(point);
@@ -111,8 +125,8 @@ public class ResizableTable extends JTable
 				if (v.get(a[z]) != null && !chk) {
 					chk = true;
 					if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this,
-							"Υπάρχουν εγγραφές που δεν είναι άδειες. Θέλετε να τις διαγράψω;",
-							"Διαγραφή εγγραφών", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+							"Ξ¥Ο€Ξ¬ΟΟ‡ΞΏΟ…Ξ½ ΞµΞ³Ξ³ΟΞ±Ο†Ξ­Ο‚ Ο€ΞΏΟ… Ξ΄ΞµΞ½ ΞµΞ―Ξ½Ξ±ΞΉ Ξ¬Ξ΄ΞµΞΉΞµΟ‚. ΞΞ­Ξ»ΞµΟ„Ξµ Ξ½Ξ± Ο„ΞΉΟ‚ Ξ΄ΞΉΞ±Ξ³ΟΞ¬ΟΟ‰;",
+							"Ξ”ΞΉΞ±Ξ³ΟΞ±Ο†Ξ® ΞµΞ³Ξ³ΟΞ±Ο†ΟΞ½", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 						yes = true;
 				}
 				if (v.get(a[z]) == null || yes) v.remove(a[z]);

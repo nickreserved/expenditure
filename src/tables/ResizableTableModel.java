@@ -1,7 +1,9 @@
 package tables;
 
-import java.util.*;
-import javax.swing.table.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.TreeMap;
+import javax.swing.table.AbstractTableModel;
 
 public class ResizableTableModel<T> extends AbstractTableModel {
   protected ArrayList<T> data;
@@ -55,23 +57,21 @@ public class ResizableTableModel<T> extends AbstractTableModel {
   public boolean isCellEditable(int row, int col) { return true; }
 
 	@Override
-  public Object getValueAt(int row, int col) {
-    try {
-      return ((HashMap) getData().get(row)).get(hash[col]);
-    } catch (Exception e) {
-      return null;
-    }
-  }
+	public Object getValueAt(int row, int col) {
+		try { return ((TreeMap) getData().get(row)).get(hash[col]); }
+		catch (Exception e) { return null; }
+	}
 
 	@Override
 	public void setValueAt(Object obj, int row, int col) {
 	try {
-		if (row >= getData().size()) getData().add(classType.newInstance());
-		else if (getData().get(row) == null) getData().set(row, classType.newInstance());
-		HashMap o = (HashMap) getData().get(row);
+		if (row >= getData().size()) getData().add(classType.getConstructor().newInstance());
+		else if (getData().get(row) == null) getData().set(row, classType.getConstructor().newInstance());
+		TreeMap o = (TreeMap) getData().get(row);
 		o.put(hash[col], obj);
 		if (o.isEmpty()) getData().remove(row);
-	} catch (Exception e) {}
+	} catch (IllegalAccessException | IllegalArgumentException | InstantiationException |
+			NoSuchMethodException | SecurityException | InvocationTargetException e) {}
 	fireTableDataChanged();
 	}
 }

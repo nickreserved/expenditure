@@ -1,17 +1,30 @@
 package cost;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import tables.*;
-import common.*;
-import java.awt.event.*;
+import common.PhpScriptRunner;
+import common.TreeFileLoader;
+import common.VectorObject;
+import static cost.MainFrame.showExceptionMessage;
+import java.awt.BorderLayout;
+import java.awt.Graphics;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import tables.ArrayTransmitter;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.TableColumnModel;
+import tables.ResizableTable;
+import tables.ResizableTableModel;
 
-public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, ItemListener {
+final public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, ItemListener {
 	private final ResizableTableModel rtm;
 	public Contents() {
-		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Δικαιολογητικό", "Πλήθος"}, null, ContentItem.class), true, false);
+		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Ξ”ΞΉΞΊΞ±ΞΉΞΏΞ»ΞΏΞ³Ξ·Ο„ΞΉΞΊΟ", "Ξ Ξ»Ξ®ΞΈΞΏΟ‚"}, null, ContentItem.class), true, false);
 		JComboBox cbMany = new JComboBox(new Byte[] {1, 2, 3, 4, 5});
 		JComboBox cbContents = new JComboBox(((ArrayList) load(-1)).toArray());
 		cbContents.setEditable(true);
@@ -26,10 +39,9 @@ public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, I
 	private Object load(int a) {
 		try {
 			PhpScriptRunner php = new PhpScriptRunner(MainFrame.rootPath + "php/", "engine/contents.php", new String[] { Integer.toString(a) });
-			php.exec(null, php, null, false);
-			return TreeFileLoader.load(php.getStdout());
+			return TreeFileLoader.load(php.exec(null, PhpScriptRunner.STDOUT).stdout);
 		} catch(Exception e) {
-			Functions.showExceptionMessage(this, e, "Πρόβλημα", "Πρόβλημα κατά την εκτέλεση ενός php script");
+			showExceptionMessage(this, e, "Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ±", "Ξ ΟΟΞ²Ξ»Ξ·ΞΌΞ± ΞΊΞ±Ο„Ξ¬ Ο„Ξ·Ξ½ ΞµΞΊΟ„Ξ­Ξ»ΞµΟƒΞ· ΞµΞ½ΟΟ‚ php script");
 			return new VectorObject();
 		}
 	}
@@ -37,7 +49,7 @@ public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, I
 	@Override
 	public ArrayList<ContentItem> getData() {
 		Cost c = (Cost) MainFrame.costs.get();
-		return c == null ? null : (ArrayList<ContentItem>) c.get("ΦύλλοΚαταχώρησης");
+		return c == null ? null : (ArrayList<ContentItem>) c.get("Ξ¦ΟΞ»Ξ»ΞΏΞΞ±Ο„Ξ±Ο‡ΟΟΞ·ΟƒΞ·Ο‚");
 	}
 
 	@Override
@@ -50,12 +62,12 @@ public class Contents extends JPanel implements ArrayTransmitter<ContentItem>, I
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getStateChange() == ItemEvent.DESELECTED) return;
 		Cost c = (Cost) MainFrame.costs.get();
-		String b = (String) c.get("ΤύποςΔιαγωνισμού");
-		String a = (String) c.get("ΤύποςΔαπάνης");
-		if (a != null && b != null && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αλλάξατε τον τύπο δαπάνης.<br>Να προσαρμόσω το φύλλο καταχώρησης;", "Αλλαγή Φύλλου Καταχώρησης", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) return;
-		if (e.getItem().toString().contains("Διαγωνισμό")) b = e.getItem().toString();
+		String b = (String) c.get("Ξ¤ΟΟ€ΞΏΟ‚Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΞΏΟ");
+		String a = (String) c.get("Ξ¤ΟΟ€ΞΏΟ‚Ξ”Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚");
+		if (a != null && b != null && JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Ξ‘Ξ»Ξ»Ξ¬ΞΎΞ±Ο„Ξµ Ο„ΞΏΞ½ Ο„ΟΟ€ΞΏ Ξ΄Ξ±Ο€Ξ¬Ξ½Ξ·Ο‚.<br>ΞΞ± Ο€ΟΞΏΟƒΞ±ΟΞΌΟΟƒΟ‰ Ο„ΞΏ Ο†ΟΞ»Ξ»ΞΏ ΞΊΞ±Ο„Ξ±Ο‡ΟΟΞ·ΟƒΞ·Ο‚;", "Ξ‘Ξ»Ξ»Ξ±Ξ³Ξ® Ξ¦ΟΞ»Ξ»ΞΏΟ… ΞΞ±Ο„Ξ±Ο‡ΟΟΞ·ΟƒΞ·Ο‚", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE)) return;
+		if (e.getItem().toString().contains("Ξ”ΞΉΞ±Ξ³Ο‰Ξ½ΞΉΟƒΞΌΟ")) b = e.getItem().toString();
 		else a = e.getItem().toString();
-		c.put("ΦύλλοΚαταχώρησης", a != null && b != null ?
-			load(1 - Arrays.binarySearch(CostData.cosT, a) + 2 * (2 - Arrays.binarySearch(CostData.contesT, b))) : null);
+		c.put("Ξ¦ΟΞ»Ξ»ΞΏΞΞ±Ο„Ξ±Ο‡ΟΟΞ·ΟƒΞ·Ο‚", a != null && b != null ?
+			load(1 - Arrays.binarySearch(CostData.COST, a) + 2 * (2 - Arrays.binarySearch(CostData.CONTEST, b))) : null);
 	}
 }

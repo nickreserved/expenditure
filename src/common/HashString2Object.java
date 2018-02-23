@@ -1,10 +1,11 @@
 package common;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.TreeMap;
 
 public class HashString2Object extends DynHashObject {
-	protected HashMap<String, Class> classes = new HashMap<>();
+	protected TreeMap<String, Class> classes = new TreeMap<>();
 
 	@Override
 	public Object put(String key, Object value) {
@@ -23,7 +24,8 @@ public class HashString2Object extends DynHashObject {
 				if (cl.length == 1 && cl[0].equals(String.class))
 					return c.newInstance(new Object[] {value});
 			}
-		} catch(Exception e) {}
+		} catch(IllegalAccessException | IllegalArgumentException | InstantiationException |
+				SecurityException |  InvocationTargetException e) {}
 		return null;
 	}
 }

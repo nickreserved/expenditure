@@ -1,18 +1,23 @@
 package cost;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
-import javax.swing.*;
-import tables.*;
+import tables.ArrayTransmitter;
+import javax.swing.JPanel;
+import javax.swing.JComboBox;
+import javax.swing.JScrollPane;
+import tables.ComboDataModel;
+import tables.ResizableTable;
+import tables.ResizableTableModel;
 
-public class Men extends JPanel implements ArrayTransmitter<Man> {
+final public class Men extends JPanel implements ArrayTransmitter<Man> {
 	static protected JComboBox men;
 	public Men() {
 		men = new JComboBox(new ComboDataModel(this, null));
 		setLayout(new BorderLayout());
-		add(new JScrollPane(new ResizableTable(new ResizableTableModel(this, new String[] { "Βαθμός", "Ονοματεπώνυμο", "Μονάδα" }, new String[] { null, null, "<html>Μονάδα <font color=gray size=2>(γενική με άρθρο)" }, Man.class), true, true)));
+		add(new JScrollPane(new ResizableTable(new ResizableTableModel(this, new String[] { "Ξ’Ξ±ΞΈΞΌΟΟ‚", "ΞΞ½ΞΏΞΌΞ±Ο„ΞµΟ€ΟΞ½Ο…ΞΌΞΏ", "ΞΞΏΞ½Ξ¬Ξ΄Ξ±" }, new String[] { null, null, "<html>ΞΞΏΞ½Ξ¬Ξ΄Ξ± <font color=gray size=2>(Ξ³ΞµΞ½ΞΉΞΊΞ® ΞΌΞµ Ξ¬ΟΞΈΟΞΏ)" }, Man.class), true, true)));
 	}
 
 	@Override
-	public ArrayList<Man> getData() { return (ArrayList<Man>) MainFrame.data.get("Προσωπικό"); }
+	public ArrayList<Man> getData() { return (ArrayList<Man>) MainFrame.data.get("Ξ ΟΞΏΟƒΟ‰Ο€ΞΉΞΊΟ"); }
 }

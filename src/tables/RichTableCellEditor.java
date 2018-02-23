@@ -13,6 +13,7 @@ public class RichTableCellEditor extends AbstractCellEditor	implements TableCell
 	protected Component current;
 	protected JTextField text = new JTextField();
 
+	@SuppressWarnings("LeakingThisInConstructor")
 	public RichTableCellEditor(Component[] cmp) {
 		text.setBorder(BorderFactory.createMatteBorder(1,1,0,0,Color.WHITE));
 		text.addActionListener(this);

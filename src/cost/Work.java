@@ -1,19 +1,20 @@
 package cost;
 
-import common.*;
+import common.HashObject;
+import common.VectorObject;
 
 public class Work extends HashObject {
   public Work() {
-    super.put("Ποσότητα", 1d);
-    super.put("ΜονάδαMέτρησης", "τεμάχια");
-    super.put("Υλικά", new VectorObject<>());
+    super.put("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±", 1d);
+    super.put("ΞΞΏΞ½Ξ¬Ξ΄Ξ±MΞ­Ο„ΟΞ·ΟƒΞ·Ο‚", "Ο„ΞµΞΌΞ¬Ο‡ΞΉΞ±");
+    super.put("Ξ¥Ξ»ΞΉΞΊΞ¬", new VectorObject<>());
   }
 	@Override
-  public String toString() { return get("Εργασία").toString(); }
+  public String toString() { return get("Ξ•ΟΞ³Ξ±ΟƒΞ―Ξ±").toString(); }
 	@Override
   public Object put(String key, Object value) {
-    if (key.equals("Ποσότητα") && value instanceof String)
-      value = new Double(value.toString());
+    if (key.equals("Ξ ΞΏΟƒΟΟ„Ξ·Ο„Ξ±") && value instanceof String)
+      value = Double.parseDouble(value.toString());
     return super.put(key, value);
   }
 }
