@@ -1,47 +1,24 @@
-﻿# -------------------------------------------------------------- definitions ---
-!define PROGRAM "Στρατιωτικές Δαπάνες"
-!define SHORTNAME "Cost"
-!define VERSION "1.6.5"
-!define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
-!define JAVA_RE_URL "http://java.com/en/download/manual.jsp"
-!define JAVA_VERSION "1.8"
-!define PHP_RE_URL "http://sourceforge.net/projects/ha-expenditure/files/current/php_cli.exe/download"
+﻿!include installer_common.nsh
+!include functions.nsh
 
-# ------------------------------------------------------------------ general ---
-Name "${PROGRAM} ${VERSION}"
 OutFile "..\cost_${VERSION}.exe"
-InstallDir "$PROGRAMFILES\Στρατιωτικές Δαπάνες"
-InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString"
-Icon "..\cost.ico"
-UninstallIcon "..\cost.ico"
 
-# -------------------------------------------------------------------- pages ---
-Page components
-Page directory
-Page instfiles
-UninstPage uninstConfirm
-UninstPage instfiles
-
-# --------------------------------------------------------------- properties ---
-LoadLanguageFile "${NSISDIR}\Contrib\Language files\Greek.nlf"
-VIProductVersion "${VERSION}.0"
-VIAddVersionKey /LANG=${LANG_GREEK} "ProductName" "${PROGRAM}"
-VIAddVersionKey /LANG=${LANG_GREEK} "FileDescription" "Πρόγραμμα για σύνταξη δικαιολογητικών στρατιωτικών δαπανών"
-VIAddVersionKey /LANG=${LANG_GREEK} "LegalCopyright" "${ΜΕ}"
-VIAddVersionKey /LANG=${LANG_GREEK} "FileVersion" "${VERSION}"
 
 # ----------------------------------------------------- check for php & java ---
 Function .onInit
-	IfFileExists $WINDIR\php.exe 0 +2
-	IfFileExists $WINDIR\php5ts.dll phpexists
+	# Check for PHP
+	Call PHPstatus
+	IntCmp 3 $0 phpend
 	IfFileExists $EXEDIR\php_cli.exe 0 +3
 	ExecWait '"$EXEDIR\php_cli.exe" /S'
-	Goto phpexists
+	Goto phpend
+	IntCmp  0 $0 0 phpend
 	MessageBox MB_YESNO|MB_ICONEXCLAMATION "Για να λειτουργήσει το πρόγραμμα πρέπει να$\nκατεβάσετε το PHP Command Line Interpreter.$\nΘέλετε να το κατεβάσετε τώρα;" IDNO +2
 	ExecShell "open" "${PHP_RE_URL}"
 	Abort
-phpexists:
+phpend:
 
+	# Check for Java
 	SetRegView 32	# Check 32-bit registry
 	ReadRegStr $1 HKLM "Software\JavaSoft\Java Runtime Environment" "CurrentVersion"
 	StrCmp $1 "" java64	# javanotexist
@@ -76,71 +53,3 @@ javanotexist:
 	Abort
 javaexists:
 FunctionEnd
-
-
-# ----------------------------------------------------- default installation ---
-Section
-
-	SetOutPath $INSTDIR
-
-	File ..\dist\Cost.jar
-	File /r ..\src\php
-	File ..\*.txt
-	File ..\cost.ico
-
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayName" "${PROGRAM}"
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayIcon" '"$INSTDIR\uninstall.exe"'
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoModify" 1
-	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "NoRepair" 1
-	WriteUninstaller "uninstall.exe"
-
-	WriteRegStr HKCR ".cost" "" "Αρχείο δαπάνης"
-	WriteRegStr HKCR ".cost\DefaultIcon" "" "$INSTDIR\cost.ico"
-	WriteRegStr HKCR ".cost\Shell" "" "άνοιγμα"
-	WriteRegStr HKCR ".cost\Shell\άνοιγμα\Command" "" '"$0" -jar "$INSTDIR\cost.jar" "%1"'
-
-SectionEnd
-
-# --------------------------------------------------------------- start menu ---
-Section 'Συντομεύσεις στο μενού "Έναρξη"'
-
-	CreateShortCut "$SMPROGRAMS\${PROGRAM}.lnk" "$0" "-jar $\"$INSTDIR\cost.jar$\"" "$INSTDIR\cost.ico" "" "" ALT|CONTROL|D "Πρόγραμμα συντάξεως στρατιωτικών δαπανών$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
-
-SectionEnd
-
-# -------------------------------------------------------------- source code ---
-Section /o 'Πηγαίος Κώδικας'
-
-	SetOutPath "$INSTDIR\source"
-
-	File /r ..\src
-	File /r ..\nbproject
-	File /r ..\nsi
-	File ..\build.xml
-
-SectionEnd
-
-# --------------------------------------------------------------------- help ---
-Section 'Βοήθεια'
-
-	SetOutPath $INSTDIR
-
-	File /r ..\help
-
-SectionEnd
-
-# -------------------------------------------------------------- Uninstaller ---
-
-Section "Uninstall"
-
-	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}"
-	Delete "$SMPROGRAMS\${PROGRAM}.lnk"
-	DeleteRegKey HKCR ".cost"
-
-	IfFileExists $PROFILE\cost.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο αρχείο cost.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +2
-	Delete $PROFILE\cost.ini
-	RMDir /r $INSTDIR
-
-SectionEnd

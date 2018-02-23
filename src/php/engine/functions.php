@@ -268,9 +268,9 @@ function now($a = null) { return strftime('%d %b %Y', $a == null ? time() : $a);
 function countGreek($n) {
 	if ($n < 1 || $n > 999) trigger_error("Για να μεταφραστεί το '<b>$n</b>' σε ελληνική αρίθμηση πρέπει να είναι ακέραιος και να ανήκει στο [1, 999]");
 	static $m = array(null, 'α', 'β', 'γ', 'δ', 'ε', 'στ', 'ζ', 'η', 'θ');
-	static $d = array(null, 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', '\u991 ');
-	static $e = array(null, 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω', '\u993 ');
-	return $e[floor($n / 100)] . $d[floor($n / 10)] . $m[$n % 10];
+	static $d = array(null, 'ι', 'κ', 'λ', 'μ', 'ν', 'ξ', 'ο', 'π', '\u991  ');
+	static $e = array(null, 'ρ', 'σ', 'τ', 'υ', 'φ', 'χ', 'ψ', 'ω', '\u993  ');
+	return $e[floor($n / 100)] . $d[floor($n / 10) % 10] . $m[$n % 10];
 }
 
 
