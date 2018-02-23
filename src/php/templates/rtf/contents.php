@@ -5,7 +5,7 @@ require_once('header.php');
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\fs28\ul\qc жукко\line йатавыягсгс еццяажым\par\par
+\pard\plain\fs24\ul\qc жукко\line йатавыягсгс еццяажым\par\par
 
 \pard\plain\tx397\tqr\tx10050
 \trowd\fs23\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57

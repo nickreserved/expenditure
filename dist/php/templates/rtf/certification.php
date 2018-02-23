@@ -8,7 +8,7 @@ if (isset($bills_buy)) {
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain <?=chk(getBrigate($data['ΓραφείοΣχηματισμού']))?>\par <?=chk($data['ΣύντμησηΜονάδας'])?>\par
-\qc{\fs28\b\ul ΒΕΒΑΙΩΣΗ}\par\par
+\qc{\fs24\b\ul ΒΕΒΑΙΩΣΗ}\par\par
 \qj Βεβαιώνεται η αγορά, παραλαβή, μη χρέωση και διάθεση των υλικών που αναγράφονται στην έκθεση γενομένης δαπάνης σύμφωνα με την Φ.600/50/29216/09 Απρ 2002/ΥΕΘΑ (ΦΕΚ Β' 467/15-04-2002).\par\par
 
 \pard\plain\fs23\par

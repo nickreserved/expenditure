@@ -8,7 +8,7 @@ if (!$bills_hold_all) trigger_error('Δεν υπάρχουν τιμολόγια', E_USER_ERROR);
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\b\fs28\ul\qc ΕΚΘΕΣΗ\par
+\pard\plain\b\fs24\ul\qc ΕΚΘΕΣΗ\par
 
 \pard\plain\trowd\fs21\trqr\trautofit1
 \clftsWidth1\clNoWrap\cellx2948

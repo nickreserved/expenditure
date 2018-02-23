@@ -59,7 +59,7 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 \ql Φόρος λόγω εκπρόθεσμου\cell\cell\cell\row
 \qr ΓΕΝΙΚΟ ΣΥΝΟΛΟ\cell\cell\cell\row
 
-\pard\plain\par\qc{\fs28\b\ul ΥΠΕΥΘΥΝΗ ΔΗΛΩΣΗ}\par\par
+\pard\plain\par\qc{\fs24\b\ul ΥΠΕΥΘΥΝΗ ΔΗΛΩΣΗ}\par\par
 \ql{\fs20 Βεβαιώνω υπεύθυνα και με επίγνωση των συνεπειών του νόμου την ακρίβεια της παρούσας δήλωσης.}\par\par
 \qc {\ul Ο Δηλών}\line\line\line\line <?=chk($data['ΑξκοςΈργου']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΑξκοςΈργου']['Βαθμός'])?>\par\par
 
@@ -81,7 +81,7 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 
 \sectd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\qc{\fs28\b\ul ΠΙΝΑΚΑΣ ΕΠΙΧΕΙΡΗΣΕΩΝ}\par\par
+\pard\plain\qc{\fs24\b\ul ΠΙΝΑΚΑΣ ΕΠΙΧΕΙΡΗΣΕΩΝ}\par\par
 {\fs20 Από τις οποίες προμηθεύτηκαν κάθε είδους αγαθά ή υπηρεσίες οι υπόχρεοι παρακράτησης\line φόρου εισοδήματος της περιπτ. στ' της παραγρ. 1 του άρθρου 37α του Ν.Δ. 3323/1955.}\par\par
 
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28\fs20

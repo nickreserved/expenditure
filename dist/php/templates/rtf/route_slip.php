@@ -20,7 +20,7 @@ echo preOrder(!$draft || isset($data['Διαβιβαστικό']) ? $data['Διαβιβαστικό'] : 
 echo '\pard\plain\par\par\par';
 echo subjectOrder('Δαπάνες', $connect);
 ?>
-\pard\plain\fs28\tx567\tx1134\tx1701\tx2268\qj
+\pard\plain\fs24\tx567\tx1134\tx1701\tx2268\qj
 <? if ($prereport) { ?>
 \tab\b 1.\b0\tab Υποβάλλεται συννημένα έκθεση απαιτούμενης δαπάνης που αφορά «<?=chk($data['Τίτλος'])?> <?=euro($data['Ποσό'])?>».\par\par
 <? } else { ?>

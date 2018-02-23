@@ -9,7 +9,7 @@ if ($bills_buy) {
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\b\fs28\ul\qc ΒΕΒΑΙΩΣΗ\line ΑΝΕΦΟΔΙΑΣΤΙΚΟΥ ΟΡΓΑΝΟΥ\par\par
+\pard\plain\b\fs24\ul\qc ΒΕΒΑΙΩΣΗ\line ΑΝΕΦΟΔΙΑΣΤΙΚΟΥ ΟΡΓΑΝΟΥ\par\par
 \pard\plain\qj Ο υπογεγραμένος . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . βεβαιώνει οτι το Ανεφοδιαστικό Όργανο δεν διαθέτει τα παρακάτω υλικά σε απόθεμα:\par
 
 \pard\trowd\trhdr\fs23\trautofit1\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57

@@ -82,8 +82,9 @@ foreach($bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ'] as $k => $v)
 
 
 \pard\plain\fs23
-\trowd\trkeep\cellx7568\cellx15136\qc
+\trowd\trkeep\cellx5045\cellx10090\cellx15136\qc
 ΕΘΕΩΡΗΘΗ\line - Ο -\line ΔΚΤΗΣ\line\line\line <?=chk($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=chk($data['Δκτης']['Βαθμός'])?>\cell
+\line - Ο -\line ΕΟΥ\line\line\line <?=chk($data['ΕΟΥ']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΕΟΥ']['Βαθμός'])?>\cell
 \line - Ο -\line ΑΞΚΟΣ ΕΡΓΟΥ\line\line\line <?=chk($data['ΑξκοςΈργου']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΑξκοςΈργου']['Βαθμός'])?>\cell\row
 
 \sect

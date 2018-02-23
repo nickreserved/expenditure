@@ -13,7 +13,7 @@ echo preOrder(!$draft || isset($data['ΔγηΑνάθεσηςΕργολαβίας']) ? $data['ΔγηΑνάθε
 echo '\pard\plain\par\par\par';
 echo subjectOrder('Κατασκευές Στρατιωτικών Έργων', array($data['ΔγηΔιάθεσης']));
 ?>
-\pard\plain\sb57\sa57\fs28\tx567\tx1134\tx1701\tx2268\qj
+\pard\plain\sb57\sa57\fs24\tx567\tx1134\tx1701\tx2268\qj
 \tab\b 1.\b0\tab Έχοντας υπ' οψην το σχετικό βάση του οποίου διατέθηκαν <?=euro2str($data['Ποσό'])?> (<?=euro($data['Ποσό'])?>) για «<?=chk($data['Τίτλος'])?>»\par
 \qc{\b α ν α θ έ τ ο υ μ ε}\par\qj
 την κατασκευή του παραπάνω έργου στην Εργοληπτική Επιχείρηση «<?=chk($data['Εργολάβος']['Επωνυμία'])?>» (ΑΦΜ: <?=chk($data['Εργολάβος']['ΑΦΜ'])?>).\par\par

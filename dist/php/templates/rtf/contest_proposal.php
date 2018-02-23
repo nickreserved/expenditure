@@ -10,7 +10,7 @@ $a = $data['ΤύποςΔιαγωνισμού'] == 'Δημόσιος Διαγωνισμός';
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
-\fs28\ul\qc ΕΙΣΗΓΗΤΙΚΗ ΕΚΘΕΣΗ\par\par
+\fs24\ul\qc ΕΙΣΗΓΗΤΙΚΗ ΕΚΘΕΣΗ\par\par
 \pard\plain\tx567\tx1134\qj
 
 <? $a = get_datetime($data['ΏραΔιαγωνισμού']);

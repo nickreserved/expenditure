@@ -9,7 +9,7 @@ if ($bills_contract) {
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\b\fs28\ul\qc ΒΕΒΑΙΩΣΗ\line ΕΠΙΣΚΕΥΑΣΤΙΚΟΥ ΟΡΓΑΝΟΥ\par\par
+\pard\plain\b\fs24\ul\qc ΒΕΒΑΙΩΣΗ\line ΕΠΙΣΚΕΥΑΣΤΙΚΟΥ ΟΡΓΑΝΟΥ\par\par
 \pard\plain\qj Ο υπογεγραμένος . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . βεβαιώνει οτι το Επισκευαστικό Όργανο δεν μπορεί να προβεί στις παρακάτω επισκευές:\par
 
 \pard\trowd\trhdr\fs23\trautofit1\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57

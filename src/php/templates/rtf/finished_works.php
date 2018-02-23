@@ -8,7 +8,7 @@ if (count($data['Εργασίες']) && $bills_buy) {
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
-\fs28\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΕΚΤΕΛΕΣΘΕΝΤΩΝ ΕΡΓΑΣΙΩΝ\par\par
+\fs24\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΕΚΤΕΛΕΣΘΕΝΤΩΝ ΕΡΓΑΣΙΩΝ\par\par
 \pard\plain\tx567\tx1134\tx1701\qj
 \tab Σήμερα την <?=$data['ΗμερομηνίαΤελευταίουΤιμολογίου']?> η υπογεγραμμένη επιτροπή αποτελούμενη από τους:\par
 \tab\tab α. <?=man_ext($data['ΠρόεδροςΑγοράςΔιάθεσης'], 2)?> ως πρόεδρο\par

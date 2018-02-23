@@ -13,7 +13,7 @@ echo preOrder(!$draft || isset($data['ΔγηΔιακήρυξης']) ? $data['ΔγηΔιακήρυξης'] 
 echo '\pard\plain\par\par\par';
 echo subjectOrder('Διακήρυξη Διαγωνισμού', array($data['ΔγηΔιάθεσης']));
 ?>
-\pard\plain\sb57\sa57\fs28\tx567\tx1134\tx1701\tx2268\qj
+\pard\plain\sb57\sa57\fs24\tx567\tx1134\tx1701\tx2268\qj
 \tab\b 1.\b0\tab Παρακαλούμε όπως δημοσιεύσετε στην εφημερίδα σας την συννημένη διακύρηξη.\par
 \tab\b 2.\b0\tab Η δημοσίευση να λάβει χώρα τις ημερομηνίες <?=getDates($data['ΗμερομηνίεςΔημοσίευσης'])?>.\par
 \tab\b 3.\b0\tab Οι τίτλοι της δημοσίευσης πρέπει να καταλαμβάνουν χώρο όχι ανώτερο των δέκα (-10-) χιλιοστών, οι υπότιτλοι όχι ανώτερο των επτά (-7-) χιλιοστών.\par
@@ -26,7 +26,7 @@ echo subjectOrder('Διακήρυξη Διαγωνισμού', array($data['ΔγηΔιάθεσης']));
 
 \pard\plain\fs32\qc\b\ul
 ΔΙΑΚΗΡΥΞΗ ΔΙΑΓΩΝΙΣΜΟΥ\par\par
-\pard\plain\fs28\qj
+\pard\plain\fs24\qj
 ΓΕΝΙΚΟ ΕΠΙΤΕΛΕΙΟ ΣΤΡΑΤΟΥ\par
 <?=toUppercase($data['Μονάδα'])?>\par\par
 <? $a = get_datetime($data['ΏραΔιαγωνισμού']); ?>

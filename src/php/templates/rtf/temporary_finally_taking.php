@@ -9,7 +9,7 @@ if ($data['ΤύποςΔαπάνης'] == 'Προμήθεια - Συντήρηση - Επισκευή') trigger_error('
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
-\fs28\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΠΡΟΣΩΡΙΝΗΣ <?=!strpos($data['ΤύποςΔαπάνης'], 'Εργοληπτική Επιχείρηση') ? 'ΚΑΙ ΟΡΙΣΤΙΚΗΣ' : ''?> ΠΑΡΑΛΑΒΗΣ\par\par
+\fs24\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΠΡΟΣΩΡΙΝΗΣ <?=!strpos($data['ΤύποςΔαπάνης'], 'Εργοληπτική Επιχείρηση') ? 'ΚΑΙ ΟΡΙΣΤΙΚΗΣ' : ''?> ΠΑΡΑΛΑΒΗΣ\par\par
 \pard\plain\tx567\tx1134\qj
 \tab Οι υπογεγραμένοι:\par
 \tab\tab α. <?=man_ext($data['ΠρόεδροςΠροσωρινήςΟριστικήςΠαραλαβής'], 0)?> ως πρόεδρος\par

@@ -8,7 +8,7 @@ if (!isset($draft)) $draft = getEnvironment('draft', 'true');
 function preOrder($order, $to, $info, $draft = false, $add = null) {
 	global $data;
 ?>
-\pard\plain\fs28\tx1134
+\pard\plain\fs24\tx1134
 \trowd\trautofit1\trpaddl0\trpaddr0\cellx5103\clftsWidth1\clNoWrap\cellx8788
 \b ΠΡΟΣ:<? foreach($to as $v) echo '\tab ' . chk($v) . '\line'; ?>
 \line ΚΟΙΝ:
@@ -19,7 +19,7 @@ function preOrder($order, $to, $info, $draft = false, $add = null) {
 			if (!$v && isset($ord)) $v = $ord['Εκδότης'];
 			if ($v) echo '\tab ' . chk($v) . '\line';
 		}
-	?>\cell <?=chk(toUppercase($data['Μονάδα']))?>\line <?=chk(toUppercase($data['Γραφείο']))?>\line\b0 Τηλ (Εσωτ.) <?=chk($data['ΕσωτερικόΤηλέφωνο'])?>\line <?
+	?>\b0\cell <?=chk(toUppercase($data['Μονάδα']))?>\line <?=chk(toUppercase($data['Γραφείο']))?>\line Τηλ (Εσωτ.) <?=chk($data['ΕσωτερικόΤηλέφωνο'])?>\line <?
 	if (!$draft)
 		echo chk($ord['Φάκελος']) . '/' . chk($ord['Υποφάκελος']) . '/' . chk($ord['Πρωτόκολλο']) . '\line ' . chk($ord['Σχέδιο']) . '\line ' . chk($data['Πόλη']) . ', ' . chk($ord['Ημερομηνία']);
 	else {
@@ -32,8 +32,8 @@ function preOrder($order, $to, $info, $draft = false, $add = null) {
 
 
 function subjectOrder($subject, $orders) { ?>
-\pard\plain\fs28\tx1134\tx1644
-\b ΘΕΜΑ:\tab\ul <?=chk($subject)?>\ul0\par
+\pard\plain\fs24\tx1134\tx1644
+\b ΘΕΜΑ:\tab\ul <?=chk($subject)?>\ul0\par\par
 <?
 	if ($orders) {
 		echo 'ΣΧΕΤ:';
@@ -52,7 +52,7 @@ function subjectOrder($subject, $orders) { ?>
 function draftOrder() {
 	global $data;
 ?>
-\pard\plain\fs28\par
+\pard\plain\fs24\par
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
 \clftsWidth1\clNoWrap\cellx2929\clftsWidth1\clNoWrap\cellx5858\clftsWidth1\clNoWrap\cellx8788\qc
 - Το -\line\ul <?=chk($data['Γραφείο'])?>\ul0\line\line\line <?=chk($data['ΑξκοςΓραφείου']['Ονοματεπώνυμο'])?>\line <?=chk($data['ΑξκοςΓραφείου']['Βαθμός'])?>\cell
@@ -65,7 +65,7 @@ function draftOrder() {
 function bottomOrder() {
 	global $data;
 ?>
-\pard\plain\fs28\b\par
+\pard\plain\fs24\b\par
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
 \clftsWidth1\clNoWrap\cellx4394\clftsWidth1\clNoWrap\cellx8788\qc
 Ακριβές Αντίγραφο\line\line\line\line <?=man($data['ΑξκοςΓραφείου'])?>\line <?=chk($data['ΙδιότηταΑξκου'])?>\cell

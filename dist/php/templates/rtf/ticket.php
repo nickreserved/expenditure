@@ -19,7 +19,7 @@ require_once('header.php');
 
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\fs28\b\ul\qc ΑΠΟΔΕΙΞΗ <?=euro($data['Προκαταβολή'])?>\par\par
+\pard\plain\fs24\b\ul\qc ΑΠΟΔΕΙΞΗ <?=euro($data['Προκαταβολή'])?>\par\par
 \pard\plain\qj Ο υπογεγραμένος <?=man_ext($data['ΑξκοςΈργου'], 0)?> έλαβα <?=euro2str($data['Προκαταβολή'])?> (<?=euro($data['Προκαταβολή'])?>), για «<?=chk($data['Τίτλος'])?>» κατόπιν της δγης <?=chk_order($data['ΔγηΔιάθεσης'])?> και <?=chk_order($data['ΔγηΑξκουΈργου'])?> οι οποίες επισυνάπτονται.\par
 \qr <?=now()?>\par
 
@@ -36,7 +36,7 @@ require_once('header.php');
 
 
 
-\fs28\b\ul\qc ΕΞΟΥΣΙΟΔΟΤΗΣΗ\par\par
+\fs24\b\ul\qc ΕΞΟΥΣΙΟΔΟΤΗΣΗ\par\par
 \pard\plain\qj Ο υπογεγραμένος <?=man_ext($data['ΑξκοςΈργου'], 0)?>, εξουσιοδοτώ τον . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . να παραλάβει <?=euro2str($data['Προκαταβολή'])?> (<?=euro($data['Προκαταβολή'])?>), για «<?=chk($data['Τίτλος'])?>».\par
 \qr <?=now()?>\par
 

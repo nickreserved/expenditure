@@ -9,7 +9,7 @@ if (!strpos($data['ΤύποςΔαπάνης'], 'Εργοληπτική Επιχείρηση'))
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
-\fs28\ul\qc ΒΕΒΑΙΩΣΗ\line ΠΕΡΑΤΩΣΗΣ ΤΟΥ ΕΡΓΟΥ\par\par
+\fs24\ul\qc ΒΕΒΑΙΩΣΗ\line ΠΕΡΑΤΩΣΗΣ ΤΟΥ ΕΡΓΟΥ\par\par
 \pard\plain\tx567\tx1134\qj
 \tab <?=chk(ucfirst($data['ΠεριοχήΈργου']))?> σήμερα την <?=$data['ΗμερομηνίαΠροσωρινήςΟριστικήςΠαραλαβής']?> η επιτροπή προσωρινής και οριστικής παραλαβής αποτελούμενοι από τους:\par
 \tab\tab α. <?=man_ext($data['ΠρόεδροςΠροσωρινήςΟριστικήςΠαραλαβής'], 2)?> ως πρόεδρο\par

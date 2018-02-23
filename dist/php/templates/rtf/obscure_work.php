@@ -9,7 +9,7 @@ if ($data['ΤύποςΔαπάνης'] == 'Προμήθεια - Συντήρηση - Επισκευή') trigger_error('
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
-\fs28\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΠΑΡΑΛΑΒΗΣ ΑΦΑΝΩΝ ΕΡΓΑΣΙΩΝ\par\par
+\fs24\ul\qc ΠΡΩΤΟΚΟΛΛΟ\line ΠΑΡΑΛΑΒΗΣ ΑΦΑΝΩΝ ΕΡΓΑΣΙΩΝ\par\par
 \pard\plain\tx567\tx1134\qj
 \tab <?=chk(ucfirst($data['ΠεριοχήΈργου']))?> σήμερα την <?=$data['ΗμερομηνίαΑφανώνΕργασιών']?> η επιτροπή αφανών εργασιών αποτελούμενοι από τους:\par
 \tab\tab α. <?=man_ext($data['ΠρόεδροςΑφανώνΕργασιών'], 2)?> ως πρόεδρο\par

@@ -9,7 +9,7 @@ if ($data['ΤύποςΔαπάνης'] == 'Προμήθεια - Συντήρηση - Επισκευή') trigger_error('
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\b <?=chk(toUppercase($data['Μονάδα']))?>\par\par
-\fs28\ul\qc ΑΝΑΛΥΤΙΚΗ ΕΠΙΜΕΤΡΗΣΗ\par\par
+\fs24\ul\qc ΑΝΑΛΥΤΙΚΗ ΕΠΙΜΕΤΡΗΣΗ\par\par
 \pard\plain\tx567\tx1134\tx1701\qj <?=chk(ucfirst($data['ΠεριοχήΈργου']))?> σήμερα τις <?=$data['ΗμερομηνίαΑφανώνΕργασιών']?> ο επιβλέπων του έργου «<?=$data['Έργο']?>», <?=man_ext($data['ΑξκοςΈργου'], 0)?> πραγματοποίησε την αναλυτική επιμέτρηση όλων των εργασιών που εκτελέστηκαν απολογιστικά όπως παρακάτω:\par
 <?
 $count = 0;
