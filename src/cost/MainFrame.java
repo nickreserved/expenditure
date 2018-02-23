@@ -64,7 +64,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.7");
+		super("Στρατιωτικές Δαπάνες 1.4.8");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 
 		Providers prov = new Providers();
@@ -247,7 +247,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			try {
-				LoadSaveFile.save(rootPath + "main.ini", data);
+				LoadSaveFile.save(System.getProperty("user.home") + "/cost.ini", data);
 			} catch(Exception ex) {
 				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this, "<html>Αποτυχία κατά την αποθήκευση του <b>main.ini</b>.<br>Να κλείσω τo πρόγραμμα;", "Τερματισμός", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
 					return;
@@ -329,7 +329,7 @@ public class MainFrame extends JFrame implements ActionListener {
 		// load ini file and create data structure
 		Object o = null;
 		try {
-			o = TreeFileLoader.loadFile(rootPath + "main.ini");
+			o = TreeFileLoader.loadFile(System.getProperty("user.home") + "/cost.ini");
 		} catch(Exception e) {
 			Functions.showExceptionMessage(null, e, "Πρόβλημα", "Πρόβλημα κατά τη φόρτωση του <b>main.ini</b>");
 		}
@@ -412,7 +412,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.7</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>07 Δεκ 2011</b><br>Σελίδα: <b>http://programs.agiasofia.gr/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.8</font></b></center><br>Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>Άδεια χρήσης: <b>BSD</b><br>Δημοσίευση: <b>12 Απρ 2013</b><br>Σελίδα: <b>http://sourceforge.net/projects/ha-expenditure/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 
 

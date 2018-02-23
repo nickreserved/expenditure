@@ -24,6 +24,9 @@ public class ResizableTableModel extends AbstractTableModel {
     this.classType = classType;
   }
 
+  public String[] getHash() { return hash; }
+  public void setHash(String[] hash) { this.hash = hash; }
+
   public void setData(ArrayList data) {
     transmitter = null;
     this.data = data;

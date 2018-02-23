@@ -1,11 +1,11 @@
 ﻿# -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define SHORTNAME "Cost"
-!define VERSION "1.4.7"
-!define ME "Υπλγος(ΜΧ) Γκέσος Παύλος"
+!define VERSION "1.4.8"
+!define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_RE_URL "http://www.java.com/"
 !define JAVA_VERSION "1.5"
-!define PHP_RE_URL "http://programs.agiasofia.gr/cost/program/php_cli.exe"
+!define PHP_RE_URL "http://sourceforge.net/projects/ha-expenditure/files/current/php_cli.exe/download"
 
 # ------------------------------------------------------------------ general ---
 Name "${PROGRAM} ${VERSION}"
@@ -71,14 +71,18 @@ Section
 	SetOutPath $INSTDIR
 
 	File ..\dist\Cost.jar
-	File /r ..\dist\php
+	File /r ..\src\php
 	File ..\*.txt
 	File ..\cost.ico
 
-	IfFileExists $INSTDIR\main.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο φάκελο εγκατάστασης βρέθηκε το παλιό σας αρχείο main.ini$\nΔεν προτείνεται να το διαγράψετε$\nΘέλετε να το διαγράψω;" IDNO +2
-	File ..\dist\main.ini
-
+	IfFileExists $INSTDIR\main.ini 0 +2		# Backward compatibility
+	Rename $INSTDIR\main.ini $PROFILE\cost.ini
+	IfFileExists $PROFILE\cost.ini 0 +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο φάκελο εγκατάστασης βρέθηκε το παλιό σας αρχείο cost.ini$\nΔεν προτείνεται να το διαγράψετε$\nΘέλετε να το διαγράψω;" IDNO +2
+	SetOutPath $PROFILE
+	File ..\src\cost.ini
+	SetOutPath $INSTDIR
+	
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayName" "${PROGRAM}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "UninstallString" '"$INSTDIR\uninstall.exe"'
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${SHORTNAME}" "DisplayIcon" '"$INSTDIR\uninstall.exe"'
@@ -139,17 +143,9 @@ Section "Uninstall"
 	Delete "$SMPROGRAMS\${PROGRAM}.lnk"
 	DeleteRegKey HKCR ".cost"
 
-	IfFileExists $INSTDIR\main.ini 0 +2
-	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο αρχείο main.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +3
+	IfFileExists $PROFILE\cost.ini 0 +2
+	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο αρχείο cost.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +2
+	Delete $PROFILE\cost.ini
 	RMDir /r $INSTDIR
-	Goto end
 
-	Delete "$INSTDIR\Cost.*"
-	Delete "$INSTDIR\*.txt"
-	Delete "$INSTDIR\*.exe"
-	RMDir /r "$INSTDIR\php"
-	RMDir /r "$INSTDIR\help"
-	RMDir /r "$INSTDIR\source"
-	RMDir /r "$INSTDIR\scripts"
-end:
 SectionEnd

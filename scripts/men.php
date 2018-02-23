@@ -3,14 +3,14 @@
 
 function usage() { ?>
 This script inserts from Excel or OpenOffice CSV files, military personel,
-in "main.ini".
+in "cost.ini".
 
 php men.php
 	Shows this screen.
 
 php men.php input.csv "c:\Program files\Cost"
-	You must have "main.ini" inside folder above.
-	Then inserts data from "input.csv" to "main.ini".
+	You must have "cost.ini" inside folder above.
+	Then inserts data from "input.csv" to "cost.ini".
 
 For more information, use program documentation in section General->Scripts.
 <?
@@ -19,7 +19,7 @@ For more information, use program documentation in section General->Scripts.
 
 if ($argc != 3) usage();
 is_file($argv[1]) or die("File `{$argv[1]}` not exists.");
-is_file($ini = "{$argv[2]}/main.ini") or die("File `$ini` not exists.");
+is_file($ini = "{$argv[2]}/cost.ini") or die("File `$ini` not exists.");
 
 
 $delimiter = "\t";

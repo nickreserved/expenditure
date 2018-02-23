@@ -10,38 +10,38 @@ public class Works extends JPanel implements DataTransmitter, ListSelectionListe
 	private ResizableTableModel matModel;
 	private JTable tblWorks;
 	private String cost;
-	
+
 	public Works() {
 		final String[] commonHeader = { null, null, "Μονάδα μέτρησης"};
-		
+
 		ResizableTableModel workModel = new ResizableTableModel(this, new String[] { "Εργασία", "Ποσότητα", "ΜονάδαMέτρησης" }, commonHeader, Work.class);
 		tblWorks = new ResizableTable(workModel, true, false);
 		tblWorks.getSelectionModel().addListSelectionListener(this);
 		tblWorks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblWorks.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
-		
+
 		matModel = new ResizableTableModel((ArrayList) null, new String[] { "Υλικό", "Ποσότητα", "ΜονάδαMέτρησης"}, commonHeader, Material.class);
 		JTable tblMaterial = new ResizableTable(matModel, false, true);
 		tblMaterial.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
-		
+
 		setLayout(new BorderLayout());
 		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(tblWorks), new JScrollPane(tblMaterial));
 		sp.setDividerSize(3);
 		sp.setDividerLocation(75);
 		add(sp);
 	}
-	
+
 	public Object getData() {
 		Cost c = (Cost) MainFrame.costs.get();
 		return c == null ? null : c.get("Εργασίες");
 	}
-	
+
 	public void valueChanged(ListSelectionEvent e) {
 		int a = tblWorks.getSelectionModel().getLeadSelectionIndex();
 		ArrayList v = (ArrayList) getData();
 		matModel.setData(v == null || a < 0 || a >= v.size() || ((Map) v.get(a)) == null ? null : (ArrayList) ((Map) v.get(a)).get("Υλικά"));
 	}
-		
+
 	public void paint(Graphics g) {
 		if (cost != MainFrame.costs.getPos()) {
 			cost = MainFrame.costs.getPos();
