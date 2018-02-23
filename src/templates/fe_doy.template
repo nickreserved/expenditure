@@ -1,0 +1,55 @@
+%enum_bills_with_fe_bills_by_month%
+
+<div class="Paper_A4_Portrait_20x15x20x15">
+<table class="f"><tr><td nowrap><u>Προς τη ΔΟΥ<br>Οικονομικό Έτος: %bwfbbm_key_year%<br>Μήνας: %bwfbbm_key_month%</u></td><td nowrap><u>Δήλωση:<br>Αριθμός Φακέλου:<br>Φορ. Μητρώο:</u></td></tr></table>
+<p style="text-align: center; font-weight: bold; letter-spacing: 3mm">ΔΗΛΩΣΗ</p>
+<p class="para1">Απόδοσης παρακρατουμένου φόρου από προμήθειες κάθε είδους αγαθών ή παροχής υπηρεσιών από τις δημόσιες υπηρεσίες, Ο.Τ.Α., Ν.Π.Δ.Δ. κ.λ.π. (περιπτώσεις στ' παραγράφου 1 άρθρου 37α Ν.Δ. 3323/1955)</p>
+<table class="lf"><tr>
+<td class="c" nowrap>%static_outfit%<br><b>Επωνυμία</b><br><br>%static_city% %static_province% %static_address% %static_tk%<br><b>Διεύθυνση (Πόλη - Οδός - Τ.Κ.)</b><br><br>%static_afm%<br><b>Α.Φ.Μ.</b></td>
+<td class="c" nowrap>Στρατιωτική Μονάδα<br><b>Νομική Μορφή</b><br><br>Εξωτ.: %static_phone_external% Εσωτ.:%static_phone_internal%<br><b>Αρ. Τηλεφώνου</b><br><br>%static_doy%<br><b>Δ.Ο.Υ.</b></td>
+</tr></table>
+<br>
+<table class="f">
+<tr><td class="lc">Είδος τιμολογίου</td><td class="lc">Καθαρή αξία</td><td class="lc">Συντελεστής φόρου</td><td class="lc">Ποσό φόρου</td></tr>
+%enum_bwfbbm_value_bills_by_fe%
+<tr><td class="l" nowrap>%bbf_value_bill_style%</td><td class="lr">%euro_bbf_value_bills_clear_fe_cost%</td><td class="lc">%percent_bbf_key%</td><td class="lr">%euro_bbf_value_bills_fe_euro%</td></tr>
+%end_enum%
+<tr><td class="lr" nowrap>ΣΥΝΟΛΟ</td><td class="lr">%euro_bwfbbm_value_bills_clear_fe_cost%</td><td class="lr" colspan=2>%euro_bwfbbm_value_bills_fe_euro%</td></tr>
+<tr><td class="l">Πρόσθετος φόρος λόγω εκπρόθεσμου</td><td class="l"> </td><td class="l" colspan=2> </td></tr>
+<tr><td class="lr">ΓΕΝΙΚΟ ΣΥΝΟΛΟ</td><td class="l"> </td><td class="l" colspan=2> </td></tr>
+</tr></table>
+<h1 class=t>ΥΠΕΥΘΥΝΗ ΔΗΛΩΣΗ</h1>
+<p class="c">Βεβαιώνω υπεύθυνα και με επίγνωση των συνεπειών του νόμου την ακρίβεια της παρούσας δήλωσης.</p>
+<p style="text-align: center"><u>Ο Δηλών</u><br><br><br><br>%static_office_officer_name%<br>%static_office_officer_rank%</p>
+<table class="f">
+<tr><td class="c" colspan=2>ΠΑΡΑΛΗΦΘΗΚΕ - ΘΕΩΡΗΘΗΚΕ</td><td class="c" colspan=2>ΚΑΤΕΒΛΗΘΗΚΑΝ</td><td class="c" colspan=2>ΒΕΒΑΙΩΘΗΚΑΝ</td></tr>
+<tr><td nowrap>Εμπρόθεσμα</td><td class="l" width=15%> </td><td>Ευρώ</td><td class="l" width=15%> </td><td>Ευρώ</td><td class="l" width=15%> </td></tr>
+<tr><td nowrap>Εκπρόθεσμα</td><td class="l"> </td><td nowrap>Αρ. Διπλοτύπου</td><td class="l"> </td><td nowrap>Αρ. Διπλοτύπου</td><td class="l"> </td></tr>
+<tr><td nowrap>Ημερομηνία</td><td class="l"> </td><td>Ημερομηνία</td><td class="l"> </td><td colspan=2> </td></tr>
+<tr><td class="c" colspan=2 nowrap><br>Ο Παραλαβών - Θεωρήσας</td><td class="c" nowrap><br>Ο Εκδότης</td><td class="c" nowrap><br>Ο Διαχειριστής</td><td class="c" colspan=2 nowrap><br>Ο Ενεργήσας τη βεβαίωση</td></tr>
+</table>
+<br class="nextPage">
+</div>
+
+<div class="Paper_A4_Landscape_20x15x20x15">
+<p style="text-align: right">%capital_static_outfit%</p>
+<h1 class=t>ΠΙΝΑΚΑΣ ΕΠΙΧΕΙΡΗΣΕΩΝ</h1>
+<p style="text-align: center; font-size: 10pt">Από τις οποίες προμηθεύτηκαν κάθε είδους αγαθά ή υπηρεσίες οι υπόχρεοι παρακράτησης<br>φόρου εισοδήματος της περιπτ. στ' της παραγρ. 1 του άρθρου 37α του Ν.Δ. 3323/1955.</p>
+<table class="f" style="font-size: 10pt">
+<tr><td class="lc" colspan=3>ΣΤΟΙΧΕΙΑ ΕΠΙΧΕΙΡΗΣΕΩΝ</td><td class="lc" rowspan=2 nowrap>Είδος<br>τιμολογίου</td><td class="lc" rowspan=2 nowrap>Αριθμός<br>τιμολογίου</td><td class="lc" rowspan=2 nowrap>Καθαρό ποσό<br>συναλλαγής</td><td class="lc" rowspan=2 nowrap>Συντελεστής<br>φόρου</td><td class="lc" rowspan=2 nowrap>Ποσό φόρου που<br>παρακρατήθηκε</td></tr>
+<tr><td class="lc">Επωνυμία</td><td class="lc">Α.Φ.Μ.</td><td class="lc">Διεύθυνση</td></tr>
+%enum_bwfbbm_value_bills%
+<tr><td class="l">%b_provider_name% %b_provider_father%</td><td class="lc">%b_provider_afm%</td><td class="l">%b_provider_city% %b_provider_address%</td><td class="l" nowrap>%b_style%</td><td class="lc" nowrap>%b_name%</td><td class="lr">%euro_b_clear_fe_cost%</td><td class="lc">%percent_b_fe_percent%</td><td class="lr">%euro_b_fe_euro%</td></tr>
+%end_enum%
+<tr><td colspan=4> </td><td class="lr">ΣΥΝΟΛΟ</td><td class="lr">%euro_bwfbbm_value_bills_clear_fe_cost%</td><td class="l"> </td><td class="lr">%euro_bwfbbm_value_bills_fe_euro%</td></tr>
+</table>
+<p style="font-size: 10pt" class="para"><u>ΣΗΜΕΙΩΣΗ:</u> Η παρακράτηση του φόρου ενεργείται κατά την καταβολή ή την έκδοση της σχετικής εντολής πληρωμής και αποδίδεται στο δημόσιο μέσα στο πρώτο δεκαπενθήμερο του επόμενου από την παρακράτηση μήνα. Εξαιρετικά οι διαχειριστές πάγιας προκαταβολής και οι υπόλογοι χρηματικών ενταλμάτων γενικά αποδίδουν το φόρο στη Δ.Ο.Υ. της περιφέρειας τους μέσα στο πρώτο δεκαήμερο του επόμενου, από την παρακράτηση, μήνα.</p>
+<p align="right">%static_city%, %system_date%</p>
+<table class="f"><tr>
+<td class="c">ΕΘΕΩΡΗΘΗ<br><br>- Ο -<br>ΔΙΟΙΚΗΤΗΣ<br><br><br><br>%static_commander_name%<br>%static_commander_rank%</td>
+<td class="c"><br><br>- Ο -<br>ΒΕΒΑΙΩΝ<br><br><br><br>%static_office_officer_name%<br>%static_office_officer_rank%</td>
+</tr></table>
+</div>
+<br class="nextPage">
+
+%end_enum%

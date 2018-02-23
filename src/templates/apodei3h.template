@@ -1,0 +1,27 @@
+<div class="Paper_A4_Portrait_20x20x20x35">
+
+<h1 class="t">ΑΠΟΔΕΙΞΗ %euro_cost_money%</h1>
+<p>Ο υπογεγραμένος %cost_work_officer_rank% %cost_work_officer_name% έλαβα %full_written_cost_money% (%euro_cost_money%) από το %cost_money_source% για %cost_title%.</p>
+<p align=right>%system_date%</p>
+<table class="f"><tr>
+<td nowrap class="c">ΘΕΩΡΗΘΗΚΕ<br>- Ο -<br>ΔΝΤΗΣ</td>
+<td nowrap class="c"><br>- Ο -<br>ΕΟΥ</td>
+<td nowrap class="c"><br>- Ο -<br>ΔΙΑΧ. ΧΡΗΜΑΤΙΚΟΥ</td>
+<td nowrap class="c"><br>- Ο -<br>ΥΠΟΤΑΜΙΑΣ</td>
+<td nowrap class="c"><br>- Ο -<br>ΛΑΒΩΝ<br><br><br><br>%cost_work_officer_name%<br>%cost_work_officer_rank%</td>
+<td nowrap class="c"><br>- Ο -<br>ΔΚΤΗΣ<br><br><br><br>%static_commander_name%<br>%static_commander_rank%</td>
+</tr></table>
+
+<br><br><br><hr><br><br><br>
+
+<h1 class="t">ΕΞΟΥΣΙΟΔΟΤΗΣΗ</h1>
+<p>Ο υπογεγραμένος %cost_work_officer_rank% %cost_work_officer_name%, εξουσιοδοτώ τον ....................................... να παραλάβει %full_written_cost_money% (%euro_cost_money%) από το %cost_money_source% για %cost_title%.</p>
+<p align=right>%system_date%</p>
+<table class="f"><tr>
+<td nowrap class="c">ΘΕΩΡΗΘΗΚΕ<br>ΓΙΑ ΤΟ ΓΝΗΣΙΟ ΤΗΣ ΥΠΟΓΡΑΦΗΣ</td>
+<td nowrap class="c">- Ο -<br>ΕΞΟΥΣΙΟΔΟΤΩΝ<br><br><br><br>%cost_work_officer_name%<br>%cost_work_officer_rank%</td>
+<td nowrap class="c">- Ο -<br>ΕΞΟΥΣΙΟΔΟΤΟΥΜΕΝΟΣ</td>
+</tr></table>
+
+</div>
+<br class="nextPage">
