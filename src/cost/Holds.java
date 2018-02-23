@@ -10,7 +10,7 @@ public class Holds extends JPanel implements DataTransmitter {
 	public Holds() {
 		holds = new JComboBox(new ComboDataModel(this, new Hold()));
 		setLayout(new BorderLayout());
-		add(new JScrollPane(new ResizableTable(new ResizableTableModel(this, new String[] { "ÌÔÓ", "ÅÌĞ", "ÔÓÌÅÄÅ", "ÁÏÏÁ", "ÔĞÅÄÅ", "ÅÊÏÅÌÓ", "×áñôüóçìï", "ÏÃÁ", "Óıíïëï" }, null, Hold.class), false)));
+		add(new JScrollPane(new ResizableTable(new ResizableTableModel(this, new String[] { "ÌÔÓ", "ÅÌĞ", "ÔÓÌÅÄÅ", "ÁÏÏÁ", "ÔĞÅÄÅ", "ÅÊÏÅÌÓ", "×áñôüóçìï", "ÏÃÁ", "Óıíïëï" }, null, Hold.class), false, true)));
 	}
 	
 	public Object getData() { return MainFrame.data.get("ÊñáôŞóåéò"); }

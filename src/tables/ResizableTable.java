@@ -2,15 +2,17 @@ package tables;
 
 import java.util.*;
 import javax.swing.*;
-import javax.swing.table.*;
 import java.awt.event.*;
 
-public class ResizableTable extends JTable implements KeyListener {
+public class ResizableTable extends JTable
+		implements KeyListener, MouseListener, Comparator<Map> {
 	private final boolean insert;
-	public ResizableTable(ResizableTableModel rtm, boolean ins) {
+	private String sort;
+	public ResizableTable(ResizableTableModel rtm, boolean ins, boolean sort) {
 		super(rtm);
 		addKeyListener(this);
 		insert = ins;
+		if (sort) getTableHeader().addMouseListener(this);
 	}
 	public void keyReleased(KeyEvent e) {}
 	public void keyPressed(KeyEvent e) {
@@ -32,17 +34,37 @@ public class ResizableTable extends JTable implements KeyListener {
 			boolean yes = false;
 			for (int z = a.length - 1; z >= 0; z--)
 				if (a[z] >= 0 && a[z] < v.size()) {
-					if (v.get(a[z]) != null && !chk) {
-						chk = true;
-						if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this,
-								"Υπάρχουν εγγραφές που δεν είναι άδειες. Θέλετε να τις διαγράψω;",
-								"Διαγραφή εγγραφών", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
-							yes = true;
-					}
-					if (v.get(a[z]) == null || yes) v.remove(a[z]);
+				if (v.get(a[z]) != null && !chk) {
+					chk = true;
+					if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this,
+							"Υπάρχουν εγγραφές που δεν είναι άδειες. Θέλετε να τις διαγράψω;",
+							"Διαγραφή εγγραφών", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE))
+						yes = true;
+				}
+				if (v.get(a[z]) == null || yes) v.remove(a[z]);
 				}
 			rtm.fireTableDataChanged();
 		}
 	}
 	public void keyTyped(KeyEvent e) {}
+	
+	public void mouseClicked(MouseEvent e) {
+		int a = convertColumnIndexToModel(getTableHeader().columnAtPoint(e.getPoint()));
+		sort = ((ResizableTableModel) getModel()).hash[a];
+		Collections.sort(((ResizableTableModel) getModel()).getData(), this);
+	}
+	public void mousePressed(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {}
+	
+	public int compare(Map a, Map b) {
+		Object aa = a.get(sort);
+		Object bb = b.get(sort);
+		if (aa instanceof Comparable)
+			return bb != null && bb.getClass().equals(aa.getClass()) ?
+				((Comparable) aa).compareTo((Comparable) bb) : 1;
+		else
+			return bb instanceof Comparable ? -1 : 0;
+	}
 }

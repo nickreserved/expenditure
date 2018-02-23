@@ -11,7 +11,7 @@ import java.awt.event.*;
 public class Contents extends JPanel implements DataTransmitter, ItemListener {
 	private ResizableTableModel rtm;
 	public Contents() {
-		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Δικαιολογητικό", "Πλήθος"}, null, ContentItem.class), true);
+		JTable tbl = new ResizableTable(rtm = new ResizableTableModel(this, new String[] {"Δικαιολογητικό", "Πλήθος"}, null, ContentItem.class), true, false);
 		JComboBox cbMany = new JComboBox(new Byte[] {1, 2, 3, 4, 5});
 		JComboBox cbContents = new JComboBox((Vector) load(-1));
 		cbContents.setEditable(true);

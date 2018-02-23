@@ -18,7 +18,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 	public Bills() {
 		ResizableTableModel billsModel = new ResizableTableModel(this, new String[] { "Τιμολόγιο", "Τύπος", "Κατηγορία", "Προμηθευτής", "ΑνάλυσηΚρατήσεωνΣεΠοσοστά", "ΠοσοστόΦΕ" }, new String[] { null, null, null, null, "Κρατήσεις", "ΦΕ" }, Bill.class);
 		billsModel.addTableModelListener(this);
-		tblBills = new ResizableTable(billsModel, false);
+		tblBills = new ResizableTable(billsModel, false, false);
 		tblBills.getSelectionModel().addListSelectionListener(this);
 		tblBills.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		TableColumnModel cm = tblBills.getColumnModel();
@@ -29,7 +29,7 @@ public class Bills extends JPanel implements ListSelectionListener, DataTransmit
 		cm.getColumn(5).setCellEditor(new DefaultCellEditor(new JComboBox(new Byte[] { 4, 8, 0, 1 })));
 		
 		billModel = new ResizableTableModel((Vector) null, new String[] { "Είδος", "Ποσότητα", "ΤιμήΜονάδας", "ΣυνολικήΤιμή", "ΦΠΑ", "ΤιμήMονάδαςMεΦΠΑ", "ΣυνολικήΤιμήΜεΦΠΑ" ,"ΜονάδαMέτρησης"}, new String[] { null, null, "Τιμή μονάδας", "Συνολική τιμή", null, "Τιμή μονάδας με ΦΠΑ", "Συνολική τιμή με ΦΠΑ" ,"Μονάδα μέτρησης"}, BillItem.class);
-		JTable billTable = new ResizableTable(billModel, true);
+		JTable billTable = new ResizableTable(billModel, true, true);
 		cm = billTable.getColumnModel();
 		JComboBox fpa = new JComboBox(new Byte[] { 19, 9, 0 });
 		fpa.setEditable(true);

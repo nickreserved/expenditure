@@ -15,13 +15,13 @@ public class Works extends JPanel implements DataTransmitter, ListSelectionListe
 		final String[] commonHeader = { null, null, "Μονάδα μέτρησης"};
 		
 		ResizableTableModel workModel = new ResizableTableModel(this, new String[] { "Εργασία", "Ποσότητα", "ΜονάδαMέτρησης" }, commonHeader, Work.class);
-		tblWorks = new ResizableTable(workModel, true);
+		tblWorks = new ResizableTable(workModel, true, false);
 		tblWorks.getSelectionModel().addListSelectionListener(this);
 		tblWorks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblWorks.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
 		
 		matModel = new ResizableTableModel((Vector) null, new String[] { "Υλικό", "Ποσότητα", "ΜονάδαMέτρησης"}, commonHeader, Material.class);
-		JTable tblMaterial = new ResizableTable(matModel, false);
+		JTable tblMaterial = new ResizableTable(matModel, false, true);
 		tblMaterial.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(Bills.cbMeasures));
 		
 		setLayout(new BorderLayout());

@@ -62,7 +62,7 @@ public class MainFrame extends JFrame implements ActionListener {
 	static protected MainFrame ths;
 	
 	public MainFrame() {
-		super("Στρατιωτικές Δαπάνες 1.4.0");
+		super("Στρατιωτικές Δαπάνες 1.4.1");
 		setIconImage(new ImageIcon(ClassLoader.getSystemResource("cost/app.png")).getImage());
 		
 		Providers prov = new Providers();
@@ -381,7 +381,7 @@ public class MainFrame extends JFrame implements ActionListener {
 				Functions.showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 			}
 		}
-		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.0 beta</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>GNU GPL</b><br>Δημοσίευση: <b>31 Δεκ 2005</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/cost/</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
+		else if (ac == "about") JOptionPane.showMessageDialog(this, "<html><center><b><font size=4>Στρατιωτικές Δαπάνες</font><br><font size=3>Έκδοση 1.4.1</font></b></center><br>Προγραμματισμός: <b>Υπλγος(ΜΧ) Γκέσος Παύλος</b><br>Άδεια χρήσης: <b>GNU GPL</b><br>Δημοσίευση: <b>10 Φεβ 2006</b><br>Σελίδα: <b>http://tassadar.physics.auth.gr/~chameleon/programs/?program=cost</b>", getTitle(), JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	

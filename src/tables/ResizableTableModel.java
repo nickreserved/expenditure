@@ -11,7 +11,6 @@ public class ResizableTableModel extends AbstractTableModel {
   protected String[] hash;
   protected Class classType;
 
-
   public ResizableTableModel(Vector data, String[] hash, String[] title, Class classType) {
     this.data = data;
     this.title = title;

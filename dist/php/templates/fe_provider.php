@@ -12,7 +12,7 @@ foreach ($c as $v) {
 
 \sectd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain ΣΤΟΙΧΕΙΑ ΤΟΥ ΥΠΟΧΡΕΟΥ\par
+\pard\plain I. ΣΤΟΙΧΕΙΑ ΤΟΥ ΥΠΟΧΡΕΟΥ\par
 
 \pard\plain\trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx6178
@@ -33,7 +33,7 @@ if (isset($data['ΕσωτερικόΤηλέφωνο'])) echo '  Εσωτ.: ' . chk($data['ΕσωτερικόΤη
 \line\b Αρ. Τηλεφώνου\b0\line\line ΔΟΥ Ν. Ψυχικού\line\b Δ.Ο.Υ.\b0\cell
 \b ΒΕΒΑΙΩΣΗ\b0\line\line Παρακρατούμενου φόρου από προμήθειες κάθε είδους αγαθών ή παροχής υπηρεσιών από τις δημόσιες ΟΤΑ, ΝΠΔΔ κ.λ.π. (περιπτ. στ' παραγ. 1 άρθρου 37α του Ν.Δ. 3323/1955)\cell\row
 
-\pard\plain\line I. ΣΤΟΙΧΕΙΑ ΕΠΙΧΕΙΡΗΣΗΣ\par
+\pard\plain\line II. ΣΤΟΙΧΕΙΑ ΕΠΙΧΕΙΡΗΣΗΣ\par
 \trowd\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx6178
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx11227
@@ -51,7 +51,7 @@ if (isset($a['Διεύθυνση'])) echo chk($a['Διεύθυνση']);
 \line\b Τηλέφωνο\b0\cell
 <?=chk($a['ΑΦΜ'])?>\line\b Α.Φ.Μ.\b0\line\line <?=chk($a['ΔΟΥ'])?>\line\b Δ.Ο.Υ.\b0\cell\row
 
-\pard\plain\line IΙ. ΣΤΟΙΧΕΙΑ ΣΥΝΑΛΛΑΓΗΣ\par
+\pard\plain\line III. ΣΤΟΙΧΕΙΑ ΣΥΝΑΛΛΑΓΗΣ\par
 
 \trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\cellx2835
