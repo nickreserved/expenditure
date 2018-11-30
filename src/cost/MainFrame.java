@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -53,13 +54,15 @@ final public class MainFrame extends JFrame implements ActionListener {
 	private static JMenuItem[] menu;
 
 	final public static Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+	/** Η διαδρομή του φακέλου του προγράμματος */
 	public static String rootPath;
-	final public static String INI = System.getProperty("user.home") + "/cost.ini";
+	public static String iniPath;
 	static protected HashObject data;
 	static protected IteratorHashObject costs;
 	static protected MainFrame ths;
 	static protected CostWizardDialog cwf;
-	static private final String VERSION = "25 Φεβ 2018";
+	/** Η έκδοση του προγράμματος. */
+	static private final String VERSION = "30 Νοε 2018";
 	
 	public MainFrame() {
 		super("Στρατιωτικές Δαπάνες");
@@ -256,7 +259,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 
 	private void importCost() {
 		try {
-			JFileChooser fc = new JFileChooser(INI);
+			JFileChooser fc = new JFileChooser(iniPath);
 			fc.setMultiSelectionEnabled(true);
 			fc.setFileFilter(new ExtensionFileFilter("ini:cost", "Αρχείο Δαπάνης και Ρυθμίσεων"));
 			int returnVal = fc.showOpenDialog(this);
@@ -376,7 +379,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			try {
-				Saveable.save(INI, data);
+				Saveable.save(iniPath, data);
 			} catch(IOException ex) {
 				if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(this,
 						"<html>Αποτυχία κατά την αποθήκευση του <b>cost.ini</b>.<br>Να κλείσω τo πρόγραμμα;",
@@ -438,6 +441,23 @@ final public class MainFrame extends JFrame implements ActionListener {
 		}
 		JOptionPane.showMessageDialog(null, "<html>" + info, title, JOptionPane.ERROR_MESSAGE);
 	}
+	
+	static private Object loadDefaultIni() {
+		try {
+			return TreeFileLoader.loadResource("cost.ini");
+		} catch(Exception e2) {
+			showExceptionMessage(null, e2, "Πρόβλημα",
+				"Πρόβλημα κατά τη φόρτωση του default <b>cost.ini</b>.");
+			return null;
+		}
+	}
+
+	static private Object loadDefaultIniWarn(Exception e) {
+		showExceptionMessage(null, e, "Πρόβλημα",
+				"Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>"
+				+ "Θα φορτώσω τη default έκδοσή του.");
+		return loadDefaultIni();
+	}
 
 	public static void main(String[] args) {
 		// check for other running instance and setup listening server
@@ -447,38 +467,37 @@ final public class MainFrame extends JFrame implements ActionListener {
 			System.exit(0);
 		}
 
-		// init php engine
-		try { PhpScriptRunner.init(null); }
-		catch (ExecutionException e) {
-			showExceptionMessage(null, e, "Πρόβλημα του PHP cli",
-				"Πρόβλημα κατά την αρχικοποίηση του <b>PHP cli</b>.<br>Το πρόγραμμα θα τερματίσει.");
-			System.exit(0);
-		}
-
 		try {
 			// get application path
+			//rootPath = URLDecoder.decode(ClassLoader.getSystemClassLoader().getResource(".").getPath(), "UTF-8");
 			rootPath = URLDecoder.decode(ClassLoader.getSystemResource("cost/MainFrame.class").getPath().
 				replaceAll("(Cost\\.jar!/)?cost/MainFrame\\.class$|^(file\\:)?/", ""), "UTF-8");
 		} catch (UnsupportedEncodingException ex) {
 			rootPath = "";
 		}
 
-		// load ini file and create data structure
-		Object o = null;
-		try {
-			o = TreeFileLoader.loadFile(INI);
-		} catch(Exception e) {
-			showExceptionMessage(null, e, "Πρόβλημα",
-				"Πρόβλημα κατά τη φόρτωση του <b>cost.ini</b><br>"
-				+ "Αν τρέχετε για πρώτη φορά το πρόγραμμα δεν υπάρχει λόγος ανησυχίας.<br>"
-				+ "Θα φορτώσω τη default έκδοσή του.");
-			try {
-				o = TreeFileLoader.loadResource("cost.ini");
-			} catch(Exception e2) {
-				showExceptionMessage(null, e2, "Πρόβλημα",
-					"Πρόβλημα κατά τη φόρτωση του default <b>cost.ini</b>.");
-			}
+		// init php engine
+		try { PhpScriptRunner.init(); }
+		catch (ExecutionException e) {
+			showExceptionMessage(null, e, "Πρόβλημα του PHP cli",
+				"Πρόβλημα κατά την αρχικοποίηση του <b>PHP cli</b>.<br>Το πρόγραμμα θα τερματίσει.");
+			System.exit(0);
 		}
+
+		// load ini file and create data structure
+		// Πρώτα ψάχνει το cost.ini στο φάκελο εγκατάστασης (φορητή λειτουργία)
+		iniPath = rootPath + "/cost.ini";
+		Object o = null;
+		try { o = TreeFileLoader.loadFile(iniPath); }
+		catch(FileNotFoundException ex) {
+			// Αν αποτύχει, ψάχνει το cost.ini στο φάκελο του χρήστη (κανονική λειτουργία)
+			iniPath = System.getProperty("user.home") + "/cost.ini";
+			try { o = TreeFileLoader.loadFile(iniPath); }
+			catch(FileNotFoundException e) { o = loadDefaultIni(); }
+			catch(Exception e) { o = loadDefaultIniWarn(e); }
+		} catch(Exception ex) { o = loadDefaultIniWarn(ex); }
+		// Αρχικοποίηση των τμημάτων της ιεραρχίας δεδομένων που δεν έχει
+		// αρχικοποιηθεί κατά τη φόρτωση του cost.ini
 		data = o instanceof HashObject ? (HashObject) o : new HashObject();
 		if (!(data.get("Προσωπικό") instanceof VectorObject)) data.put("Προσωπικό", new VectorObject<>());
 		if (!(data.get("Προμηθευτές") instanceof VectorObject)) data.put("Προμηθευτές", new VectorObject<>());
@@ -503,7 +522,7 @@ final public class MainFrame extends JFrame implements ActionListener {
 		
 		// Autosave ini file every 5 minutes.
 		Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-				try { Saveable.save(INI, data); }
+				try { Saveable.save(iniPath, data); }
 				catch(IOException ex) {}
 			}, 5, 5, TimeUnit.MINUTES);
 	}

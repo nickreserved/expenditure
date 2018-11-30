@@ -2,6 +2,7 @@ package common;
 
 import static common.TreeFileLoader.GREEK;
 import static common.TreeFileLoader.readAllBytes;
+import cost.MainFrame;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,10 +13,15 @@ import java.util.concurrent.ExecutionException;
 
 public class PhpScriptRunner {
 	private final ProcessBuilder pb;
+	/** Η διαδρομή προς το εκτελέσιμο php.
+	 * Σε linux είναι απλά 'php' ενώ σε Windows είναι η διαδρομή προς το php που
+	 * εγκαθιστά ο installer του προγράμματος. */
+	final static private String PHP = System.getProperty("os.name").contains("Windows")
+			? MainFrame.rootPath + "php5/php.exe" : "php";
 
 	public PhpScriptRunner(String directory, String script, String[] argv) {
 		ArrayList<String> v = new ArrayList<>();
-		v.add("php");
+		v.add(PHP);
 		v.add("-n");
 		v.add("-d");
 		v.add("log_errors=On");
@@ -100,7 +106,7 @@ public class PhpScriptRunner {
 		}
 	}
 
-	static public void init(String directory) throws ExecutionException {
+	static public void init() throws ExecutionException {
 		try {
 			PhpScriptRunner p = new PhpScriptRunner(null, null, null);
 			Result r = p.exec("<?echo 5+5;exit(51);?>", STDOUT_STDERR_REDIRECT);

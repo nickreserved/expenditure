@@ -36,7 +36,7 @@ $c2 = ob_get_clean();
 Μήνας \ul <?=$a[1]?>\ul0\line
 Χρήση \ul <?=$a[2]?>\ul0\line
 Φορέας \ul <?=chk($data['ΕΦ'])?>\ul0\line
-ΚΑ \ul <? if (isset($data['ΚΑ'])) echo chk($data['ΚΑ']); ?>\ul0\cell\row
+ΚΑΕ \ul <? if (isset($data['ΚΑΕ'])) echo chk($data['ΚΑΕ']); ?>\ul0\cell\row
 
 \pard\plain\qj\ul <?=$prereport ? 'Απαιτουμένης' : 'Γενόμενης'?> Δαπάνης για «<?=chk($data['Τίτλος'])?>».\par\par
 

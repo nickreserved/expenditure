@@ -20,6 +20,7 @@
 			<menu name="Εκκίνηση" url="general.html#run" />
 			<menu name="Τερματισμός και αυτόματη αποθήκευση" url="general.html#close" />
 		</menu>
+		<menu name="Φορητή Εγκατάσταση" url="general.html#portable" />
 		<menu name="Γραμμή εντολών" url="general.html#commandline" />
 		<menu name="Επικοινωνία" url="general.html#contactus" />
 	</menu>

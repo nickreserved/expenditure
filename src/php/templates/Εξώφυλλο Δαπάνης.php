@@ -17,7 +17,7 @@ $a = $bills_info['ÁíÜëõóçÊñáôŞóåùíÓåÅõñş'];
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28 {\b ÅÖ:} <?=chk($data['ÅÖ'])?>\par
 \pard\par
-\pard\plain\box\brdrs\brdrw1\brsp28 {\b ÊÁ:} <? if (isset($data['ÊÁ'])) echo $data['ÊÁ']; ?>\par
+\pard\plain\box\brdrs\brdrw1\brsp28 {\b ÊÁÅ:} <? if (isset($data['ÊÁÅ'])) echo $data['ÊÁÅ']; ?>\par
 \pard\line\line\line\line\line\line\par
 
 
