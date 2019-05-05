@@ -1,69 +1,187 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
-<project name="Cost" default="default" basedir=".">
-    <description>Builds, tests, and runs the project Cost.</description>
-    <import file="nbproject/build-impl.xml"/>
-    <!--
-
-    There exist several targets which are by default empty and which can be
-    used for execution of your tasks. These targets are usually executed
-    before and after some main targets. They are:
-
-      -pre-init:                 called before initialization of project properties
-      -post-init:                called after initialization of project properties
-      -pre-compile:              called before javac compilation
-      -post-compile:             called after javac compilation
-      -pre-compile-single:       called before javac compilation of single file
-      -post-compile-single:      called after javac compilation of single file
-      -pre-compile-test:         called before javac compilation of JUnit tests
-      -post-compile-test:        called after javac compilation of JUnit tests
-      -pre-compile-test-single:  called before javac compilation of single JUnit test
-      -post-compile-test-single: called after javac compilation of single JUunit test
-      -pre-jar:                  called before JAR building
-      -post-jar:                 called after JAR building
-      -post-clean:               called after cleaning build products
-
-    (Targets beginning with '-' are not intended to be called on their own.)
-
-    Example of inserting an obfuscator after compilation could look like this:
-
-        <target name="-post-compile">
-            <obfuscate>
-                <fileset dir="${build.classes.dir}"/>
-            </obfuscate>
-        </target>
-
-    For list of available properties check the imported
-    nbproject/build-impl.xml file.
-
-
-    Another way to customize the build is by overriding existing main targets.
-    The targets of interest are:
-
-      -init-macrodef-javac:     defines macro for javac compilation
-      -init-macrodef-junit:     defines macro for junit execution
-      -init-macrodef-debug:     defines macro for class debugging
-      -init-macrodef-java:      defines macro for class execution
-      -do-jar-with-manifest:    JAR building (if you are using a manifest)
-      -do-jar-without-manifest: JAR building (if you are not using a manifest)
-      run:                      execution of project
-      -javadoc-build:           Javadoc generation
-      test-report:              JUnit report generation
-
-    An example of overriding the target for project execution could look like this:
-
-        <target name="run" depends="Cost-impl.jar">
-            <exec dir="bin" executable="launcher.exe">
-                <arg file="${dist.jar}"/>
-            </exec>
-        </target>
-
-    Notice that the overridden target depends on the jar target and not only on
-    the compile target as the regular run target does. Again, for a list of available
-    properties which you can use, check the target you are overriding in the
-    nbproject/build-impl.xml file.
-
-    -->
+<project name="Στρατιωτικές Δαπάνες">
+	<!-- PROPERTIES SECTION -->
+	<target name="-properties">
+		<!--property name="application.args" value=""/-->
+		<property file="nbproject/project.properties"/>
+	</target>
+	<!-- MACRO SECTION -->
+	<target name="-macro-javac" depends="-properties">
+		<macrodef name="javac-macro">
+			<attribute name="debug"/>
+			<attribute name="destdir"/>
+			<attribute default="${excludes}" name="excludes"/>
+			<attribute default="" name="includes"/>
+			<sequential>
+               <javac srcdir="${src.dir}" destdir="@{destdir}" includes="@{includes}" fork="true"
+						encoding="UTF-8" includeantruntime="false" release="${jvm.version}"
+						debug="@{debug}" deprecation="${javac.deprecation}">
+					<compilerarg line="${javac.compilerargs}"/>
+                </javac>
+            </sequential>
+        </macrodef>
+    </target>
+	<target name="-macro-build-project" depends="-macro-javac,-macro-symlinks">
+		<macrodef name="build-project-macro">
+			<attribute name="debug"/>
+			<sequential>
+				<condition property="build-macro-destdir" value="${build.dir}" else="${dist.dir}">
+					<istrue value="@{debug}" />
+				</condition>
+				<mkdir dir="${build-macro-destdir}"/>
+				<javac-macro debug="@{debug}" destdir="${build-macro-destdir}"/>
+				<copy todir="${build-macro-destdir}" includeEmptyDirs="false">
+					<fileset dir="${src.dir}" excludes="**/*.java, ${excludes}"/>
+				</copy>
+				<create-symlinks dir="${build-macro-destdir}"/>
+            </sequential>
+        </macrodef>
+    </target>
+	<target name="-macro-compile-file" depends="-macro-javac">
+		<macrodef name="compile-file-macro">
+			<attribute name="debug"/>
+			<sequential>
+				<fail unless="files">Δεν έχετε επιλέξει στο IDE τα αρχεία που θέλετε να μεταγλωτιστούν</fail>
+				<mkdir dir="${build.dir}"/>
+				<javac-macro debug="@{debug}" destdir="${build.dir}" includes="${files}, module-info.java"/>
+            </sequential>
+        </macrodef>
+    </target>
+    <target name="-macro-symlinks" depends="-properties">
+        <macrodef name="create-symlinks">
+            <attribute name="dir"/>
+            <sequential>
+				<symlink link="${basedir}/@{dir}/php5" resource="${basedir}/${php.dir}"/>
+				<symlink link="${basedir}/@{dir}/php" resource="${basedir}/${src.dir}/php"/>
+				<symlink link="${basedir}/@{dir}/help" resource="${basedir}/${src.dir}/help"/>
+            </sequential>
+        </macrodef>
+    </target>
+    <target name="-macro-symlinks-delete" depends="-properties">
+        <macrodef name="delete-symlinks">
+            <attribute name="dir"/>
+            <sequential>
+				<symlink action="delete" link="${basedir}/@{dir}/php5"/>
+				<symlink action="delete" link="${basedir}/@{dir}/php"/>
+				<symlink action="delete" link="${basedir}/@{dir}/help"/>
+            </sequential>
+        </macrodef>
+    </target>
+	<target name="-macro-debug" depends="-macro-java" if="netbeans.home">
+        <condition property="debug-transport" value="dt_shmem" else="dt_socket">
+            <os family="windows"/>
+        </condition>
+        <macrodef name="nbjpdastart-macro">
+            <attribute default="${main.class}" name="name"/>
+            <attribute default="" name="stopclassname"/>
+            <sequential>
+                <nbjpdastart addressproperty="jpda.address" name="@{name}"
+							 stopclassname="@{stopclassname}" transport="${debug-transport}">
+                    <classpath>
+                        <path path="${build.dir}"/>
+                    </classpath>
+                </nbjpdastart>
+            </sequential>
+        </macrodef>
+        <macrodef name="debug-macro">
+            <attribute default="${main.class}" name="classname"/>
+            <element name="customizeDebuggee" optional="true"/>
+            <sequential>
+                <java-macro classname="@{classname}" classpath="${build.dir}">
+                    <customize>
+                        <jvmarg value="-agentlib:jdwp=transport=${debug-transport},address=${jpda.address}"/>
+                        <customizeDebuggee/>
+                    </customize>
+                </java-macro>
+            </sequential>
+        </macrodef>
+    </target>
+    <target name="-macro-debug-project" depends="-macro-debug">
+        <macrodef name="debug-project-macro">
+			<attribute default="" name="stopclassname"/>
+            <sequential>
+				<nbjpdastart-macro stopclassname="@{stopclassname}"/>
+				<debug-macro>
+					<customizeDebuggee>
+						<arg line="${application.args}"/>
+					</customizeDebuggee>
+				</debug-macro>
+            </sequential>
+        </macrodef>
+    </target>
+    <target name="-macro-java">
+        <macrodef name="java-macro">
+            <attribute default="${main.class}" name="classname"/>
+            <attribute name="classpath"/>
+            <element name="customize" optional="true"/>
+            <sequential>
+                <java classname="@{classname}" classpath="@{classpath}" dir="${basedir}" failonerror="true" fork="true">
+                    <customize/>
+                </java>
+            </sequential>
+        </macrodef>
+    </target>
+	<!-- CLEANUP SECTION -->
+    <target depends="-macro-symlinks-delete" description="Clean build products." name="clean">
+		<delete-symlinks dir="${build.dir}"/>
+        <delete dir="${build.dir}" followSymlinks="false" includeemptydirs="true"/>
+	</target>
+	<!-- COMPILATION SECTION -->
+    <target name="build" depends="-macro-build-project" description="Build project with debug symbols.">
+        <build-project-macro debug="true"/>
+	</target>
+    <target name="compile-single" depends="-macro-compile-file" description="Μεταγλώττιση του επιλεγμένου αρχείου στο περιβάλλον εργασίας με σύμβολα αποσφαλμάτωσης.">
+		<compile-file-macro debug="true"/>
+	</target>
+    <!-- JAR BUILDING SECTION -->
+    <target name="jar" depends="-macro-build-project" description="Build JAR.">
+        <build-project-macro debug="false"/>
+		<jar destfile="${dist.dir}/${dist.jar}" basedir="${dist.dir}" filesonly="true" level="9" excludes="${excludes}, ${dist.jar}, php5/**">
+			<manifest>
+				<attribute name="Main-Class" value="${main.class}"/>
+			</manifest>
+		</jar>
+        <delete dir="${dist.dir}" excludes="${excludes}, php5/**, ${dist.jar}" followSymlinks="false" includeemptydirs="true"/>
+        <echo level="info">Για την εκτέλεση της εφαρμογής από τη γραμμή εντολών, τρέξε: java -jar "${dist.dir}/${dist.jar}"</echo>
+    </target>
+    <!-- EXECUTION SECTION -->
+    <target name="run" depends="build,-macro-java" description="Εκτέλεση του προγράμματος.">
+		<java-macro classpath="${build.dir}">
+			<customize>
+				<arg line="${application.args}"/>
+			</customize>
+		</java-macro>
+    </target>
+    <!-- DEBUGGING SECTION -->
+	<target name="debug" depends="build,-macro-debug-project" if="netbeans.home" description="Αποσφαλμάτωση του προγράμματος.">
+		<debug-project-macro/>
+	</target>
+	<target name="debug-stepinto" depends="build,-macro-debug-project" if="netbeans.home">
+		<debug-project-macro stopclassname="${main.class}"/>
+	</target>
+	<target name="debug-single" depends="compile-single,-macro-debug" if="netbeans.home">
+        <fail unless="debug.class">Δεν έχετε επιλέξει στο IDE το αρχείο που θέλετε να αποσφαλματώσετε</fail>
+		<nbjpdastart-macro/>
+        <debug-macro classname="${file}"/>
+	</target>
+	<target name="debug-fix" depends="-macro-javac" if="netbeans.home" description="Μεταγλωττίζει αλλαγές στον κώδικα χωρίς να διακόψει την αποσφαλμάτωση">
+        <fail unless="file">Δεν έχετε επιλέξει στο IDE το αρχείο που τροποποιήθηκε</fail>
+		<javac-macro debug="true" destdir="${build.dir}" includes="${file}.java,module-info.java"/>
+		<nbjpdareload>
+			<fileset dir="${build.dir}">
+				<include name="${file}*.class"/>
+			</fileset>
+		</nbjpdareload>
+	</target>
+    <!-- PROFILER SECTION -->
+	<target name="-profile-check">
+		<!-- Sets profiler.configured = true and sets agent.jvmargs -->
+		<startprofiler freeform="true"/>
+	</target>
+    <target depends="-profile-check,jar" if="profiler.configured" name="profile">
+        <java jar="${dist.dir}/${dist.jar}" dir="${basedir}" failonerror="true" fork="true">
+            <jvmarg line="${agent.jvmargs}"/>
+			<arg line="${application.args}"/>
+        </java>
+    </target>
 </project>
