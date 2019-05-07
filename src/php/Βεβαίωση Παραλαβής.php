@@ -12,7 +12,7 @@ foreach(get_invoices_by_category($invoices) as $category => $invoices) {
 	// Κείμενο με τα τιμολόγια, της μορφής '1/31-12-19, 9/1-12-19 και 5/31-1-19'
 	$invoice_list = get_names($invoices, 'Τιμολόγιο');
 	// Η ημερομηνία του νεότερου τιμολογίου από τα επιλεγμένα
-	$newer_invoice_date = get_newer_invoice_date($invoices);
+	$newer_invoice_date = strftime('%d %b %y', get_newer_invoice_timestamp($invoices));
 	// Τμήματα κειμένου που αλλάζουν μέσα στο πρωτόκολλο σχετικά με το είδος τιμολογίου
 	$a = $category == 'Προμήθεια Υλικών'
 			? array('προμηθειών', 'Προμηθειών', 'ΠΡΟΜΗΘΕΙΩΝ')
@@ -21,7 +21,7 @@ foreach(get_invoices_by_category($invoices) as $category => $invoices) {
 	$c = count($invoices) > 1 ? 'α' : 'ο';
 ?>
 
-\sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\qr <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\par\par
 \fs24\qc{\b ΒΕΒΑΙΩΣΗ ΠΑΡΑΛΑΒΗΣ <?=$a[2]?>}\par\par

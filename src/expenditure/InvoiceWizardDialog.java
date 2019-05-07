@@ -1,5 +1,6 @@
 package expenditure;
 
+import static expenditure.MainFrame.getLocationScreenCentered;
 import java.awt.BorderLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -16,7 +17,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-final public class InvoiceWizardDialog extends JDialog implements ActionListener, DocumentListener {
+final class InvoiceWizardDialog extends JDialog implements ActionListener, DocumentListener {
 
 	@SuppressWarnings("LeakingThisInConstructor")
 	public InvoiceWizardDialog(Window w) {
@@ -71,11 +72,11 @@ final public class InvoiceWizardDialog extends JDialog implements ActionListener
 
 		tpInfo = new JTextPane();
 		tpInfo.setEditable(false);
-		tpInfo.setContentType("text/html");
 		getContentPane().add(new JScrollPane(tpInfo), BorderLayout.CENTER);
 
 		setSize(650, 450);
-		setDefaultCloseOperation(HIDE_ON_CLOSE);
+		setLocation(getLocationScreenCentered(getWidth(), getHeight()));
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 		cbFinancing.addActionListener(this);
 		cbContractor.addActionListener(this);
@@ -138,9 +139,9 @@ final public class InvoiceWizardDialog extends JDialog implements ActionListener
 					}
 				else if (net >= 2500)
 					if (financing == 2 /*Π/Υ ΠΔΕ*/)
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 0.32432 : 0.12432;
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 0.33468 : 0.13468;
 					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 4.42032 : 4.22032;
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 4.43068 : 4.23068;
 						if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
 					}
 				else
@@ -154,19 +155,14 @@ final public class InvoiceWizardDialog extends JDialog implements ActionListener
 				hold = financing == 1 /*Ιδιοι πόροι*/ ? 14 : 4;
 
 			StringBuilder sb = new StringBuilder(4096);
-			sb.append("<html><style>ul {margin-top: -15px; margin-bottom: 0}</style><b>Καθαρή Αξία:</b> ");
-			sb.append(net).append("€");
-
-			sb.append("<br><b>ΦΠΑ:</b> ");
-			if (fpa) sb.append("Προβλέπεται και το γνωρίζει ο προμηθευτής");
-			else sb.append("0%");
-
-			sb.append("<br><b>Κρατήσεις:</b> ").append(hold).append("% της καθαρής αξίας");
+			sb.append("Καθαρή Αξία: ").append(net).append("€");
+			sb.append("\nΦΠΑ: ").append(fpa ? "Προβλέπεται και το γνωρίζει ο προμηθευτής" : "0%");
+			sb.append("\nΚρατήσεις: ").append(hold).append("% της καθαρής αξίας");
 			if (hold == 0) sb.append(".");
 			else {
 				sb.append(" (").append(Math.round(net * hold) / 100.0).append("€), που βαρύνουν ");
 				if (contractor != 0 /*Ιδιώτης*/) sb.append("εμάς"); else sb.append("τον προμηθευτή");
-				sb.append("<br><b>Καταλογιστέο:</b> Καθαρή Αξία");
+				sb.append("\nΚαταλογιστέο: Καθαρή Αξία");
 				if (fpa) sb.append(" + ΦΠΑ");
 				if (contractor != 0 /*Ιδιώτης*/) sb.append(" + Κρατήσεις");
 			}
@@ -188,52 +184,58 @@ final public class InvoiceWizardDialog extends JDialog implements ActionListener
 				}
 
 			if (invoiceType == 5 /*Εκπόνηση μελετών*/)
-				sb.append("<br>Αν η δαπάνη αφορά εκπόνηση σχεδίων ή μελέτης έργου πολιτικού ή"
+				sb.append("\nΑν η δαπάνη αφορά εκπόνηση σχεδίων ή μελέτης έργου πολιτικού ή"
 						+ " τοπογράφου μηχανικού, τότε:");
 
-			sb.append("<br><b>ΦΕ:</b> ").append(fe).append("% της καθαρής αξίας");
+			sb.append("\nΦΕ: ").append(fe).append("% της καθαρής αξίας");
 			if (fe != 3) sb.append(" μειον κρατήσεις");
-			sb.append(" (").append(Math.round(valueforfe * fe) / 100.0).append("€)<br>");
+			sb.append(" (").append(Math.round(valueforfe * fe) / 100.0).append("€)\n");
 
 			if (invoiceType == 5 /*Εκπόνηση μελετών*/)
 				sb.append("Αν η δαπάνη αφορά εκπόνηση σχεδίων ή μελέτης άλλου επιστημονικού τομέα ή"
-						+ " αφορά επίβλεψη εφαρμογής μελέτης, τότε:<br><b>ΦΕ:</b> 10% της καθαρής"
-						+ " αξίας (").append(Math.round(valueforfe * 10) / 100.0).append("€)<br>");
+						+ " αφορά επίβλεψη εφαρμογής μελέτης, τότε:\nΦΕ: 10% της καθαρής αξίας (")
+						.append(Math.round(valueforfe * 10) / 100.0).append("€)\n");
 
 			if (construction /*Κατασκευή Έργων*/ && invoiceType == 1 /*Παροχή Υπηρεσιών*/)
-				sb.append("<br>Ο εργολάβος πρέπει να μας υποβάλει τα πρωτότυπα αποδεικτικά κατάθεσης"
-						+ " για 1% <b>ΤΠΕΔΕ</b> (")
+				sb.append("\nΟ εργολάβος πρέπει να μας υποβάλει τα πρωτότυπα αποδεικτικά κατάθεσης"
+						+ " για 1% ΤΠΕΔΕ (")
 						.append(Math.round(net) / 100.0)
-						.append("€) στο λογαριασμό ______, 0.5% <b>ΕΜΠ</b> (")
+						.append("€) στο λογαριασμό ______, 0.5% ΕΜΠ (")
 						.append(Math.round(0.5 * net) / 100.0)
-						.append("€) στο λογαριασμό ______, 0.6% <b>Π.Ο. ΕΜΔΥΔΑΣ</b> (")
+						.append("€) στο λογαριασμό ______, 0.6% Π.Ο. ΕΜΔΥΔΑΣ (")
 						.append(Math.round(0.6 * net) / 100.0)
-						.append("€) στο λογαριασμό ΙΒΑΝ GR5701100800000008000587009,  επί της καθαρής"
+						.append("€) στο λογαριασμό ΙΒΑΝ GR5701100800000008000587009, επί της καθαρής"
 								+ " αξίας, καθώς και το χαρτόσημο και χαρτόσημο ΟΓΑ που αναλογεί σε αυτά.");
 
 			if (contractor == 0 /*Ιδιώτης*/) {
 				if (net > 1500)
-					sb.append("<br>Απαιτείται Φορολογική Ενημερότητα του προμηθευτή"
+					sb.append("\nΑπαιτείται Φορολογική Ενημερότητα του προμηθευτή"
 							+ " για «Πληρωμή από το Δημόσιο».");
 				else if (net > 1220)
-					sb.append("<br>Αν το καταλογιστέο είναι πάνω από 1500€, απαιτείται Φορολογική "
+					sb.append("Αν το καταλογιστέο είναι πάνω από 1500€, απαιτείται Φορολογική "
 							+ "Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».");
 				if (net > 2500)
-					sb.append("<br>Απαιτείται Ασφαλιστική Ενημερότητα του προμηθευτή."
-							+ "<br>Απαιτείται απόσπασμα ποινικού μητρώου."
-							+ "<br>Απαιτείται σύναψη σύμβασης με τον προμηθευτή.");
+					sb.append("\nΑπαιτείται Ασφαλιστική Ενημερότητα του προμηθευτή."
+							+ "\nΑπαιτείται απόσπασμα ποινικού μητρώου.");
+				else if (net > 2419)
+					sb.append("\nΑν το καταλογιστέο είναι πάνω από 3000€, απαιτείται "
+							+ "Ασφαλιστική Ενημερότητα του προμηθευτή.");
+				if (net > 2500 || construction /*Κατασκευή Έργων*/)
+					sb.append("\nΑπαιτείται σύναψη σύμβασης με τον προμηθευτή.");
 			}
 
-			if (net > 60000) sb.append("<br>Απαιτείται Δημόσιος Διαγωνισμός.");
-			else if (net > 20000) sb.append("<br>Απαιτείται Πρόχειρος Διαγωνισμός.");
+			if (net > 60000) sb.append("\nΑπαιτείται Δημόσιος Διαγωνισμός.");
+			else if (net > 20000) sb.append("\nΑπαιτείται Συνοπτικός Διαγωνισμός.");
 
 			if (net > 20000)
-				sb.append("<br>Ο εργολάβος δεν πρέπει να έχει αριθμό καταδικαστικών αποφάσεων"
+				sb.append("\nΟ εργολάβος δεν πρέπει να έχει αριθμό καταδικαστικών αποφάσεων"
 						+ " εργατικής φύσεως την τελευταία διετία");
 
 			tpInfo.setText(sb.toString());
 		} catch(NumberFormatException e) {
-			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη.<br>Οι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/5/1386358/Σ.759/14 Φεβ 18/ΓΕΣ/ΔΟΙ/3α.");
+			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το "
+					+ "τιμολόγιο αλλά και τη δαπάνη.\nΟι κρατήσεις και το ΦΕ υπολογίζονται βάση της "
+					+ "Φ.830/40/1173153/Σ.2320/23 Απρ 19/ΓΕΣ/ΔΟΙ.");
 		}
 	}
 }

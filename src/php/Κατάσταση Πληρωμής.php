@@ -8,13 +8,15 @@ $c = floor(8901 / $c);
 $d = 6236;
 ?>
 
-\sectd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\sbkodd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\qr\b <?=rtf($data['Μονάδα'])?>\line <?=$data['Ημερομηνία Τελευταίου Τιμολογίου']?>\par\par
 \ul\qc ΚΑΤΑΣΤΑΣΗ ΠΛΗΡΩΜΗΣ\par\par
 
 \pard\plain\fs20
-\trowd\trhdr\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28\trqc
+\trowd\trhdr\trqc
+<?php ob_start();	// Buffer με επικεφαλίδες πίνακα ?>
+\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx1701
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx3402
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx4819
@@ -34,21 +36,44 @@ if ($data['Τιμές']['ΦΕ'] > 0) { ?>
 
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx<?=$d+=round(1.2 * $c)?>
 
+<? $c2 = ob_get_flush(); ?>
 \qc\b Δικαιούχος\cell Διεύθυνση\cell e-mail\cell ΔΟΥ\cell Καθαρή Αξία\cell <?php
 foreach($data['Κρατήσεις'] as $v)
 	echo "$v\cell ";
 if ($data['Τιμές']['ΦΕ'] > 0) echo 'ΦΕ\cell ';
 echo 'Καταλογιστέο\cell Πληρωτέο\b0\cell\row' . PHP_EOL;
+echo '\trowd' . $c2 . PHP_EOL;
 
-$a = calc_pay_report();
+
+
+/* Μετά από το επόμενο τμήμα κώδικα, στο $a υπάρχει ενα array με δύο στοιχεία. Το πρώτο στοιχείο,
+είναι ένα array για κάθε δικαιούχο, με τα στοιχεία του δικαιούχου και τα αθροίσματα των αξιών όλων
+των τιμολογίων του δικαιούχου στη δαπάνη συμπεριλαμβανομένων Καθαρής Αξίας, Καταλογιστέου,
+Πληρωτέου, ΦΕ και όλων των επιμέρους κρατήσεων. Το δεύτερο στοιχείο είναι ένα array με τα αθροίσματα
+των επιμέρους κρατήσεων όλων των τιμολογίων όλων των προμηθευτών. */
+// Υπολογισμοί για κάθε δικαιούχο
+$a = get_invoices_by_contractor($data['Τιμολόγια']);
+$b = array();
+$keys = array('Καθαρή Αξία', 'Καταλογιστέο', 'ΦΕ', 'Πληρωτέο');
+foreach($a as $invoices) {
+	$c = calc_sum_of_invoices_prices($invoices, $keys);
+	$c['Κρατήσεις'] = calc_partial_deductions($invoices);
+	$b[] = array_merge($invoices[0]['Δικαιούχος'], $c);
+}
+// Υπολογισμοί συνόλων επιμέρους κρατήσεων για όλους τους δικαιούχους
+// Τα υπόλοιπα αθροίσματα δεν υπολογίζονται γιατί υπάρχουν στη δαπάνη
+$c = array_fill_keys($data['Κρατήσεις'], 0);	// Αρχικοποίηση των αθροισμάτων με τιμή 0
+foreach($b as $v) {
+	$deductions = $v['Κρατήσεις'];
+	foreach($data['Κρατήσεις'] as $key)
+		if (isset($deductions[$key])) $c[$key] += $deductions[$key];
+}
+$a = array ($b, $c);
 
 foreach($a[0] as $v) {
-	echo '\ql ' . rtf($v['Επωνυμία']) . '\cell ';
-	if (isset($v['Πόλη'])) {
-		echo rtf($v['Πόλη']);
-		if (isset($v['Διεύθυνση'])) echo ', ' . rtf($v['Διεύθυνση']);
-	} ?>\cell <?
-	echo rtf(ifexist($v, 'e-mail')) . '\cell ' . rtf($v['ΔΟΥ']) . '\cell\qr ' . euro($v['Καθαρή Αξία']) . '\cell ';
+	echo '\ql ' . rtf($v['Επωνυμία']) . '\cell ' . rtf(ifexist($v, 'Διεύθυνση')) . '\cell '
+			. rtf(ifexist($v, 'e-mail')) . '\cell ' . rtf($v['ΔΟΥ']) . '\cell\qr '
+			. euro($v['Καθαρή Αξία']) . '\cell ';
 	$i = $v['Κρατήσεις'];
 	foreach($data['Κρατήσεις'] as $t)
 		echo euro(ifexist($i, $t)) . '\cell ';
@@ -71,4 +96,8 @@ echo euro($data['Τιμές']['Πληρωτέο']) . '\b0\cell\row' . PHP_EOL . PHP_EOL;
 
 \sect
 
-<?php rtf_close(__FILE__); ?>
+<?php
+unset($a, $c, $d, $c2, $v, $i, $t);
+
+rtf_close(__FILE__);
+?>

@@ -58,8 +58,8 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 
 	/** Οι listeners για κάθε αλλαγή στα δεδομένα του πίνακα. */
 	private final ArrayList<TableModelListener> listeners = new ArrayList<>();
-	@Override public void addTableModelListener(TableModelListener l) { listeners.add(l); }
-	@Override public void removeTableModelListener(TableModelListener l) { listeners.remove(l); }
+	@Override final public void addTableModelListener(TableModelListener l) { listeners.add(l); }
+	@Override final public void removeTableModelListener(TableModelListener l) { listeners.remove(l); }
 	@Override public Class getColumnClass(int columnIndex) { return String.class; }
 	@Override public int getColumnCount() { return header.size(); }
 	@Override public int getRowCount() { return d.get() == null ? 0 : d.get().size() + 1; }
@@ -297,7 +297,7 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 		List<T> get();
 		/** Επιστρέφει μια νέα κενή εγγραφή.
 		 * @return Η νέα κενή εγγραφή. */
-		T createNew();
+		default T createNew() { return null; }
 		/** Διαγράφει ένα στοιχείο από τη λίστα.
 		 * Η χρησιμότητά της είναι να εκτελεί επιπρόσθετο κώδικα όταν ένα στοιχείο διαγράφεται.
 		 * @param index Ο δείκτης του στοιχείου που θα διαγραφεί, στη λίστα */

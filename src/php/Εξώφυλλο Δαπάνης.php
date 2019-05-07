@@ -3,7 +3,7 @@ require_once('init.php');
 require_once('header.php');
 ?>
 
-\sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1701\margbsxn1134
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1701\margbsxn1134
 
 \pard\plain\qr\fs32\b <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\par
 \pard\plain\qc\fs40\b\line\line\line ΦΑΚΕΛΟΣ\line ΓΕΝΟΜΕΝΗΣ ΔΑΠΑΝΗΣ\line\line
@@ -20,7 +20,7 @@ require_once('header.php');
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΚΑΤΑΛΟΓΙΣΤΕΟ ΠΟΣΟ ΔΑΠΑΝΗΣ:} <?=euro($data['Τιμές']['Καταλογιστέο'])?>\par
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΣΥΝΤΑΞΑΣ:} <?=person($data['Αξκος Γραφείου'])?>\par
-\pard\plain\qr\fs32\line\line\line\line{\b <?=get_full_month_year($data['Ημερομηνία Τελευταίου Τιμολογίου'])?>}\par
+\pard\plain\qr\fs32\line\line\line\line{\b <?=strftime('%B %Y', $data['Timestamp Τελευταίου Τιμολογίου'])?>}\par
 
 \sect
 

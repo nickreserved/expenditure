@@ -1,21 +1,21 @@
 package expenditure;
 
 import static expenditure.Deduction.D0_06216;
-import static expenditure.Deduction.D0_12432;
+import static expenditure.Deduction.D0_13468;
 import static expenditure.Deduction.D0_26216;
-import static expenditure.Deduction.D0_32432;
+import static expenditure.Deduction.D0_33468;
 import static expenditure.Deduction.D14;
 import static expenditure.Deduction.D14_096;
 import static expenditure.Deduction.D14_15816;
-import static expenditure.Deduction.D14_22032;
+import static expenditure.Deduction.D14_23068;
 import static expenditure.Deduction.D14_35816;
-import static expenditure.Deduction.D14_42032;
+import static expenditure.Deduction.D14_43068;
 import static expenditure.Deduction.D4;
 import static expenditure.Deduction.D4_096;
 import static expenditure.Deduction.D4_15816;
-import static expenditure.Deduction.D4_22032;
+import static expenditure.Deduction.D4_23068;
 import static expenditure.Deduction.D4_35816;
-import static expenditure.Deduction.D4_42032;
+import static expenditure.Deduction.D4_43068;
 import static expenditure.Expenditure.FINANCING;
 import java.awt.AWTEvent;
 import java.awt.Color;
@@ -68,6 +68,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import static javax.swing.JOptionPane.CLOSED_OPTION;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import static javax.swing.JOptionPane.NO_OPTION;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
@@ -105,7 +106,10 @@ import util.PhpScriptRunner;
 import util.PhpScriptRunner.StdInStream;
 import util.PhpSerializer;
 import util.PhpSerializer.FormatException;
+import util.PhpSerializer.VariableSerializable;
 import util.PropertiesTableModel;
+import util.PropertiesTableModel.TableColumnData;
+import util.PropertiesTableModel.TableRecord;
 import static util.PropertiesTableModel.createTable;
 import util.ResizableTableModel;
 import util.ResizableTableModel.TableData;
@@ -119,7 +123,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static final String VERSION = "20 Απρ 19";
+	static final String VERSION = "6 Μαι 19";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -409,15 +413,14 @@ final public class MainFrame extends JFrame {
 		// Ποιά πεδία του πίνακα στοιχείων Μονάδας είναι επεξεργάσιμα
 		boolean[] unitEditable = {
 			false, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			false, true, true, true, true, true, true, true, true, true, true, true, true, true, true
+			false, true
 		};
 		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της Μονάδας.
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
 		Component[] unitEditors = {
 			null, null, null, null, null, null, null, null, null, null, null, cbPersonnel, cbPersonnel,
 			cbPersonnel, cbPersonnel,
-			null, null, null, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel,
-			cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel
+			null, null, null, cbPersonnel
 		};
 		// Ρύθμιση του πίνακα με τα στοιχεία Μονάδας
 		PropertiesTableModel ptm = new PropertiesTableModel((int index) -> data.unitInfo,
@@ -479,18 +482,72 @@ final public class MainFrame extends JFrame {
 	}
 
 	/** Δημιουργεί ένα panel με τον πίνακα των αναδόχων. */
-	private JScrollPane createContractorsPanel() {
-		TableData td = new TableData() {
-			@Override public List<Contractor> get() { return data.contractors; }
-			@Override public Contractor createNew() { return new Contractor(); }
+	private JSplitPane createContractorsPanel() {
+		// Ο πάροχος δεδομένων για τον πίνακα με τις επωνυμίες των δικαιούχων
+		ResizableTableModel<Contractor> model = new ResizableTableModel<Contractor>(
+				(TableData)() -> data.contractors, new String[] { Contractor.H[0] }) {
+			@Override public boolean isCellEditable(int row, int col) { return false; }
 		};
-		JComboBox contractorTypes = new JComboBox(Contractor.Type.values());
-		contractorTypes.setBorder(createLineBorder(WHITE, 0));
-		tblContractors = createTable(new ResizableTableModel(td, Contractor.H), true, true );
-		TableColumnModel cm = tblContractors.getColumnModel();
-		cm.getColumn(1).setCellEditor(new DefaultCellEditor(contractorTypes));
-
-		return new JScrollPane(tblContractors);
+		// Ο πίνακας με τις επωνυμίες των δικαιούχων
+		tblContractors = createTable(model, true, true );
+		// Ο επιλογέας τύπου του δικαιούχου
+		JComboBox type = new JComboBox(Contractor.Type.values());
+		type.setBorder(createLineBorder(WHITE, 0));
+		// Ο πάροχος δεδομένων για τον πίνακα με τα στοιχεία των δικαιούχων
+		TableColumnData tcd = new TableColumnData() {
+			private Contractor c = null;
+			@Override public TableRecord get(int index) {
+				if (window.tblContractors.getSelectedRowCount() != 1) { c = null; return null; }
+				int a = window.tblContractors.getSelectedRow();	// με το window.* γλιτώνουμε το capture
+				if (a == data.contractors.size()) {
+					if (c == null) c = new Contractor();
+					return c;
+				}
+				c = null;
+				return data.contractors.get(a);
+			}
+		};
+		// Ο πίνακας με τα στοιχεία του δικαιούχου
+		String[] h = {
+			Contractor.H[0], Contractor.H[1], Contractor.H[2], Contractor.H[3], Contractor.H[4],
+			"<html><b>Στοιχεία Υπεύθυνης Δήλωσης", Contractor.H[5], PersonInfo.H[0], PersonInfo.H[1],
+			PersonInfo.H[2], PersonInfo.H[3], PersonInfo.H[4], PersonInfo.H[5], PersonInfo.H[6],
+			PersonInfo.H[7], PersonInfo.H[8]
+		};
+		boolean[] b = { true, true, true, true, true, false, true };
+		PropertiesTableModel info = new PropertiesTableModel(tcd, h, 1, b);
+		JTable tblInfo = PropertiesTableModel.createTable(info, new Component[] { null, type, null });
+		tblInfo.setVisible(false);
+		info.addTableModelListener((TableModelEvent e) -> {
+			JTable t = window.tblContractors;	// με το window.* γλιτώνουμε το capture
+			int a = t.getSelectedRow();
+			Contractor tr = (Contractor) tcd.get(0);
+			if (a == data.contractors.size()) {
+				if (!tr.isEmpty()) {
+					data.contractors.add(tr);
+					t.tableChanged(new TableModelEvent(t.getModel(), a + 1, a + 1, 0, INSERT));
+				}
+			} else if (tr.isEmpty()) {
+				data.contractors.remove(a);
+				t.tableChanged(new TableModelEvent(t.getModel(), a, a, 0, DELETE));
+			} else if (e.getFirstRow() == 0)	// Αν ο επιλεγμένος δικαιούχος άλλαξε όνομα
+				t.tableChanged(new TableModelEvent(t.getModel(), t.getSelectedRow()));
+		});
+		// Όταν επιλέγουμε άλλο δικαιούχο στον πίνακα δικαιούχων
+		tblContractors.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+			if (e.getValueIsAdjusting()) return;
+			// Ο πίνακας με τα στοιχεία δικαιούχου ανανεώνεται για να εμφανίζει το νέο δικαιούχο
+			tblInfo.setVisible(window.tblContractors.getSelectedRowCount() == 1);
+			tblInfo.tableChanged(new TableModelEvent(
+					window.tblContractors.getModel(), 0, tblInfo.getModel().getRowCount() - 1, 1));
+		});
+		// Η τελική διαμόρφωση της καρτέλας
+		JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				new JScrollPane(tblContractors),
+				new JScrollPane(tblInfo));
+		sp.setDividerSize(3);
+		sp.setDividerLocation(200);
+		return sp;
 	}
 
 	/** Δημιουργεί ένα panel με τον πίνακα των κρατήσεων. */
@@ -697,41 +754,58 @@ final public class MainFrame extends JFrame {
 					if (data.onlyOnce) env.put("one", "true");
 					exportReport("Δαπάνη.php", env);
 				}),
-				createMenu("ΦΕ", new JMenuItem[] {
-					createMenuItem("Εφορία", (ActionEvent e) -> exportReport("ΦΕ για την Εφορία.php")),
-					createMenuItem("Προμηθευτής", (ActionEvent e) -> exportReport("ΦΕ για τον Προμηθευτή.php"))
-				}),
+				/*createMenu("ΦΕ", new JMenuItem[] {
+					createMenuItem("Εφορία", (ActionEvent e) -> exportReport("ΦΕ για την Εφορία.php", null)),
+					createMenuItem("Προμηθευτής", (ActionEvent e) -> exportReport("ΦΕ για τον Προμηθευτή.php", null))
+				}),*/
 				createMenu("Αλληλογραφία", new JMenuItem[] {
 					createMenuItem("Συγκρότηση Επιτροπών", (ActionEvent e) ->
-							showDraftDialogExport("Δγη Συγκρότησης Επιτροπών.php")),
-					createMenu("Διαγωνισμοί", new JMenuItem[] {
+							showDraftDialogExport("Δγη Συγκρότησης Επιτροπών.php",
+									data.isEmpty() ? data.unitInfo : data.getActiveExpenditure())),
+					createMenuItem("Απόφαση Απευθείας Ανάθεσης", (ActionEvent e) ->
+							showDraftDialogExport("Απόφαση Απευθείας Ανάθεσης.php")),
+					/*createMenu("Διαγωνισμοί", new JMenuItem[] {
 						createMenuItem("Διακήρυξη", (ActionEvent e) ->
 							showDraftDialogExport("Δγη Διακήρυξης Διαγωνισμού.php")),
 						null,
 						createMenuItem("Πρακτικό", (ActionEvent e) ->
-								exportReport("Πρακτικό Διαγωνισμού.php")),
+								exportReport("Πρακτικό Διαγωνισμού.php", null)),
 						createMenuItem("Εισηγητική Έκθεση", (ActionEvent e) ->
-								exportReport("Εισηγητική Έκθεση Διαγωνισμού.php")),
+								exportReport("Εισηγητική Έκθεση Διαγωνισμού.php", null)),
 						createMenuItem("Κατακύρωση", (ActionEvent e) ->
 							showDraftDialogExport("Δγη Κατακύρωσης Διαγωνισμού.php"))
-					}),
+					}),*/
 					createMenuItem("Διαβιβαστικό Δαπάνης", (ActionEvent e) ->
 							showDraftDialogExport("Διαβιβαστικό Δαπάνης.php")),
-					createMenuItem("Εκθεση Απατούμενης Δαπάνης", (ActionEvent e) ->
-							showDraftDialogExport("Έκθεση Απαιτούμενης Δαπάνης.php"))
+					/*createMenuItem("Εκθεση Απατούμενης Δαπάνης", (ActionEvent e) ->
+							showDraftDialogExport("Έκθεση Απαιτούμενης Δαπάνης.php"))*/
+				}),
+				createMenu("Υπεύθυνες Δηλώσεις", new JMenuItem[] {
+					createMenuItem("Γνωστοποίηση τραπεζικού λογαριασμού", (ActionEvent e) ->
+							statement("Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού.php")),
+					createMenuItem("Μη χρησιμοποίηση στρατιωτικού ως αντιπρόσωπου", (ActionEvent e) ->
+							statement("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ.php")),
+					null,
+					createMenuItem("Κενή", (ActionEvent e) -> saveScriptOutput(
+							"<?php require('header.php'); require_once('statement.php'); statement(null); ?>\n\n}")),
 				}),
 				createMenu("Διάφορα", new JMenuItem[] {
-					createMenuItem("Κατάσταση Πληρωμών", null),
-					createMenuItem("Πρόχειρη Λίστα Τιμολογίων", (ActionEvent e) ->
-							exportReport("Πρόχειρη Λίστα Τιμολογίων.php")),
+					createMenuItem("Κατάσταση Πληρωμής", (ActionEvent e) ->
+							exportReport("Κατάσταση Πληρωμής.php", null)),
+				/*	createMenuItem("Πρόχειρη Λίστα Τιμολογίων", (ActionEvent e) ->
+							exportReport("Πρόχειρη Λίστα Τιμολογίων.php", null)),
 					createMenuItem("Απόδειξη για Προκαταβολή",
-							(ActionEvent e) -> exportReport("Απόδειξη για Προκαταβολή.php"))
+							(ActionEvent e) -> exportReport("Απόδειξη για Προκαταβολή.php", null))*/
 				})
 			}),
-			createMenu("Ρυθμίσεις", new JMenuItem[] {
+			createMenu("Εργαλεία", new JMenuItem[] {
 				createMenuItem("Οδηγός Τιμολογίου", "wizard",
 						(ActionEvent e) -> new InvoiceWizardDialog(this).setVisible(true)),
-				null,
+				createMenuItem("Πληροφορίες IBAN", "bank", (ActionEvent e) -> iban()),
+				createMenuItem("Υπεύθυνη Δήλωση", "statement",
+						(ActionEvent e) -> new StatementDialog(this).setVisible(true))
+			}),
+			createMenu("Ρυθμίσεις", new JMenuItem[] {
 				createMenuWithSkins("Κέλυφος", "skins"),
 				createMenuItem("Ένα Αντίγραφο", "only_one", data.onlyOnce,
 						(ActionEvent e) -> data.onlyOnce = !data.onlyOnce),
@@ -753,8 +827,12 @@ final public class MainFrame extends JFrame {
 		file.getItem(2).setEnabled(has);			// μενού Αποθήκευση Δαπάνης
 		file.getItem(4).setEnabled(has);			// μενού Κλείσιμο Δαπάνης
 		JMenu export = getJMenuBar().getMenu(1);	// μενού Εξαγωγή
-		export.setEnabled(has);
-		JMenu expenditures = getJMenuBar().getMenu(3);		// μενού Δαπάνες
+		export.getItem(0).setEnabled(has);			// μενού Εξαγωγή/Δαπάνη
+		JMenu doc = (JMenu) export.getItem(1);		// μενού Εξαγωγή/Αλληλογραφία
+		doc.getItem(1).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
+		doc.getItem(2).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
+		export.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
+		JMenu expenditures = getJMenuBar().getMenu(4);		// μενού Δαπάνες
 		expenditures.setEnabled(has);
 		// Ξαναδημιουργείται το μενού με όλες τις ανοικτές δαπάνες σαν επιλογές του
 		if (has) {
@@ -784,7 +862,7 @@ final public class MainFrame extends JFrame {
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
 				"Σελίδα: <b>http://ha-expenditure.sourceforge.net/</b><br><br>" +
-				"<center>Το πρόγραμμα είναι 16 ετών!</center>",
+				"<center>Το πρόγραμμα είναι 15 ετών!</center>",
 				getTitle(), PLAIN_MESSAGE);
 	}
 
@@ -1047,11 +1125,28 @@ final public class MainFrame extends JFrame {
 		}
 	}
 
+	/** Εξάγει μια υπεύθυνη δήλωση για δικαιούχους.
+	 * Αν υπάρχει ανοικτή δαπάνη, εξάγει Υπεύθυνη Δήλωση για όλους τους δικαιούχους των τιμολογίων
+	 * της δαπάνης. Αν δεν υπάρχει ανοικτή δαπάνη, εμφανίζει ένα παράθυρο επιλογής ενός δικαιούχου
+	 * και εξάγει μια Υπεύθυνη Δήλωση για το δικαιούχο που θα επιλεγεί.
+	 * @param phpfile Το αρχείο PHP που θα εκτελεστεί προκειμένου να εξαχθεί η Υπεύθυνη Δήλωση */
+	static private void statement(String phpfile) {
+		VariableSerializable o;
+		if (data.isEmpty()) {
+			o = (Contractor) showInputDialog(window, "Επιλέξτε το δικαιούχο για τον οποίο θα βγει η Υπεύθυνη Δήλωση",
+					"Εξαγωγή Υπεύθυνης Δήλωσης", QUESTION_MESSAGE, null,
+					data.contractors.toArray(new Contractor[data.contractors.size()]), null);
+			if (o == null) return;
+		} else o = data.getActiveExpenditure();
+		exportReport(phpfile, o, null);
+	}
+
+
 	/** Ενεργοποιεί και απενεργοποιεί τις καρτέλες δαπανών στο παράθυρο του προγράμματος.
 	 * Αν δεν υπάρχει καμία ανοικτή δαπάνη απενεργοποιεί τις καρτέλες δαπανών. */
 	private void updatePanels() {
 		JTabbedPane j = (JTabbedPane) getContentPane().getComponent(0);
-		for (int z = 0; z < 4; z++)
+		for (int z = 0; z < 5; z++)
 			j.setEnabledAt(z, !data.isEmpty());
 		if (data.isEmpty() && j.getSelectedIndex() < 5) j.setSelectedIndex(5);
 		// Ανανέωση πινάκων οι οποίοι ενδεχομένως να έχουν αλλάξει μέγεθος
@@ -1092,12 +1187,26 @@ final public class MainFrame extends JFrame {
 		}
 	}
 
+	/** Εμφανίζει πληροφορίες για έναν λογαριασμό IBAN που εισάγει ο χρήστης.
+	 * Αρχικά ζητάει από το χρήστη να δώσει έναν λογαριασμό IBAN. Στη συνέχεια εμφανίζει ένα διάλογο
+	 * με πληροφορίες για το λογαριασμό αυτό, όπως π.χ. αν είναι έγκυρος, σε ποια τράπεζα ανήκει κτλ. */
+	private void iban() {
+		String iban = showInputDialog(this, "Δώστε έναν IBAN", "Πληροφορίες ΙΒΑΝ", QUESTION_MESSAGE);
+		if (iban == null) return;
+		iban = iban.replaceAll("[^A-Z0-9]", "");
+		try {
+			String script = "<?php require('functions.php'); iban_gui('" + iban + "'); ?>";
+			byte[] a = exportScriptOutput(script, null, true);
+			showMessageDialog(this, new String(a, GREEK), "Πληροφορίες ΙΒΑΝ", INFORMATION_MESSAGE);
+		} catch (Exception e) { showError(e.getMessage()); }
+	}
+
 	/** Εμφάνιση παραθύρου σφάλματος.
 	 * @param c Το πατρικό παράθυρο (ή στοιχείο αυτού). Μπορεί να είναι null.
 	 * @param e Η εξαίρεση (exception) που συνέβη. Μπορεί να είναι null.
 	 * @param title Ο τίτλος του παραθύρου σφάλματος
 	 * @param info Πληροφορίες για το σφάλμα. Μπορεί να είναι null. */
-	static private void showExceptionMessage(Component c, Exception e, String title, String info) {
+	static void showExceptionMessage(Component c, Exception e, String title, String info) {
 		if (info == null) info = ""; else info += "<br>";
 		if (e != null) {
 			info += "Σφάλμα: <b>" + e.getClass().getName() + "</b>";
@@ -1204,8 +1313,8 @@ final public class MainFrame extends JFrame {
 	static private void importNewDeductions() {
 		if (!VERSION.equals(data.version)) {
 			Deduction[] deductions = {
-				D4, D4_096, D4_15816, D4_35816, D4_22032, D4_42032, D0_06216, D0_26216, D0_12432,
-				D0_32432, D14, D14_096, D14_15816, D14_35816, D14_22032, D14_42032
+				D4, D4_096, D4_15816, D4_35816, D4_23068, D4_43068, D0_06216, D0_26216, D0_13468,
+				D0_33468, D14, D14_096, D14_15816, D14_35816, D14_23068, D14_43068
 			};
 			importFiltered(Stream.of(deductions), data.deductions);
 			data.version = VERSION;	// ανανέωση της έκδοσης στις ρυθμίσεις στην τρέχουσα
@@ -1224,6 +1333,15 @@ final public class MainFrame extends JFrame {
 	 * αντίγραφο.
 	 * @param filename Το όνομα αρχείου PHP που εξάγει τη Δγη */
 	private void showDraftDialogExport(String filename) {
+		showDraftDialogExport(filename, data.getActiveExpenditure());
+	}
+
+	/** Επιλογή αν θέλουμε μια διαταγή να εξαχθεί ως σχέδιο ή ως ακριβές αντίγραφο.
+	 * Εμφανίζει ένα διάλογο όπου ο χρήστης επιλέγει εξαγωγή μιας διαταγής σαν σχέδιο ή σαν ακριβές
+	 * αντίγραφο.
+	 * @param filename Το όνομα αρχείου PHP που εξάγει τη Δγη
+	 * @param obj Το αντικείμενο που θα εξαχθεί στο stdin του PHP */
+	private void showDraftDialogExport(String filename, VariableSerializable obj) {
 		TreeMap<String, String> env = new TreeMap();
 		final String[] a = { "Ακριβές Αντίγραφο", "Σχέδιο" };
 		int b = showOptionDialog(this, "Επιλέξτε σαν τι θα βγεί η διαταγή.",
@@ -1231,32 +1349,69 @@ final public class MainFrame extends JFrame {
 		switch(b) {
 			case CLOSED_OPTION: return;
 			case 1: env.put("draft", "true");	// χωρίς break
-			default: exportReport(filename, env);
+			default: exportReport(filename, obj, env);
 		}
 	}
 
 	/** Εξάγει ένα PHP πρότυπο.
 	 * Εκτελεί ένα PHP script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο, που
 	 * να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
-	 * @param fname Το όνομα αρχείου του PHP προτύπου */
-	private void exportReport(String fname) { exportReport(fname, null); }
+	 * @param fname Το όνομα αρχείου του PHP προτύπου
+	 * @param env Οι μεταβλητές περιβάλλοντος για το PHP script που θα δημιουργήσει το εξαγόμενο
+	 * αρχείο ή null */
+	static private void exportReport(String fname, Map<String, String> env) {
+		exportReport(fname, data.getActiveExpenditure(), env);
+	}
 
 	/** Εξάγει ένα PHP πρότυπο.
 	 * Εκτελεί ένα PHP script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο, που
 	 * να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
 	 * @param fname Το όνομα αρχείου του PHP προτύπου
 	 * @param env Οι μεταβλητές περιβάλλοντος για το PHP script που θα δημιουργήσει το εξαγόμενο
+	 * αρχείο ή null */
+	static void exportReport(String fname, VariableSerializable obj, Map<String, String> env) {
+		// Εκτέλεση του PHP script με την αντίστοιχη είσοδο και έξοδο
+		StdInStream sin = (OutputStream os) -> {
+			// Το try-catch απαιτείται γιατί αν το script έχει ήδη τερματίσει, επειδή δε θέλει
+			// να επεξεργαστεί το stdin, έχει κλείσει το stdin στο οποίο εμείς εδώ γράφουμε.
+			try {
+				PhpSerializer.serialize(obj, os, GREEK);
+				os.close();
+			} catch(IOException ex) {}
+		};
+		exportReport(fname, sin, env);
+	}
+
+	/** Εμφανίζει ένα διάλογο για την αποθήκευση του αρχείου RTF.
+	 * @param out Τα δεδομένα για εξαγωγή στο αρχείο */
+	static void exportPromptRTF(byte[] out) throws IOException {
+		// Διάλογος αποθήκευσης του αρχείου δαπάνης
+		File file = data.isEmpty() ? null : data.getActiveExpenditure().file;
+		JFileChooser fc = new JFileChooser(file);
+		fc.setFileFilter(new ExtensionFileFilter("rtf", "Rich Text"));
+		int returnVal = fc.showSaveDialog(window);
+		if(returnVal != JFileChooser.APPROVE_OPTION) return;
+		file = appendExt(fc.getSelectedFile(), ".rtf");
+		try (FileOutputStream f = new FileOutputStream(file)) {
+			f.write(out);
+			f.close();
+		}
+		try { Desktop.getDesktop().open(file); }
+		catch (RuntimeException | IOException ex) {}
+	}
+
+	/** Εξάγει ένα PHP πρότυπο.
+	 * Εκτελεί ένα PHP script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο, που
+	 * να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
+	 * @param fname Το όνομα αρχείου του PHP προτύπου
+	 * @param sin Ο χειριστής του stdin του PHP script ή null
+	 * @param env Οι μεταβλητές περιβάλλοντος για το PHP script που θα δημιουργήσει το εξαγόμενο
 	 * αρχείο. Το null επιτρέπεται. */
-	private void exportReport(String fname, Map<String, String> env) {
+	static private void exportReport(String fname, StdInStream sin, Map<String, String> env) {
 		// Αρχικοποίηση των ρυθμίσεων εκτέλεσης του PHP script
 		PhpScriptRunner php = new PhpScriptRunner(rootPath + "php/", fname, null);
 		if (env != null) php.getEnvironment().putAll(env);
 		try {
-			// Εκτέλεση του PHP script με την αντίστοιχη είσοδο και έξοδο
-			StdInStream sin = (OutputStream os) -> {
-				PhpSerializer.serialize(data.getActiveExpenditure(), os, GREEK);
-				os.close();
-			};
 			PhpScriptRunner.StdOut out = new PhpScriptRunner.StdOut(), err = new PhpScriptRunner.StdOut();
 			int errCode = php.exec(sin, out, err);
 			// Έλεγχος σφαλμάτων εκτέλεσης του PHP script
@@ -1265,25 +1420,54 @@ final public class MainFrame extends JFrame {
 			if (errCode != 0) error += "<html><font color=red><b>Το php script τερμάτισε με σοβαρό σφάλμα";
 			if (!error.isEmpty()) throw new Exception(error);	// δε χρειάζεται να περιμένουμε το stdout
 			// Διάλογος αποθήκευσης του αρχείου δαπάνης
-			JFileChooser fc = new JFileChooser(data.getActiveExpenditure().file);
-			fc.setFileFilter(new ExtensionFileFilter("rtf", "Rich Text"));
-			int returnVal = fc.showSaveDialog(this);
-			if(returnVal != JFileChooser.APPROVE_OPTION) return;
-			File file = appendExt(fc.getSelectedFile(), ".rtf");
-			a = out.join();	// πριν δημιουργηθεί το αρχείο προκειμένου να πετάξει τυχόν exception
-			try (FileOutputStream f = new FileOutputStream(file)) {
-				f.write(a);
-				f.close();
-			}
-			try { Desktop.getDesktop().open(file); }
-			catch (RuntimeException | IOException ex) {}
+			exportPromptRTF(out.join());
 		} catch (Exception e) { showError(e.getMessage()); }
+	}
+
+	/** Επιστρέφει την έξοδο ενός PHP script.
+	 * @param script Το PHP script
+	 * @param env Οι μεταβλητές περιβάλλοντος για το PHP script που θα δημιουργήσει το εξαγόμενο
+	 * αρχείο. Το null επιτρέπεται.
+	 * @param redirectError Ανακατευθύνει την έξοδο του stderr στο stdout
+	 * @return Η έξοδος του PHP script στο stdout */
+	private byte[] exportScriptOutput(String script, Map<String, String> env,
+			boolean redirectError) throws Exception {
+		StdInStream sin = (OutputStream os) -> {
+			os.write(script.getBytes(GREEK));
+			os.close();
+		};
+		// Αρχικοποίηση των ρυθμίσεων εκτέλεσης του PHP script
+		PhpScriptRunner php = new PhpScriptRunner(rootPath + "php/", null, null);
+		if (env != null) php.getEnvironment().putAll(env);
+		int errCode;
+		String error = "";
+		PhpScriptRunner.StdOut out = new PhpScriptRunner.StdOut();
+		if (redirectError) errCode = php.exec(sin, out);
+		else {
+			PhpScriptRunner.StdOut err = new PhpScriptRunner.StdOut();
+			errCode = php.exec(sin, out, err);
+			// Έλεγχος σφαλμάτων εκτέλεσης του PHP script
+			byte[] a = err.join();
+			error = a != null ? new String(a, GREEK) : "";
+		}
+		if (errCode != 0) error += "<html><font color=red><b>Το php script τερμάτισε με σοβαρό σφάλμα";
+		if (!error.isEmpty()) throw new Exception(error);	// δε χρειάζεται να περιμένουμε το stdout
+		return out.join();
+	}
+
+	/** Αποθηκεύει την έξοδο ενός PHP script.
+	 * Εκτελεί ένα PHP script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο, που
+	 * να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
+	 * @param script Το PHP script */
+	private void saveScriptOutput(String script) {
+		try { exportPromptRTF(exportScriptOutput(script, null, false)); }
+		catch (Exception e) { showError(e.getMessage()); }
 	}
 
 	/** Εμφανίζει ένα διάλογο με τα σφάλματα της εξαγωγής αρχείου από το PHP script.
 	 * @param err Το κείμενο του σφάλματος αποτελούμενο από αριθμό γραμμών. */
-	private void showError(String err) {
-		JDialog dlg = new JDialog(this, "Εμφάνιση σφαλμάτων εκτέλεσης του PHP Script", true);
+	static private void showError(String err) {
+		JDialog dlg = new JDialog(window, "Εμφάνιση σφαλμάτων εκτέλεσης του PHP Script", true);
 		JList<String> list = new JList<>(err.split("\n"));
 		JScrollPane scroll = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -1384,13 +1568,4 @@ final public class MainFrame extends JFrame {
 		try { new Socket("127.0.0.1", 666).getOutputStream().write(a); }
 		catch(IOException e) {}
 	}
-
-//	/** Ένα 100% διαφανές εικονίδιο 16 x 16.
-//	 * Χρησιμοποιείται σαν padding σε ένα JMenuItem, όταν τα άλλα JMenuItem του ιδίου JMenu, έχουν
-//	 * εικονίδια, προκειμένου να στοιχίζονται όλα το ίδιο. */
-//	static private class MenuBlankIcon implements Icon {
-//		@Override public int getIconHeight() { return 16; }
-//		@Override public int getIconWidth() { return 16; }
-//		@Override public void paintIcon(Component c, Graphics g, int x, int y) {}
-//	}
 }

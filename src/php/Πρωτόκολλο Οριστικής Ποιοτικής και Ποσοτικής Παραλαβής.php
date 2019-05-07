@@ -12,7 +12,7 @@ foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
 		// Κείμενο με τα τιμολόγια, της μορφής '1/31-12-19, 9/1-12-19 και 5/31-1-19'
 		$invoice_list = get_names($invoices, 'Τιμολόγιο');
 		// Η ημερομηνία του νεότερου τιμολογίου από τα επιλεγμένα
-		$newer_invoice_date = get_newer_invoice_date($invoices);
+		$newer_invoice_date = strftime('%d %b %y', get_newer_invoice_timestamp($invoices));
 		// Τμήματα κειμένου που αλλάζουν μέσα στο πρωτόκολλο σχετικά με το είδος τιμολογίου
 		if ($category == 'Προμήθεια Υλικών')
 			$a = array(
@@ -30,15 +30,15 @@ foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
 		$c = count($invoices) > 1 ? 'α' : 'ο';
 ?>
 
-\sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\qr <?=rtf($data['Μονάδα'])?>\par\par
 \fs24\qc\b ΠΡΩΤΟΚΟΛΛΟ ΟΡΙΣΤΙΚΗΣ ΠΟΙΟΤΙΚΗΣ ΚΑΙ ΠΟΣΟΤΙΚΗΣ ΠΑΡΑΛΑΒΗΣ <?=$a[2]?>\par\par
 \pard\plain\sb120\sa120\tx567\tx1134\tx1701\qj
 \tab 1.\tab Σήμερα την <?=$newer_invoice_date?> συνήλθε η Επιτροπή Παρακολούθησης και Παραλαβής <?=$a[1]?>, που συγκροτήθηκε με την <?=order($data['Δγη Συγκρότησης Επιτροπών'])?> για να προβεί στην παραλαβή των <?=$a[0]?> που παραδόθηκαν από <?=$a[3]?> «<?=$invoices[0]['Δικαιούχος']['Επωνυμία']?>». Παρόντες ήταν οι:\par
-\tab\tab α.\tab <?=person_ext($data["Πρόεδρος Παραλαβής $a[1]"], 0)?>, Πρόεδρος της Επιτροπής.\par
-\tab\tab β.\tab <?=person_ext($data["Α Μέλος Παραλαβής $a[1]"], 0)?>, και\par
-\tab\tab γ.\tab <?=person_ext($data["Β Μέλος Παραλαβής $a[1]"], 0)?>, Μέλη της Επιτροπής.\par
+\tab\tab α.\tab <?=personi($data["Πρόεδρος Παραλαβής $a[1]"], 0)?>, Πρόεδρος της Επιτροπής.\par
+\tab\tab β.\tab <?=personi($data["Α Μέλος Παραλαβής $a[1]"], 0)?>, και\par
+\tab\tab γ.\tab <?=personi($data["Β Μέλος Παραλαβής $a[1]"], 0)?>, Μέλη της Επιτροπής.\par
 \tab 2.\tab Η Επιτροπή αφού έλαβε υπόψη:\par
 \tab\tab α.\tab Τους όρους της <?=$contract?> σύμβασης.\par
 \tab\tab β.\tab Τον ποσοτικό και ποιοτικό έλεγχο που διενήργησε <?=$a[4]?> που αναφέρονταν στην παραπάνω σύμβαση.\par

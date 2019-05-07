@@ -1,7 +1,8 @@
 <?php
-/** Χειριστής σφαλμάτων και προειδοποιήσεων για τη μηχανή PHP.
- * Είναι callback για την εντολή set_error_handler(). Αν επιστρέψει, ο χειρισμός του σφάλματος
- * πραγματοποιείται από τον προκαθορισμένο χειριστή σφάλματος του PHP.
+
+/** Θέτει το χειριστή σφαλμάτων και προειδοποιήσεων για τη μηχανή PHP.
+ * Αν επιστρέψει το callback, ο χειρισμός του σφάλματος πραγματοποιείται από τον προκαθορισμένο
+ * χειριστή σφάλματος του PHP.
  * <p>Ο λόγος ύπαρξης του χειριστή, είναι προκειμένου να αντικαθιστά τυχόν σφάλματα του PHP με
  * ελληνικό, πιο επεξηγηματικό κείμενο, καθώς το κείμενο αυτό θα το δει ο πελάτης και θα πρέπει να
  * καταλάβει τι έκανε λάθος ή τι παρέλειψε.
@@ -9,7 +10,7 @@
  * @param string $str Το μήνυμα του σφάλματος
  * @param string $file Το αρχείο στο οποίο συνέβη το σφάλμα
  * @param int $line Η γραμμή στο αρχείο στο οποίο συνέβη το σφάλμα */
-function errorHandler($errno, $str, $file, $line) {
+set_error_handler(function($errno, $str, $file, $line) {
 	if ($errno == E_STRICT) return;
 
 	// Εμφάνιση του μυνήματος λάθους όσο γίνεται πιο ανθρώπινα
@@ -18,16 +19,7 @@ function errorHandler($errno, $str, $file, $line) {
 	fwrite(STDERR, "<html><b><font color=green>$file</font>(<font color=red>$line</font>):</b> <font color=orange>$str</font>\n");
 
 	if ($errno == E_USER_ERROR) die();
-}
-
-set_error_handler('errorHandler');
+});
 set_time_limit(10);
 date_default_timezone_set('Europe/Athens');
 setlocale(LC_ALL, 'el_GR', 'ell_grc');
-
-// Μετατροπή του κειμένου στο STDIN στην κύρια δομή δεδομένων
-$data = unserialize(stream_get_contents(STDIN));
-if (!$data) trigger_error('Τα εισερχόμενα δεδομένα είναι λάθος', E_USER_ERROR);
-
-require_once('functions.php');
-require_once('order.php');

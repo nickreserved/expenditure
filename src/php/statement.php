@@ -1,10 +1,11 @@
 <?php
 require_once('functions.php');
 
-/** Εξάγει μια υπεύθυνη δήλωση. */
+/** Εξάγει μια υπεύθυνη δήλωση.
+ * @param array $data Τα δεδομένα της υπεύθυνης δήλωσης */
 function statement($data) { ?>
 
-\sectd\pgwsxn11906\pghsxn16838\marglsxn1417\margrsxn1417\margtsxn1134\margbsxn1134\pgbrdrt\brdrs\brdrw1\brsp57\pgbrdrb\brdrs\brdrw1\brsp283\pgbrdrl\brdrs\brdrw1\brsp283\pgbrdrr\brdrs\brdrw1\brsp283\pgbrdrhead\pgbrdrfoot
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1417\margrsxn1417\margtsxn1134\margbsxn1134\pgbrdrt\brdrs\brdrw1\brsp57\pgbrdrb\brdrs\brdrw1\brsp283\pgbrdrl\brdrs\brdrw1\brsp283\pgbrdrr\brdrs\brdrw1\brsp283\pgbrdrhead\pgbrdrfoot
 
 \pard\plain\sl360\slmult1\qc
 {\pict\picw230\pich231\picwgoal1134\pichgoal1134\pngblip
@@ -13,7 +14,7 @@ function statement($data) { ?>
 
 \pard\plain\trowd\trpaddl57\trpaddr57
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx9071
-\fs20\qc Η ακρίβεια των στοιχείων που υποβάλλονται με αυτή τη δήλωση μπορεί να ελεγχθεί με βάση το αρχείο άλλων υπηρεσιών\line (άρθρο 8 παρ. 4 Ν. 1599/1986)\cell\row
+\fs20\qc Η ακρίβεια των στοιχείων που υποβάλλονται με αυτή τη δήλωση μπορεί να ελεγχθεί με βάση το αρχείο άλλων υπηρεσιών (άρθρο 8 παρ. 4 Ν. 1599/1986)\cell\row
 \pard\plain\trowd\trpaddl57\trpaddr57
 \clbrdrb\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx2551
 \clvertalc\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx9071
@@ -21,24 +22,69 @@ function statement($data) { ?>
 {\fs20 Ονοματεπώνυμο:}\cell <?=rtf($data['Ονοματεπώνυμο'])?>\cell\row
 {\fs20 Ονοματεπώνυμο Πατέρα:}\cell <?=rtf($data['Ονοματεπώνυμο Πατέρα'])?>\cell\row
 {\fs20 Ονοματεπώνυμο Μητέρας:}\cell <?=rtf($data['Ονοματεπώνυμο Μητέρας'])?>\cell\row
-{\fs20 Ημερομηνία Γέννησης:}\cell <?=rtf($data['Ημερομηνία Γέννησης'])?>\cell\row
+{\fs20 Ημερομηνία Γέννησης:}\cell <?=$data ? chk_date($data['Ημερομηνία Γέννησης']) : null?>\cell\row
 {\fs20 Τόπος Γέννησης:}\cell <?=rtf($data['Τόπος Γέννησης'])?>\cell\row
-{\fs20 ΑΔΤ:}\cell <?=rtf($data['ΑΔΤ'])?>\cell\row
-{\fs20 Τηλέφωνο:}\cell <?=rtf($data['Τηλέφωνο'])?>\cell\row
-{\fs20 Τόπος Κατοικίας\line (Πόλη, Οδός, Αριθμός, ΤΚ):}\cell <?=rtf($data['Τόπος Κατοικίας'])?>\cell\row
-{\fs20 e-mail:}\cell <?=rtf($data['e-mail'])?>\cell\row
+{\fs20 ΑΔΤ:}\cell <?=rtf($data['Αριθμός Ταυτότητας'])?>\cell\row
+{\fs20 Τηλέφωνο:}\cell <?=isset($data['Τηλέφωνο']) ? rtf($data['Τηλέφωνο']) : null?>\cell\row
+{\fs20 Τόπος Κατοικίας\line (Πόλη, Οδός, Αριθμός, ΤΚ):}\cell <?=rtf($data['Διεύθυνση Κατοικίας'])?>\cell\row
+{\fs20 e-mail:}\cell <?=isset($data['e-mail']) ? rtf($data['e-mail']) : null?>\cell\row
 
-\pard\plain\sa60\sb60\fi567\tx1134\tx1701\par\qj
-Με ατομική μου ευθύνη και γνωρίζοντας τις κυρώσεις, που προβλέπονται από τις διατάξεις της παρ. 6 του άρθρου 22 του Ν. 1599/1986, δηλώνω ότι:\par
+\pard\plain\sa60\sb60\fi567\tx1134\tx1701\qj
+{\fs22 Με ατομική μου ευθύνη και γνωρίζοντας τις κυρώσεις, που προβλέπονται από τις διατάξεις της παρ. 6 του άρθρου 22 του Ν. 1599/1986, δηλώνω ότι:}\par
+<?php if ($data) { ?>
 <?=$data['Δήλωση']?>\par\par
+<?php } else { ?>
+\pard\plain\trowd\trpaddl57\trpaddr57
+\clbrdrb\brdrdot\brdrw1\cellx9071
+\fs32\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row\cell\row
+\pard\plain\par\par
+<?php } ?>
 
 \pard\plain\qc
 \trowd\trpaddl0\trpaddr0\cellx4535\cellx9071
 ΘΕΩΡΗΘΗΚΕ ΓΙΑ ΤΟ\line ΓΝΗΣΙΟ ΤΗΣ ΥΠΟΓΡΑΦΗΣ\cell
-<?=chk_date($data['Ημερομηνία Έκδοσης'])?>\line\line
-Ο Δηλών:\line\line\line <?=rtf($data['Ονοματεπώνυμο'])?>\cell\row
+<?php
+if ($data)
+	if (isset($data['Ημερομηνία Έκδοσης'])) echo chk_date($data['Ημερομηνία Έκδοσης']);
+	else echo now();
+else echo '..................\line{\fs16 (Ημερομηνία)}'
+?>
+\line\line
+Ο Δηλών:\line\line\line <?=$data ? rtf($data['Ονοματεπώνυμο']) : '............................\line{\fs16 (Ονοματεπώνυμο & Υπογραφή)}'?>\cell\row
 
 \sect
 
 <?php
+}
+
+/** Εξάγει μια υπεύθυνη δήλωση δικαιούχου.
+ * Αν τα δεδομένα $data είναι δαπάνη, εξάγει για όλους τους ιδιώτες δικαιούχους των τιμολογίων την
+ * αντίστοιχη υπεύθυνη δήλωση. Αν δεν είναι δαπάνη, θεωρεί ότι είναι τα δεδομένα ενός δικαιούχου,
+ * οπότε εξάγει την αντίστοιχη υπεύθυνη δήλωση μόνο γι' αυτόν.
+ * @param callable $function Κλήση που επεξεργάζεται τα δεδομένα */
+function statement_common($function) {
+	global $data;
+	require_once('basic.php');
+	require_once('unserialize.php');
+	if (isset($data['Τιμολόγια'])) require_once('init.php');
+	require_once('header.php');
+
+	if (isset($data['Τιμολόγια']))		// Το $data απευθύνεται στη δαπάνη
+		foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+			$v = $per_contractor['Τιμολόγια'][0]['Δικαιούχος'];
+			if ($v['Τύπος'] == 'PRIVATE_SECTOR') {
+				$v['Ημερομηνία Έκδοσης'] =
+						strftime('%d %b %y', get_newer_invoice_timestamp($per_contractor['Τιμολόγια']));
+				$function($v);
+			}
+		}
+	else $function($data);				// Το $data απευθύνεται στον δικαιούχο
+}
+
+/** Εξάγει μια υπεύθυνη δήλωση δικαιούχου.
+ * @param array $data Τα δεδομένα της υπεύθυνης δήλωσης */
+function statement_contractor($data) {
+	if (!isset($data['Ονοματεπώνυμο'])) $data['Ονοματεπώνυμο'] = $data['Επωνυμία'];
+	if (!isset($data['Διεύθυνση Κατοικίας'])) $data['Διεύθυνση Κατοικίας'] = $data['Διεύθυνση'];
+	statement($data);
 }

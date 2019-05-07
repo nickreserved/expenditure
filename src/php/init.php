@@ -1,5 +1,141 @@
-<?
+<?php
 require_once('basic.php');
+require_once('unserialize.php');
+require_once('functions.php');
+
+/** Ενσωματώνει στα δεδομένα, λίστα με τα ονόματα όλων των επιμέρους κρατήσεων, όλων των τιμολογίων.
+ * Μια λίστα με τα ονόματα όλων των επιμέρους κρατήσεων όλων των τιμολογίων αποθηκεύεται στο πεδίο
+ * $data['Κρατήσεις']. */
+function init_deduction_names() {
+	global $data;
+	$a = array();
+	foreach($data['Τιμολόγια'] as $invoice) {
+		$deduction = $invoice['Κρατήσεις'];
+		if ($deduction)
+			foreach(array_keys($deduction) as $v)
+				if (!in_array($v, $a)) $a[] = $v;
+	}
+	$data['Κρατήσεις'] = $a;
+}
+
+/** Ενσωματώνει στα τιμολόγια τις αξίες του τιμολογίου.
+ * Σε κάθε τιμολόγιο, στο πεδίο 'Τιμές', αποθηκεύεται ένα array με στοιχεία που έχουν κλειδιά
+ * 'Καθαρή Αξία', 'ΦΠΑ', 'Καταλογιστέο', 'Κρατήσεις', 'Πληρωτέο', 'Καθαρή Αξία για ΦΕ', 'ΦΕ',
+ * 'Υπόλοιπο Πληρωτέο', με την αντίστοιχη τιμή για το καθένα.
+ * <p>Σε κάθε είδος τιμολογίου, στο πεδίο 'Συνολική Τιμή', αποθηκεύεται το γινόμενο ποσότητας είδους
+ * επί της καθαρής αξίας του ενός.
+ * <p>Σε κάθε κράτηση τιμολογίου, στο πεδίο 'Σύνολο', αποθηκεύεται το σύνολο των επιμέρους κρατήσεων
+ * της κράτησης.
+ * <p>Πρέπει να κληθεί μετά από την init_deduction_names(). */
+function init_invoices() {
+	global $data;
+	foreach($data['Τιμολόγια'] as & $invoice) {
+		// Ενσωματώνει στις κρατήσεις των τιμολογίων το άθροισμα των επιμέρους κρατήσεών τους.
+		$deduction = & $invoice['Κρατήσεις'];
+		if (!$deduction) $invoice['Κρατήσεις'] = array('Σύνολο' => 0);
+		else {
+			$sum = 0;
+			foreach($deduction as $v)
+				$sum += $v;
+			$deduction['Σύνολο'] = round($sum, 5);
+		}
+		// Ενσωματώνει το πεδίο 'Συνολική Τιμή' σε κάθε είδος τιμολογίου
+		// Υπολογίζει καθαρή αξία και ΦΠΑ τιμολογίου καθώς και τυχόν κατηγορίες ΦΠΑ
+		$net = $vat = 0;
+		$vat_categories = array();
+		foreach($invoice['Είδη'] as & $item) {
+			$a = round($item['Τιμή Μονάδας'] * $item['Ποσότητα'], 3);
+			$item['Συνολική Τιμή'] = $a;
+			$net += $a;
+			$vat_p = $item['ΦΠΑ'];
+			if ($vat_p) {
+				$a *= $vat_p / 100;
+				$vat += $a;
+				if (isset($vat_categories[$vat_p])) $vat_categories[$vat_p] += $a;
+				else $vat_categories[$vat_p] = $a;
+			}
+		}
+		// Ενσωματώνει τις αξίες του τιμολογίου σε κάθε τιμολόγιο
+		$net = round($net, 2);
+		$vat = round($vat, 2);
+		$vat_categories = adjust_partials($vat_categories, $vat);
+		$mixed = $net + $vat;
+		$deductions = round($net * $invoice['Κρατήσεις']['Σύνολο'] / 100, 2);
+		$contractor_type = $invoice['Δικαιούχος']['Τύπος'];
+		$wePayDeductions = $contractor_type == 'PUBLIC_SERVICES' || $contractor_type == 'ARMY';
+		if ($wePayDeductions) $mixed += $deductions;
+		$mixed = round($mixed, 2);
+		$payable = round($mixed - $deductions, 2);
+		$netIncomeTax = $net;
+		$incomeTax = $invoice['ΦΕ'];
+		if ($incomeTax != 3) $netIncomeTax -= $deductions;
+		$netIncomeTax = round($netIncomeTax, 2);
+		$incomeTax = round($netIncomeTax * $incomeTax / 100, 2);
+		$payableMinusIncomeTax = round($payable - $incomeTax, 2);
+		$invoice['Τιμές'] = array(
+			'Καθαρή Αξία'        => $net,
+			'ΦΠΑ'                => $vat,
+			'Καταλογιστέο'       => $mixed,
+			'Κρατήσεις'          => $deductions,
+			'Πληρωτέο'           => $payable,
+			'Καθαρή Αξία για ΦΕ' => $netIncomeTax,
+			'ΦΕ'                 => $incomeTax,
+			'Υπόλοιπο Πληρωτέο'  => $payableMinusIncomeTax
+		);
+		$invoice['Κατηγορίες ΦΠΑ'] = $vat_categories;
+	}
+	// Υπολογισμός καταλογιστέου, κρατήσεων, ΦΕ, κτλ για το σύνολο της δαπάνης
+	$data['Τιμές'] = calc_sum_of_invoices_prices($data['Τιμολόγια']);
+}
+
+/** Ενσωματώνει στα δεδομένα την πιο πρόσφατη ημερομηνία τιμολογίου.
+ * Στο πεδίο $data['Ημερομηνία Τελευταίου Τιμολογίου'], αποθηκεύεται η ημερομηνία του πιο πρόσφατου
+ * τιμολογίου στη μορφή '31 Δεκ 2019'. */
+function init_newer_invoice_date() {
+	global $data;
+	$a = get_newer_invoice_timestamp($data['Τιμολόγια']);
+	if ($a) {
+		$data['Timestamp Τελευταίου Τιμολογίου'] = $a;
+		$data['Ημερομηνία Τελευταίου Τιμολογίου'] = strftime('%d %b %y', $a);
+	}
+}
+
+/** Ενσωματώνει στα δεδομένα ένα array με τις λίστες τιμολογίων του κάθε δικαιούχου.
+ * Στο πεδίο $data['Τιμολόγια ανά Δικαιούχο'], αποθηκεύονται στοιχεία για κάθε δικαιούχο. Κάθε
+ * στοιχείο δικαιούχου, περιέχει 2 στοιχεία: Με κλειδί 'Τιμολόγια' array με τα τιμολόγια του
+ * δικαιούχου. Με κλειδί 'Τιμές' τα αθροίσματα των αντίστοιχων αξιών των τιμολογίων του δικαιούχου.
+ * <p>Πρέπει να κληθεί μετά από την init_invoices(). */
+function init_invoices_by_contractor() {
+	global $data;
+	$data['Τιμολόγια ανά Δικαιούχο'] = get_invoices_by_contractor($data['Τιμολόγια']);
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as & $v)
+		$v = array('Τιμολόγια' => $v, 'Τιμές' => calc_sum_of_invoices_prices($v));
+}
+
+/** Συμπληρώνει όσα πεδία της δαπάνης αφέθηκαν κενά και μπορούν να λάβουν τιμή από τα συμφραζόμενα.
+ * Πρέπει να κληθεί μετά την init_invoices() και init_newer_invoice_date(). */
+function init_empty_fields() {}//TODO: implement or erase
+
+
+/** Ελέγχει αν τα τιμολόγια του ίδιου δικαιούχου ανήκουν στην ίδια σύμβαση.
+ * Αν ένας δικαιούχος έχει υπογράψει σύμβαση μαζί μας, όλα τα τιμολόγια που έχει εκδόσει πρέπει να
+ * ανήκουν σε αυτή τη σύμβαση. Αν δεν έχει υπογράψει, δεν πρέπει κανένα τιμολόγιο να ανήκει σε αυτή
+ * τη σύμβαση.
+ * <p>Πρέπει να κληθεί μετά από την init_invoices_by_contractor(). */
+function check_invoices_contracts_contractors() {
+	global $data;
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $v) {
+		$invoices = $v['Τιμολόγια'];
+		$index = -1;
+		foreach($invoices as $invoice) {
+			$a = get_contract($invoice);
+			if ($index == -1) $index = $a;
+			else if ($a != $index)
+				trigger_error("Δεν ανήκουν όλα τα τιμολόγια του «{$invoice['Δικαιούχος']['Επωνυμία']}» στην ίδια σύμβαση", E_USER_ERROR);
+		}
+	}
+}
+
 
 init_deduction_names();
 init_invoices();
@@ -7,6 +143,7 @@ init_newer_invoice_date();
 init_invoices_by_contractor();
 check_invoices_contracts_contractors();
 init_empty_fields();
+
 /*var_dump($data);
 die;
 $bills_buy = getBillsCategory($bills, 'Παροχή υπηρεσιών', false);

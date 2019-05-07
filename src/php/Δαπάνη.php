@@ -7,16 +7,13 @@ $draft = false;
 // Αν η ρύθμιση "Μόνο μια φορά" είναι ενεργή
 $onlyone = isset($_ENV['one']) && $_ENV['one'] == 'true';
 
-foreach($data['Φύλλο Καταχώρησης'] as $cost_v) {
-	if (isset($cost_v['Αρχείο'])) {
+foreach($data['Φύλλο Καταχώρησης'] as $paper_v)
+	if (isset($paper_v['Αρχείο'])) {
 		ob_start();
-		require($cost_v['Αρχείο']);
-		$a = ob_get_clean();
-		$b = $onlyone ? 1 : $cost_v['Πλήθος'];
-		for($z = 0; $z < $b; $z++) echo $a;
+		require($paper_v['Αρχείο']);
+		echo str_repeat(ob_get_clean(), $onlyone ? 1 : $paper_v['Πλήθος']);
 	}
-}
 
-unset($draft, $onlyone, $cost_v, $a, $b, $z);
+unset($draft, $onlyone, $paper_v);
 
 rtf_close(__FILE__);

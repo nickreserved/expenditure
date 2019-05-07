@@ -1,5 +1,6 @@
 package expenditure;
 
+import expenditure.StatementDialog.Statement;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ final class AppData implements Serializable {
 	ArrayList<Contractor> contractors = new ArrayList<>();
 	/** Στοιχεία σχετικά με τη Μονάδα/Υπηρεσία που δε μεταβάλλονται από δαπάνη σε δαπάνη. */
 	UnitInfo unitInfo = new UnitInfo();
+	/** Στοιχεία Υπεύθυνης Δήλωσης */
+	Statement statement = new Statement();
 	/** Το κέλυφος του προγράμματος. Καθαρά για λόγους εμφάνισης. */
 	String skin;
 	/** Αν ένα δικαιολογητικό απαιτεί περισσότερα του ενός αντίτυπα, εξήγαγε το μόνο μια φορά.
@@ -37,7 +40,7 @@ final class AppData implements Serializable {
 	 * <p>Το νόημα είναι ότι κάθε φορά που βγαίνουν νέες κρατήσεις και κάνει το πρόγραμμα ανανέωση,
 	 * να περνιούνται οι νέες κρατήσεις σε ήδη χρησιμοποιημένα αρχεία ρυθμίσεων από παλιότερες
 	 * εκδόσεις του προγράμματος. */
-	String version = MainFrame.VERSION;
+	String version;
 
 	/** Αρχικοποιεί τα δεδομένα του προγράμματος. */
 	AppData() {}
@@ -48,10 +51,9 @@ final class AppData implements Serializable {
 	AppData(Node node) throws Exception {
 		if (!node.isObject()) throw new Exception("Εσφαλμένη δομή στα δεδομένα");
 		// Ανάγνωση έκδοσης, μόνο αν υπάρχει
-		Node n = node.getField(H[0]);
-		if (n.isString()) version = n.getString();
+		version = node.getField(H[0]).getString();
 		// Ανάγνωση δαπανών
-		n = node.getField(H[1]);
+		Node n = node.getField(H[1]);
 		if (n.isExist()) {
 			if (!n.isObject()) throw new Exception("Εσφαλμένη δομή στη λίστα δαπανών");
 			for (String name : n.getFieldNames())
@@ -81,16 +83,18 @@ final class AppData implements Serializable {
 				contractors.add(new Contractor(i));
 		}
 		// Ανάγνωση στοιχείων Μονάδας
-		unitInfo = new UnitInfo(node.getField(H[6]));
+		unitInfo  = new UnitInfo(node.getField(H[6]));
+		// Ανάγνωση στοιχείων Υπεύθυνης Δήλωσης
+		statement = new Statement(node.getField(H[7]));
 		// Ανάγνωση ρυθμίσεων
-		skin     = node.getField(H[7]).getString();
-		onlyOnce = node.getField(H[8]).getBoolean();
+		skin      = node.getField(H[8]).getString();
+		onlyOnce  = node.getField(H[9]).getBoolean();
 	}
 
 	/** Ονόματα πεδίων αποθήκευσης. */
 	static private final String[] H = {
 		"Έκδοση", "Δαπάνες", "Τρέχουσα Δαπάνη", "Κρατήσεις", "Προσωπικό", "Δικαιούχοι",
-		"Στοιχεία Μονάδας", "Κέλυφος", "Ένα Αντίγραφο"
+		"Στοιχεία Μονάδας", "Υπεύθυνη Δήλωση", "Κέλυφος", "Ένα Αντίγραφο"
 	};
 
 
@@ -112,8 +116,9 @@ final class AppData implements Serializable {
 				.writeV(H[4], personnel)
 				.writeV(H[5], contractors)
 				.write (H[6], unitInfo)
-				.write (H[7], skin)
-				.write (H[8], onlyOnce);
+				.write (H[7], statement.saveWithFilename())
+				.write (H[8], skin)
+				.write (H[9], onlyOnce);
 	}
 
 	/** Επιστρέφει την τρέχουσα δαπάνη που εμφανίζεται στο πρόγραμμα αυτή τη στιγμή.

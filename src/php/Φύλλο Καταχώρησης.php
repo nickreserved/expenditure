@@ -3,7 +3,7 @@ require_once('init.php');
 require_once('header.php');
 ?>
 
-\sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\fs24\ul\qc ΦΥΛΛΟ\line ΚΑΤΑΧΩΡΗΣΗΣ ΕΓΓΡΑΦΩΝ\par\par
 
@@ -19,7 +19,7 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 	if (!$content_item['Καταχώρηση']) continue;
 	switch($content_item['Δικαιολογητικό']) {
 		case 'Υποφάκελος':
-			echo '\qc{\line\b ΥΠΟΦΑΚΕΛΟΣ «' . strtoupper(countGreek(++$count1)) . '»\b0}\cell\row' . PHP_EOL . '\ql ';
+			echo '\qc{\line\b ΥΠΟΦΑΚΕΛΟΣ «' . strtoupper(greeknum(++$count1)) . '»\b0}\cell\row' . PHP_EOL . '\ql ';
 			break;
 		case 'Τιμολόγια':
 			foreach($data['Τιμολόγια'] as $i)
@@ -68,7 +68,8 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 					$mixed = $per_contractor['Τιμές']['Καταλογιστέο'];
 					$name = $contractor['Επωνυμία'];
 					if ($mixed > 1500) echo ++$count . '.\tab Φορολογική Ενημερότητα: «' . $name . '»\cell\row' . PHP_EOL;
-					if ($mixed > 3000) echo ++$count . '.\tab Ασφαλιστική Ενημερότητα: «' . $name . '»\cell\row' . PHP_EOL;
+					if ($mixed > 3000 || $per_contractor['Τιμές']['Καθαρή Αξία'] > 2500)
+						echo ++$count . '.\tab Ασφαλιστική Ενημερότητα: «' . $name . '»\cell\row' . PHP_EOL;
 				}
 			}
 			break;
@@ -99,7 +100,7 @@ def:	default:
 					$d == 'Βεβαίωση Επισκευαστικού Οργάνου'));
 	elseif ($d == 'Σύμβαση' && !isset($bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ']['ΕΑΑΔΗΣΥ']));*/
 
-unset($count, $count1, $content_item, $i, $contractor, $per_contractor, $a, $c, $mixed, $net);
+unset($name, $count, $count1, $content_item, $i, $contractor, $per_contractor, $a, $c, $mixed);
 ?>
 
 \sect

@@ -72,17 +72,17 @@ final class Deduction implements VariableSerializable, TableRecord {
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου < 2500 και χρηματοδότηση τακτικού Π/Υ. */
 	static final Deduction D4_35816  = new Deduction(new double[] { 4.35816,  4,     0.2818, 0.01636, 0,    0.06});
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 2500 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D4_22032  = new Deduction(new double[] { 4.22032,  4,     0.0836, 0.01672, 0.06, 0.06});
+	static final Deduction D4_23068  = new Deduction(new double[] { 4.23068,  4,     0.0839, 0.01678, 0.07, 0.06});
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 2500 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D4_42032  = new Deduction(new double[] { 4.42032,  4,     0.2836, 0.01672, 0.06, 0.06});
+	static final Deduction D4_43068  = new Deduction(new double[] { 4.43068,  4,     0.2839, 0.01678, 0.07, 0.06});
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία < 2500 και χρηματοδότηση Π/Υ ΠΔΕ. */
 	static final Deduction D0_06216  = new Deduction(new double[] { 0.06216,  0,     0.0018, 0.00036, 0,    0.06});
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου < 2500 και χρηματοδότηση Π/Υ ΠΔΕ. */
 	static final Deduction D0_26216  = new Deduction(new double[] { 0.26216,  0,     0.2018, 0.00036, 0,    0.06});
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 2500 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_12432  = new Deduction(new double[] { 0.12432,  0,     0.0036, 0.00072, 0.06, 0.06});
+	static final Deduction D0_13468  = new Deduction(new double[] { 0.13468,  0,     0.0039, 0.00078, 0.07, 0.06});
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 2500 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_32432  = new Deduction(new double[] { 0.32432,  0,     0.2036, 0.00072, 0.06, 0.06});
+	static final Deduction D0_33468  = new Deduction(new double[] { 0.33468,  0,     0.2039, 0.00078, 0.07, 0.06});
 	/** Τιμολόγιο από Πρατήριο ή ΝΠΔΔ και χρηματοδότηση ιδίων πόρων. */
 	static final Deduction D14       = new Deduction(new double[] { 14,       3.904, 0.08,   0.016,   0,    0,    2, 8});
 	/** Μισθώματα ακινήτων και χρηματοδότηση ιδίων πόρων. */
@@ -92,9 +92,9 @@ final class Deduction implements VariableSerializable, TableRecord {
 	/** Αμοιβές μελετητών με καθαρή αξία < 2500 και χρηματοδότηση ιδίων πόρων. */
 	static final Deduction D14_35816 = new Deduction(new double[] { 14.35816, 4,     0.2818, 0.01636, 0,    0.06, 2, 8});
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 2500 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D14_22032 = new Deduction(new double[] { 14.22032, 4,     0.0836, 0.01672, 0.06, 0.06, 2, 8});
+	static final Deduction D14_23068 = new Deduction(new double[] { 14.23068, 4,     0.0839, 0.01678, 0.07, 0.06, 2, 8});
 	/** Αμοιβές μελετητών με καθαρή αξία >= 2500 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D14_42032 = new Deduction(new double[] { 14.42032, 4,     0.2836, 0.01672, 0.06, 0.06, 2, 8});
+	static final Deduction D14_43068 = new Deduction(new double[] { 14.43068, 4,     0.2839, 0.01678, 0.07, 0.06, 2, 8});
 
 	@Override public String toString() { return Double.toString(term[0]); }
 

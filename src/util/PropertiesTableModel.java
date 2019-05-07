@@ -44,7 +44,10 @@ public class PropertiesTableModel implements TableModel {
 	 * γραμμών.
 	 * @param editable Ποιές γραμμές είναι επεξεργάσιμες. Κάθε τιμή του array αντιστοιχεί σε μια
 	 * γραμμή του πίνακα. Αν η τιμή είναι true, η γραμμή του πίνακα (πλην επικεφαλίδας) είναι
-	 * επεξεργάσιμη. Αν το array είναι null, καμία γραμμή δεν είναι επεξεργάσιμη. */
+	 * επεξεργάσιμη. Αν οι τιμές του array είναι λιγότερες από τις γραμμές του πίνακα, για τις
+	 * υπόλοιπες γραμμές χρησιμοποιείται η τελευταία τιμή του array. Αν οι τιμές του array είναι 0,
+	 * όλες οι γραμμές του πίνακα είναι επεξεργάσιμες. Αν το array είναι null, καμία γραμμή δεν
+	 * είναι επεξεργάσιμη. */
 	public PropertiesTableModel(TableColumnData dt, String[] vHeader, String[] hHeader, boolean[] editable) {
 		d = dt; this.vHeader = vHeader; this.hHeader = hHeader; this.editable = editable;
 	}
@@ -56,20 +59,31 @@ public class PropertiesTableModel implements TableModel {
 	 * @param columns Ο αριθμός των στηλών του πίνακα, χωρίς τη στήλη επικεφαλίδων.
 	 * @param editable Ποιές γραμμές είναι επεξεργάσιμες. Κάθε τιμή του array αντιστοιχεί σε μια
 	 * γραμμή του πίνακα. Αν η τιμή είναι true, η γραμμή του πίνακα (πλην επικεφαλίδας) είναι
-	 * επεξεργάσιμη. Αν το array είναι null, καμία γραμμή δεν είναι επεξεργάσιμη. */
+	 * επεξεργάσιμη. Αν οι τιμές του array είναι λιγότερες από τις γραμμές του πίνακα, για τις
+	 * υπόλοιπες γραμμές χρησιμοποιείται η τελευταία τιμή του array. Αν οι τιμές του array είναι 0,
+	 * όλες οι γραμμές του πίνακα είναι επεξεργάσιμες. Αν το array είναι null, καμία γραμμή δεν
+	 * είναι επεξεργάσιμη. */
 	public PropertiesTableModel(TableColumnData dt, String[] vHeader, int columns, boolean[] editable) {
 		this(dt, vHeader, new String[columns], editable);
 	}
 
-	/** Ο πίνακας έχει επικεφαλίδες στηλών.
-	 * @return Ο πίνακας έχει επικεφαλίδες στηλών */
-	boolean hasHeaders() { return hHeader[0] != null; }
+	/** Αρχικοποίηση του μοντέλου του πίνακα.
+	 * Ο πίνακας δεν έχει επικεφαλίδες στηλών.
+	 * @param dt Ο παροχέας του αντικειμένου του οποίου τα δεδομένα εμφανίζονται στη δεύτερη και εξής, στήλη
+	 * @param vHeader Οι επικεφαλίδες των γραμμών
+	 * @param columns Ο αριθμός των στηλών του πίνακα, χωρίς τη στήλη επικεφαλίδων.
+	 * @param editable Οι γραμμές του πίνακα είναι επεξεργάσιμες */
+	public PropertiesTableModel(TableColumnData dt, String[] vHeader, int columns, boolean editable) {
+		this(dt, vHeader, new String[columns], editable ? new boolean[] {} : null);
+	}
 
 	@Override public int getColumnCount() { return hHeader.length + 1; }
 	@Override public int getRowCount() { return vHeader.length; }
 	@Override public String getColumnName(int col) { return col != 0 ? hHeader[col - 1] : null; }
 	@Override public boolean isCellEditable(int row, int col) {
-		return col != 0 && editable != null && editable[row];
+		return col != 0 && editable != null &&
+				(editable.length == 0 || editable.length <= row && editable[editable.length - 1] ||
+				editable[row]);
 	}
 
 	@Override public Object getValueAt(int row, int col) {
@@ -105,13 +119,12 @@ public class PropertiesTableModel implements TableModel {
 	 * <p>Το σύνηθες, είναι ο πίνακας να εμφανίζει μόνο ένα αντικείμενο, με τη λογική κλειδί-τιμή
 	 * (δηλαδή 2 στήλες).
 	 * @param model Το μοντέλο δεδομένων του πίνακα
-	 * @param cmp Επειδή κάθε γραμμή αφορά ένα συγκεκριμένο πεδίο των αντικειμένων που εμφανίζονται
-	 * στον πίνακα, η συγκεκριμένη παράμετρος παρέχει για κάθε γραμμή, ένα component επεξεργασίας
-	 * του συγκεκριμένου πεδίου για όλα τα αντικείμενα. Άρα η παράμετρος, είναι ένα array με πλήθος
-	 * στοιχείων όσες οι γραμμές του πίνακα (και τα αντίστοιχα πεδία των αντικειμένων που αυτός
-	 * εμφανίζει). Αν κάποιο component στο array δωθεί null, αντικαθίσταται από ένα JTextField που
-	 * είναι ο default επεξεργαστής κελιών. Αν η παράμετρος είναι null, τότε όλα τα πεδία
-	 * επεξεργάζονται από JTextField.
+	 * @param cmp Ένα component για κάθε γραμμή του πίνακα, που επεξεργάζεται το πεδίο στη
+	 * συγκεκριμένη γραμμή, για όλα τα αντικείμενα. Αν κάποιο component στο array δωθεί null,
+	 * αντικαθίσταται από ένα JTextField που είναι ο default επεξεργαστής κελιών. Αν η παράμετρος
+	 * είναι null, τότε όλα τα πεδία επεξεργάζονται από JTextField. Αν τα components του array δεν
+	 * επαρκούν για κάθε γραμμή του πίνακα, οι γραμμές που δεν έχουν component χρησιμοποιούν το
+	 * τελευταίο του array.
 	 * @return Ο πίνακας */
 	static public JTable createTable(TableModel model, Component[] cmp) {
 		JTable t = createTable(model);
@@ -241,7 +254,7 @@ public class PropertiesTableModel implements TableModel {
 
 		@Override public Component getTableCellEditorComponent(JTable table, Object value,
 				boolean isSelected, int row, int column) {
-			current = handlers[row];
+			current = row < handlers.length ? handlers[row] : handlers[handlers.length - 1];
 			if (current instanceof JTextField)
 				((JTextField) current).setText(value != null ? value.toString() : null);
 			else if (current instanceof JComboBox) {

@@ -1,4 +1,8 @@
-/build/
-/runtime/
-/nbproject/private/
-/Νομοθεσία/
+/build
+/dist
+!/dist/*.jar
+/runtime
+/nbproject/private
+/Νομοθεσία
+/research
+/resources

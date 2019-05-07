@@ -59,7 +59,7 @@ public class PhpScriptRunner {
 		if (php != null) php = phpPath;
 		try {
 			Exec r = new Exec(new PhpScriptRunner(null, null, null),
-					"<?echo 5+5;exit(51);?>".getBytes(),
+					"<?php echo 5+5;exit(51);?>".getBytes(),
 					STDOUT_STDERR_REDIRECT);
 			if (r.errCode != 51 || r.stdout == null || !"10".equals(new String(r.stdout)))
 				throw new ExecutionException("Μη αναμενόμενα αποτελέσματα από την εκτέλεση του php script", null);

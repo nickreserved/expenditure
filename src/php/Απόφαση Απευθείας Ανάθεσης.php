@@ -1,5 +1,6 @@
 <?php
 require_once('init.php');
+require_once('order.php');
 require_once('header.php');
 
 startOrder();
@@ -14,8 +15,8 @@ if ($data['Αναρτητέα στο διαδίκτυο']) { ?>
 
 <?php
 }
-preOrder(ifexist2(!$draft, $data, 'Απόφαση Απευθείας Ανάθεσης'), array('Φάκελος Δαπάνης Θέματος'), array(null),
-		$draft, null, 'Απόφαση Απευθείας Ανάθεσης για ' . rtf(ucwords($data['Τίτλος'])),
+preOrderN(ifexist2(!$draft, $data, 'Απόφαση Απευθείας Ανάθεσης'), $draft, null,
+		'Απόφαση Απευθείας Ανάθεσης για ' . rtf(ucwords($data['Τίτλος'])),
 		array(
 			'ΝΔ.721/70 (ΦΕΚ Α\' 251) περί «Οικονομικής Μερίμνης και Λογιστικού των Ενόπλων Δυνάμεων»',
 			'N.2292/95 (ΦΕΚ Α\' 35) «Οργάνωση και Λειτουργία Υπουργείου Εθνικής ’μυνας, διοίκηση και έλεγχος Ενόπλων Δυνάμεων και άλλες διατάξεις»',
@@ -36,9 +37,10 @@ foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
 	$prices = $per_contractor['Τιμές'];
 	$categories = calc_per_deduction_incometax_vat($invoices);
 	$contractor = $invoices[0]['Δικαιούχος'];
+	//TODO: Εδώ όσοι βρίσκονται με διαγωνισμό πρέπει να μην συμπεριλαμβάνονται
 	$contract = get_contract($invoices[0]);
 	if (isset($contract)) ++$contracts;
-	echo '\tab ' . ($count ? countGreek($count++) . '.\tab ' : null);
+	echo '\tab ' . ($count ? greeknum($count++) . '.\tab ' : null);
 	if (isset($contract['Τίτλος'])) echo "Για «{$contract['Τίτλος']}» ";
 	echo ucfirst(get_contractor_title($invoices, 2, 2)) . " «{$contractor['Επωνυμία']}», ΑΦΜ {$contractor['ΑΦΜ']}";
 	if (isset($contractor['Τηλέφωνο'])) echo ', τηλέφωνο: ' . $contractor['Τηλέφωνο'];
@@ -96,10 +98,9 @@ echo '\pard\plain\sb120\sa120\fi567\tx1134\tx1701\tx2268\qj';
 ?> 3.\tab Η ως άνω δαπάνη έχει εγκριθεί με τα παρακάτω στοιχεία:\par
 \tab α.\tab ΑΛΕ: <?=$data['ΑΛΕ']?>.\par
 \tab β.\tab Εις βάρος: <?=$data['Τύπος Χρηματοδότησης']?><?php
-if ($data['Τύπος Χρηματοδότησης'] != 'Ιδίων Πόρων') {
-	$a = get_date_components_int(get_date_components($data['Ημερομηνία Τελευταίου Τιμολογίου']));
-	echo " έτους {$a[2]}";
-} ?>.\par
+if ($data['Τύπος Χρηματοδότησης'] != 'Ιδίων Πόρων')
+	echo " έτους " . date('Y', $data['Timestamp Τελευταίου Τιμολογίου']);
+?>.\par
 \tab γ.\tab Αρμοδιότητας: Ε.Φ. <?=$data['ΕΦ']?>.\par
 4.\tab Κατά τα λοιπά ισχύουν<?=$contracts ? ' οι όροι ' . ($contracts == 1 ? 'της Σύμβασης' : 'των Συμβάσεων') . ' και' : null?> οι διατάξεις του (ε) σχετικού νόμου.\par
 5.\tab Στοιχεία Αναθέτουσας Αρχής: <?=$data['Μονάδα Πλήρες']?>, διεύθυνση: <?=$data['Έδρα']?><?=isset($data['Διεύθυνση']) ? ", {$data['Διεύθυνση']}" : null?><?=isset($data['Τηλέφωνο']) ? ", τηλέφωνο: {$data['Τηλέφωνο']}" : null?><?=isset($data['ΤΚ']) ? ", Τ.Κ. {$data['ΤΚ']}" : null?>.\par
@@ -107,10 +108,28 @@ if ($data['Τύπος Χρηματοδότησης'] != 'Ιδίων Πόρων') {
 if ($data['Αναρτητέα στο διαδίκτυο']) { ?>
 6.\tab Η παρούσα απόφαση αναρτάται στο ΚΗΜΔΗΣ και στο ΔΙΑΥΓΕΙΑ.\par
 
-<?php } ?>
+<?php
+}
 
-<?php postOrder($draft); ?>
+postOrder($draft);
+
+$to = array();
+foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+	$contractor = $per_contractor['Τιμολόγια'][0]['Δικαιούχος'];
+	//TODO: Εδώ όσοι βρίσκονται με διαγωνισμό πρέπει να μην συμπεριλαμβάνονται
+	$a = $contractor['Επωνυμία'];
+	$pre = ' ('; $pre2 = ', ';
+	if (isset($contractor['Διεύθυνση'])) { $a .= $pre . $contractor['Διεύθυνση']; $pre = $pre2; }
+	if (isset($contractor['ΤΚ'])) { $a .= $pre . $contractor['ΤΚ']; $pre = $pre2; }
+	if ($pre == $pre2) $a .= ')';
+	$to[] = $a;
+}
+recipientTableOrder($to, array($data['Μονάδα']));
+?>
 
 \sect
 
-<?php rtf_close(__FILE__); ?>
+<?php
+unset($a, $pre, $pre2, $to, $c2, $categories, $contract, $contractor, $contracts, $count, $count_items, $invoice, $invoices, $item, $k, $per_contractor);
+
+rtf_close(__FILE__);

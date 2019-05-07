@@ -5,21 +5,21 @@ import static expenditure.Contractor.Type.PRIVATE_SECTOR;
 import static expenditure.Contractor.Type.PUBLIC_SERVICES;
 import static expenditure.Deduction.D0;
 import static expenditure.Deduction.D0_06216;
-import static expenditure.Deduction.D0_12432;
+import static expenditure.Deduction.D0_13468;
 import static expenditure.Deduction.D0_26216;
-import static expenditure.Deduction.D0_32432;
+import static expenditure.Deduction.D0_33468;
 import static expenditure.Deduction.D14;
 import static expenditure.Deduction.D14_096;
 import static expenditure.Deduction.D14_15816;
-import static expenditure.Deduction.D14_22032;
+import static expenditure.Deduction.D14_23068;
 import static expenditure.Deduction.D14_35816;
-import static expenditure.Deduction.D14_42032;
+import static expenditure.Deduction.D14_43068;
 import static expenditure.Deduction.D4;
 import static expenditure.Deduction.D4_096;
 import static expenditure.Deduction.D4_15816;
-import static expenditure.Deduction.D4_22032;
+import static expenditure.Deduction.D4_23068;
 import static expenditure.Deduction.D4_35816;
-import static expenditure.Deduction.D4_42032;
+import static expenditure.Deduction.D4_43068;
 import static expenditure.Expenditure.FINANCING;
 import static expenditure.Invoice.Type.ENGINEERING_STUDY;
 import static expenditure.Invoice.Type.PROPERTY_RENTAL;
@@ -507,31 +507,31 @@ final class Invoice implements VariableSerializable, TableRecord {
 		else if (type == WATER_ELECTRICITY) deduction = D0;
 		else if (contractor.getType() == PRIVATE_SECTOR) {
 			if (type == PROPERTY_RENTAL) {
-					 if (financing == FINANCING[0]) deduction = D4_096;
-				else if (financing == FINANCING[1]) deduction = D14_096;
-				else if (financing == FINANCING[2]) deduction = D0;
+					 if (FINANCING[0].equals(financing)) deduction = D4_096;
+				else if (FINANCING[1].equals(financing)) deduction = D14_096;
+				else if (FINANCING[2].equals(financing)) deduction = D0;
 			} else if (net > 2500) {
 				if (type == ENGINEERING_STUDY || type == STUDY_SUPERVISION) {
-						 if (financing == FINANCING[0]) deduction = D4_42032;
-					else if (financing == FINANCING[1]) deduction = D14_42032;
-					else if (financing == FINANCING[2]) deduction = D0_32432;
+						 if (FINANCING[0].equals(financing)) deduction = D4_43068;
+					else if (FINANCING[1].equals(financing)) deduction = D14_43068;
+					else if (FINANCING[2].equals(financing)) deduction = D0_33468;
 				} else {// if (type != ENGINEERING_STUDY && type != STUDY_SUPERVISION)
-						 if (financing == FINANCING[0]) deduction = D4_22032;
-					else if (financing == FINANCING[1]) deduction = D14_22032;
-					else if (financing == FINANCING[2]) deduction = D0_12432;
+						 if (FINANCING[0].equals(financing)) deduction = D4_23068;
+					else if (FINANCING[1].equals(financing)) deduction = D14_23068;
+					else if (FINANCING[2].equals(financing)) deduction = D0_13468;
 				}
 			} else // if (net <= 2500)
 				if (type == ENGINEERING_STUDY || type == STUDY_SUPERVISION) {
-						 if (financing == FINANCING[0]) deduction = D4_35816;
-					else if (financing == FINANCING[1]) deduction = D14_35816;
-					else if (financing == FINANCING[2]) deduction = D0_26216;
+						 if (FINANCING[0].equals(financing)) deduction = D4_35816;
+					else if (FINANCING[1].equals(financing)) deduction = D14_35816;
+					else if (FINANCING[2].equals(financing)) deduction = D0_26216;
 				} else {
-						 if (financing == FINANCING[0]) deduction = D4_15816;
-					else if (financing == FINANCING[1]) deduction = D14_15816;
-					else if (financing == FINANCING[2]) deduction = D0_06216;
+						 if (FINANCING[0].equals(financing)) deduction = D4_15816;
+					else if (FINANCING[1].equals(financing)) deduction = D14_15816;
+					else if (FINANCING[2].equals(financing)) deduction = D0_06216;
 				}
 		} else // if (contractor.getType() == ARMY || contractor.getType() == PUBLIC_SERVICES)
-			deduction = financing == FINANCING[1] ? D14: D4;
+			deduction = FINANCING[1].equals(financing) ? D14: D4;
 		return deduction;
 	}
 
