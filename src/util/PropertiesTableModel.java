@@ -1,6 +1,5 @@
 package util;
 
-import java.awt.Color;
 import static java.awt.Color.WHITE;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -15,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
@@ -154,14 +154,12 @@ public class PropertiesTableModel implements TableModel {
 		JTableHeader header = t.getTableHeader();
 		header.setReorderingAllowed(false);
 		// Η πρώτη ΣΤΗΛΗ με τις επικεφαλίδες, θα εμφανίζεται όπως και η επικεφαλίδα του πίνακα
-		Color background = header.getBackground();
-		Color foreground = header.getForeground();
 		t.getColumnModel().getColumn(0).setCellRenderer((JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) -> {
 			JLabel c = new JLabel(value != null ? value.toString() : null);
-			c.setBackground(background);
+			c.setBackground(UIManager.getColor("TableHeader.background"));
 			c.setOpaque(true);
-			c.setForeground(foreground);
+			c.setForeground(UIManager.getColor("TableHeader.foreground"));
 			return c;
 		});
 		return t;

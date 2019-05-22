@@ -57,8 +57,8 @@ final class StatementDialog extends JDialog {
 	/** Ο πίνακας με τα στοιχεία της δήλωσης. */
 	private final JTable table = createTable(new PropertiesTableModel((int index) -> data.statement,
 			new String[] { Statement.H[0], PersonInfo.H[0], PersonInfo.H[1], PersonInfo.H[2],
-			PersonInfo.H[3], PersonInfo.H[4], PersonInfo.H[5], PersonInfo.H[6], PersonInfo.H[7],
-			PersonInfo.H[8], Statement.H[1] }, 1, true));
+			PersonInfo.H[3], PersonInfo.H[4], PersonInfo.H[5], PersonInfo.H[6],
+			PersonInfo.H[7] + " (Έδρα, Διεύθυνση, ΤΚ)", PersonInfo.H[8], Statement.H[1] }, 1, true));
 
 	/** Αρχικοποίηση του παραθύρου της δήλωσης.
 	 * @param w Το πατρικό παράθυρο ή null */

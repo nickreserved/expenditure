@@ -6,7 +6,7 @@ require_once('order.php');
 require_once('header.php');
 
 startOrder();
-if ($data['Αναρτητέα στο διαδίκτυο'] || isset($data['ΑΔΑ Δγης Συγκρότησης Επιτροπών'])) { // Κανονικά δεν υπάρχει το if ?>
+if (ifexist($data, 'Αναρτητέα στο διαδίκτυο') || isset($data['ΑΔΑ Δγης Συγκρότησης Επιτροπών'])) { // Κανονικά δεν υπάρχει το if ?>
 
 \pard\plain\qr ΑΔΑ: <?=orelse2(!$draft, $data, 'ΑΔΑ Δγης Συγκρότησης Επιτροπών', '........')?>\par
 \pard\plain\qc{\ul{\b ΑΝΑΡΤΗΤΕΑ ΣΤΟ ΔΙΑΔΙΚΤΥΟ}}\par\par

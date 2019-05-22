@@ -10,16 +10,16 @@ $d = 6236;
 
 \sectd\sbkodd\lndscpsxn\pgwsxn16838\pghsxn11906\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\qr\b <?=rtf($data['Μονάδα'])?>\line <?=$data['Ημερομηνία Τελευταίου Τιμολογίου']?>\par\par
-\ul\qc ΚΑΤΑΣΤΑΣΗ ΠΛΗΡΩΜΗΣ\par\par
+\pard\plain\qr <?=rtf($data['Μονάδα'])?>\line <?=$data['Ημερομηνία Τελευταίου Τιμολογίου']?>\par\par
+\qc\b\ul ΚΑΤΑΣΤΑΣΗ ΠΛΗΡΩΜΗΣ\par\par
 
 \pard\plain\fs20
-\trowd\trhdr\trqc
+\trowd\trhdr
 <?php ob_start();	// Buffer με επικεφαλίδες πίνακα ?>
-\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
-\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx1701
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx3402
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx4819
+\trqc\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
+\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx1701
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx3402
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx4819
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx<?=$d?>
 
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx<?=$d+=round(1.2 * $c)?>
@@ -72,8 +72,8 @@ $a = array ($b, $c);
 
 foreach($a[0] as $v) {
 	echo '\ql ' . rtf($v['Επωνυμία']) . '\cell ' . rtf(ifexist($v, 'Διεύθυνση')) . '\cell '
-			. rtf(ifexist($v, 'e-mail')) . '\cell ' . rtf($v['ΔΟΥ']) . '\cell\qr '
-			. euro($v['Καθαρή Αξία']) . '\cell ';
+			. str_replace('@', '\zwbo @', rtf(ifexist($v, 'e-mail'))) . '\cell '
+			. rtf($v['ΔΟΥ']) . '\cell\qr ' . euro($v['Καθαρή Αξία']) . '\cell ';
 	$i = $v['Κρατήσεις'];
 	foreach($data['Κρατήσεις'] as $t)
 		echo euro(ifexist($i, $t)) . '\cell ';
@@ -97,7 +97,7 @@ echo euro($data['Τιμές']['Πληρωτέο']) . '\b0\cell\row' . PHP_EOL . PHP_EOL;
 \sect
 
 <?php
-unset($a, $c, $d, $c2, $v, $i, $t);
+unset($a, $b, $c, $d, $v, $i, $t, $c2, $keys, $deductions, $invoices, $key);
 
 rtf_close(__FILE__);
 ?>

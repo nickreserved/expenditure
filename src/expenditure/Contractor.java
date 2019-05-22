@@ -29,19 +29,18 @@ public class Contractor implements VariableSerializable, ResizableTableModel.Tab
 	/** Αρχικοποίηση του αντικειμένου. */
 	Contractor() { type = Type.PRIVATE_SECTOR; person = new PersonInfo(); }
 
-	/** Αρχικοποιεί ένα πρόσωπο από έναν node δεδομένων του unserialize().
+	/** Αρχικοποιεί ένα δικαιούχο από έναν node δεδομένων του unserialize().
 	 * @param node Ο node δεδομένων
 	 * @throws Exception Αν ο node δεν είναι αντικείμενο */
 	Contractor(Node node) throws Exception {
 		if (!node.isObject()) throw new Exception("Για δικαιούχο, αναμένονταν αντικείμενο");
-		name        = node.getField(H[0]).getString();
-		try { type  = Type.valueOf(node.getField(H[1]).getString()); }
-		catch(RuntimeException e) { type = Type.PRIVATE_SECTOR; }
-		trn         = node.getField(H[2]).getString();
-		taxOffice   = node.getField(H[3]).getString();
-		address     = node.getField(H[4]).getString();
-		iban        = node.getField(H[5]).getString();
-		person      = new PersonInfo(node);
+		name      = node.getField(H[0]).getString();
+		type      = Type.valueOf(node.getField(H[1]).getString());
+		trn       = node.getField(H[2]).getString();
+		taxOffice = node.getField(H[3]).getString();
+		address   = node.getField(H[4]).getString();
+		iban      = node.getField(H[5]).getString();
+		person    = new PersonInfo(node);
 	}
 
 	/** Ο τύπος του δικαιούχου. Π.χ. Δημόσιο, Ιδιώτης, κτλ
@@ -51,24 +50,6 @@ public class Contractor implements VariableSerializable, ResizableTableModel.Tab
 	/** Επικεφαλίδες του αντίστοιχου πίνακα, αλλά και ονόματα πεδίων αποθήκευσης. */
 	static final String[] H = { "Επωνυμία", "Τύπος", "ΑΦΜ", "ΔΟΥ", "Διεύθυνση", "ΙΒΑΝ" };
 
-	/** Ο τύπος του δικαιούχου. */
-	enum Type {
-		/** Ιδιωτικός τομέας: Ιδιωτικές επιχειρήσεις, ελεύθεροι επαγγελματίες κ.τ.λ.
-		 * Έχουν ΦΠΑ, κρατήσεις και ΦΕ. */
-		PRIVATE_SECTOR,
-		/** Δημόσιος τομέας: Δημόσιες επιχειρήσεις και ΕΚΕΜΣ.
-		 * Έχουν ΦΠΑ, δεν έχουν ΦΕ και τις κρατήσεις τις πληρώνουμε εμείς. */
-		PUBLIC_SERVICES,
-		/** Στρατιωτικά Πρατήρια, πλην ΕΚΕΜΣ.
-		 * Δεν έχουν ΦΠΑ, ΦΕ και τις κρατήσεις τις πληρώνουμε εμείς. */
-		ARMY;
-		/** Ο τύπος του δικαιούχου με κείμενο. */
-		static final private String[] TYPE = {
-			"Ιδιωτικός Τομέας", "Δημόσιος Τομέας και ΕΚΕΜΣ", "Στρατιωτικά Πρατήρια, πλην ΕΚΕΜΣ"
-		};
-		@Override public String toString() { return TYPE[ordinal()]; }
-	}
-
 	@Override public String toString() { return name; }
 
 	@Override public boolean equals(Object o) {	// Ίδια επωνυμία, ΑΦΜ και ΙΒΑΝ -> ίδιος δικαιούχος
@@ -76,7 +57,7 @@ public class Contractor implements VariableSerializable, ResizableTableModel.Tab
 		else if (o instanceof Contractor) {
 			Contractor contractor = (Contractor) o;
 			return Objects.equals(trn, contractor.trn) && Objects.equals(name, contractor.name) &&
-					Objects.equals(iban, contractor.iban);
+					Objects.equals(iban, contractor.iban) && Objects.equals(type, contractor.type);
 		} else return false;
 	}
 
@@ -85,16 +66,17 @@ public class Contractor implements VariableSerializable, ResizableTableModel.Tab
 		hash = 47 * hash + Objects.hashCode(name);
 		hash = 47 * hash + Objects.hashCode(trn);
 		hash = 47 * hash + Objects.hashCode(iban);
+		hash = 47 * hash + Objects.hashCode(type);
 		return hash;
 	}
 
 	@Override public void serialize(VariableFields fields) {
-		if (name != null)        fields.add (H[0],  name);
-		                         fields.add (H[1],  type.name());	// Δεν είναι ποτέ null
-		if (trn != null)         fields.add (H[2],  trn);
-		if (taxOffice != null)   fields.add (H[3],  taxOffice);
-		if (address != null)     fields.add (H[4],  address);
-		if (iban != null)        fields.add (H[5],  iban);
+		if (name != null)      fields.add (H[0], name);
+		                       fields.add (H[1], type.toString());	// Δεν είναι ποτέ null
+		if (trn != null)       fields.add (H[2], trn);
+		if (taxOffice != null) fields.add (H[3], taxOffice);
+		if (address != null)   fields.add (H[4], address);
+		if (iban != null)      fields.add (H[5], iban);
 		person.serialize(fields);
 	}
 
@@ -113,13 +95,13 @@ public class Contractor implements VariableSerializable, ResizableTableModel.Tab
 
 	@Override public void setCell(int index, Object value) {
 		switch(index) {
-			case 0: name         = getString(value); break;
-			case 1: type         = (Type) value; break;
-			case 2: trn          = getString(value); break;
-			case 3: taxOffice    = getString(value); break;
-			case 4: address      = getString(value); break;
-			// case 5: break;
-			case 6: iban         = getString(value); break;
+			case 0: name      = getString(value); break;
+			case 1: type      = (Type) value; break;
+			case 2: trn       = getString(value); break;
+			case 3: taxOffice = getString(value); break;
+			case 4: address   = getString(value); break;
+			case 5: break;
+			case 6: iban      = getString(value); break;
 			default: person.setCell(index - 7, value);
 		}
 	}
@@ -130,14 +112,44 @@ public class Contractor implements VariableSerializable, ResizableTableModel.Tab
 				taxOffice == null &&
 				address == null &&
 				iban == null &&
+				person.name == null &&
+				person.fathername == null &&
+				person.mothername == null &&
 				person.birthdate == null &&
 				person.birthplace == null &&
-				person.email == null &&
-				person.fathername == null &&
-				person.homeaddress == null &&
 				person.id == null &&
-				person.mothername == null &&
-				person.name == null &&
-				person.phone == null;
+				person.phone == null &&
+				person.homeaddress == null &&
+				person.email == null;
+	}
+
+
+	/** Ο τύπος του δικαιούχου. */
+	static final class Type {
+		/** Ιδιωτική αρχικοποίηση του enum. */
+		private Type(String s) { a = s; }
+		/** Ο τύπος του δικαιούχου με κείμενο. */
+		final private String a;
+		@Override public String toString() { return a; }
+		/** Λαμβάνει τον τύπο του δικαιούχου από το κείμενο περιγραφής του.
+		 * Αν το κείμενο είναι εσφαλμένο ή null επιστρέφει PRIVATE_SECTOR.
+		 * @param s Ο τύπος του δικαιούχου σε κείμενο
+		 * @return Ο τύπος του δικαιούχου */
+		static Type valueOf(String s) {
+			if (PUBLIC_SERVICES.a.equals(s)) return PUBLIC_SERVICES;
+			if (ARMY.a.equals(s)) return ARMY;
+			return PRIVATE_SECTOR;
+		}
+		/** Ιδιωτικός τομέας: Ιδιωτικές επιχειρήσεις, ελεύθεροι επαγγελματίες κ.τ.λ.
+		 * Έχουν ΦΠΑ, κρατήσεις και ΦΕ. */
+		static final Type PRIVATE_SECTOR = new Type("Ιδιωτικός Τομέας");
+		/** Δημόσιος τομέας: Δημόσιες επιχειρήσεις και ΕΚΕΜΣ.
+		 * Έχουν ΦΠΑ, δεν έχουν ΦΕ και τις κρατήσεις τις πληρώνουμε εμείς. */
+		static final Type PUBLIC_SERVICES = new Type("Δημόσιος Τομέας και ΕΚΕΜΣ");
+		/** Ο τύπος του δικαιούχου με κείμενο. */
+		static final Type ARMY = new Type("Στρατιωτικά Πρατήρια, πλην ΕΚΕΜΣ");
+		/** Επιστρέφει λίστα με όλους τους τύπους δικαιούχου.
+		 * @return Λίστα με όλους τους τύπους δικαιούχου */
+		static Type[] values() { return new Type[] { PRIVATE_SECTOR, PUBLIC_SERVICES, ARMY }; }
 	}
 }

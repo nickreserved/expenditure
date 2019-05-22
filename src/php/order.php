@@ -77,10 +77,10 @@ function preOrderR($order, $recipients, $draft, $attached, $subject, $references
 ?>
 
 \trowd\trautofit1\trpaddl0\trpaddr0\cellx5103\clftsWidth1\clNoWrap\cellx8788
-\pard\plain\fi-1134\li1134\tx1134
+\pard\plain\fi-1134\li1134\tx1134\intbl
 <?=$recipients?>\cell
-\pard\plain
-<?=rtf(strtouppergn($data['Μονάδα Πλήρες']))?>\line <?=rtf(strtouppergn($data['Γραφείο']))?>\line Τηλ. <?=rtf($data['Τηλέφωνο'])?>\line <?php
+\pard\plain\intbl
+<?=wordwrap(rtf(strtouppergn($data['Μονάδα Πλήρες'])), 25, '\line ')?>\line <?=rtf(strtouppergn($data['Γραφείο']))?>\line Τηλ. <?=rtf($data['Τηλέφωνο'])?>\line <?php
 	if (!$draft || isset($ord))
 		echo rtf($ord[0]) . '/' . rtf($ord[1]) . '/' . rtf($ord[2]) . '\line ' . rtf($ord[3]) . '\line ' . rtf($data['Έδρα']) . ', ' . rtf($ord[4]);
 	else echo 'Φ.\line Σ.\line ' . rtf($data['Έδρα']);
@@ -114,9 +114,9 @@ function postOrderDraft() {
 \pard\plain\par
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
 \clftsWidth1\clNoWrap\cellx2929\clftsWidth1\clNoWrap\cellx5858\clftsWidth1\clNoWrap\cellx8788\qc
-- Το -\line\ul <?=rtf($data['Γραφείο'])?>\ul0\line\line\line <?=rtf($data['Αξκος Γραφείου']['Ονοματεπώνυμο'])?>\line <?=rtf($data['Αξκος Γραφείου']['Πλήρης Βαθμός'])?>\cell
-- Ο -\line\ul Υδκτης\ul0\line\line\line <?=rtf($data['ΕΟΥ']['Ονοματεπώνυμο'])?>\line <?=rtf($data['ΕΟΥ']['Πλήρης Βαθμός'])?>\cell
-- Ο -\line\ul Δκτης\ul0\line\line\line <?=rtf($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=rtf($data['Δκτης']['Πλήρης Βαθμός'])?>\cell\row
+- Το -\line\ul <?=rtf($data['Γραφείο'])?>\ul0\line\line\line <?=rtf($data['Αξκος Γραφείου']['Ονοματεπώνυμο'])?>\line <?=rtf(fullrank($data['Αξκος Γραφείου']['Βαθμός']))?>\cell
+- Ο -\line\ul Υδκτης\ul0\line\line\line <?=rtf($data['ΕΟΥ']['Ονοματεπώνυμο'])?>\line <?=rtf(fullrank($data['ΕΟΥ']['Βαθμός']))?>\cell
+- Ο -\line\ul Δκτης\ul0\line\line\line <?=rtf($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=rtf(fullrank($data['Δκτης']['Βαθμός']))?>\cell\row
 <?php }
 
 /** Εξάγει το μετά του κειμένου μέρος, ενός ακριβούς αντίγραφου στρατιωτικού εγγράφου. */
@@ -151,4 +151,14 @@ function recipientTableOrder($to, $info) { ?>
 <?php
 		foreach($info as $v) echo rtf($v) . '\par'. PHP_EOL;
 	}
+}
+
+/** Επιστρέφει τον δικαιούχο, σαν αποδέκτη στρατιωτικού εγγράφου.
+ * Η μορφή του αποδέκτη είναι 'Επωνυμία (Διευθυνση)'
+ * @param array $contractor Ο δικαιούχος
+ * @return string Ο δικαιούχος σαν αποδέκτης */
+function get_contractor_recipient($contractor) {
+	$a = $contractor['Επωνυμία'];
+	if (isset($contractor['Διεύθυνση'])) $a .= " ({$contractor['Διεύθυνση']})";
+	return $a;
 }

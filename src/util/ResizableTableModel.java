@@ -17,9 +17,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JMenuItem;
-import static javax.swing.JOptionPane.NO_OPTION;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
@@ -139,11 +139,12 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 		int length = rows.length;
 		List<T> ar = d.get();
 		if (rows[rows.length - 1] >= ar.size()) --length;
-		if (length == 0 || NO_OPTION == showConfirmDialog(null, "Θέλετε να διαγράψω τις επιλεγμένες εγγραφές;",
-				"Διαγραφή εγγραφών", YES_NO_OPTION, WARNING_MESSAGE)) return;
-		// Αντίστροφη διαγραφή, αλλιώς θα έχουμε index out of bounds
-		for (int z = length - 1; z >= 0; --z) d.remove(rows[z]);
-		fireTableDataChanged(new TableModelEvent(this, rows[0], rows[length - 1], ALL_COLUMNS, DELETE));
+		if (length > 0 && YES_OPTION == showConfirmDialog(null, "Θέλετε να διαγράψω τις επιλεγμένες εγγραφές;",
+				"Διαγραφή εγγραφών", YES_NO_OPTION, WARNING_MESSAGE)) {
+			// Αντίστροφη διαγραφή, αλλιώς θα έχουμε index out of bounds
+			for (int z = length - 1; z >= 0; --z) d.remove(rows[z]);
+			fireTableDataChanged(new TableModelEvent(this, rows[0], rows[length - 1], ALL_COLUMNS, DELETE));
+		}
 	}
 
 	/** Δημιουργία πίνακα με δυνατότητα προσθήκης νέων εγγραφών-γραμμών.

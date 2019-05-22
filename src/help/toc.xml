@@ -42,9 +42,9 @@
 			<menu name="Λίστα υλικών" url="tabs.html#worksitems" />
 		</menu>
 		<menu name="Αμετάβλητα στοιχεία" url="tabs.html#static" />
-		<menu name="Προμηθευτές" url="tabs.html#provider" />
-		<menu name="Κρατήσεις" url="tabs.html#hold" />
-		<menu name="Προσωπικό μονάδας" url="tabs.html#personel" />
+		<menu name="Δικαιούχοι" url="tabs.html#contractors" />
+		<menu name="Κρατήσεις" url="tabs.html#deductions" />
+		<menu name="Προσωπικό μονάδας" url="tabs.html#personnel" />
 	</menu>
 	<menu name="Menus" url="menus.html">
 		<menu name="Αρχείο" url="menus.html#file" />

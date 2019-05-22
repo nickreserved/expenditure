@@ -8,7 +8,6 @@ import static expenditure.MainFrame.NOYES;
 import static expenditure.MainFrame.window;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.stream.Stream;
 import static javax.swing.JOptionPane.CANCEL_OPTION;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
 import static javax.swing.JOptionPane.OK_OPTION;
@@ -34,7 +33,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	/** Αναλυτικός Λογαριασμός Εξόδων/Εσόδων ΑΛΕ. */
 	private long aae;					// Analytical Account of Expenses/Income
 	/** Ο τύπος της χρηματοδότησης της δαπάνης. */
-	private String financing = FINANCING[0];
+	private Financing financing;
 	/** Τίτλος δαπάνης. */
 	private String title;
 	/** Η απόφαση απευθείας ανάθεσης. */
@@ -78,7 +77,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * ξανά μέσα στη δαπάνη, ώστε αν ανοίξουμε τη δαπάνη από πρόγραμμα άλλης Μονάδας ή μετά από
 	 * χρόνια, να διατηρεί τα στοιχεία της Μονάδας στην οποία συντάχθηκε, στο χρόνο που συντάχθηκε. */
 	Expenditure(File f, UnitInfo u) {
-		file = f; unitInfo = u;
+		file = f; unitInfo = u; financing = Financing.ARMY_BUDGET;
 		fixContents(this);
 	}
 
@@ -95,8 +94,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		construction            = node.getField(H[2]).getBoolean();
 		acb                     = node.getField(H[3]).getInteger();
 		aae                     = node.getField(H[4]).getInteger();
-		financing               = node.getField(H[5]).getString();
-		if (Stream.of(FINANCING).noneMatch(i -> i.equals(financing))) financing = FINANCING[0];
+		financing               = Financing.valueOf(node.getField(H[5]).getString());
 		title                   = node.getField(H[6]).getString();
 		orderDirectAssignment   = node.getField(H[7]).getString();
 		orderDirectAssignmentId = node.getField(H[8]).getString();
@@ -129,19 +127,16 @@ final class Expenditure implements VariableSerializable, TableRecord {
 
 	/** Ονόματα πεδίων αποθήκευσης. */
 	static final String[] H = { ΑπόφασηΑνάληψηςΥποχρέωσης.toString(), "Αναρτητέα στο διαδίκτυο",
-		"Πίστωση ΓΕΣ/ΔΥΠΠΕ", "ΕΦ", "ΑΛΕ", "Τύπος Χρηματοδότησης", "Τίτλος",
+		"Έργο", "ΕΦ", "ΑΛΕ", "Τύπος Χρηματοδότησης", "Τίτλος",
 		ΑπόφασηΑπευθείαςΑνάθεσης.toString(), "ΑΔΑ Απόφασης Απευθείας Ανάθεσης",
 		ΔιαβιβαστικόΔαπάνης.toString(), "Αυτόματοι Υπολογισμοί",
 		"Εργασίες", "Συμβάσεις", "Τιμολόγια", "Φύλλο Καταχώρησης"
 	};
 
-	/** Ο τύπος της χρηματοδότησης της δαπάνης. */
-	static final String[] FINANCING = { "Π/Υ ΓΕΣ", "Ιδίων πόρων", "Π/Υ ΠΔΕ" };
-
 	/** Ο φορέας διάθεσης της δαπάνης είναι το ΓΕΣ/ΔΥΠΠΕ. */
 	boolean isConstruction() { return construction; }
 	/** Η πηγή χρηματοδότησης της δαπάνης. */
-	String getFinancing() { return financing; }
+	Financing getFinancing() { return financing; }
 	/** Οι αυτόματοι υπολογισμοί είναι ενεργοί. */
 	boolean isSmart() { return smart; }
 
@@ -170,14 +165,14 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		                                     fields.add (H[2],  construction);
 		if (acb != 0)                        fields.add (H[3],  acb);
 		if (aae != 0)                        fields.add (H[4],  aae);
-		                                     fields.add (H[5],  financing);
+		                                     fields.add (H[5],  financing.toString());
 		if (title != null)                   fields.add (H[6],  title);
 		if (orderDirectAssignment != null)   fields.add (H[7],  orderDirectAssignment);
 		if (orderDirectAssignmentId != null) fields.add (H[8],  orderDirectAssignmentId);
 		if (orderTransport != null)          fields.add (H[9],  orderTransport);
 		                                     fields.add (H[10], smart);
 		if (!works.isEmpty())                fields.addV(H[11], works);
-		if (!contracts.isEmpty())            fields.add (H[12], contracts);
+		if (!contracts.isEmpty())            fields.addV(H[12], contracts);
 		if (!invoices.isEmpty())             fields.addV(H[13], invoices);
 	}
 
@@ -223,7 +218,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 			case 5: aae                     = getLong(value); break;
 			case 6:		// Θέτει την πηγή χρηματοδότησης της δαπάνης
 				if (value != financing) {
-					financing = (String) value;
+					financing = (Financing) value;
 					if (smart) invoices.forEach(i -> i.recalcFromFinancing());
 				}
 				break;
@@ -259,4 +254,32 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * @param d Ένας αριθμός double.
 	 * @return Αν ο d είναι 0 επιστρέφει null, αλλιώς επιστρέφει τον d. */
 	static Double a(double d) { return d != 0 ? d : null; }
+
+
+	/** Ο τύπος του δικαιούχου. */
+	static final class Financing {
+		/** Ιδιωτική αρχικοποίηση του enum. */
+		private Financing(String s) { a = s; }
+		/** Ο τύπος του δικαιούχου με κείμενο. */
+		final private String a;
+		@Override public String toString() { return a; }
+		/** Λαμβάνει τον τύπο του δικαιούχου από το κείμενο περιγραφής του.
+		 * Αν το κείμενο είναι εσφαλμένο ή null επιστρέφει ARMY_BUDGET.
+		 * @param s Ο τύπος του δικαιούχου σε κείμενο
+		 * @return Ο τύπος του δικαιούχου */
+		static Financing valueOf(String s) {
+			if (OWN_PROFITS.a.equals(s)) return OWN_PROFITS;
+			if (PUBLIC_INVESTMENT.a.equals(s)) return PUBLIC_INVESTMENT;
+			return ARMY_BUDGET;
+		}
+		/** Τακτικός προϋπολογισμός ΓΕΣ. */
+		static final Financing ARMY_BUDGET = new Financing("Π/Υ ΓΕΣ");
+		/** Ίδιοι πόροι από κέρδη λεσχών, πρατηρίων κτλ. */
+		static final Financing OWN_PROFITS = new Financing("Ιδίων πόρων");
+		/** Προϋπολογισμός Προγράμματος Δημοσίων Επενδύσεων. */
+		static final Financing PUBLIC_INVESTMENT = new Financing("Π/Υ ΠΔΕ");
+		/** Επιστρέφει λίστα με όλους τους τύπους χρηματοδότησης.
+		 * @return Λίστα με όλους τους τύπους χρηματοδότησης */
+		static Financing[] values() { return new Financing[] { ARMY_BUDGET, OWN_PROFITS, PUBLIC_INVESTMENT }; }
+	}
 }

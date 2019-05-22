@@ -4,15 +4,10 @@ require_once('header.php');
 
 $invoices = array();
 foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-	// Κόστος για το οποίο απαιτείται να υπογραφεί σύμβαση
-	if ($per_contractor['Τιμές']['Καθαρή Αξία'] > 2500) continue;
+	if (isset($per_contractor['Σύμβαση'])) continue;
 	$invoices = array_merge($invoices, $per_contractor['Τιμολόγια']);
 }
 foreach(get_invoices_by_category($invoices) as $category => $invoices) {
-	// Κείμενο με τα τιμολόγια, της μορφής '1/31-12-19, 9/1-12-19 και 5/31-1-19'
-	$invoice_list = get_names($invoices, 'Τιμολόγιο');
-	// Η ημερομηνία του νεότερου τιμολογίου από τα επιλεγμένα
-	$newer_invoice_date = strftime('%d %b %y', get_newer_invoice_timestamp($invoices));
 	// Τμήματα κειμένου που αλλάζουν μέσα στο πρωτόκολλο σχετικά με το είδος τιμολογίου
 	$a = $category == 'Προμήθεια Υλικών'
 			? array('προμηθειών', 'Προμηθειών', 'ΠΡΟΜΗΘΕΙΩΝ')
@@ -26,8 +21,8 @@ foreach(get_invoices_by_category($invoices) as $category => $invoices) {
 \pard\plain\qr <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\par\par
 \fs24\qc{\b ΒΕΒΑΙΩΣΗ ΠΑΡΑΛΑΒΗΣ <?=$a[2]?>}\par\par
 
-\qj Βεβαιώνεται η αγορά, παραλαβή και διάθεση για ικανοποίηση άμεσων αναγκών της Μονάδας, των αναγραφόμενων στ<?=$c?> υπ' αριθμόν <?=$invoice_list?> τιμολόγι<?=$c?> <?=$a[0]?> σύμφωνα με την Φ.092/235631/9 Αυγ 1982 Απόφαση ΥΦΕΘΑ και Φ.600.9/12/601600/Σ.129/13 Ιαν 2005/ΓΕΣ/ΔΟΙ/3γ.\par
-\pard\plain\qr\par <?=rtf($data['Έδρα']) . ', ' . $newer_invoice_date?>\par
+\qj Βεβαιώνεται η αγορά, παραλαβή και διάθεση για ικανοποίηση άμεσων αναγκών της Μονάδας, των αναγραφόμενων στ<?=$c?> υπ' αριθμόν <?=get_names_key($invoices, 'Τιμολόγιο')?> τιμολόγι<?=$c?> <?=$a[0]?> σύμφωνα με την Φ.092/235631/9 Αυγ 1982 Απόφαση ΥΦΕΘΑ και Φ.600.9/12/601600/Σ.129/13 Ιαν 2005/ΓΕΣ/ΔΟΙ/3γ.\par
+\pard\plain\qr\par <?=rtf($data['Έδρα']) . ', ' . strftime('%d %b %y', get_newer_invoice_timestamp($invoices))?>\par
 
 \pard\plain\par
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
@@ -41,6 +36,6 @@ foreach(get_invoices_by_category($invoices) as $category => $invoices) {
 
 <? }
 
-unset($per_contractor, $category, $invoices, $newer_invoice_date, $invoice_list, $a, $c);
+unset($a, $c, $category, $invoices, $per_contractor);
 
 rtf_close(__FILE__); ?>

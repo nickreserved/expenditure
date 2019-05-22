@@ -22,38 +22,12 @@ class ReportTableModel implements TableModel {
 		null, "Τρέχον τιμολόγιο", "Τιμολόγια σύμβασης", "Όλα τα τιμολόγια"
 	};
 
-	/** Η τρέχουσα δαπάνη.
-	 * Αν δεν είναι η τρέχουσα, όλα τα προσωρινά αποθηκευμένα δεδομένα (που τηρούνται για μεγαλύτερη
-	 * ταχύτητα) πρέπει να επανυπολογιστούν. */
-	private Expenditure expenditure;
-	/** Αναφορά στις τιμές του ενεργού τιμολογίου. Αν δεν υπάρχει ενεργό τιμολόγιο είναι όλα 0. */
-	private double[] invoice;
-	/** Αναφορά στις τιμές της σύμβασης του ενεργού τιμολογίου.
-	 * Αν δεν υπάρχει ενεργό τιμολόγιο ή δεν έχει σύμβαση, είναι όλα 0. */
-	private double[] contract;
+	/** Το τρέχον τιμολόγιο. */
+	private Invoice inv;
 
 	/** Ενημερώνεται το μοντέλο ότι το ενεργό τιμολόγιο άλλαξε.
-	 * Επειδή κάποια δεδομένα αποθηκεύονται προσωρινά για μεγαλύτερη ταχύτητα, η αλλαγή του ενεργού
-	 * τιμολογίου οδηγεί σε ανανέωση αυτών των δεδομένων. */
-	void changedInvoiceSelection(int row) {
-		if (row >= 0 && row < expenditure.invoices.size()) {
-			Invoice i = expenditure.invoices.get(row);
-			invoice = i.prices;
-			Contract c = i.getContract();
-			contract = c != null ? c.prices : new double[7];
-		} else contract = invoice = new double[7];
-	}
-
-	/** Ελέγχει τη δαπάνη που είναι ανοικτή στο πρόγραμμα.
-	 * Αν διαφέρει από την προσωρινά αποθηκευμένη στο μοντέλο (για λόγους ταχύτητας) τότε διαγράφει
-	 * όλα τα προσωρινά αποθηκευμένα δεδομένα. */
-	private void recheck() {
-		Expenditure e = data.getActiveExpenditure();
-		if (e != expenditure) {
-			expenditure = e;
-			invoice = contract = new double[7];
-		}
-	}
+	 * @param i Το νέο τιμολόγιο */
+	void changedInvoiceSelection(Invoice i) { inv = i; }
 
 	@Override public void addTableModelListener(TableModelListener l) {}
 	@Override public void removeTableModelListener(TableModelListener l) {}
@@ -64,11 +38,11 @@ class ReportTableModel implements TableModel {
 	@Override public boolean isCellEditable(int row, int col) { return false; }
 	@Override public void setValueAt(Object aValue, int rowIndex, int columnIndex) {}
 	@Override public Object getValueAt(int row, int col) {
-		switch(col) {
-			case 0: return VERTICAL_HEADER[row];
-			case 1: recheck(); return a(invoice[row]);
-			case 2: recheck(); return a(contract[row]);
-			default: recheck(); return a(expenditure.prices[row]);
-		}
+		if (col == 0) return VERTICAL_HEADER[row];
+		if (col == 3) return a(data.getActiveExpenditure().prices[row]);
+		if (inv == null) return null;
+		if (col == 1) return a(inv.prices[row]);
+		if (inv.getContract() == null) return null;
+		return a(inv.getContract().prices[row]);
 	}
 }

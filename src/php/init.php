@@ -30,6 +30,11 @@ function init_deduction_names() {
 function init_invoices() {
 	global $data;
 	foreach($data['Τιμολόγια'] as & $invoice) {
+		// Αρχικοποιεί σύμβαση και δικαιούχο
+		if (isset($invoice['Σύμβαση'])) {
+			$invoice['Σύμβαση'] = $data['Συμβάσεις'][$invoice['Σύμβαση']];
+			$invoice['Δικαιούχος'] = $invoice['Σύμβαση']['Ανάδοχος'];
+		}
 		// Ενσωματώνει στις κρατήσεις των τιμολογίων το άθροισμα των επιμέρους κρατήσεών τους.
 		$deduction = & $invoice['Κρατήσεις'];
 		if (!$deduction) $invoice['Κρατήσεις'] = array('Σύνολο' => 0);
@@ -62,8 +67,7 @@ function init_invoices() {
 		$mixed = $net + $vat;
 		$deductions = round($net * $invoice['Κρατήσεις']['Σύνολο'] / 100, 2);
 		$contractor_type = $invoice['Δικαιούχος']['Τύπος'];
-		$wePayDeductions = $contractor_type == 'PUBLIC_SERVICES' || $contractor_type == 'ARMY';
-		if ($wePayDeductions) $mixed += $deductions;
+		if ($contractor_type != 'Ιδιωτικός Τομέας') $mixed += $deductions;
 		$mixed = round($mixed, 2);
 		$payable = round($mixed - $deductions, 2);
 		$netIncomeTax = $net;
@@ -104,45 +108,55 @@ function init_newer_invoice_date() {
  * Στο πεδίο $data['Τιμολόγια ανά Δικαιούχο'], αποθηκεύονται στοιχεία για κάθε δικαιούχο. Κάθε
  * στοιχείο δικαιούχου, περιέχει 2 στοιχεία: Με κλειδί 'Τιμολόγια' array με τα τιμολόγια του
  * δικαιούχου. Με κλειδί 'Τιμές' τα αθροίσματα των αντίστοιχων αξιών των τιμολογίων του δικαιούχου.
+ * <p>Επίσης ελέγχει αν τα τιμολόγια του ίδιου δικαιούχου ανήκουν στην ίδια σύμβαση. Αν ένας
+ * δικαιούχος έχει υπογράψει σύμβαση μαζί μας, όλα τα τιμολόγια που έχει εκδόσει πρέπει να ανήκουν
+ * σε αυτή τη σύμβαση. Αν δεν έχει υπογράψει, δεν πρέπει κανένα τιμολόγιο να ανήκει σε αυτή τη σύμβαση.
  * <p>Πρέπει να κληθεί μετά από την init_invoices(). */
 function init_invoices_by_contractor() {
 	global $data;
+	$contracts = array();
+	// Τιμολόγια κατά δικαιούχο
 	$data['Τιμολόγια ανά Δικαιούχο'] = get_invoices_by_contractor($data['Τιμολόγια']);
-	foreach($data['Τιμολόγια ανά Δικαιούχο'] as & $v)
-		$v = array('Τιμολόγια' => $v, 'Τιμές' => calc_sum_of_invoices_prices($v));
-}
-
-/** Συμπληρώνει όσα πεδία της δαπάνης αφέθηκαν κενά και μπορούν να λάβουν τιμή από τα συμφραζόμενα.
- * Πρέπει να κληθεί μετά την init_invoices() και init_newer_invoice_date(). */
-function init_empty_fields() {}//TODO: implement or erase
-
-
-/** Ελέγχει αν τα τιμολόγια του ίδιου δικαιούχου ανήκουν στην ίδια σύμβαση.
- * Αν ένας δικαιούχος έχει υπογράψει σύμβαση μαζί μας, όλα τα τιμολόγια που έχει εκδόσει πρέπει να
- * ανήκουν σε αυτή τη σύμβαση. Αν δεν έχει υπογράψει, δεν πρέπει κανένα τιμολόγιο να ανήκει σε αυτή
- * τη σύμβαση.
- * <p>Πρέπει να κληθεί μετά από την init_invoices_by_contractor(). */
-function check_invoices_contracts_contractors() {
-	global $data;
-	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $v) {
-		$invoices = $v['Τιμολόγια'];
-		$index = -1;
-		foreach($invoices as $invoice) {
-			$a = get_contract($invoice);
-			if ($index == -1) $index = $a;
-			else if ($a != $index)
-				trigger_error("Δεν ανήκουν όλα τα τιμολόγια του «{$invoice['Δικαιούχος']['Επωνυμία']}» στην ίδια σύμβαση", E_USER_ERROR);
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as & $per_contractor) {
+		// Υπολογισμός αξιών για όλη την ομάδα τιμολογίων και λοιπές συντομεύσεις
+		$invoice = $per_contractor[0];
+		$per_contractor = array(
+			'Τιμολόγια' => $per_contractor,
+			'Τιμές' => calc_sum_of_invoices_prices($per_contractor),
+			'Δικαιούχος' => $invoice['Δικαιούχος']);
+		// Δημιουργεί συντόμευση σύμβασης, αν υπάρχει και επιπλέον...
+		// Τα τιμολόγια του ίδιου δικαιούχου πρέπει να έχουν την ίδια σύμβαση
+		if (isset($invoice['Σύμβαση'])) {
+			$contract = $invoice['Σύμβαση'];
+			if ($contract['Τύπος Διαγωνισμού'] != 'Απευθείας Ανάθεση')
+				trigger_error('Δεν υποστηρίζονται διαγωνισμοί (ακόμα)', E_USER_ERROR);
+			$contracts[] = $contract;
+			$per_contractor['Σύμβαση'] = $contract;
+			foreach($per_contractor['Τιμολόγια'] as $invoice)
+				if (!isset($invoice['Σύμβαση']) || $contract !== $invoice['Σύμβαση'])
+					trigger_error("Δεν ανήκουν όλα τα τιμολόγια του «{$invoice['Δικαιούχος']['Επωνυμία']}» στην ίδια σύμβαση", E_USER_ERROR);
+		} else
+			foreach($per_contractor['Τιμολόγια'] as $invoice)
+				if (isset($invoice['Σύμβαση']))
+					trigger_error("Δεν ανήκουν όλα τα τιμολόγια του «{$invoice['Δικαιούχος']['Επωνυμία']}» στην ίδια σύμβαση", E_USER_ERROR);
+	}
+	// Πρέπει όλες οι συμβάσεις να χρησιμοποιούνται απο τιμολόγια
+	// Λαμβάνουμε τις τιμές προκειμένου τα κλειδιά να ξεκινάνε από 0
+	if (isset($data['Συμβάσεις'])) {
+		$contracts = array_values(array_udiff($data['Συμβάσεις'], $contracts, 'ss'));
+		$a = count($contracts);
+		if ($a) {
+			$err = get_names_key($contracts, 'Σύμβαση');
+			$err = $a == 1 ? "Η σύμβαση $err δεν χρησιμοποιείται" : "Οι συμβάσεις $err δεν χρησιμοποιούνται";
+			trigger_error("$err από τιμολόγια", E_USER_ERROR);
 		}
 	}
 }
-
 
 init_deduction_names();
 init_invoices();
 init_newer_invoice_date();
 init_invoices_by_contractor();
-check_invoices_contracts_contractors();
-init_empty_fields();
 
 /*var_dump($data);
 die;

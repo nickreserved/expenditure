@@ -37,7 +37,7 @@ function order($order, & $parts = null) {
 		. ' στη μορφή Φ.800.12/23/1234/Σ.123/31 Μαρ 19/3 ΛΜΧ/4ο Γρ.', E_USER_ERROR);
 }
 
-/** Ελέγχει την ταυτότητα ενός τιμολογίου
+/** Ελέγχει την ταυτότητα ενός τιμολογίου.
  * @param string $invoice Η ταυτότητα του τιμολογίου που πρέπει να έχει τη μορφή 1234/31-12-2019
  * @param array $date Αν η ταυτότητα του τιμολογίου είναι έγκυρη, επιστρέφει ένα array με 3 στοιχεία:
  * την ημέρα, το μήνα και το έτος έκδοσης του τιμολογίου, όλα αριθμητικά. Π.χ. 31, 12, 2019.
@@ -50,6 +50,21 @@ function invoice($invoice, & $date = null) {
 	}
 	trigger_error(($invoice ? "Το '<b>$invoice</b>' δεν είναι ταυτότητα τιμολογίου"
 		: 'Η ταυτότητα τιμολογίου πρέπει να δίνεται') . ' στη μορφή 1324/31-12-2006', E_USER_ERROR);
+}
+
+/** Ελέγχει την ταυτότητα μιας σύμβασης.
+ * @param string $contract Η ταυτότητα της σύμβασης που πρέπει να έχει τη μορφή 123/31-12-2019
+ * @param array $date Αν η ταυτότητα της σύμβασης είναι έγκυρη, επιστρέφει ένα array με 4 στοιχεία:
+ * τον αριθμό πρωτοκόλλου, την ημέρα, το μήνα και το έτος έκδοσης της σύμβασης, όλα αριθμητικά. Π.χ.
+ * 123, 31, 12, 2019.
+ * @return string Η ταυτότητα της σύμβασης, στη μορφή '123/2019' δηλαδή 'αρ. πρωτοκόλου'/'έτος' */
+function contract($contract, & $date = null) {
+	if (preg_match('/(\d+)\/(\d{1,2})-(\d{1,2})-(\d{4})/', $contract, $date)) {
+		array_shift($date);
+		return $date[0] . '/' . $date[3];
+	}
+	trigger_error(($contract ? "Το '<b>$contract</b>' δεν είναι ταυτότητα σύμβασης"
+		: 'Η ταυτότητα σύμβασης πρέπει να δίνεται') . ' στη μορφή 132/31-12-2019 (αρ. πρωτοκόλλου/ημερομηνία)', E_USER_ERROR);
 }
 
 
@@ -292,6 +307,27 @@ function iban_gui($iban) {
 }
 
 
+/** Από τη σύντμηση ενός στρατιωτικού βαθμού, επιστρέφει το βαθμό ολογράφως.
+ * @param string $a Η σύντμηση του βαθμού, στη μορφή 'ΕΠΟΠ Δνέας (ΜΧ)'
+ * @return string Ο βαθμός ολογράφως, στη μορφή 'ΕΠΟΠ Δεκανέας (ΜΧ)' */
+function fullrank($a) {
+	$find = array(
+		'Στρτης', 'Δνεας', 'Δνέας', 'Λχιας', 'Λχίας', 'Επχιας', 'Επχίας', 'Αλχιας', 'Αλχίας',
+		'Ανθστης', 'Ανθστής', 'Ανθλγος', 'Ανθλγός', 'Ανθλχος', 'Υπλγος', 'Υπλγός', 'Υπλχος',
+		'Λγος', 'Λγός', 'Ιλχος', 'Ίλχος', 'Τχης', 'Επχος', 'Ανχης', 'Σχης', 'Τξχος', 'Υπτγος',
+		'Αντγος', 'Στγος', 'Στγός'
+	);
+	$replace = array(
+		'Στρατιώτης', 'Δεκανέας', 'Δεκανέας', 'Λοχίας', 'Λοχίας', 'Επιλοχίας', 'Επιλοχίας',
+		'Αρχιλοχίας', 'Αρχιλοχίας', 'Ανθυπασπιστής', 'Ανθυπασπιστής',
+		'Ανθυπολοχαγός', 'Ανθυπολοχαγός', 'Ανθυπίλαρχος', 'Υπολοχαγός', 'Υπολοχαγός', 'Υπίλαρχος',
+		'Λοχαγός', 'Λοχαγός', 'Ίλαρχος', 'Ίλαρχος', 'Ταγματάρχης', 'Επίλαρχος', 'Αντισυνταγματάρχης',
+		'Συνταγματάρχης', 'Ταξίαρχος', 'Υποστράτηγος', 'Αντιστράτηγος', 'Στρατηγός', 'Στρατηγός'
+	);
+	return str_replace($find, $replace, $a);
+}
+
+
 /** Ελέγχει αν η ημερομηνία δόθηκε σωστά και την επιστρέφει, αλλιώς πυροδοτεί σφάλμα.
  * @param string $a Ημερομηνία στη μορφή '31 Δεκ 19'
  * @return string Το $a αν η ημερομηνία είναι στη σωστή μορφή */
@@ -302,13 +338,15 @@ function chk_date($a) { parse_date($a); return $a; }
  * @return array Ημερομηνία της μορφής ('31', '12', '2019') */
 function parse_date($a) {
 	$m = explode(' ', $a, 3);
-	$m[1] = get_month($m[1]);
-	$curyear = date('Y');
-	// Αν το έτος δίνεται διψήφιο, τότε αν το έτος + 2000 > τρέχον_έτος + 3, προσθέτουμε 1900 αλλιώς 2000
-	if ($m[2] >= 0 && $m[2] < 100 || $m[2] >= 1900 && $m[2] < $curyear + 3) {
-		if ($m[2] < 100)
-			$m[2] += 1997 + $m[2] > $curyear ? 1900 : 2000;
-		if (checkdate($m[1], $m[0], $m[2])) return $m;
+	if (count($m) == 3) {
+		$m[1] = get_month($m[1]);
+		$curyear = date('Y');
+		// Αν το έτος δίνεται διψήφιο, τότε αν το έτος + 2000 > τρέχον_έτος + 3, προσθέτουμε 1900 αλλιώς 2000
+		if ($m[2] >= 0 && $m[2] < 100 || $m[2] >= 1900 && $m[2] < $curyear + 3) {
+			if ($m[2] < 100)
+				$m[2] += 1997 + $m[2] > $curyear ? 1900 : 2000;
+			if (checkdate($m[1], $m[0], $m[2])) return $m;
+		}
 	}
 	trigger_error(($a ? "Το '<b>$a</b>' δεν είναι ημερομηνία" : 'Οι ημερομηνίες πρέπει να δίνονται') . " στη μορφή π.χ. '20 Μαρ 19'");
 }
@@ -319,7 +357,8 @@ function parse_date($a) {
 function get_month($month) {
 	$months = array(
 		'Ιαν' => 1, 'Φεβ' => 2, 'Μαρ' => 3, 'Απρ' => 4, 'Μαι' => 5, 'Ιουν' => 6,
-		'Ιουλ' => 7, 'Αυγ' => 8, 'Σεπ' => 9, 'Οκτ' => 10, 'Νοε' => 11, 'Δεκ' => 12);
+		'Ιουλ' => 7, 'Αυγ' => 8, 'Σεπ' => 9, 'Οκτ' => 10, 'Νοε' => 11, 'Δεκ' => 12,
+		'Μάρ' => 3, 'Μαϊ' => 5, 'Μάι' => 5, 'Ιούν' => 6, 'Ιούλ' => 7, 'Αύγ' => 8, 'Νοέ' => 11);
 	if (isset($months[$month])) return $months[$month];
 }
 
@@ -495,11 +534,34 @@ function get_invoice_category($category) {
 /** Επιστρέφει true αν η κατηγορία του τιμολογίου είναι προμήθειας.
  * @param string $category Η κατηγορία του τιμολογίου
  * @return boolean Η κατηγορία του τιμολογίου είναι προμήθεια */
-function is_supply($category) { return $category == 'SUPPLIES' || $category == 'LIQUID_FUEL'; }
+function is_supply($category) { return $category == 'Προμήθεια υλικών' || $category == 'Προμήθεια υγρών καυσίμων'; }
+
+/** Επιστρέφει τον τύπο διαγωνισμού που έγινε για το τιμολόγιο.
+ * @param array $invoice Το τιμολόγιο
+ * @return string Ο τύπος του διαγωνισμού ή 'Απευθείας Ανάθεση' */
+function get_invoice_tender_type($invoice) {
+	return isset($invoice['Σύμβαση']) ? $invoice['Σύμβαση']['Τύπος Διαγωνισμού'] : 'Απευθείας Ανάθεση';
+}
+
+/** Έλεγχος αν υπάρχει στη δαπάνη απευθείας ανάθεση.
+ * @return bool Υπάρχει στη δαπάνη απευθείας ανάθεση */
+function has_direct_assignment() { return has_tender_type('Απευθείας Ανάθεση'); }
+
+/** Έλεγχος αν υπάρχει στη δαπάνη συγκεκριμένος τύπος διαγωνισμού.
+ * @param string type Ο τύπος του διαγωνισμού
+ * @return bool Υπάρχει στη δαπάνη ο δοσμένος τύπος διαγωνισμού */
+function has_tender_type($type) {
+	global $data;
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+		if (get_invoice_tender_type($per_contractor) == $type) return true;
+	}
+	return false;
+}
 
 /** Επιστρέφει το πιο πρόσφατο timestamp τιμολογίου.
  * @param array $invoices Λίστα τιμολογίων
- * @return int|null Το timestamp του πιο πρόσφατου τιμολογίου ή null αν δεν υπάρχουν τιμολόγια */
+ * @return int|null Το timestamp του πιο πρόσφατου τιμολογίου ή null αν δεν υπάρχουν τιμολόγια ή δεν
+ * έχει οριστεί η ταυτότητα κανενός από αυτά */
 function get_newer_invoice_timestamp($invoices) {
 	$a = null;
 	foreach($invoices as $invoice)
@@ -512,70 +574,142 @@ function get_newer_invoice_timestamp($invoices) {
 	return $a;
 }
 
-/** Επιστρέφει τις συμβάσεις των τιμολογίων.
- * @param array $invoice Τιμολόγιο
- * @return array Σύμβαση του δοσμένου τιμολογίου ή κενό array */
-function get_contract($invoice) {
-	global $data;
-	return isset($invoice['Σύμβαση']) ? $data['Συμβάσεις'][$invoice['Σύμβαση']] : array();
-}
-
-
 /** Επιστρέφει σε κείμενο, όλα τα ονόματα ενός array με στοιχεία.
  * @param array $a Η λίστα με τα στοιχεία. Δεν μπορεί να είναι άδεια.
  * @param string $key Το κλειδί, για κάθε στοιχείο, με το όνομα του στοιχείου
  * @return string Τα ονόματα των στοιχείων του array χωρισμένα με ',' εκτός από τα τελευταία 2 που
  * είναι χωρισμένα με 'και' */
-function get_names($a, $key) {
+function get_names_key($a, $key) { return get_names_func($a, function($b) use($key) { return $b[$key]; }); }
+
+/** Επιστρέφει σε κείμενο, όλα τα ονόματα ενός array.
+ * @param array $a Η λίστα με τα ονόματα. Δεν μπορεί να είναι άδεια.
+ * @return string Τα ονόματα του array χωρισμένα με ',' εκτός από τα τελευταία 2 που είναι χωρισμένα
+ * με 'και' */
+function get_names($a) { return get_names_func($a, function($b) { return $b; }); }
+
+/** Επιστρέφει σε κείμενο, όλα τα ονόματα ενός array με στοιχεία.
+ * @param array $a Η λίστα με τα στοιχεία. Δεν μπορεί να είναι άδεια.
+ * @param callable $func Συνάρτηση που επιστρέφει το όνομα για κάθε στοιχείο του array
+ * @return string Τα ονόματα των στοιχείων του array χωρισμένα με ',' εκτός από τα τελευταία 2 που
+ * είναι χωρισμένα με 'και' */
+function get_names_func($a, $func) {
 	$n = count($a);
 	$r = '';
 	for ($z = 0; $z < $n - 2; ++$z)
-		$r .= $a[$z][$key] . ', ';
-	if ($n > 1) $r .= $a[$n - 2][$key] . ' και ';
-	$r .= $a[$n - 1][$key];
+		$r .= $func($a[$z]) . ', ';
+	if ($n > 1) $r .= $func($a[$n - 2]) . ' και ';
+	$r .= $func($a[$n - 1]);
 	return $r;
 }
 
+/** Επιστρέφει το γένος ενός ουσιαστικού ή επιθέτου.
+ * Είναι πιθανό το γένος να επιστραφεί εσφαλμένο.
+ * @param string $txt Κείμενο του οποίου η πρώτη λέξη διαχωρίζεται με κενό με το υπόλοιπο κείμενο
+ * και για την οποία λέξη θα βρεθεί το γένος
+ * @return int 0 αν η πρώτη λέξη είναι αρσενικού γένους, 1 αν είναι θυλικού, 2 αν είναι ουδέτερου
+ * και -1 αν δε μπορεί να προσδιοριστεί */
+function gender($txt) {
+	$txt = explode(' ', $txt, 2);
+	$txt = $txt[0];
+	switch(strtolower(substr($txt, -1))) {
+		case 'ς':
+		case 'σ': return 0;
+		case 'α': // Εκτός από θυλικό θα μπορούσε να είναι και ουδέτερο
+		case 'ά': // π.χ. προσάναμα
+		case 'η':
+		case 'ή': return 1;
+		case 'ο':
+		case 'ό':
+		case 'ι':
+		case 'ί': return 2;
+		default: return -1;
+	}
+}
+
+/** Επιστρέφει το άρθρο ενός ουσιαστικού ή επιθέτου.
+ * @param int $gender 0 για αρσενικό γένος, 1 για θυλικό, 2 για ουδέτερο και -1 για απροσδιόριστο
+ * @param int $inflection 0 για ονομαστική, 1 για γενική, 2 για αιτιατική και 3 για κλιτική
+ * @param bool $on false για άρθρο και true για 'στου', 'στον', 'στης', 'στην', 'στο'
+ * @return string Το άρθρο */
+function article($gender, $inflection, $on = false) {
+	if ($on)
+		switch($gender) {
+			case 1:
+				switch($inflection) {
+					case 1: return 'στης';
+					case 2: return 'στην';
+				}
+				break;
+			case 2:
+				switch($inflection) {
+					case 1: return 'στου';
+					case 2: return 'στο';
+				}
+				break;
+			default:	// αρσενικά και απροσδιόριστα
+				switch($inflection) {
+					case 1: return 'στου';
+					case 2: return 'στον';
+				}
+				break;
+		}
+	else
+		switch($gender) {
+			case 1:
+				switch($inflection) {
+					case 0: return 'η';
+					case 1: return 'της';
+					case 2: return 'την';
+				}
+				break;
+			case 2:
+				switch($inflection) {
+					case 0: return 'το';
+					case 1: return 'του';
+					case 2: return 'το';
+				}
+				break;
+			default:	// αρσενικά και απροσδιόριστα
+				switch($inflection) {
+					case 0: return 'ο';
+					case 1: return 'του';
+					case 2: return 'τον';
+				}
+				break;
+		}
+}
 
 /** Επιστρέφει έναν τίτλο για έναν δικαιούχο της μορφής 'προμηθευτής'.
  * @param array $invoices Μια λίστα τιμολογίων από την οποία θα αποφασιστεί αν είναι προμηθευτής,
  * εργολάβος ή υπηρεσία
  * @param int $inflection 0 για ονομαστική, 1 για γενική, 2 για αιτιατική και 3 για κλιτική
- * @param int $article 0 χωρίς άρθρο, 1 για άρθρο και 2 για 'στου', 'στον', 'στης', 'στην'
+ * @param int $article null χωρίς άρθρο, false για άρθρο και true για 'στου', 'στον', 'στης', 'στην'
  * @return string Ο τίτλος του δικαιούχου, με τη μορφή που ζητήθηκε */
 function get_contractor_title($invoices, $inflection, $article) {
-	$c = 0;
+	/*TODO: Οι περιπτώσεις είναι:
+	 * Προμήθεια υλικών (όλα): προμηθευτής
+	 * Παροχή υπηρεσιών (όλα) και όχι Ιδιωτικός Τομέας: υπηρεσία (ΔΕΗ, ΟΤΕ)
+	 * Παροχή υπηρεσιών και όχι έργο: Μηχανουργείο, Ηλεκτρολόγος
+	 * Μίσθωση Ακινήτων:
+	 * Παροχή υπηρεσιών και έργο: ανάδοχος (Κατασκευή έργου, Σύνταξη ή επίβλεψη μελέτης) */
+	$name = 'προμηθευτής'; $gender = 0;
 	foreach($invoices as $invoice)
 		if (!is_supply($invoice['Κατηγορία'])) {
-			$c = $invoice['Δικαιούχος']['Τύπος'] == 'PRIVATE_SECTOR' ? 1 : 2;
+			if ($invoice['Δικαιούχος']['Τύπος'] == 'Ιδιωτικός Τομέας') $name = 'ανάδοχος';
+			else { $name = 'υπηρεσία'; $gender = 1; }
 			break;
 		}
-	switch($article) {
-		case 1:
-			switch($inflection) {
-				case 0: $article = array('ο ', 'η '); break;
-				case 1: $article = array('του ', 'της '); break;
-				case 2: $article = array('του ', 'την '); break;
-				default: goto def;
-			}
-			break;
-		case 2:
-			switch($inflection) {
-				case 1: $article = array('στου ', 'στης '); break;
-				case 2: $article = array('στον ', 'στην '); break;
-				default: goto def;
-			}
-			break;
-		default:
-def:		$article = array(null, null);
-	}
-	switch($c) {
-		case 0: return $article[0] . inflection('προμηθευτής', $inflection);
-		case 1: return $article[0] . inflection('ανάδοχος', $inflection);
-		case 2: return $article[1] . inflection('υπηρεσία', $inflection);
-	}
+	$name = inflection($name, $inflection);
+	if (isset($article)) $article = article($gender, $inflection, $article);
+	return isset($article) ? "$article $name" : $name;
 }
 
+/** Υλοποίηση τελεστή spaceship (&lt;=&gt;) στο PHP 5.
+ * Ισοδύναμο με $a &lt;=&gt; $b.
+ * @param mixed $a Τιμή
+ * @param mixed $b Τιμή
+ * @return int 0 αν είναι ίσα, -1 αν $a &lt; $b και 1 αν $a &gt; $b */
+function ss($a, $b) { return $a === $b ? 0 : ($a < $b ? -1 : 1); }
 
 //TODO: Δεν χρησιμοποιούνται
 
@@ -594,7 +728,7 @@ function get_invoices_with_category($invoices, $type, $invert = false) {
 
 /** Επιστρέφει φιλτραρισμένα τα τιμολόγια με συγκεκριμένο τύπο δικαιούχου.
  * @param array $invoices Λίστα τιμολογίων
- * @param string $type Ο τύπος του δικαιούχου, όπως δίνεται στο πρόγραμμα (π.χ. 'PRIVATE_SECTOR')
+ * @param string $type Ο τύπος του δικαιούχου, όπως δίνεται στο πρόγραμμα (π.χ. 'Ιδιωτικός Τομέας')
  * @return array Λίστα τιμολογίων με το δοσμένο τύπο δικαιούχου * /
 function get_invoices_with_contractor_type($invoices, $type) {
 	$b = array();

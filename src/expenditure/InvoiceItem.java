@@ -135,10 +135,24 @@ final class InvoiceItem implements VariableSerializable, TableRecord {
 	/** Το πιο συχνά χρησιμοποιούμενο ΦΠΑ. */
 	static final private byte DEFAULT_VAT = 24;
 
-	/** Θέτει το ΦΠΑ του είδους σε 0. Καλείται από το τιμολόγιο. */
-	void setVAT0() { vat = 0; calc(); }
-	/** Θέτει το ΦΠΑ του είδους σε κάτι διαφορετικό από το 0. Καλείται από το τιμολόγιο. */
-	void setVATnot0() { vat = DEFAULT_VAT; calc(); }
+	/** Θέτει το ΦΠΑ του είδους σε 0.
+	 * Καλείται από το τιμολόγιο.
+	 * @return Πραγματοποιήθηκε αλλαγή */
+	boolean setVAT0() {
+		if (vat != 0) {
+			vat = 0; calc();
+			return true;
+		} else return false;
+	}
+	/** Θέτει το ΦΠΑ του είδους σε κάτι διαφορετικό από το 0.
+	 * Καλείται από το τιμολόγιο.
+	 * @return Πραγματοποιήθηκε αλλαγή */
+	boolean setVATnot0() {
+		if (vat == 0) {
+			vat = DEFAULT_VAT; calc();
+			return true;
+		} else return false;
+	}
 
 	/** Θέτει το ποσοστό ΦΠΑ του είδους.
 	 * Αν έχουμε αυτόματους υπολογισμούς, το κάνει με βάση τα υπόλοιπα στοιχεία της δαπάνης.

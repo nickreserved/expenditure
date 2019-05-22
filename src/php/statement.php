@@ -25,7 +25,7 @@ function statement($data) { ?>
 {\fs20 Ημερομηνία Γέννησης:}\cell <?=$data ? chk_date($data['Ημερομηνία Γέννησης']) : null?>\cell\row
 {\fs20 Τόπος Γέννησης:}\cell <?=rtf($data['Τόπος Γέννησης'])?>\cell\row
 {\fs20 ΑΔΤ:}\cell <?=rtf($data['Αριθμός Ταυτότητας'])?>\cell\row
-{\fs20 Τηλέφωνο:}\cell <?=isset($data['Τηλέφωνο']) ? rtf($data['Τηλέφωνο']) : null?>\cell\row
+{\fs20 Τηλέφωνο:}\cell <?=rtf($data['Τηλέφωνο'])?>\cell\row
 {\fs20 Τόπος Κατοικίας\line (Πόλη, Οδός, Αριθμός, ΤΚ):}\cell <?=rtf($data['Διεύθυνση Κατοικίας'])?>\cell\row
 {\fs20 e-mail:}\cell <?=isset($data['e-mail']) ? rtf($data['e-mail']) : null?>\cell\row
 
@@ -71,8 +71,8 @@ function statement_common($function) {
 
 	if (isset($data['Τιμολόγια']))		// Το $data απευθύνεται στη δαπάνη
 		foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-			$v = $per_contractor['Τιμολόγια'][0]['Δικαιούχος'];
-			if ($v['Τύπος'] == 'PRIVATE_SECTOR') {
+			$v = $per_contractor['Δικαιούχος'];
+			if ($v['Τύπος'] == 'Ιδιωτικός Τομέας') {
 				$v['Ημερομηνία Έκδοσης'] =
 						strftime('%d %b %y', get_newer_invoice_timestamp($per_contractor['Τιμολόγια']));
 				$function($v);
