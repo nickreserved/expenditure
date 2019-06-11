@@ -1,6 +1,5 @@
 package expenditure;
 
-import static expenditure.ContentItem.ΔγηΣυγκρότησηςΕπιτροπών;
 import util.PhpSerializer.Node;
 import util.PhpSerializer.VariableFields;
 import util.PhpSerializer.VariableSerializable;
@@ -117,39 +116,31 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 		office           = node.getField(H[7]).getString();
 		operatorTitle    = node.getField(H[8]).getString();
 		phone            = node.getField(H[9]).getString();
-		commander        = getPerson(node.getField(H[10]));
-		deputy_commander = getPerson(node.getField(H[11]));
-		operator         = getPerson(node.getField(H[12]));
-		accountant       = getPerson(node.getField(H[13]));
+		commander        = Person.create(node.getField(H[10]));
+		deputy_commander = Person.create(node.getField(H[11]));
+		operator         = Person.create(node.getField(H[12]));
+		accountant       = Person.create(node.getField(H[13]));
 		orderCommittee   = node.getField(H[14]).getString();
 		orderCommitteeId = node.getField(H[15]).getString();
-		supplyChief      = getPerson(node.getField(H[16]));
-		supplyMemberA    = getPerson(node.getField(H[17]));
-		supplyMemberB    = getPerson(node.getField(H[18]));
-		serviceChief     = getPerson(node.getField(H[19]));
-		serviceMemberA   = getPerson(node.getField(H[20]));
-		serviceMemberB   = getPerson(node.getField(H[21]));
-		tenderChief      = getPerson(node.getField(H[22]));
-		tenderMemberA    = getPerson(node.getField(H[23]));
-		tenderMemberB    = getPerson(node.getField(H[24]));
-		objectionChief   = getPerson(node.getField(H[25]));
-		objectionMemberA = getPerson(node.getField(H[26]));
-		objectionMemberB = getPerson(node.getField(H[27]));
-	}
-
-	/** Αρχικοποιεί ένα πρόσωπο από έναν node δεδομένων του unserialize().
-	 * @param node Ο node δεδομένων
-	 * @returns Το πρόσωπο, ή null αν προέκυψε σφάλμα */
-	static Person getPerson(Node node) {
-		try { return new Person(node); }
-		catch(Exception e) { return null; }
+		supplyChief      = Person.create(node.getField(H[16]));
+		supplyMemberA    = Person.create(node.getField(H[17]));
+		supplyMemberB    = Person.create(node.getField(H[18]));
+		serviceChief     = Person.create(node.getField(H[19]));
+		serviceMemberA   = Person.create(node.getField(H[20]));
+		serviceMemberB   = Person.create(node.getField(H[21]));
+		tenderChief      = Person.create(node.getField(H[22]));
+		tenderMemberA    = Person.create(node.getField(H[23]));
+		tenderMemberB    = Person.create(node.getField(H[24]));
+		objectionChief   = Person.create(node.getField(H[25]));
+		objectionMemberA = Person.create(node.getField(H[26]));
+		objectionMemberB = Person.create(node.getField(H[27]));
 	}
 
 	/** Ονόματα πεδίων αποθήκευσης. */
 	static final String[] H = {
 		"Ελέγχουσα Αρχή", "Σχηματισμός", "Μονάδα Πλήρες", "Μονάδα", "Έδρα", "Διεύθυνση", "Τ.Κ.",
 		"Γραφείο", "Ιδιότητα Αξκου", "Τηλέφωνο", "Δκτης", "ΕΟΥ", "Αξκος Γραφείου", "Δχστης",
-		ΔγηΣυγκρότησηςΕπιτροπών.toString(), "ΑΔΑ Δγης Συγκρότησης Επιτροπών",
+		"Δγη Συγκρότησης Επιτροπών", "ΑΔΑ Δγης Συγκρότησης Επιτροπών",
 		"Πρόεδρος Παραλαβής Προμηθειών", "Α Μέλος Παραλαβής Προμηθειών", "Β Μέλος Παραλαβής Προμηθειών",
 		"Πρόεδρος Παραλαβής Υπηρεσιών", "Α Μέλος Παραλαβής Υπηρεσιών", "Β Μέλος Παραλαβής Υπηρεσιών",
 		"Πρόεδρος Διαγωνισμών", "Α Μέλος Διαγωνισμών", "Β Μέλος Διαγωνισμών",

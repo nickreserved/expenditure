@@ -18,6 +18,30 @@ function init_deduction_names() {
 	$data['Κρατήσεις'] = $a;
 }
 
+/** Προετοιμάζει τις συμβάσεις.
+ * Σε διαγωνισμούς, ο νικητής ορίζεται με index στη λίστα διαγωνιζόμενων. Αυτό απαιτεί τροποποίηση. */
+function init_contracts() {
+	global $data;
+	foreach($data['Συμβάσεις'] as & $contract) {
+		// Τα κενά πεδία των συμβάσεων συμπληρώνονται
+		if (!isset($contract['Τίτλος'])) $contract['Τίτλος'] = $data['Τίτλος'];
+		if ($contract['Τύπος Διαγωνισμού'] != 'Απευθείας Ανάθεση') {
+			if ($contract['Τύπος Διαγωνισμού'] != 'Συνοπτικός Διαγωνισμός')
+				trigger_error('Υποστηρίζονται μόνο συνοπτικοί διαγωνισμοί (προς το παρόν)', E_USER_ERROR);
+			// Οι διαγωνιζόμενοι τουλάχιστον 3
+			if (!isset($contract['Διαγωνιζόμενοι']) || count($contract['Διαγωνιζόμενοι']) < 3)
+				trigger_error('Οι διαγωνιζόμενοι' . (isset($contract['Σύμβαση']) ? " στη σύμβαση {$contract['Σύμβαση']}" : null) . ' δεν είναι τουλάχιστον 3');
+			// To timestamp του διαγωνισμού
+			$m = parse_datetime($contract['Χρόνος Διαγωνισμού']);
+			$contract['Timestamp Διαγωνισμού'] = mktime($m[1], $m[2], 0, $m[3], $m[0], $m[4]);
+		}
+		// Σε διαγωνισμό, ο δικαιούχος αποθηκευέται σαν index, αλλά η κατάσταση
+		// αυτή μπορεί να συνυπάρχει λανθασμένα και με Απευθείας Ανάθεση
+		if (is_int($contract['Ανάδοχος']))
+			$contract['Ανάδοχος'] = $contract['Διαγωνιζόμενοι'][$contract['Ανάδοχος']];
+	}
+}
+
 /** Ενσωματώνει στα τιμολόγια τις αξίες του τιμολογίου.
  * Σε κάθε τιμολόγιο, στο πεδίο 'Τιμές', αποθηκεύεται ένα array με στοιχεία που έχουν κλειδιά
  * 'Καθαρή Αξία', 'ΦΠΑ', 'Καταλογιστέο', 'Κρατήσεις', 'Πληρωτέο', 'Καθαρή Αξία για ΦΕ', 'ΦΕ',
@@ -26,7 +50,7 @@ function init_deduction_names() {
  * επί της καθαρής αξίας του ενός.
  * <p>Σε κάθε κράτηση τιμολογίου, στο πεδίο 'Σύνολο', αποθηκεύεται το σύνολο των επιμέρους κρατήσεων
  * της κράτησης.
- * <p>Πρέπει να κληθεί μετά από την init_deduction_names(). */
+ * <p>Πρέπει να κληθεί μετά από την init_deduction_names() και την init_contracts(). */
 function init_invoices() {
 	global $data;
 	foreach($data['Τιμολόγια'] as & $invoice) {
@@ -128,8 +152,6 @@ function init_invoices_by_contractor() {
 		// Τα τιμολόγια του ίδιου δικαιούχου πρέπει να έχουν την ίδια σύμβαση
 		if (isset($invoice['Σύμβαση'])) {
 			$contract = $invoice['Σύμβαση'];
-			if ($contract['Τύπος Διαγωνισμού'] != 'Απευθείας Ανάθεση')
-				trigger_error('Δεν υποστηρίζονται διαγωνισμοί (ακόμα)', E_USER_ERROR);
 			$contracts[] = $contract;
 			$per_contractor['Σύμβαση'] = $contract;
 			foreach($per_contractor['Τιμολόγια'] as $invoice)
@@ -148,12 +170,13 @@ function init_invoices_by_contractor() {
 		if ($a) {
 			$err = get_names_key($contracts, 'Σύμβαση');
 			$err = $a == 1 ? "Η σύμβαση $err δεν χρησιμοποιείται" : "Οι συμβάσεις $err δεν χρησιμοποιούνται";
-			trigger_error("$err από τιμολόγια", E_USER_ERROR);
+			trigger_error("$err από τιμολόγια");
 		}
 	}
 }
 
 init_deduction_names();
+if (isset($data['Συμβάσεις'])) init_contracts();
 init_invoices();
 init_newer_invoice_date();
 init_invoices_by_contractor();

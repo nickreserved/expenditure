@@ -1,106 +1,219 @@
 <?php
 require_once('init.php');
 require_once('header.php');
+
+if (!function_exists('contents_subfolder')) {
+
+/** Εξάγει την εγγραφή ενός υποφακέλου.
+ * @param array $content_item Η καταχώρηση περιεχομένων
+ * @return Ο αριθμός υποφακέλου στη μορφή 'Α2' */
+function contents_subfolder($content_item) {
+	$name = $content_item['Δικαιολογητικό'];
+	$pos = strpos($name, '»', 13);
+	$countA = substr($name, 12, $pos - 12);
+	$name = substr($name, $pos + 3);
+	echo '\cell\cell\b\line ' . $countA . '\cell\line ' . $name . '\b0\cell\cell\row' . PHP_EOL;
+	return $countA;
+}
+
+/** Εξάγει τις εγγραφές των τιμολογίων. */
+function contents_invoices() {
+	global $data, $count, $countA;
+	foreach($data['Τιμολόγια'] as $invoice)
+		echo ++$count . '\cell ' . rtf($invoice['Δικαιούχος']['Επωνυμία']) . '\cell ' . $countA
+				. '\cell Τιμολόγιο ' . invoice($invoice['Τιμολόγιο']) . '\cell\cell\row' . PHP_EOL;
+}
+
+/** Εξάγει τις εγγραφές των πρωτοκόλλων οριστικής ποιοτικής και ποσοτικής παραλαβής. */
+function contents_acceptance_protocol() {
+	global $data;
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor)
+		if (isset($per_contractor['Σύμβαση'])) {
+			$flags = 0;	// FLAGS: 1: Προμήθεια Υλικών, 2: Παροχή Υπηρεσιών
+			foreach($per_contractor['Τιμολόγια'] as $invoice) {
+				$flags |= is_supply($invoice['Κατηγορία']) ? 1 : 2;
+				if ($flags == 3) break;
+			}
+			if ($flags) {
+				$f = function($a) use($per_contractor) {
+					global $count, $unit, $countA;
+					echo ++$count . '\cell ' . $unit . '\cell ' . $countA
+							. '\cell Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής '
+							. $a . ' «' . rtf($per_contractor['Δικαιούχος']['Επωνυμία'])
+							. '»\cell\cell\row' . PHP_EOL;
+				};
+				if ($flags & 1) $f('Προμηθειών');
+				if ($flags & 2) $f('Υπηρεσιών');
+			}
+		}
+}
+
+/** Εξάγει τις εγγραφές των βεβαιώσεων παραλαβής. */
+function contents_acceptance_affirmation() {
+	global $data;
+	$flags = 0;	// FLAGS: 1: Προμήθεια Υλικών, 2: Παροχή Υπηρεσιών
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor)
+		if (!isset($per_contractor['Σύμβαση']))
+			foreach($per_contractor['Τιμολόγια'] as $invoice) {
+				$flags |= is_supply($invoice['Κατηγορία']) ? 1 : 2;
+				if ($flags == 3) break 2;
+			}
+	if ($flags) {
+		$f = function($a) {
+			global $count, $unit, $countA;
+			echo ++$count . '\cell ' . $unit . '\cell ' . $countA . '\cell Βεβαίωση Παραλαβής '
+					. $a . '\cell\cell\row' . PHP_EOL;
+		};
+		if ($flags & 1) $f('Προμηθειών');
+		if ($flags & 2) $f('Υπηρεσιών');
+	}
+}
+
+/** Εξάγει τις εγγραφές των αποσπασμάτων ποινικών μητρώων. */
+function contents_criminal_record() {
+	global $data, $count, $countA;
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+		$contractor = $per_contractor['Δικαιούχος'];
+		if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας' && isset($per_contractor['Σύμβαση']))
+			echo ++$count . '\cell ' . rtf($contractor['Επωνυμία']) . '\cell ' . $countA
+				. '\cell Απόσπασμα Ποινικού Μητρώου\cell\cell\row' . PHP_EOL;
+	}
+}
+
+/** Εξάγει τις εγγραφές των υπεύθυνων δηλώσεων.
+ * @param array $content_item Η καταχώρηση περιεχομένων */
+function contents_statement($content_item) {
+	global $data, $count, $countA;
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+		$contractor = $per_contractor['Δικαιούχος'];
+		if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας')
+			echo ++$count . '\cell ' . rtf($contractor['Επωνυμία']) . '\cell ' . $countA
+				. '\cell ' . rtf($content_item['Δικαιολογητικό']) . '\cell\cell\row' . PHP_EOL;
+	}
+}
+
+/** Εξάγει τις εγγραφές των φορολογικών και ασφαλιστικών ενημεροτήτων. */
+function contents_tax_insurrance_currency() {
+	global $data, $count, $countA;
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+		$contractor = $per_contractor['Δικαιούχος'];
+		if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
+			$mixed = $per_contractor['Τιμές']['Καταλογιστέο'];
+			if ($mixed > 1500)
+				echo ++$count . '\cell ' . rtf($contractor['Επωνυμία']) . '\cell ' . $countA
+					. '\cell Φορολογική Ενημερότητα\cell\cell\row' . PHP_EOL;
+			if ($mixed > 3000 || $per_contractor['Τιμές']['Καθαρή Αξία'] > 2500)
+				echo ++$count . '\cell ' . rtf($contractor['Επωνυμία']) . '\cell ' . $countA
+					. '\cell Ασφαλιστική Ενημερότητα\cell\cell\row' . PHP_EOL;
+		}
+	}
+}
+
+/** Εξάγει τις εγγραφές των συμβάσεων. */
+function contents_contract() {
+	global $data, $count, $countA, $unit;
+	if (isset($data['Συμβάσεις']))
+		foreach($data['Συμβάσεις'] as $contract)
+			echo ++$count . '\cell ' . $unit . '\cell ' . $countA . '\cell Σύμβαση '
+					. contract($contract['Σύμβαση']) . ' με «' . rtf($contract['Ανάδοχος']['Επωνυμία'])
+					. '»\cell\cell\row' . PHP_EOL;
+}
+
+/** Εξάγει τις εγγραφές διαταγών.
+ * @param array $content_item Η καταχώρηση περιεχομένων
+ * @param string $order Η ταυτότητα της διαταγής */
+function contents_order($content_item, $order) {
+	$b = null;
+	$line2 = '\par ' . order($order, $b);
+	contents_default_low($content_item, $b[5], $line2);
+}
+
+/** Εξάγει μια γενική εγγραφή.
+ * @param array $content_item Η καταχώρηση περιεχομένων */
+function contents_default($content_item) {
+	global $unit;
+	$issuer = orelse($content_item, 'Εκδότης', $unit);
+	contents_default_low($content_item, $issuer, null);
+}
+
+/** Εξάγει μια γενική εγγραφή.
+ * @param array $content_item Η καταχώρηση περιεχομένων
+ * @param string $issuer Ο εκδότης της διαταγής
+ * @param string $line2 μια δεύτερη γραμμή κάτω από την βασική περιγραφή της καταχώρησης */
+function contents_default_low($content_item, $issuer, $line2) {
+	global $count, $countA;
+	$c = $content_item['Πλήθος'] > 1 ? " (x{$content_item['Πλήθος']})" : '';
+	echo ++$count . '\cell ' . $issuer . '\cell ' . $countA . '\cell ' . $content_item['Δικαιολογητικό']
+			. $c . $line2 . '\cell\cell\row' . PHP_EOL;
+}
+
+/** Εξάγει μια βεβαίωση μη χρέωσης, ή ένα ΑΔΔΥ.
+ * @param array $content_item Η καταχώρηση περιεχομένων */
+function contents_debit_affirmation($content_item) {
+	global $data;
+	foreach($data['Τιμολόγια'] as $invoice)
+		if (is_supply($invoice['Κατηγορία'])) {
+			contents_default($content_item);
+			break;
+		}
+}
+
+}
+
+
+
+// Συντομεύσεις
+$unit = rtf($data['Μονάδα']);
 ?>
 
 \sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
-\pard\plain\fs24\ul\qc ΦΥΛΛΟ\line ΚΑΤΑΧΩΡΗΣΗΣ ΕΓΓΡΑΦΩΝ\par\par
+\pard\plain\sa113\qc\fs24\b ΦΥΛΛΟ ΚΑΤΑΧΩΡΗΣΗΣ ΕΓΓΡΑΦΩΝ\par
+\qj Τίτλος Δαπάνης: \b0{\ul <?=rtf($data['Τίτλος'])?>}\par
 
-\pard\plain\tx397\tqr\tx10050
-\trowd\fs23\trpaddfl3\trpaddl57\trpaddfr3\trpaddr57
-\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx10206
-
-<?
+\pard\plain\fs22
+\trowd\trhdr
+<?php ob_start();	// Buffer με επικεφαλίδες πίνακα ?>
+\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
+\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx453
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx3288
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx3741
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx9637
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx10205
+<? $c2 = ob_get_flush(); ?>
+\qc\b Α/Α\cell ΕΚΔΟΤΗΣ\cell Α/Υ\cell ΠΕΡΙΛΗΨΗ ΕΓΓΡΑΦΟΥ\cell ΠΑΡ.\b0\cell\row
+<?php
+echo '\trowd' . $c2 . '\qj ' . PHP_EOL;
 $count = 0;		// Αρίθμηση δικαιολογητικών
-$count1 = 0;	// Αρίθμηση υποφακέλων
+$countA = null;	// Αρίθμηση υποφακέλων
 
 foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 	if (!$content_item['Καταχώρηση']) continue;
-	switch($content_item['Δικαιολογητικό']) {
-		case 'Υποφάκελος':
-			echo '\qc{\line\b ΥΠΟΦΑΚΕΛΟΣ «' . strtoupper(greeknum(++$count1)) . '»\b0}\cell\row' . PHP_EOL . '\ql ';
-			break;
-		case 'Τιμολόγια':
-			foreach($data['Τιμολόγια'] as $a)
-				echo ++$count . '.\tab Τιμολόγιο υπ\' αριθμόν ' . invoice($a['Τιμολόγιο']) . '\cell\row' . PHP_EOL;
-			break;
-		case 'Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής':
-			foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor)
-				if (isset($per_contractor['Σύμβαση'])) {
-					$c = 0;	// FLAGS: 1: Προμήθεια Υλικών, 2: Παροχή Υπηρεσιών
-					foreach($per_contractor['Τιμολόγια'] as $a) {
-						$c |= is_supply($a['Κατηγορία']) ? 1 : 2;
-						if ($c == 3) break;
-					}
-					if ($c & 1) echo ++$count . '.\tab Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής Προμηθειών «' . $per_contractor['Δικαιούχος']['Επωνυμία'] . '»\cell\row' . PHP_EOL;
-					if ($c & 2) echo ++$count . '.\tab Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής Υπηρεσιών «' . $per_contractor['Δικαιούχος']['Επωνυμία'] . '»\cell\row' . PHP_EOL;
-				}
-			break;
-		case 'Βεβαίωση Παραλαβής':
-			$c = 0;	// FLAGS: 1: Προμήθεια Υλικών, 2: Παροχή Υπηρεσιών
-			foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor)
-				if (!isset($per_contractor['Σύμβαση']))
-					foreach($per_contractor['Τιμολόγια'] as $a) {
-						$c |= is_supply($a['Κατηγορία']) ? 1 : 2;
-						if ($c == 3) break 2;
-					}
-			if ($c & 1) echo ++$count . '.\tab Βεβαίωση Παραλαβής Προμηθειών\cell\row' . PHP_EOL;
-			if ($c & 2) echo ++$count . '.\tab Βεβαίωση Παραλαβής Υπηρεσιών\cell\row' . PHP_EOL;
-			break;
-		case 'ΑΔΔΥ':
-		case 'Βεβαίωση μη Χρέωσης Υλικών':
-			foreach($data['Τιμολόγια'] as $a)
-				if (is_supply($a['Κατηγορία'])) goto def;
-			break;
-		case 'Απόσπασμα Ποινικού Μητρώου':
-			foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-				$contractor = $per_contractor['Δικαιούχος'];
-				if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας' && isset($per_contractor['Σύμβαση']))
-						echo ++$count . '.\tab Απόσπασμα Ποινικού Μητρώου «' . $contractor['Επωνυμία'] . '»\cell\row' . PHP_EOL;
-			}
-			break;
-		case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
-		case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ':
-			foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-				$contractor = $per_contractor['Δικαιούχος'];
-				if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας')
-					echo ++$count . '.\tab ' . $content_item['Δικαιολογητικό'] . ': «' . $contractor['Επωνυμία'] . '»\cell\row' . PHP_EOL;
-			}
-			break;
-		case 'Φορολογική και Ασφαλιστική Ενημερότητα':
-			foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-				$contractor = $per_contractor['Δικαιούχος'];
-				if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
-					$mixed = $per_contractor['Τιμές']['Καταλογιστέο'];
-					$a = $contractor['Επωνυμία'];
-					if ($mixed > 1500) echo ++$count . '.\tab Φορολογική Ενημερότητα: «' . $a . '»\cell\row' . PHP_EOL;
-					if ($mixed > 3000 || $per_contractor['Τιμές']['Καθαρή Αξία'] > 2500)
-						echo ++$count . '.\tab Ασφαλιστική Ενημερότητα: «' . $a . '»\cell\row' . PHP_EOL;
-				}
-			}
-			break;
-		case 'Βεβαίωση Απόδοσης ΦΕ':
-			if ($data['Τιμές']['ΦΕ']) goto def;
-			break;
-		case 'Σύμβαση':
-			if (isset($data['Συμβάσεις']))
-				foreach($data['Συμβάσεις'] as $contract)
-					echo ++$count . '.\tab Σύμβαση ' . contract($contract['Σύμβαση']) . '\cell\row' . PHP_EOL;
-			break;
-		case 'Απόφαση Απευθείας Ανάθεσης': if (!has_direct_assignment()) break; // else continue
-		case 'Απόφαση Ανάληψης Υποχρέωσης':
-		case 'Δγη Συγκρότησης Επιτροπών':
-			$content_item['Δγη'] = $data[$content_item['Δικαιολογητικό']];
-			goto def;
-def:	default:
-			$a = isset($content_item['Δγη']) ? '\line\tab (\i ' . order($content_item['Δγη']) . '\i0 )' : '';
-			$c = $content_item['Πλήθος'] > 1 ? "\\tab (x{$content_item['Πλήθος']})" : '';
-			echo ++$count . '.\tab ' . $content_item['Δικαιολογητικό'] . $a . $c . '\cell\row' . PHP_EOL;
-	}
+	$name = $content_item['Δικαιολογητικό'];
+	if (substr($content_item['Δικαιολογητικό'], 0, 12) == 'ΥΠΟΦΑΚΕΛΟΣ «') $countA = contents_subfolder($content_item);
+	else
+		switch($name) {
+			case 'Τιμολόγια': contents_invoices(); break;
+			case 'Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής': contents_acceptance_protocol(); break;
+			case 'Βεβαίωση Παραλαβής': contents_acceptance_affirmation(); break;
+			case 'ΑΔΔΥ':
+			case 'Βεβαίωση μη Χρέωσης Υλικών': contents_debit_affirmation($content_item); break;
+			case 'Απόσπασμα Ποινικού Μητρώου': contents_criminal_record(); break;
+			case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
+			case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ': contents_statement($content_item); break;
+			case 'Φορολογική και Ασφαλιστική Ενημερότητα': contents_tax_insurrance_currency(); break;
+			case 'Σύμβαση': contents_contract(); break;
+			case 'Απόφαση Απευθείας Ανάθεσης': if (!has_direct_assignment()) break; // else continue
+			case 'Απόφαση Ανάληψης Υποχρέωσης':
+			case 'Δγη Συγκρότησης Επιτροπών': contents_order($content_item, $data[$content_item['Δικαιολογητικό']]); break;
+			default: contents_default($content_item); break;
+		}
 }
 
-/*	/*elseif ($d == 'Πρωτόκολλο Εκτελεσθέντων Εργασιών' && !count($data['Εργασίες']));
+/*			case 'Βεβαίωση Απόδοσης ΦΕ':
+				if ($data['Τιμές']['ΦΕ']) goto def;
+				break;
+	/*elseif ($d == 'Πρωτόκολλο Εκτελεσθέντων Εργασιών' && !count($data['Εργασίες']));
 	elseif ($d == 'Πρωτόκολλο Εκτελεσθέντων Εργασιών' && (!$bills_buy || empty($data['Εργασίες'])));
 	elseif (!$bills_buy && (
 					$d == 'Πρωτόκολλο Αγοράς και Διάθεσης' ||
@@ -112,9 +225,11 @@ def:	default:
 					$d == 'Βεβαίωση Επισκευαστικού Οργάνου'));
 	elseif ($d == 'Σύμβαση' && !isset($bills_info['ΑνάλυσηΚρατήσεωνΣεΕυρώ']['ΕΑΑΔΗΣΥ']));*/
 
-unset($a, $c, $content_item, $contract, $contractor, $count, $count1, $mixed, $per_contractor);
+unset($c2, $content_item, $count, $countA, $name, $unit);
 ?>
 
 \sect
 
-<?php rtf_close(__FILE__);
+<?php
+
+rtf_close(__FILE__);

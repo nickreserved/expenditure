@@ -29,6 +29,14 @@ final class Person implements VariableSerializable, TableRecord {
 		unit = node.getField(H[2]).getString();
 	}
 
+	/** Αρχικοποιεί ένα πρόσωπο από έναν node δεδομένων του unserialize().
+	 * @param node Ο node δεδομένων
+	 * @return Το πρόσωπο ή null αν ο node είναι null
+	 * @throws Exception Αν ο node δεν είναι αντικείμενο, ούτε null */
+	static Person create(Node node) throws Exception {
+		return node.isExist() && !node.isNull() ? new Person(node) : null;
+	}
+
 	/** Ονόματα πεδίων αποθήκευσης.
 	 * Αν αλλάξει οτιδήποτε, πρέπει να αναπροσαρμοστεί η κλήση MainFrame.createPersonnelPanel() */
 	static final String[] H = { "Βαθμός", "Ονοματεπώνυμο", "Μονάδα" };

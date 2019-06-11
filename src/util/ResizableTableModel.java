@@ -1,21 +1,21 @@
 package util;
 
 import expenditure.MainFrame;
+import static expenditure.MainFrame.ICON_DELETE;
+import static expenditure.MainFrame.ICON_NEW;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import static java.awt.event.KeyEvent.VK_DELETE;
 import static java.awt.event.KeyEvent.VK_INSERT;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import static java.awt.event.MouseEvent.BUTTON3;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
 import static javax.swing.JOptionPane.YES_NO_OPTION;
@@ -36,46 +36,37 @@ import util.ResizableTableModel.TableRecord;
 
 /** Το μοντέλο του πίνακα που αλλάζει αριθμό εγγραφών-γραμμών.
  * @param <T> Ο τύπος δεδομένων της εγγραφής-γραμμής του μοντέλου του πίνακα */
-public class ResizableTableModel<T extends TableRecord> implements TableModel {
-	/** Ο παροχέας εγγραφών. */
-	protected final TableData<T> d;
-	/** Λίστα με τις επικεφαλίδες των στηλών του πίνακα. */
-	private final List<String> header;
-
-	/** Δημιουργία του μοντέλου του πίνακα.
-	 * @param data Ο παροχέας εγγραφών
-	 * @param headers Οι επικεφαλίδες των στηλών του πίνακα */
-	public ResizableTableModel(TableData<T> data, String[] headers) {
-		this(data, Arrays.asList(headers));
-	}
-
-	/** Δημιουργία του μοντέλου του πίνακα.
-	 * @param data Ο παροχέας εγγραφών
-	 * @param headers Οι επικεφαλίδες των στηλών του πίνακα */
-	public ResizableTableModel(TableData<T> data, List<String> headers) {
-		d = data; header = headers;
-	}
+public abstract class ResizableTableModel<T extends TableRecord> implements TableModel {
+	/** Επιστρέφει μια λίστα με εγγραφές.
+	 * Κάθε εγγραφή, είναι μια γραμμή στον πίνακα.
+	 * @return Η λίστα με τις εγγραφές. */
+	abstract protected List<T> get();
+	/** Επιστρέφει μια νέα κενή εγγραφή.
+	 * @return Η νέα κενή εγγραφή. */
+	abstract protected T createNew();
+	/** Διαγράφει ένα στοιχείο από τη λίστα.
+	 * Η χρησιμότητά της είναι να εκτελεί επιπρόσθετο κώδικα όταν ένα στοιχείο διαγράφεται.
+	 * @param index Ο δείκτης του στοιχείου που θα διαγραφεί, στη λίστα */
+	protected void remove(int index) { get().remove(index); }
 
 	/** Οι listeners για κάθε αλλαγή στα δεδομένα του πίνακα. */
 	private final ArrayList<TableModelListener> listeners = new ArrayList<>();
 	@Override final public void addTableModelListener(TableModelListener l) { listeners.add(l); }
 	@Override final public void removeTableModelListener(TableModelListener l) { listeners.remove(l); }
 	@Override public Class getColumnClass(int columnIndex) { return String.class; }
-	@Override public int getColumnCount() { return header.size(); }
-	@Override public int getRowCount() { return d.get() == null ? 0 : d.get().size() + 1; }
-	@Override public String getColumnName(int col) { return header.get(col); }
+	@Override public int getRowCount() { return get() == null ? 0 : get().size() + 1; }
 	@Override public boolean isCellEditable(int row, int col) { return true; }
 	@Override public Object getValueAt(int row, int col) {
-		List<T> ar = d.get();
+		List<T> ar = get();
 		return row < ar.size() ? ar.get(row).getCell(col) : null;
 	}
 
 	@Override public void setValueAt(Object obj, int row, int col) {
-		List<T> ar = d.get();
+		List<T> ar = get();
 		TableModelEvent e = null;
 		// Table must append a row with a new object
 		if (row == ar.size()) {
-			ar.add(d.createNew());
+			ar.add(createNew());
 			e = new TableModelEvent(this, row, row, ALL_COLUMNS, INSERT);
 		}
 		// set cell data to object
@@ -86,7 +77,7 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 		} catch (RuntimeException ex) {}
 		// remove row if object is empty
 		if (tv.isEmpty()) {
-			d.remove(row);
+			remove(row);
 			if (e == null || e.getType() == UPDATE)
 				e = new TableModelEvent(this, row, row, ALL_COLUMNS, DELETE);
 			else if (e.getType() == INSERT) e = null;	// INSERT και DELETE εξουδετερώνονται
@@ -109,7 +100,7 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 	/** Ταξινόμηση των δεδομένων του πίνακα ως προς μια στήλη.
 	 * @param column Το index της στήλης ως προς την οποία θα ταξινομηθούν τα δεδομένα του πίνακα */
 	private void sort(int column) {
-		List<T> ar = d.get();
+		List<T> ar = get();
 		if (ar == null) return;
 		Collections.sort(ar,	// Ταξινόμηση των εγγραφών κατά τη στήλη που κάναμε κλικ, αύξουσα σειρά
 			(TableRecord c, TableRecord b) -> {
@@ -125,9 +116,9 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 	/** Προσθήκη κενής εγγραφής πάνω από δεδομένη εγγραφή.
 	 * @param row Το index της εγγραφής-γραμμής πάνω από την οποία θα προστεθεί η νέα κενή εγγραφή */
 	private void insertRow(int row) {
-		List<T> ar = d.get();
+		List<T> ar = get();
 		if (row >= 0 && row < ar.size() && !ar.get(row).isEmpty() && (row == 0 || !ar.get(row - 1).isEmpty())) {
-			ar.add(row, d.createNew());
+			ar.add(row, createNew());
 			fireTableDataChanged(new TableModelEvent(this, row, row, ALL_COLUMNS, INSERT));
 		}
 	}
@@ -137,12 +128,12 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 	private void deleteRows(int[] rows) {
 		if (rows.length == 0) return;
 		int length = rows.length;
-		List<T> ar = d.get();
+		List<T> ar = get();
 		if (rows[rows.length - 1] >= ar.size()) --length;
 		if (length > 0 && YES_OPTION == showConfirmDialog(null, "Θέλετε να διαγράψω τις επιλεγμένες εγγραφές;",
 				"Διαγραφή εγγραφών", YES_NO_OPTION, WARNING_MESSAGE)) {
 			// Αντίστροφη διαγραφή, αλλιώς θα έχουμε index out of bounds
-			for (int z = length - 1; z >= 0; --z) d.remove(rows[z]);
+			for (int z = length - 1; z >= 0; --z) remove(rows[z]);
 			fireTableDataChanged(new TableModelEvent(this, rows[0], rows[length - 1], ALL_COLUMNS, DELETE));
 		}
 	}
@@ -159,14 +150,36 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 
 		// Popup menu για εισαγωγή και διαγραφή γραμμής
 		JPopupMenu popupMenu = new JPopupMenu();
-		if (insert)
-			popupMenu.add(createMenuItem("Εισαγωγή κενής γραμμής", "new", VK_INSERT, (ActionEvent e)
-					-> ((ResizableTableModel) t.getModel()).insertRow(t.getSelectedRow())));
-		popupMenu.add(createMenuItem("Διαγραφή επιλεγμένων γραμμών", "close", VK_DELETE, (ActionEvent e)
-				-> ((ResizableTableModel) t.getModel()).deleteRows(t.getSelectedRows())));
+
+		// Εισαγωγή γραμμής
+		if (insert) {
+			popupMenu.add(createMenuItem("Εισαγωγή κενής γραμμής", ICON_NEW, VK_INSERT,
+					e -> ((ResizableTableModel) t.getModel()).insertRow(t.getSelectedRow())));
+			t.addKeyListener(new KeyAdapter() {
+				@Override public void keyPressed(KeyEvent e) {
+					if (e.getKeyCode() == KeyEvent.VK_INSERT) {
+						e.consume();
+						((ResizableTableModel) t.getModel()).insertRow(t.getSelectedRow());
+					}
+				}
+			});
+		}
+
+		// Διαγραφή γραμμής
+		popupMenu.add(createMenuItem("Διαγραφή επιλεγμένων γραμμών", ICON_DELETE, VK_DELETE,
+				e -> ((ResizableTableModel) t.getModel()).deleteRows(t.getSelectedRows())));
+		t.addKeyListener(new KeyAdapter() {
+			@Override public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+					e.consume();
+					((ResizableTableModel) t.getModel()).deleteRows(t.getSelectedRows());
+				}
+			}
+		});
+
 		t.setComponentPopupMenu(popupMenu);
 
-		t.addMouseListener(new MouseListener() {
+		t.addMouseListener(new MouseAdapter() {
 			@Override public void mousePressed(MouseEvent e) {
 				// Στο δεξί κλικ εμφανίζεται το popup menu και πρέπει να είναι
 				// επιλεγμένη μια γραμμή οπωσδήποτε.
@@ -176,23 +189,6 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 					t.setRowSelectionInterval(currentRow, currentRow);
 				}
 			}
-			@Override public void mouseReleased(MouseEvent e) {}
-			@Override public void mouseExited(MouseEvent e) {}
-			@Override public void mouseEntered(MouseEvent e) {}
-			@Override public void mouseClicked(MouseEvent e) {}
-		});
-
-		t.addKeyListener(new KeyListener() {
-			@Override public void keyPressed(KeyEvent e) {
-				// Αν υπάρχουν 2 menu items, τότε είναι το insert και το delete. Αλλιώς είναι μόνο το delete
-				if (e.getKeyCode() == KeyEvent.VK_INSERT && t.getComponentPopupMenu().getComponentCount() == 2) {
-					e.consume(); ((ResizableTableModel) t.getModel()).insertRow(t.getSelectedRow());
-				} else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-					e.consume(); ((ResizableTableModel) t.getModel()).deleteRows(t.getSelectedRows());
-				}
-			}
-			@Override public void keyReleased(KeyEvent e) {}
-			@Override public void keyTyped(KeyEvent e) {}
 		});
 
 		if (sort)
@@ -214,7 +210,7 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 	 * @param key Ένα πλήκρο ως συντόμευση της επιλογής μενού
 	 * @param action Ένας listener που θα εκτελείται όταν επιλεγεί η επιλογή από το μενου
 	 * @return Η επιλογή του μενού */
-	static private JMenuItem createMenuItem(String name, String icon, int key, ActionListener action) {
+	static private JMenuItem createMenuItem(String name, Icon icon, int key, ActionListener action) {
 		JMenuItem i = MainFrame.createMenuItem(name, icon, action);
 		i.setAccelerator(getKeyStroke(key, 0));
 		return i;
@@ -286,22 +282,5 @@ public class ResizableTableModel<T extends TableRecord> implements TableModel {
 		 * αντικείμενο να θεωρηθεί κενό. Αυτό είναι χρήσιμο όταν π.χ. σβήσουμε όλα τα σημαντικά
 		 * πεδία ενός αντικειμένου σε ένα πίνακα, τότε η γραμμή του πίνακα διαγράφεται αυτόματα. */
 		boolean isEmpty();
-	}
-
-	/** Ο παροχέας εγγραφών για πίνακα.
-	 * Κληρονομεί από το ArrayData προκειμένου να χρησιμοποιείται ο ίδιος παροχέας τόσο σε πίνακα όσο
-	 * και σε ComboBox.
-	 * @param <T> Ο τύπος δεδομένων της εγγραφής-γραμμής του μοντέλου του πίνακα */
-	public interface TableData<T extends TableRecord> {
-		/** Επιστρέφει μια λίστα με εγγραφές.
-		 * @return Η λίστα με τις εγγραφές. */
-		List<T> get();
-		/** Επιστρέφει μια νέα κενή εγγραφή.
-		 * @return Η νέα κενή εγγραφή. */
-		default T createNew() { return null; }
-		/** Διαγράφει ένα στοιχείο από τη λίστα.
-		 * Η χρησιμότητά της είναι να εκτελεί επιπρόσθετο κώδικα όταν ένα στοιχείο διαγράφεται.
-		 * @param index Ο δείκτης του στοιχείου που θα διαγραφεί, στη λίστα */
-		default void remove(int index) { get().remove(index); }
 	}
 }

@@ -8,7 +8,6 @@ import static expenditure.MainFrame.showExceptionMessage;
 import static java.awt.Dialog.ModalityType.APPLICATION_MODAL;
 import java.awt.Dimension;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -26,12 +25,10 @@ import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
-import static javax.swing.event.TableModelEvent.UPDATE;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
@@ -54,11 +51,15 @@ final class StatementDialog extends JDialog {
 	static final private String EXT = ".δήλωση";
 	/** Το component με το περιεχόμενο της δήλωσης. */
 	private final JTextPane text = new JTextPane();
-	/** Ο πίνακας με τα στοιχεία της δήλωσης. */
-	private final JTable table = createTable(new PropertiesTableModel((int index) -> data.statement,
-			new String[] { Statement.H[0], PersonInfo.H[0], PersonInfo.H[1], PersonInfo.H[2],
-			PersonInfo.H[3], PersonInfo.H[4], PersonInfo.H[5], PersonInfo.H[6],
-			PersonInfo.H[7] + " (Έδρα, Διεύθυνση, ΤΚ)", PersonInfo.H[8], Statement.H[1] }, 1, true));
+	/** Το μοντέλο δεδομένων του πίνακα με τα στοιχεία της δήλωσης. */
+	PropertiesTableModel model = new PropertiesTableModel(
+			new String[] {
+				Statement.H[0], PersonInfo.H[0], PersonInfo.H[1], PersonInfo.H[2],
+				PersonInfo.H[3], PersonInfo.H[4], PersonInfo.H[5], PersonInfo.H[6],
+				PersonInfo.H[7] + " (Έδρα, Διεύθυνση, ΤΚ)", PersonInfo.H[8], Statement.H[1]
+			}, 1) {
+		@Override public TableRecord get(int index) { return data.statement; }
+	};
 
 	/** Αρχικοποίηση του παραθύρου της δήλωσης.
 	 * @param w Το πατρικό παράθυρο ή null */
@@ -68,7 +69,7 @@ final class StatementDialog extends JDialog {
 		((JPanel) getContentPane()).setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 		Box bv = Box.createVerticalBox();
 
-		bv.add(table);
+		bv.add(createTable(model));
 		bv.add(Box.createVerticalStrut(5));
 
 		text.setText(data.statement.statement);
@@ -91,18 +92,17 @@ final class StatementDialog extends JDialog {
 		Box bh = Box.createHorizontalBox();
 		bh.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
 		JButton button = new JButton("Εξαγωγή");
-		button.addActionListener((ActionEvent e) ->
-				exportReport("Υπεύθυνη Δήλωση.php", data.statement, null));
+		button.addActionListener(e -> exportReport(data.statement, "statement_gui"));
 		bh.add(button);
 		bh.add(Box.createHorizontalGlue());
 
 		button = new JButton("Αποθήκευση");
-		button.addActionListener((ActionEvent e) -> save());
+		button.addActionListener(e -> save());
 		bh.add(button);
 		bh.add(Box.createHorizontalStrut(5));
 
 		button = new JButton("Άνοιγμα");
-		button.addActionListener((ActionEvent e) -> open());
+		button.addActionListener(e -> open());
 		bh.add(button);
 		bv.add(bh);
 
@@ -153,7 +153,7 @@ final class StatementDialog extends JDialog {
 			data.statement = new Statement(PhpSerializer.unserialize(new FileInputStream(file), UTF_8));
 			data.statement.file = file;
 			text.setText(data.statement.statement);
-			table.tableChanged(new TableModelEvent(table.getModel(), 0, table.getModel().getRowCount(), 1, UPDATE));
+			model.fireTableDataChanged(new TableModelEvent(model, 0, model.getRowCount(), 1));
 		} catch (FormatException e) {
 			showExceptionMessage(this, e, "Άνοιγμα αρχείου",
 				"Το αρχείο που προσπαθείτε να ανοίξετε δεν είναι σωστό αρχείο δήλωσης");
@@ -202,7 +202,7 @@ final class StatementDialog extends JDialog {
 
 		/** Εξαγωγή της δήλωσης μαζί με το όνομα αρχείου. */
 		VariableSerializable saveWithFilename() {
-			return (VariableFields fields) -> {
+			return fields -> {
 				serialize(fields);
 				if (file != null) fields.add(H[3], file.getAbsolutePath());
 			};

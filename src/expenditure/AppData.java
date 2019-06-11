@@ -103,7 +103,7 @@ final class AppData implements Serializable {
 		// αποθηκεύσει και το αρχείο στο οποίο αυτή σώζεται. Επειδή όμως οι δαπάνες δεν αποθηκεύουν
 		// το αρχείο τους οι ίδιες, ο παρακάτω κώδικας αποθηκεύει τις ανοικτές δαπάνες σε ένα map με
 		// κλειδιά τα ονόματα αρχείων τους.
-		Serializable expendituresWithFilename = (PhpSerializer exp) -> {
+		Serializable expendituresWithFilename = exp -> {
 			Fields f = new Fields(exp, expenditures.size());
 			for (Expenditure i : expenditures)
 				f.write(i.file.getCanonicalPath(), i.save());
@@ -112,9 +112,9 @@ final class AppData implements Serializable {
 				.write (H[0], version)
 				.write (H[1], expendituresWithFilename)
 				.write (H[2], activeExpenditure)
-				.writeV(H[3], deductions)
-				.writeV(H[4], personnel)
-				.writeV(H[5], contractors)
+				.writeListVariableSerializable(H[3], deductions)
+				.writeListVariableSerializable(H[4], personnel)
+				.writeListVariableSerializable(H[5], contractors)
 				.write (H[6], unitInfo)
 				.write (H[7], statement.saveWithFilename())
 				.write (H[8], skin)

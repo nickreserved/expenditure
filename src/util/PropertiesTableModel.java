@@ -2,7 +2,6 @@ package util;
 
 import static java.awt.Color.WHITE;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -18,86 +17,52 @@ import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.TableModelEvent;
+import static javax.swing.event.TableModelEvent.HEADER_ROW;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 
 /** Μοντέλο πίνακα 2 στηλών, με την πρώτη στήλη να είναι οι επικεφαλίδες και τη δεύτερη οι τιμές. */
-public class PropertiesTableModel implements TableModel {
+abstract public class PropertiesTableModel implements TableModel {
 	/** Οι επικεφαλίδες των γραμμών. */
 	private final String[] vHeader;
 	/** Οι επικεφαλίδες των στηλών. Αν είναι null δεν υπάρχουν επικεφαλίδες. */
 	private final String[] hHeader;
-	/** Ο παροχέας του αντικειμένου του οποίου τα δεδομένα εμφανίζονται στη δεύτερη κ στήλη. */
-	private final TableColumnData d;
-	/** Ποιές γραμμές είναι επεξεργάσιμες.
-	 * Κάθε τιμή του array αντιστοιχεί σε μια γραμμή του πίνακα. Αν η τιμή είναι true, η γραμμή του
-	 * πίνακα (πλην επικεφαλίδας) είναι επεξεργάσιμη. Αν το array είναι null, καμία γραμμή δεν είναι
-	 * επεξεργάσιμη. */
-	private final boolean[] editable;
 
 	/** Αρχικοποίηση του μοντέλου του πίνακα.
-	 * @param dt Ο παροχέας του αντικειμένου του οποίου τα δεδομένα εμφανίζονται στη δεύτερη και εξής, στήλη
 	 * @param vHeader Οι επικεφαλίδες των γραμμών
 	 * @param hHeader Οι επικεφαλίδες των στηλών, χωρίς επικεφαλίδα για τη στήλη των επικεφαλίδων
-	 * γραμμών.
-	 * @param editable Ποιές γραμμές είναι επεξεργάσιμες. Κάθε τιμή του array αντιστοιχεί σε μια
-	 * γραμμή του πίνακα. Αν η τιμή είναι true, η γραμμή του πίνακα (πλην επικεφαλίδας) είναι
-	 * επεξεργάσιμη. Αν οι τιμές του array είναι λιγότερες από τις γραμμές του πίνακα, για τις
-	 * υπόλοιπες γραμμές χρησιμοποιείται η τελευταία τιμή του array. Αν οι τιμές του array είναι 0,
-	 * όλες οι γραμμές του πίνακα είναι επεξεργάσιμες. Αν το array είναι null, καμία γραμμή δεν
-	 * είναι επεξεργάσιμη. */
-	public PropertiesTableModel(TableColumnData dt, String[] vHeader, String[] hHeader, boolean[] editable) {
-		d = dt; this.vHeader = vHeader; this.hHeader = hHeader; this.editable = editable;
+	 * γραμμών. */
+	public PropertiesTableModel(String[] vHeader, String[] hHeader) {
+		this.vHeader = vHeader; this.hHeader = hHeader;
 	}
 
 	/** Αρχικοποίηση του μοντέλου του πίνακα.
 	 * Ο πίνακας δεν έχει επικεφαλίδες στηλών.
-	 * @param dt Ο παροχέας του αντικειμένου του οποίου τα δεδομένα εμφανίζονται στη δεύτερη και εξής, στήλη
 	 * @param vHeader Οι επικεφαλίδες των γραμμών
-	 * @param columns Ο αριθμός των στηλών του πίνακα, χωρίς τη στήλη επικεφαλίδων.
-	 * @param editable Ποιές γραμμές είναι επεξεργάσιμες. Κάθε τιμή του array αντιστοιχεί σε μια
-	 * γραμμή του πίνακα. Αν η τιμή είναι true, η γραμμή του πίνακα (πλην επικεφαλίδας) είναι
-	 * επεξεργάσιμη. Αν οι τιμές του array είναι λιγότερες από τις γραμμές του πίνακα, για τις
-	 * υπόλοιπες γραμμές χρησιμοποιείται η τελευταία τιμή του array. Αν οι τιμές του array είναι 0,
-	 * όλες οι γραμμές του πίνακα είναι επεξεργάσιμες. Αν το array είναι null, καμία γραμμή δεν
-	 * είναι επεξεργάσιμη. */
-	public PropertiesTableModel(TableColumnData dt, String[] vHeader, int columns, boolean[] editable) {
-		this(dt, vHeader, new String[columns], editable);
-	}
-
-	/** Αρχικοποίηση του μοντέλου του πίνακα.
-	 * Ο πίνακας δεν έχει επικεφαλίδες στηλών.
-	 * @param dt Ο παροχέας του αντικειμένου του οποίου τα δεδομένα εμφανίζονται στη δεύτερη και εξής, στήλη
-	 * @param vHeader Οι επικεφαλίδες των γραμμών
-	 * @param columns Ο αριθμός των στηλών του πίνακα, χωρίς τη στήλη επικεφαλίδων.
-	 * @param editable Οι γραμμές του πίνακα είναι επεξεργάσιμες */
-	public PropertiesTableModel(TableColumnData dt, String[] vHeader, int columns, boolean editable) {
-		this(dt, vHeader, new String[columns], editable ? new boolean[] {} : null);
+	 * @param columns Ο αριθμός των στηλών του πίνακα, χωρίς τη στήλη επικεφαλίδων. */
+	public PropertiesTableModel(String[] vHeader, int columns) {
+		this(vHeader, new String[columns]);
 	}
 
 	@Override public int getColumnCount() { return hHeader.length + 1; }
 	@Override public int getRowCount() { return vHeader.length; }
 	@Override public String getColumnName(int col) { return col != 0 ? hHeader[col - 1] : null; }
-	@Override public boolean isCellEditable(int row, int col) {
-		return col != 0 && editable != null &&
-				(editable.length == 0 || editable.length <= row && editable[editable.length - 1] ||
-				editable[row]);
-	}
+	@Override public boolean isCellEditable(int row, int col) { return col != 0; }
 
 	@Override public Object getValueAt(int row, int col) {
 		if (col == 0) {
 			if (vHeader != null) return vHeader[row];
 		} else
-			try { return d.get(col - 1).getCell(row); }	// try-catch: Επιπλέον ασφάλεια
+			try { return get(col - 1).getCell(row); }	// try-catch: Επιπλέον ασφάλεια
 			catch(RuntimeException e) {}
 		return null;
 	}
 
 	@Override public void setValueAt(Object obj, int row, int col) {
 		try {	// try-catch: Επιπλέον ασφάλεια
-			d.get(col).setCell(row, obj);
+			get(col).setCell(row, obj);
 			TableModelEvent e = new TableModelEvent(this, row, row, col);
 			listeners.forEach(i -> i.tableChanged(e));
 		}
@@ -110,6 +75,18 @@ public class PropertiesTableModel implements TableModel {
 	private final ArrayList<TableModelListener> listeners = new ArrayList<>();
 	@Override public void addTableModelListener(TableModelListener l) { listeners.add(l); }
 	@Override public void removeTableModelListener(TableModelListener l) { listeners.remove(l); }
+
+	/** Ενημερώνει όλους τους listeners ότι όλα τα δεδομένα του πίνακα άλλαξαν.
+	 * @param event Το event δεδομένων */
+	public void fireTableDataChanged(TableModelEvent event) {
+		listeners.stream().forEach(i -> i.tableChanged(event));
+	}
+
+	/** Ενημερώνει όλους τους listeners ότι όλα τα δεδομένα του πίνακα άλλαξαν. */
+	public void fireTableDataChanged() { fireTableDataChanged(new TableModelEvent(this)); }
+
+	/** Ενημερώνει όλους τους listeners ότι η επικεφαλίδα και όλα τα δεδομένα του πίνακα άλλαξαν. */
+	public void fireTableChanged() { fireTableDataChanged(new TableModelEvent(this, HEADER_ROW)); }
 
 
 	/** Επιστρέφει ένα πίνακα με την πρώτη στήλη ως επικεφαλίδες.
@@ -184,13 +161,10 @@ public class PropertiesTableModel implements TableModel {
 	}
 
 
-	/** Ο παροχέας μιας εγγραφής για πίνακα-στήλη. */
-	public interface TableColumnData {
-		/** Επιστρέφει μια εγγραφή.
-		 * @param index Το index του αντικειμένου
-		 * @return Η εγγραφή */
-		TableRecord get(int index);
-	}
+	/** Ο παροχέας μιας εγγραφής για πίνακα-στήλη.
+	 * @param index Το index του αντικειμένου
+	 * @return Η εγγραφή */
+	public abstract TableRecord get(int index);
 
 
 	/** Λειτουργικότητα επεξεργασίας κελιών του πίνακα με μοντέλο PropertiesTableModel.
@@ -203,7 +177,7 @@ public class PropertiesTableModel implements TableModel {
 		/** Το ενεργό component επεξεργασίας κελιών. */
 		private Component current;
 		/** Ένας ActionListener που τερματίζει την επεξεργασία του κελιού. */
-		private final ActionListener actionListener = (ActionEvent e) -> stopCellEditing();
+		private final ActionListener actionListener = e -> stopCellEditing();
 
 		/** Αρχικοποίηση της λειτουργικότητας.
 		 * @param components Λίστα με τα components επεξεργασίας κελιών, ένα για κάθε γραμμή του πίνακα.

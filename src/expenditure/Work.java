@@ -48,7 +48,7 @@ final class Work implements VariableSerializable, TableRecord {
 		if (name != null)         fields.add (H[0], name);
 		if (quantity != 0)        fields.add (H[1], quantity);
 		if (unit != null)         fields.add (H[2], unit);
-		if (!materials.isEmpty()) fields.addV(H[3], materials);
+		if (!materials.isEmpty()) fields.addListVariableSerializable(H[3], materials);
 	}
 
 	@Override public Object getCell(int index) {

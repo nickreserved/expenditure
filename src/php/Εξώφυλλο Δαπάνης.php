@@ -24,4 +24,6 @@ require_once('header.php');
 
 \sect
 
-<?php rtf_close(__FILE__); ?>
+<?php
+
+rtf_close(__FILE__);

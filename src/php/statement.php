@@ -22,7 +22,7 @@ function statement($data) { ?>
 {\fs20 Ονοματεπώνυμο:}\cell <?=rtf($data['Ονοματεπώνυμο'])?>\cell\row
 {\fs20 Ονοματεπώνυμο Πατέρα:}\cell <?=rtf($data['Ονοματεπώνυμο Πατέρα'])?>\cell\row
 {\fs20 Ονοματεπώνυμο Μητέρας:}\cell <?=rtf($data['Ονοματεπώνυμο Μητέρας'])?>\cell\row
-{\fs20 Ημερομηνία Γέννησης:}\cell <?=$data ? chk_date($data['Ημερομηνία Γέννησης']) : null?>\cell\row
+{\fs20 Ημερομηνία Γέννησης:}\cell <?=isset($data['Ημερομηνία Γέννησης']) && $data['Ημερομηνία Γέννησης'] != '' ? chk_date($data['Ημερομηνία Γέννησης']) : null?>\cell\row
 {\fs20 Τόπος Γέννησης:}\cell <?=rtf($data['Τόπος Γέννησης'])?>\cell\row
 {\fs20 ΑΔΤ:}\cell <?=rtf($data['Αριθμός Ταυτότητας'])?>\cell\row
 {\fs20 Τηλέφωνο:}\cell <?=rtf($data['Τηλέφωνο'])?>\cell\row
@@ -44,13 +44,14 @@ function statement($data) { ?>
 \trowd\trpaddl0\trpaddr0\cellx4535\cellx9071
 ΘΕΩΡΗΘΗΚΕ ΓΙΑ ΤΟ\line ΓΝΗΣΙΟ ΤΗΣ ΥΠΟΓΡΑΦΗΣ\cell
 <?php
-if ($data)
-	if (isset($data['Ημερομηνία Έκδοσης'])) echo chk_date($data['Ημερομηνία Έκδοσης']);
+if (!$data || isset($data['Ημερομηνία Έκδοσης']) && $data['Ημερομηνία Έκδοσης'] == '')
+		echo '..................\line{\fs16 (Ημερομηνία)}';
+else if (isset($data['Ημερομηνία Έκδοσης']))
+		echo chk_date($data['Ημερομηνία Έκδοσης']);
 	else echo now();
-else echo '..................\line{\fs16 (Ημερομηνία)}'
 ?>
 \line\line
-Ο Δηλών:\line\line\line <?=$data ? rtf($data['Ονοματεπώνυμο']) : '............................\line{\fs16 (Ονοματεπώνυμο & Υπογραφή)}'?>\cell\row
+Ο Δηλών:\line\line\line <?=$data && $data['Ονοματεπώνυμο'] != '' ? rtf($data['Ονοματεπώνυμο']) : '............................\line{\fs16 (Ονοματεπώνυμο & Υπογραφή)}'?>\cell\row
 
 \sect
 
@@ -64,27 +65,46 @@ else echo '..................\line{\fs16 (Ημερομηνία)}'
  * @param callable $function Κλήση που επεξεργάζεται τα δεδομένα */
 function statement_common($function) {
 	global $data;
-	require_once('basic.php');
-	require_once('unserialize.php');
-	if (isset($data['Τιμολόγια'])) require_once('init.php');
-	require_once('header.php');
-
-	if (isset($data['Τιμολόγια']))		// Το $data απευθύνεται στη δαπάνη
-		foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-			$v = $per_contractor['Δικαιούχος'];
-			if ($v['Τύπος'] == 'Ιδιωτικός Τομέας') {
-				$v['Ημερομηνία Έκδοσης'] =
-						strftime('%d %b %y', get_newer_invoice_timestamp($per_contractor['Τιμολόγια']));
-				$function($v);
-			}
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+		$v = $per_contractor['Δικαιούχος'];
+		if ($v['Τύπος'] == 'Ιδιωτικός Τομέας') {
+			$v['Ημερομηνία Έκδοσης'] =
+					strftime('%d %b %y', get_newer_invoice_timestamp($per_contractor['Τιμολόγια']));
+			$function($v);
 		}
-	else $function($data);				// Το $data απευθύνεται στον δικαιούχο
+	}
 }
 
 /** Εξάγει μια υπεύθυνη δήλωση δικαιούχου.
  * @param array $data Τα δεδομένα της υπεύθυνης δήλωσης */
 function statement_contractor($data) {
+	$data['Προς'] = 'ΔΟΥ';
 	if (!isset($data['Ονοματεπώνυμο'])) $data['Ονοματεπώνυμο'] = $data['Επωνυμία'];
 	if (!isset($data['Διεύθυνση Κατοικίας'])) $data['Διεύθυνση Κατοικίας'] = $data['Διεύθυνση'];
+	statement($data);
+}
+
+/** Εξάγει μια υπεύθυνη δήλωση δικαιούχου που γνωστοποιεί το IBAN.
+ * @param array $contractor Τα δεδομένα ενός δικαιούχου */
+function statement_IBAN($contractor) {
+	$contractor['Δήλωση'] = 'Το χρηματικό ποσό που δικαιούμαι να εισπράξω σαν «{\b '
+			. rtf($contractor['Επωνυμία']) . '}», ΑΦΜ: ' . rtf($contractor['ΑΦΜ']) . ', τηλέφωνο: '
+			. rtf($contractor['Τηλέφωνο']) . ', να κατατεθεί στο λογαριασμό IBAN {\b '
+			. iban($contractor['ΙΒΑΝ']) . '} ({\b ' . bank($contractor['ΙΒΑΝ'])
+			. '}).\par Επισυνάπτεται φωτοτυπία του βιβλιαρίου καταθέσεων.';
+	statement_contractor($contractor);
+}
+
+/** Εξάγει μια υπεύθυνη δήλωση δικαιούχου ότι δε χρησιμοποιεί απόστρατο αντιπρόσωπο.
+ * @param array $contractor Τα δεδομένα ενός δικαιούχου */
+function statement_representative($contractor) {
+	$contractor['Δήλωση'] = 'Σαν «' . rtf($contractor['Επωνυμία']) . '», δε θα χρησιμοποιήσω σαν άμεσο ή έμμεσο αντιπρόσωπο, μόνιμο ή σε εφεδρεία Αξιωματικό των τριών κλάδων των Ενόπλων Δυνάμεων, εφόσον δεν έχει παρέλθει πενταετία από τον χρόνο αποστρατείας τους, σύμφωνα με την παράγραφο 12 του άρθρου 66 του ΝΔ 1400/73 (ΦΕΚ Α\' 114), όπως τροποποιήθηκε και ισχύει.';
+	statement_contractor($contractor);
+}
+
+/** Εξάγει την υπεύθυνη δήλωση της αντίστοιχης φόρμας του γραφικού περιβάλλοντος. */
+function statement_gui() {
+	global $data;
+	$data['Δήλωση'] = str_replace(array("\r\n", "\r", "\n"), '\par ', str_replace("\t", '\tab ', rtf($data['Δήλωση'])));
 	statement($data);
 }

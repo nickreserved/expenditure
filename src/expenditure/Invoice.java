@@ -72,21 +72,19 @@ final class Invoice implements VariableSerializable, TableRecord {
 	 * @throws Exception Αν ο node δεν είναι αντικείμενο */
 	Invoice(Expenditure parent, Node node) throws Exception {
 		this.parent = parent;
-		id               = node.getField(H[0]).getString();
-		type             = Type.valueOf(node.getField(H[1]).getString());
-		try { contractor = new Contractor(node.getField(H[2])); }
-		catch(Exception e) {}
-		try { deduction  = new Deduction(node.getField(H[3])); }
-		catch(Exception e) {}
-		incomeTax        = (byte) node.getField(H[4]).getInteger();
+		id         = node.getField(H[0]).getString();
+		type       = Type.valueOf(node.getField(H[1]).getString());
+		contractor = Contractor.create(node.getField(H[2]));
+		deduction  = Deduction.create(node.getField(H[3]));
+		incomeTax  = (byte) node.getField(H[4]).getInteger();
 		// Ανάγνωση σύμβασης αν υπάρχει (δίνεται με index στη λίστα συμβάσεων της δαπάνης)
-		Node n           = node.getField(H[5]);
+		Node n     = node.getField(H[5]);
 		if (n.isInteger()) {
 			int idx = (int) n.getInteger();
 			if (idx >=0 && idx < parent.contracts.size()) contract = parent.contracts.get(idx);
 		}
 		// Ανάγνωση ειδών τιμολογίου
-		n                = node.getField(H[6]);
+		n          = node.getField(H[6]);
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Για τιμολόγιο, αναμένονταν λίστα ειδών");
 			for (Node i : n.getArray())
@@ -120,7 +118,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 								fields.add (H[3], deduction);	// Οι κρατήσεις και null, εξάγονται
 								fields.add (H[4], incomeTax);	// Το ΦΕ και μηδενικό, εξάγεται
 		if (contract != null)   fields.add (H[5], parent.contracts.indexOf(contract));	// Αναφορά στη λίστα συμβάσεων
-		if (!items.isEmpty())   fields.addV(H[6], items);
+		if (!items.isEmpty())   fields.addListVariableSerializable(H[6], items);
 	}
 
 	@Override public Object getCell(int index) {
@@ -177,7 +175,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 						}
 						// Επανυπολογίζει τα τιμολόγια της νέας σύμβασης ή δικαιούχου
 						recalcInvoicesGroupFromNet();
-					}
+					} else parent.calcContents();	// Αλλαγή διαγωνισμού απαιτεί αλλαγή φύλλου καταχώρησης
 				}
 				break;
 			case 3:		// Θέτει τις κρατήσεις
@@ -376,6 +374,8 @@ final class Invoice implements VariableSerializable, TableRecord {
 		Contract cact = contract;
 		if (net <= CONTRACT_PRICE) cact = null;
 		else cact.setTenderType(net);
+		// Μετά από πιθανή αλλαγή στοιχείων σύμβασης, επανυπολογισμός φύλλου καταχώρησης
+		expenditure.calcContents();
 		// Πιθανός επανυπολογισμός για όλα τα τιμολόγια της σύμβασης
 		recalcInvoicesGroupFromNet(expenditure, pred, net, cact, contractor);
 	}
@@ -397,10 +397,12 @@ final class Invoice implements VariableSerializable, TableRecord {
 					.filter(i -> contractor.equals(i.getContractor()))
 					.findFirst().orElse(null);
 			if (contract == null) {
-				contract = new Contract(contractor);
+				contract = new Contract(expenditure, contractor);
 				expenditure.contracts.add(contract);
 			}
 			contract.setTenderType(net);
+			// Μετά από πιθανή αλλαγή στοιχείων σύμβασης, επανυπολογισμός φύλλου καταχώρησης
+			expenditure.calcContents();
 		}
 		// Πιθανός επανυπολογισμός για όλα τα τιμολόγια της σύμβασης
 		recalcInvoicesGroupFromNet(expenditure, pred, net, contract, contractor);
@@ -557,7 +559,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 					 if (financing == ARMY_BUDGET) deduction = D4_096;
 				else if (financing == OWN_PROFITS) deduction = D14_096;
 				else if (financing == PUBLIC_INVESTMENT) deduction = D0;
-			} else if (net > 2500) {
+			} else if (net > 1000) {
 				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
 						 if (financing == ARMY_BUDGET) deduction = D4_43068;
 					else if (financing == OWN_PROFITS) deduction = D14_43068;
@@ -567,7 +569,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 					else if (financing == OWN_PROFITS) deduction = D14_23068;
 					else if (financing == PUBLIC_INVESTMENT) deduction = D0_13468;
 				}
-			} else // if (net <= 2500)
+			} else // if (net <= 1000)
 				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
 						 if (financing == ARMY_BUDGET) deduction = D4_35816;
 					else if (financing == OWN_PROFITS) deduction = D14_35816;

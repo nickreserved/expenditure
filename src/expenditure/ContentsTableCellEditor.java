@@ -4,7 +4,6 @@ import static expenditure.ContentItem.ONLY_LISTED;
 import static expenditure.MainFrame.NOYES;
 import static java.awt.Color.WHITE;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
@@ -16,14 +15,13 @@ import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableCellEditor;
-import util.ResizableTableModel.TableData;
 
 /** Ο επεξεργαστής της στήλης του πλήθους του φύλλου καταχώρησης. */
-final class ContentTableCellEditor implements TableCellEditor {
+final class ContentsTableCellEditor implements TableCellEditor {
 	/** Το ενεργό combo box επεξεργασίας κελιών. */
 	final private JComboBox combo = new JComboBox();
 	/** Ο παροχέας εγγραφών. */
-	final private TableData<ContentItem> d;
+	final private ContentsTableModel model;
 	/** Λίστα με τον αριθμό των αντιγράφων των δικαιολογητικών που ορίζει ο χρήστης. */
 	static final private Byte[] COPIES = new Byte[] { 0, 1, 2, 3, 4 };
 	/** Λίστα με τις επιλογές για προκαθορισμένα δικαιολογητικά. Όχι, Ναι, Μόνο Καταχώρηση. */
@@ -33,11 +31,11 @@ final class ContentTableCellEditor implements TableCellEditor {
 
 	/** Αρχικοποίηση του επεξεργαστή κελιών του πίνακα.
 	 * Αφορά μόνο τη δεύτερη στήλη του πίνακα του φύλλου καταχώρησης.
-	 * @param data Ο παροχέας εγγραφών του πίνακα του φύλλου καταχώρησης */
-	ContentTableCellEditor(TableData<ContentItem> data) {
-		d = data;
+	 * @param model Ο παροχέας εγγραφών του πίνακα του φύλλου καταχώρησης */
+	ContentsTableCellEditor(ContentsTableModel model) {
+		this.model = model;
 		combo.setBorder(createLineBorder(WHITE, 0));
-		combo.addActionListener((ActionEvent e) -> stopCellEditing());
+		combo.addActionListener(e -> stopCellEditing());
 	}
 
 	@Override public Object getCellEditorValue() { return combo.getSelectedItem(); }
@@ -61,7 +59,7 @@ final class ContentTableCellEditor implements TableCellEditor {
 
 	@Override public Component getTableCellEditorComponent(JTable table, Object value,
 			boolean isSelected, int row, int column) {
-		List<ContentItem> lst = d.get();
+		List<ContentItem> lst = model.get();
 		Object[] list;
 		if (row == lst.size()) list = COPIES;
 		else {

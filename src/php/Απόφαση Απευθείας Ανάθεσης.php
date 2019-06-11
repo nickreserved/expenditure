@@ -6,19 +6,9 @@ require_once('header.php');
 
 if (has_direct_assignment()) {
 
-startOrder();
-if ($data['Αναρτητέα στο διαδίκτυο']) { ?>
-
-\pard\plain\qr ΑΔΑ: <?=orelse2(!$draft, $data, 'ΑΔΑ Απόφασης Απευθείας Ανάθεσης', '........')?>\par
-\pard\plain\qc{\ul{\b ΑΝΑΡΤΗΤΕΑ ΣΤΟ ΔΙΑΔΙΚΤΥΟ}}\par\par
-
-<?php } else { ?>
-
-\pard\plain\qc{\ul{\b ΜΗ ΑΝΑΡΤΗΤΕΑ ΣΤΟ ΔΙΑΔΙΚΤΥΟ}}\par\par
-
-<?php
-}
-preOrderN(ifexist2(!$draft, $data, 'Απόφαση Απευθείας Ανάθεσης'), $draft, null,
+start_35_20();
+order_publish('ΑΔΑ Απόφασης Απευθείας Ανάθεσης', $draft);
+order_header_recipients(ifexist2(!$draft, $data, 'Απόφαση Απευθείας Ανάθεσης'), $draft, null,
 		'Απόφαση Απευθείας Ανάθεσης για ' . rtf(ucwords($data['Τίτλος'])),
 		array(
 			'ΝΔ.721/70 (ΦΕΚ Α\' 251) περί «Οικονομικής Μερίμνης και Λογιστικού των Ενόπλων Δυνάμεων»',
@@ -31,7 +21,7 @@ preOrderN(ifexist2(!$draft, $data, 'Απόφαση Απευθείας Ανάθεσης'), $draft, null,
 		));
 ?>1.\tab Έχοντας υπόψη τα σχετικά:\par
 \qc{\b Α π ο φ α σ ί ζ ο υ μ ε}\par\qj
-2.\tab Την ανάθεση της πίστωσης για «<?=rtf($data['Τίτλος'])?>», όπως παρακάτω:\par
+την ανάθεση της πίστωσης για «<?=rtf($data['Τίτλος'])?>», όπως παρακάτω:\par
 <?php
 $count = count($data['Τιμολόγια ανά Δικαιούχο']) > 1 ? 1 : 0;
 $contracts = 0;
@@ -43,7 +33,7 @@ foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
 	$invoices = $per_contractor['Τιμολόγια'];
 	$contractor = $per_contractor['Δικαιούχος'];
 	echo '\tab ' . ($count ? greeknum($count++) . '.\tab ' : null);
-	echo isset($per_contractor['Σύμβαση']['Τίτλος'])
+	echo isset($per_contractor['Σύμβαση']) && $per_contractor['Σύμβαση']['Τίτλος'] != $data['Τίτλος']
 		? "Για «{$per_contractor['Σύμβαση']['Τίτλος']}» " . get_contractor_title($invoices, 2, true)
 		: ucfirst(get_contractor_title($invoices, 2, true));
 	echo " «{$contractor['Επωνυμία']}», ΑΦΜ {$contractor['ΑΦΜ']}";
@@ -55,29 +45,29 @@ foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
 \pard\plain\sb120\sa120\fi567\tx1134\tx1701\tx2268\qj
 <?php } ?>
 
-3.\tab Η ως άνω δαπάνη έχει εγκριθεί με τα παρακάτω στοιχεία:\par
+2.\tab Η ως άνω δαπάνη έχει εγκριθεί με τα παρακάτω στοιχεία:\par
 \tab α.\tab ΑΛΕ: <?=$data['ΑΛΕ']?>.\par
 \tab β.\tab Εις βάρος: <?=$data['Τύπος Χρηματοδότησης']?><?php
 if ($data['Τύπος Χρηματοδότησης'] != 'Ιδίων Πόρων')
 	echo " έτους " . date('Y', orelse($data, 'Timestamp Τελευταίου Τιμολογίου', time()));
 ?>.\par
 \tab γ.\tab Αρμοδιότητας: Ε.Φ. <?=$data['ΕΦ']?>.\par
-4.\tab Κατά τα λοιπά ισχύουν<?=$contracts ? ' οι όροι ' . ($contracts == 1 ? 'της Σύμβασης' : 'των Συμβάσεων') . ' και' : null?> οι διατάξεις του (ε) σχετικού νόμου.\par
-5.\tab Στοιχεία Αναθέτουσας Αρχής: <?=$data['Μονάδα Πλήρες']?>, διεύθυνση: <?=$data['Έδρα']?><?=isset($data['Διεύθυνση']) ? ", {$data['Διεύθυνση']}" : null?><?=isset($data['Τηλέφωνο']) ? ", τηλέφωνο: {$data['Τηλέφωνο']}" : null?><?=isset($data['ΤΚ']) ? ", Τ.Κ. {$data['ΤΚ']}" : null?>.\par
+3.\tab Κατά τα λοιπά ισχύουν<?=$contracts ? ' οι όροι ' . ($contracts == 1 ? 'της Σύμβασης' : 'των Συμβάσεων') . ' και' : null?> οι διατάξεις του (ε) σχετικού νόμου.\par
+4.\tab Στοιχεία Αναθέτουσας Αρχής: <?=get_unit_address()?>.\par
 <?php
 if ($data['Αναρτητέα στο διαδίκτυο']) { ?>
-6.\tab Η παρούσα απόφαση αναρτάται στο ΚΗΜΔΗΣ και στο ΔΙΑΥΓΕΙΑ.\par
+5.\tab Η παρούσα απόφαση αναρτάται στο ΚΗΜΔΗΣ και στο ΔΙΑΥΓΕΙΑ.\par
 
 <?php
 }
 
-postOrder($draft);
+order_footer($draft);
 
 $to = array();
 foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor)
 	if (get_invoice_tender_type($per_contractor) == 'Απευθείας Ανάθεση')
 		$to[] = get_contractor_recipient($per_contractor['Δικαιούχος']);
-recipientTableOrder($to, array($data['Μονάδα']));
+order_recipient_table($to, array($data['Μονάδα']));
 ?>
 
 \sect
@@ -85,6 +75,6 @@ recipientTableOrder($to, array($data['Μονάδα']));
 <?php
 unset($a, $pre, $pre2, $to, $c2, $categories, $contractor, $contracts, $count, $count_items, $invoice, $invoices, $item, $k, $per_contractor);
 
-rtf_close(__FILE__);
+}	// if
 
-}
+rtf_close(__FILE__);

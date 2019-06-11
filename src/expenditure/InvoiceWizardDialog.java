@@ -137,7 +137,7 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 						case 1: /*Ιδιοι πόροι*/ hold = 14.096; break;
 						//case 2: /*Π/Υ ΠΔΕ*/ hold = 0;
 					}
-				else if (net >= 2500)
+				else if (net >= 1000)
 					if (financing == 2 /*Π/Υ ΠΔΕ*/)
 						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 0.33468 : 0.13468;
 					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
@@ -156,12 +156,12 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 
 			StringBuilder sb = new StringBuilder(4096);
 			sb.append("Καθαρή Αξία: ").append(net).append("€");
-			sb.append("\nΦΠΑ: ").append(fpa ? "Προβλέπεται και το γνωρίζει ο προμηθευτής" : "0%");
+			sb.append("\nΦΠΑ: ").append(fpa ? "Προβλέπεται και το γνωρίζει ο δικαιούχος" : "0%");
 			sb.append("\nΚρατήσεις: ").append(hold).append("% της καθαρής αξίας");
 			if (hold == 0) sb.append(".");
 			else {
 				sb.append(" (").append(Math.round(net * hold) / 100.0).append("€), που βαρύνουν ");
-				if (contractor != 0 /*Ιδιώτης*/) sb.append("εμάς"); else sb.append("τον προμηθευτή");
+				if (contractor != 0 /*Ιδιώτης*/) sb.append("εμάς"); else sb.append("τον δικαιούχο");
 				sb.append("\nΚαταλογιστέο: Καθαρή Αξία");
 				if (fpa) sb.append(" + ΦΠΑ");
 				if (contractor != 0 /*Ιδιώτης*/) sb.append(" + Κρατήσεις");
@@ -209,26 +209,27 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 
 			if (contractor == 0 /*Ιδιώτης*/) {
 				if (net > 1500)
-					sb.append("\nΑπαιτείται Φορολογική Ενημερότητα του προμηθευτή"
+					sb.append("\nΑπαιτείται Φορολογική Ενημερότητα του δικαιούχου"
 							+ " για «Πληρωμή από το Δημόσιο».");
 				else if (net > 1220)
 					sb.append("Αν το καταλογιστέο είναι πάνω από 1500€, απαιτείται Φορολογική "
-							+ "Ενημερότητα του προμηθευτή για «Πληρωμή από το Δημόσιο».");
+							+ "Ενημερότητα του δικαιούχου για «Πληρωμή από το Δημόσιο».");
 				if (net > 2500)
-					sb.append("\nΑπαιτείται Ασφαλιστική Ενημερότητα του προμηθευτή."
-							+ "\nΑπαιτείται απόσπασμα ποινικού μητρώου.");
+					sb.append("\nΑπαιτείται Ασφαλιστική Ενημερότητα του δικαιούχου."
+							+ "\nΑπαιτείται απόσπασμα ποινικού μητρώου του δικαιούχου.");
 				else if (net > 2419)
 					sb.append("\nΑν το καταλογιστέο είναι πάνω από 3000€, απαιτείται "
-							+ "Ασφαλιστική Ενημερότητα του προμηθευτή.");
+							+ "Ασφαλιστική Ενημερότητα του δικαιούχου.");
 				if (net > 2500 || construction /*Κατασκευή Έργων*/)
-					sb.append("\nΑπαιτείται σύναψη σύμβασης με τον προμηθευτή.");
+					sb.append("\nΑπαιτείται σύναψη σύμβασης με τον δικαιούχο.");
 			}
 
 			if (net > 60000) sb.append("\nΑπαιτείται Δημόσιος Διαγωνισμός.");
-			else if (net > 20000) sb.append("\nΑπαιτείται Συνοπτικός Διαγωνισμός.");
+			else if (net > 20000 || construction /*Κατασκευή Έργων*/)
+				sb.append("\nΑπαιτείται Συνοπτικός Διαγωνισμός.");
 
 			if (net > 20000)
-				sb.append("\nΟ εργολάβος δεν πρέπει να έχει αριθμό καταδικαστικών αποφάσεων"
+				sb.append("\nΟ δικαιούχος δεν πρέπει να έχει αριθμό καταδικαστικών αποφάσεων"
 						+ " εργατικής φύσεως την τελευταία διετία");
 
 			tpInfo.setText(sb.toString());

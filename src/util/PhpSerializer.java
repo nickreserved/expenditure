@@ -72,18 +72,18 @@ final public class PhpSerializer {
 	 * @param out To stream στο οποίο εξάγονται τα δεδομένα του serialization
 	 * @param charset Το σετ χαρακτήρων με το οποίο θα κωδικοποιηθεί το κείμενο στο stream
 	 * @throws IOException */
-	static private void serialize(List<? extends Serializable> v, OutputStream out,
+	static private void serializeListSerializable(List<? extends Serializable> v, OutputStream out,
 			Charset charset) throws IOException {
-		new PhpSerializer(out, charset).write(v);
+		new PhpSerializer(out, charset).writeListSerializable(v);
 	}
 	/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
 	 * @param v Το array
 	 * @param out To stream στο οποίο εξάγονται τα δεδομένα του serialization
 	 * @param charset Το σετ χαρακτήρων με το οποίο θα κωδικοποιηθεί το κείμενο στο stream
 	 * @throws IOException */
-	static private void serializeV(List<? extends VariableSerializable> v, OutputStream out,
+	static private void serializeListVariableSerializable(List<? extends VariableSerializable> v, OutputStream out,
 			Charset charset) throws IOException {
-		new PhpSerializer(out, charset).writeV(v);
+		new PhpSerializer(out, charset).writeListVariableSerializable(v);
 	}
 
 	/** Αρχικοποίηση του αντικειμένου.
@@ -126,6 +126,17 @@ final public class PhpSerializer {
 		out.write('d'); out.write(':'); out.write(Double.toString(v).getBytes()); out.write(';');
 		return this;
 	}
+	/** Εξάγει έναν αριθμό.
+	 * @param v Ο αριθμός
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(Number v) throws IOException {
+		return v == null
+				? writeNull()
+				: v instanceof Float || v instanceof Double
+						? write(((Number) v).doubleValue())
+						: write(((Number) v).longValue());
+	}
 	/** Εξάγει ένα κείμενο.
 	 * @param v Το κείμενο
 	 * @return this
@@ -163,37 +174,226 @@ final public class PhpSerializer {
 		}
 		return this;
 	}
-	/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
+	/** Εξάγει ένα αντικείμενο.
+	 * @param v Το αντικείμενο
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeObject(Object v) throws IOException {
+		if (v == null) writeNull();
+		else if (v instanceof Boolean) write(((Boolean) v));
+		else if (v instanceof Float || v instanceof Double) write(((Number) v).doubleValue());
+		else if (v instanceof Number) write(((Number) v).longValue());
+		else if (v instanceof String) write((String) v);
+		else if (v instanceof Serializable) write((Serializable) v);
+		else if (v instanceof VariableSerializable) write((VariableSerializable) v);
+		else if (v instanceof List) writeList((List) v);
+		else if (v instanceof boolean[]) write((boolean[]) v);
+		else if (v instanceof byte[]) write((byte[]) v);
+		else if (v instanceof char[]) write((char[]) v);
+		else if (v instanceof short[]) write((short[]) v);
+		else if (v instanceof int[]) write((int[]) v);
+		else if (v instanceof long[]) write((long[]) v);
+		else if (v instanceof float[]) write((float[]) v);
+		else if (v instanceof double[]) write((double[]) v);
+		else if (v instanceof Boolean[]) write((Boolean[]) v);
+		else if (v instanceof Number[]) write((Number[]) v);
+		else if (v instanceof String[]) write((String[]) v);
+		else if (v instanceof Serializable[]) write((Serializable[]) v);
+		else if (v instanceof VariableSerializable[]) write((VariableSerializable[]) v);
+		else if (v instanceof Object[]) write((Object[]) v);
+		return this;
+	}
+
+	/** Εξάγει ένα στοιχείο ενός array. */
+	private interface WriteArrayElement {
+		/** Εξάγει ένα στοχείο ενός array.
+		 * @param index Το index του στοιχείου
+		 * @return Το αντικείμενο του serializer */
+		PhpSerializer writeElement(int index) throws IOException;
+	}
+	/** Εξάγει ένα array.
+	 * @param size Το μέγεθος array
+	 * @param wae Callback το οποίο εξάγει ένα στοιχείο του array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(int size, WriteArrayElement wae) throws IOException {
+		out.write('a'); out.write(':');
+		out.write(Long.toString(size).getBytes());
+		out.write(':'); out.write('{');
+		for (int z = 0; z < size; ++z) {
+			write(z);
+			wae.writeElement(z);
+		}
+		out.write('}');
+		return this;
+	}
+	/** Εξάγει ένα array από booleans.
 	 * @param v Το array
 	 * @return this
 	 * @throws IOException */
-	private PhpSerializer write(List<? extends Serializable> v) throws IOException {
-		if (v == null) writeNull();
-		else {
-			out.write('a'); out.write(':');
-			out.write(Long.toString(v.size()).getBytes());
-			out.write(':'); out.write('{');
-			for (int z = 0; z < v.size(); ++z)
-				write(z).write(v.get(z));
-			out.write('}');
-		}
-		return this;
+	private PhpSerializer write(boolean[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από ακέραιους αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(byte[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από ακέραιους αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(char[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από ακέραιους αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(short[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από ακέραιους αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(int[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από ακέραιους αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(long[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από δεκαδικούς αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(float[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από δεκαδικούς αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(double[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από booleans.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(Boolean[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> v[i] == null ? writeNull() : write(v[i]));
+	}
+	/** Εξάγει ένα array από αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(Number[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v));
+	}
+	/** Εξάγει ένα array από κείμενα.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(String[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
 	}
 	/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
 	 * @param v Το array
 	 * @return this
 	 * @throws IOException */
-	private PhpSerializer writeV(List<? extends VariableSerializable> v) throws IOException {
+	private PhpSerializer write(Serializable[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(VariableSerializable[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> write(v[i]));
+	}
+	/** Εξάγει ένα array από αντικείμενα.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer write(Object[] v) throws IOException {
+		return v == null ? writeNull() : write(v.length, i -> writeObject(v[i]));
+	}
+
+	/** Εξάγει ένα στοιχείο μιας λίστας ή ενός array.
+	 * @param T Ο τύπος του στοιχείου */
+	private interface WriteListElement<T> {
+		/** Εξάγει ένα στοχείο μιας λίστας ή ενός array.
+		 * @param v Το στοιχείο
+		 * @return Το αντικείμενο του serializer */
+		PhpSerializer writeElement(T v) throws IOException;
+	}
+	/** Εξάγει ένα array από αντικείμενα.
+	 * @param v Το array
+	 * @param wle Ένα callback που εξάγει ένα στοιχείο του array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeList(List v, WriteListElement wle) throws IOException {
 		if (v == null) writeNull();
 		else {
 			out.write('a'); out.write(':');
 			out.write(Long.toString(v.size()).getBytes());
 			out.write(':'); out.write('{');
-			for (int z = 0; z < v.size(); ++z)
-				write(z).write(v.get(z));
+			for (int z = 0; z < v.size(); ++z) {
+				write(z);
+				wle.writeElement(v.get(z));
+			}
 			out.write('}');
 		}
 		return this;
+	}
+	/** Εξάγει ένα array από αντικείμενα.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeList(List v) throws IOException {
+		return writeList(v, s -> writeObject(s));
+	}
+	/** Εξάγει ένα array από booleans.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeListBoolean(List<Boolean> v) throws IOException {
+		return writeList(v, (WriteListElement<Boolean>) s -> write(s));
+	}
+	/** Εξάγει ένα array από αριθμούς.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeListNumber(List<? extends Number> v) throws IOException {
+		return writeList(v, (WriteListElement<Number>) s -> write(s));
+	}
+	/** Εξάγει ένα array από κείμενα.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeListString(List<String> v) throws IOException {
+		return writeList(v, (WriteListElement<String>) s -> write(s));
+	}
+	/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeListSerializable(List<? extends Serializable> v) throws IOException {
+		return writeList(v, (WriteListElement<Serializable>) s -> write(s));
+	}
+	/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
+	 * @param v Το array
+	 * @return this
+	 * @throws IOException */
+	private PhpSerializer writeListVariableSerializable(List<? extends VariableSerializable> v) throws IOException {
+		return writeList(v, (WriteListElement<VariableSerializable>) (VariableSerializable s) -> write(s));
 	}
 
 	/** Λειτουργικότητα εξαγωγής πεδίων από Serializable αντικείμενα.
@@ -265,13 +465,31 @@ final public class PhpSerializer {
 			serializer.write(field).write(v);
 			return this;
 		}
-		/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
+		/** Εξάγει ένα array από booleans.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Το array
 		 * @return this
 		 * @throws IOException */
-		public Fields write(String field, List<? extends Serializable> v) throws IOException {
-			serializer.write(field).write(v);
+		public Fields writeListBoolean(String field, List<Boolean> v) throws IOException {
+			serializer.write(field).writeListBoolean(v);
+			return this;
+		}
+		/** Εξάγει ένα array από αριθμούς.
+		 * @param field Το όνομα του πεδίου
+		 * @param v Το array
+		 * @return this
+		 * @throws IOException */
+		public Fields writeListNumber(String field, List<? extends Number> v) throws IOException {
+			serializer.write(field).writeListNumber(v);
+			return this;
+		}
+		/** Εξάγει ένα array από κείμενα.
+		 * @param field Το όνομα του πεδίου
+		 * @param v Το array
+		 * @return this
+		 * @throws IOException */
+		public Fields writeListString(String field, List<String> v) throws IOException {
+			serializer.write(field).writeListString(v);
 			return this;
 		}
 		/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
@@ -279,8 +497,17 @@ final public class PhpSerializer {
 		 * @param v Το array
 		 * @return this
 		 * @throws IOException */
-		public Fields writeV(String field, List<? extends VariableSerializable> v) throws IOException {
-			serializer.write(field).writeV(v);
+		public Fields writeListSerializable(String field, List<? extends Serializable> v) throws IOException {
+			serializer.write(field).writeListSerializable(v);
+			return this;
+		}
+		/** Εξάγει ένα array από αντικείμενα που υποστηρίζουν php serialization.
+		 * @param field Το όνομα του πεδίου
+		 * @param v Το array
+		 * @return this
+		 * @throws IOException */
+		public Fields writeListVariableSerializable(String field, List<? extends VariableSerializable> v) throws IOException {
+			serializer.write(field).writeListVariableSerializable(v);
 			return this;
 		}
 	}
@@ -314,49 +541,67 @@ final public class PhpSerializer {
 		 * @param field Το όνομα του πεδίου
 		 * @param v Η τιμή */
 		public void add(String field, boolean v) {
-			fields.add((PhpSerializer export) -> export.write(field).write(v));
+			fields.add(export -> export.write(field).write(v));
 		}
 		/** Προσθέτει ένα πεδίο ακέραιου αριθμού στη λίστα πεδίων για εξαγωγή.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Ο αριθμός */
 		public void add(String field, long v) {
-			fields.add((PhpSerializer export) -> export.write(field).write(v));
+			fields.add(export -> export.write(field).write(v));
 		}
 		/** Προσθέτει ένα πεδίο δεκαδικού αριθμού στη λίστα πεδίων για εξαγωγή.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Ο αριθμός */
 		public void add(String field, double v) {
-			fields.add((PhpSerializer export) -> export.write(field).write(v));
+			fields.add(export -> export.write(field).write(v));
 		}
 		/** Προσθέτει ένα πεδίο κειμένου στη λίστα πεδίων για εξαγωγή.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Το κείμενο */
 		public void add(String field, String v) {
-			fields.add((PhpSerializer export) -> export.write(field).write(v));
+			fields.add(export -> export.write(field).write(v));
 		}
 		/** Προσθέτει ένα πεδίο αντικειμένου που υποστηρίζει php serialization στη λίστα πεδίων για εξαγωγή.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Το αντικείμενο */
 		public void add(String field, Serializable v) {
-			fields.add((PhpSerializer export) -> export.write(field).write(v));
+			fields.add(export -> export.write(field).write(v));
 		}
 		/** Προσθέτει ένα πεδίο αντικειμένου που υποστηρίζει php serialization στη λίστα πεδίων για εξαγωγή.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Το αντικείμενο */
 		public void add(String field, VariableSerializable v) {
-			fields.add((PhpSerializer export) -> export.write(field).write(v));
+			fields.add(export -> export.write(field).write(v));
+		}
+		/** Προσθέτει ένα πεδίο array από booleans.
+		 * @param field Το όνομα του πεδίου
+		 * @param v Το array */
+		public void addListBoolean(String field, List<Boolean> v) {
+			fields.add(export -> export.write(field).writeListBoolean(v));
+		}
+		/** Προσθέτει ένα πεδίο array από αριθμούς.
+		 * @param field Το όνομα του πεδίου
+		 * @param v Το array */
+		public void addListNumber(String field, List<? extends Number> v) {
+			fields.add(export -> export.write(field).writeListNumber(v));
+		}
+		/** Προσθέτει ένα πεδίο array από κείμενα.
+		 * @param field Το όνομα του πεδίου
+		 * @param v Το array */
+		public void addListString(String field, List<String> v) {
+			fields.add(export -> export.write(field).writeListString(v));
 		}
 		/** Προσθέτει ένα πεδίο array από αντικείμενα που υποστηρίζουν php serialization στη λίστα πεδίων για εξαγωγή.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Το array */
-		public void add(String field, List<? extends Serializable> v) {
-			fields.add((PhpSerializer export) -> export.write(field).write(v));
+		public void addListSerializable(String field, List<? extends Serializable> v) {
+			fields.add(export -> export.write(field).writeListSerializable(v));
 		}
 		/** Προσθέτει ένα πεδίο array από αντικείμενα που υποστηρίζουν php serialization στη λίστα πεδίων για εξαγωγή.
 		 * @param field Το όνομα του πεδίου
 		 * @param v Το array */
-		public void addV(String field, List<? extends VariableSerializable> v) {
-			fields.add((PhpSerializer export) -> export.write(field).writeV(v));
+		public void addListVariableSerializable(String field, List<? extends VariableSerializable> v) {
+			fields.add(export -> export.write(field).writeListVariableSerializable(v));
 		}
 
 		/** Εξάγει ένα πεδίο με την τιμή του σε κείμενο. */

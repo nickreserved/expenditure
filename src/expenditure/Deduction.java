@@ -39,6 +39,14 @@ final class Deduction implements VariableSerializable, TableRecord {
 		recalculate();
 	}
 
+	/** Αρχικοποιεί μια κράτηση από έναν node δεδομένων του unserialize().
+	 * @param node Ο node δεδομένων
+	 * @return Η κράτηση ή null αν ο node είναι null
+	 * @throws Exception Αν ο node δεν είναι αντικείμενο, ούτε null */
+	static Deduction create(Node node) throws Exception {
+		return node.isExist() && !node.isNull() ? new Deduction(node) : null;
+	}
+
 	/** Αρχικοποιεί μια κράτηση από ένα array επιμέρους κρατήσεων.
 	 * @param terms Ένα array του οποίου, κάθε στοιχείο συμβαδίζει με το αντίστοιχο στοιχείο του
 	 * TABLE_HEADER */

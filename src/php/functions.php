@@ -1,5 +1,12 @@
 <?php
 
+/** Επιστρέφει το PHP script που κλήθηκε πρώτο.
+ * @return string Το όνομα του PHP script που κλήθηκε πρώτο */
+function get_first_script() {
+	$a = get_required_files();
+	return $a[0];
+}
+
 /** Κλείνει το RTF αρχείο, αν απαιτείται, με εξαγωγή του κατάλληλου κειμένου.
  * Το RTF αρχείο κλείνει με το χαρακτήρα '}', αλλά ένα script μπορεί να ενσωματώνει μεγάλο αριθμό
  * δικαιολογητικών τα οποία δεν πρέπει να κλείσουν το RTF γιατί δεν γνωρίζουν ότι ακολουθούν και άλλα
@@ -8,11 +15,14 @@
  * μόνο αν βρισκόμαστε στο PHP script που κλήθηκε (και όχι σε κάποιο που εισήχθηκε με require) κλείνει
  * το RTF αρχείο.
  * @param string $file Το όνομα αρχείου του script που αιτείται κλείσιμο του RTF αρχείου */
-function rtf_close($file) {
-	$a = get_required_files();
-	if ($file == $a[0]) echo "\n\n\n}";
-}
+function rtf_close($file) { if ($file == get_first_script()) echo "\n\n\n}"; }
 
+/** Εξάγει τις ιδιότητες της ενότητας κειμένου ενός στρατιωτικού εγγράφου. */
+function start_35_20() { ?>
+
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134\facingp\margmirror
+
+<?php }
 
 /** Μαρκάρει ειδικούς χαρακτήρες.
  * Τυχόν χαρακτήρες στο κείμενο που παίζουν ειδικό ρόλο στο πρότυπο (specification) του RTF τους
@@ -49,7 +59,7 @@ function invoice($invoice, & $date = null) {
 			return $invoice;
 	}
 	trigger_error(($invoice ? "Το '<b>$invoice</b>' δεν είναι ταυτότητα τιμολογίου"
-		: 'Η ταυτότητα τιμολογίου πρέπει να δίνεται') . ' στη μορφή 1324/31-12-2006', E_USER_ERROR);
+		: 'Η ταυτότητα τιμολογίου πρέπει να δίνεται') . ' στη μορφή 1324/31-12-2006');
 }
 
 /** Ελέγχει την ταυτότητα μιας σύμβασης.
@@ -64,7 +74,7 @@ function contract($contract, & $date = null) {
 		return $date[0] . '/' . $date[3];
 	}
 	trigger_error(($contract ? "Το '<b>$contract</b>' δεν είναι ταυτότητα σύμβασης"
-		: 'Η ταυτότητα σύμβασης πρέπει να δίνεται') . ' στη μορφή 132/31-12-2019 (αρ. πρωτοκόλλου/ημερομηνία)', E_USER_ERROR);
+		: 'Η ταυτότητα σύμβασης πρέπει να δίνεται') . ' στη μορφή 132/31-12-2019 (αρ. πρωτοκόλλου/ημερομηνία)');
 }
 
 
@@ -175,7 +185,7 @@ function num($a) {
 function iban($iban) {
 	$iban = str_replace(' ', '', $iban);
 	if (is_greek_iban($iban) && is_valid_iban($iban)) return $iban;
-	trigger_error($iban ? "Το IBAN '<b>$iban</b>' δεν είναι ελληνικό και έγκυρο" : 'Δεν δώθηκε έγκυρο ελληνικό ΙΒΑΝ', E_USER_ERROR);
+	trigger_error($iban ? "Το IBAN '<b>$iban</b>' δεν είναι ελληνικό και έγκυρο" : 'Δεν δώθηκε έγκυρο ελληνικό ΙΒΑΝ');
 }
 
 /** Ελέγχει αν ένας τραπεζικός λογαριασμός ΙΒΑΝ συμφωνεί με το ελληνικό πρότυπο.
@@ -280,7 +290,7 @@ function bank($iban, $trigger = true) {
 		case 114: return 'FIMBANK PLC.';
 		case 115: return 'HSH NORDBANK AG';
 		case 116: return 'PROCREDIT BANK (BULGARIA) EAD';
-		default: if ($trigger) trigger_error("Ο IBAN '<b>$iban</b>' αντιστοιχεί σε μη καταχωρημένη τράπεζα.", E_USER_ERROR);
+		default: if ($trigger) trigger_error("Ο IBAN '<b>$iban</b>' αντιστοιχεί σε μη καταχωρημένη τράπεζα.");
 	}
 }
 
@@ -340,15 +350,43 @@ function parse_date($a) {
 	$m = explode(' ', $a, 3);
 	if (count($m) == 3) {
 		$m[1] = get_month($m[1]);
-		$curyear = date('Y');
-		// Αν το έτος δίνεται διψήφιο, τότε αν το έτος + 2000 > τρέχον_έτος + 3, προσθέτουμε 1900 αλλιώς 2000
-		if ($m[2] >= 0 && $m[2] < 100 || $m[2] >= 1900 && $m[2] < $curyear + 3) {
-			if ($m[2] < 100)
-				$m[2] += 1997 + $m[2] > $curyear ? 1900 : 2000;
-			if (checkdate($m[1], $m[0], $m[2])) return $m;
-		}
+		$m[2] = get_year($m[2]);
+		if (is_int($m[2]) && checkdate($m[1], $m[0], $m[2])) return $m;
 	}
 	trigger_error(($a ? "Το '<b>$a</b>' δεν είναι ημερομηνία" : 'Οι ημερομηνίες πρέπει να δίνονται') . " στη μορφή π.χ. '20 Μαρ 19'");
+}
+
+/** Παίρνει μια χρονική στιγμή σε κείμενο και επιστρέφει array με τη χρονική στιγμή.
+ * @param string $a Ημερομηνία της μορφής '31 23:59 Δεκ 19'
+ * @return array Ημερομηνία της μορφής ('59', '23', '31', '12', '2019') */
+function parse_datetime($a) {
+	$m = null;
+	if (preg_match('/(\d{1,2}) (\d{1,2})\:(\d\d) (.{3,4}) (\d\d|\d\d\d\d)/', $a, $m)) {
+		array_shift($m);
+		$m[3] = get_month($m[3]);
+		$m[4] = get_year($m[4]);
+		if (is_int($m[4]) && checkdate($m[3], $m[0], $m[4])
+				&& $m[1] >= 0 && $m[1] < 24 && $m[2] >= 0 && $m[2] < 60) return $m;
+	}
+	trigger_error(($a ? "Το '<b>$a</b>' δεν είναι χρονική στιγμή" : 'Οι χρονικές στιγμές πρέπει να δίνονται') . " στη μορφή π.χ. '20 21:34 Νοε 2005'");
+}
+
+/** Ελέγχει για την ορθότητα του έτους.
+ * Το τετραψήφιο έτος πρέπει να είναι από 1900 έως και 2 χρόνια μεταγενέστερα του τρέχοντος έτους.
+ * <p>Αν το διψήφιο έτος είναι μεταγενέστερο του τρέχοντος + 2 χρόνια, λαμβάνεται ως 19ΧΧ, ειδάλλως
+ * ως 20ΧΧ.
+ * @param int $year Διψήφιος ή τετραψήφιος αριθμός του έτους
+ * @return int Τετραψήφιος αριθμός του έτους */
+function get_year($year) {
+	$n = strlen($year);
+	if ($n == 2 || $n == 4) {
+		$curyear = date('Y');
+		if ($year >= 0 && $year < 100 || $year >= 1900 && $year < $curyear + 3) {
+			if ($year < 100)
+				$year += 1997 + $year > $curyear ? 1900 : 2000;
+			return (int) $year;
+		}
+	}
 }
 
 /** Επιστρέφει τον αριθμό του μήνα από το σύντομο όνομα του μήνα.
@@ -547,14 +585,28 @@ function get_invoice_tender_type($invoice) {
  * @return bool Υπάρχει στη δαπάνη απευθείας ανάθεση */
 function has_direct_assignment() { return has_tender_type('Απευθείας Ανάθεση'); }
 
+/** Έλεγχος αν υπάρχει στη δαπάνη διαγωνισμός.
+ * @return bool Υπάρχει στη δαπάνη διαγωνισμός */
+function has_tender() {
+	global $data;
+	if (isset($data['Συμβάσεις']))
+		foreach($data['Συμβάσεις'] as $contract)
+			if ($contract['Τύπος Διαγωνισμού'] != 'Απευθείας Ανάθεση') return true;
+	return false;
+}
+
 /** Έλεγχος αν υπάρχει στη δαπάνη συγκεκριμένος τύπος διαγωνισμού.
  * @param string type Ο τύπος του διαγωνισμού
  * @return bool Υπάρχει στη δαπάνη ο δοσμένος τύπος διαγωνισμού */
 function has_tender_type($type) {
 	global $data;
-	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-		if (get_invoice_tender_type($per_contractor) == $type) return true;
-	}
+	$b = $type == 'Απευθείας Ανάθεση';
+	if (!isset($data['Συμβάσεις'])) return $b;		// Δεν υπάρχουν συμβάσεις: Απευθείας Ανάθεση
+	foreach($data['Συμβάσεις'] as $contract)		// Υπάρχουν συμβάσεις: έλεγχος ισότητας
+		if ($contract['Τύπος Διαγωνισμού'] == $type) return true;
+	if ($b)						// Μόνο για Απευθείας Ανάθεση: έλεγχος για τιμολογια δίχως σύμβαση
+		foreach($data['Τιμολόγια'] as $invoice)
+			if (!isset($invoice['Σύμβαση'])) return true;
 	return false;
 }
 
@@ -711,6 +763,19 @@ function get_contractor_title($invoices, $inflection, $article) {
  * @return int 0 αν είναι ίσα, -1 αν $a &lt; $b και 1 αν $a &gt; $b */
 function ss($a, $b) { return $a === $b ? 0 : ($a < $b ? -1 : 1); }
 
+/** Επιστρέφει τα ταχυδρομικά στοιχεία της Μονάδας.
+ * @param bool $name Συμπεριλαμβάνεται η επωνυμία της Μονάδας
+ * @return string Η επωνυμία, η έδρα, η διεύθυνση, το τηλέφωνο και ο ΤΚ της Μονάδας */
+function get_unit_address($name = true) {
+	global $data;
+	$a = $name ? $data['Μονάδα Πλήρες'] . ', ' : '';
+	$a .= 'διεύθυνση: ' . $data['Έδρα'];
+	if (isset($data['Διεύθυνση'])) $a .= ', ' . $data['Διεύθυνση'];
+	if (isset($data['Τηλέφωνο'])) $a .= ', τηλέφωνο: ' . $data['Τηλέφωνο'];
+	if (isset($data['Τ.Κ.'])) $a .= ', Τ.Κ. ' . $data['Τ.Κ.'];
+	return $a;
+}
+
 //TODO: Δεν χρησιμοποιούνται
 
 
@@ -793,22 +858,6 @@ function bills_by_month($a) {
 	return $b;
 }
 
-// Παίρνει ένα string της μορφής "26 21:10 Νοε 2006"
-function chk_datetime($a) {
-	if (preg_match('/\d{1,2} \d{1,2}\:\d{2} (Ιαν|Φεβ|Μαρ|Απρ|Μαι|Ιουν|Ιουλ|Αυγ|Σεπ|Οκτ|Νοε|Δεκ) \d{4}/', $a))
-		return rtf($a);
-	trigger_error(($a ? "Το '<b>$a</b>' δεν είναι χρονική στιγμή" : 'Οι χρονικές στιγμές πρέπει να δίνονται') . " στη μορφή π.χ. '20 21:34 Νοε 2005'");
-}
-
-// Παίρνει ένα string της μορφής "21:10 26 Νοε 2006" και επιστρέφει την ώρα και την ημερομηνία
-function get_datetime($a) {
-	if (!preg_match('/(\d{1,2}) (\d{1,2}\:\d{2}) (Ιαν|Φεβ|Μαρ|Απρ|Μαι|Ιουν|Ιουλ|Αυγ|Σεπ|Οκτ|Νοε|Δεκ) (\d{4})/', $a, $m))
-		trigger_error(($a ? "Το '<b>$a</b>' δεν είναι χρονική στιγμή" : 'Οι χρονικές στιγμές πρέπει να δίνονται') . " στη μορφή π.χ. '20 21:34 Νοε 2005'");
-	else {
-		$b[] = $m[2]; $b[] = "{$m[1]} {$m[3]} {$m[4]}";
-		return $b;
-	}
-}
 
 // Επιστρέφει array με τις εφημερίδες
 function getNewspapers($a) {

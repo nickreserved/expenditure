@@ -2,93 +2,83 @@ package expenditure;
 
 import static expenditure.MainFrame.NOYES;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import util.PhpSerializer;
+import java.util.Objects;
 import util.PhpSerializer.Fields;
 import util.PhpSerializer.Node;
 import util.PhpSerializer.Serializable;
 import util.PhpSerializer.VariableFields;
 import util.PhpSerializer.VariableSerializable;
 import util.ResizableTableModel.TableRecord;
-import static util.ResizableTableModel.getByte;
 import static util.ResizableTableModel.getString;
 
 /** Ένα δικαιολογητικό. */
 final class ContentItem implements VariableSerializable, TableRecord {
 	/** Όνομα δικαιολογητικού. */
 	private String name;
-	/** Όνομα του PHP script του δικαιολογητικού.
-	 * Αν είναι null, δεν εξάγεται κάποιο έντυπο, αλλά καταχωρείται στο φύλλο καταχώρησης.
-	 */
-	private String script;
-	/** Αριθμός αντιτύπων του δικαιολογητικού. */
-	private byte copies;
+	/** Ο εκδότης του δικαιολογητικού, για οριζόμενα από το χρήστη δικαιολογητικά.
+	 * Αν είναι null, είναι η επωνυμία της Μονάδας. */
+	private String issuer;
 	/** Πλεγμένη πληροφορία για το δικαιολογητικό στα bits του byte.
-	 * Όταν είσαι παλιά καραβάνα στον προγραμματισμό και θέλεις να αποφύγεις άπειρα πεδία ή άπειρες
-	 * κληρονομικότητες και πολυμορφισμούς, χρησιμοποιείς ένα byte με packed δεδομένα.
-	 * <ul><li><strong>bit 0:</strong>
-	 * <ul><li><strong>!script, !bit0:</strong> Το δικαιολογητικό δεν είναι από τα προκαθορισμένα
-	 * του προγράμματος - έχει προστεθεί από το χρήστη. Δεν έχει κάποιο εξαγώμενο έντυπο, απλά
-	 * καταχωρείται στο φύλλο καταχώρησης.
-	 * <li><strong>!script, bit0:</strong> Το δικαιολογητικό δεν έχει κάποιο εξαγώμενο έντυπο, απλά
-	 * καταχωρείται στο φύλλο καταχώρησης.
-	 * <li><strong>script, !bit0:</strong> Το δικαιολογητικό έχει εξαγώμενο έντυπο και καταχωρείται
-	 * και στο φύλλο καταχώρησης.
-	 * <li><strong>script, bit0:</strong> Το δικαιολογητικό έχει εξαγώμενο έντυπο, αλλά δεν
-	 * καταχωρείται στο φύλλο καταχώρησης.</ul>
-	 * <li><strong>bit 2-1:</strong> Αν το δικαιολογητικό έχει προστεθεί από το χρήστη, είναι 11.
-	 * <ul><li><strong>00:</strong> Η προκαθορισμένη ενέργεια για το δικαιολογητικό, είναι να μην
-	 * εξάγεται το έντυπο, ούτε να καταχωρείται στο φύλλο καταχώρησης. Ο χρήστης μπορεί να
-	 * τροποποιήσει αυτή την ενέργεια.
-	 * <li><strong>01:</strong> Η προκαθορισμένη ενέργεια για το δικαιολογητικό, είναι να εξάγεται το
-	 * το έντυπο και να καταχωρείται και στο φύλλο καταχώρησης. Αν το δικαιολογητικό υποστηρίζει μόνο
-	 * κάτι από αυτά τα δύο, τότε αναφέρεται μόνο σε αυτό. Ο χρήστης μπορεί να τροποποιήσει αυτή την
-	 * ενέργεια.
-	 * <li><strong>10:</strong> Αφορά μόνο την περίπτωση που το δικαιολογητικό έχει και εξαγώμενο
-	 * έντυπο και καταχωρείται στο φύλλο καταχώρησης. Στην περίπτωση αυτή η προκαθορισμένη ενέργεια
-	 * είναι να μην εξάγεται το έντυπο αλλά να καταχωρείται στο φύλλο καταχώρησης. Ο χρήστης μπορεί
-	 * να τροποποιήσει αυτή την ενέργεια.
-	 * <li><strong>11:</strong> Η προκαθορισμένη ενέργεια για το δικαιολογητικό, είναι να εξάγεται το
-	 * το έντυπο και να καταχωρείται και στο φύλλο καταχώρησης. Αν το δικαιολογητικό υποστηρίζει μόνο
-	 * κάτι από αυτά τα δύο, τότε αναφέρεται μόνο σε αυτό. Ο χρήστης δεν μπορεί να τροποποιήσει αυτή
-	 * την ενέργεια.</ul>
-	 * <li><strong>bit 4-3:</strong> Αν ο χρήστης δεν μπορεί να τροποποιήσει την προκαθορισμένη
-	 * ενέργεια ή το δικαιολογητικό έχει προστεθεί από το χρήστη, είναι 01.
-	 * <ul><li><strong>00:</strong> Η ορισμένη από το χρήστη ενέργεια για το δικαιολογητικό, είναι
-	 * να μην εξάγεται το έντυπο, ούτε να καταχωρείται στο φύλλο καταχώρησης.
-	 * <li><strong>01:</strong> Η ορισμένη από το χρήστη ενέργεια για το δικαιολογητικό, είναι να
-	 * εξάγεται το έντυπο και να καταχωρείται και στο φύλλο καταχώρησης. Αν το δικαιολογητικό
-	 * υποστηρίζει μόνο κάτι από αυτά τα δύο, τότε αναφέρεται μόνο σε αυτό.
-	 * <li><strong>10:</strong> Αφορά μόνο την περίπτωση που το δικαιολογητικό έχει και εξαγώμενο
-	 * έντυπο και καταχωρείται στο φύλλο καταχώρησης. Στην περίπτωση αυτή η ορισμένη από το χρήστη
-	 * ενέργεια είναι να μην εξάγεται το έντυπο αλλά να καταχωρείται στο φύλλο καταχώρησης.</ul></ul> */
+	 * Όταν είσαι παλιά καραβάνα στον προγραμματισμό, έχεις φάει Assembly με το κουτάλι και θέλεις
+	 * να αποφύγεις άπειρα πεδία ή άπειρες κληρονομικότητες και πολυμορφισμούς, χρησιμοποιείς ένα
+	 * byte με packed δεδομένα. Δεον να αποφεύγεται :-)
+	 * Η ανάλυση των bit του πεδίου, βρίσκεται σε όλες τις byte σταθερές στατικές μεταβλητές της
+	 * κλάσης. */
 	private byte type;
+	/** Πλήθος δικαιολογητικών που θα εξαχθούν. */
+	final private byte total;
 
-	/** Το δικαιολογητικό θα εξαχθεί.
-	 * Αν δεν μπορεί να εξάγει έντυπο απλά καταχωρείται στο φύλλο καταχώρησης. Αν μπορεί να εξάγει
-	 * έντυπο, το εξάγει. Αν μπορεί να κάνει και τα δύο, κάνει και τα δύο. */
-	static final private byte VALUE_YES = 32;
-	/** Το δικαιολογητικό δε θα εξαχθεί, ούτε θα καταχωρηθεί στο φύλλο καταχώρησης. */
-	static final private byte VALUE_NO = 0;
-	/** Το δικαιολογητικό θα καταχωρηθεί στο φύλλο καταχώρησης.
-	 * Αφορά μόνο δικαιολογητικά που μπορούν και να εξαχθούν και να καταχωρηθούν στο φύλλο καταχώρησης. */
-	static final private byte VALUE_LIST = 64;
-	/** Μάσκα για το αν θα εξαχθεί το δικαιολογητικό και πως. */
-	static final private byte VALUE_MASK = 32 | 64;
-	/** Μάσκα για όλες τις άλλες τιμές του type εκτός από το αν και πως θα εξαχθεί το δικαιολογητικό. */
-	static final private byte VALUE_MASK_INVERT = 1 | 2 | 4 | 8 | 16;
+	/** Δικαιολογητικό που καταχωρείται στο φύλλο καταχώρησης της δαπάνης.
+	 * Εξαίρεση αποτελούν τα οριζόμενα από το χρήστη δικαιολογητικά, που καταχωρούνται στο φύλλο
+	 * καταχώρησης της δαπάνης, αλλά το type τους είναι 0. */
+	static final private byte TYPE_LISTED = 1;
+	/** Δικαιολογητικό για το οποίο το πρόγραμμα έχει εξαγόμενο έντυπο. */
+	static final private byte TYPE_EXPORTED = 2;
+	/** Δικαιολογητικό που καταχωρείται στο φύλλο καταχώρησης της δαπάνης και εξάγει και έντυπο. */
+	static final private byte TYPE_LISTED_EXPORTED = TYPE_LISTED | TYPE_EXPORTED;
+	/** Μάσκα για απομόνωση του τύπου του δικαιολογητικού. */
+	static final private byte TYPE_MASK = TYPE_LISTED_EXPORTED;
 
-	static final private byte DEFAULT_NO = 0;
-	static final private byte DEFAULT_YES = 8;
-	static final private byte DEFAULT_LIST = 16;
-	static final private byte DEFAULT_MASK = 8 | 16;
-
+	/** Το δικαιολογητικό εξάγεται πλήρως και ο χρήστης δεν έχει τη δυνατότητα να το αλλάξει αυτό. */
 	static final private byte CHOICES_YES_FIXED = 0;
-	static final private byte CHOICES_YES_NO = 2;
-	static final private byte CHOICES_YES_LIST = 4;
-	static final private byte CHOICES_YES_NO_LIST = 2 | 4;
-	static final private byte CHOICES_MASK = 2 | 4;
-	static final private byte LISTED_XOR_EXPORTED = 1;
+	/** Ο χρήστης μπορεί να επιλέξει αν το δικαιολογητικό θα εξαχθεί πλήρως ή καθόλου. */
+	static final private byte CHOICES_YES_NO = 4;
+	/** Ο χρήστης μπορεί να επιλέξει αν το δικαιολογητικό θα εξαχθεί πλήρως ή θα καταχωρηθεί μόνο στο φύλλο καταχώρησης.
+	 * Αφορά μόνο τα δικαιολογητικά για τα οποία το πρόγραμμα μπορεί να εξάγει έντυπο και μπορούν να
+	 * καταχωρηθούν στο φύλλο καταχώρησης. */
+	static final private byte CHOICES_YES_LIST = 8;
+	/** Ο χρήστης μπορεί να επιλέξει αν το δικαιολογητικό θα εξαχθεί πλήρως, θα καταχωρηθεί μόνο στο φύλλο καταχώρησης, ή δε θα εξαχθεί καθόλου.
+	 * Αφορά μόνο τα δικαιολογητικά για τα οποία το πρόγραμμα μπορεί να εξάγει έντυπο και μπορούν να
+	 * καταχωρηθούν στο φύλλο καταχώρησης. */
+	static final private byte CHOICES_YES_NO_LIST = 4 | 8;
+	/** Μάσκα για απομόνωση των επιλογών εξαγωγής του δικαιολογητικού. */
+	static final private byte CHOICES_MASK = 4 | 8;
+
+	/** Η προκαθορισμένη επιλογή για το δικαιολογητικό είναι να μην εξαχθεί καθόλου. */
+	static final private byte DEFAULT_NO = 0;
+	/** Η προκαθορισμένη επιλογή για το δικαιολογητικό είναι να εξαχθεί πλήρως. */
+	static final private byte DEFAULT_YES = 16;
+	/** Η προκαθορισμένη επιλογή για το δικαιολογητικό είναι να κατχωρηθεί μόνο στο φύλλο καταχώρησης.
+	 * Αφορά μόνο τα δικαιολογητικά για τα οποία το πρόγραμμα μπορεί να εξάγει έντυπο και μπορούν να
+	 * καταχωρηθούν στο φύλλο καταχώρησης. */
+	static final private byte DEFAULT_LIST = 32;
+	/** Μάσκα για απομόνωση της προκαθορισμένης επιλογής εξαγωγής του δικαιολογητικού. */
+	static final private byte DEFAULT_MASK = 16 | 32;
+
+	/** Το δικαιολογητικό δε θα εξαχθεί καθόλου. */
+	static final private byte VALUE_NO = 0;
+	/** Το δικαιολογητικό θα εξαχθεί πλήρως. */
+	static final private byte VALUE_YES = 64;
+	/** Το δικαιολογητικό θα καταχωρηθεί στο φύλλο καταχώρησης.
+	 * Αφορά μόνο τα δικαιολογητικά για τα οποία το πρόγραμμα μπορεί να εξάγει έντυπο και μπορούν να
+	 * καταχωρηθούν στο φύλλο καταχώρησης. */
+	static final private byte VALUE_LIST = -128;
+	/** Μάσκα για την επιλογή εξαγωγής του δικαιολογητικού. */
+	static final private byte VALUE_MASK = 64 | -128;
+	/** Μάσκα για όλες τις άλλες τιμές του type εκτός από το αν και πως θα εξαχθεί το δικαιολογητικό. */
+	static final private byte VALUE_MASK_INVERT = 1 | 2 | 4 | 8 | 16 | 32;
 
 	static final private byte INIT_YES_FIXED = CHOICES_YES_FIXED | DEFAULT_YES | VALUE_YES;
 	static final private byte INIT_YESNO_NO = CHOICES_YES_NO | DEFAULT_NO | VALUE_NO;
@@ -100,11 +90,11 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	static final private byte INIT_YESLIST_LIST = CHOICES_YES_LIST | DEFAULT_LIST | VALUE_LIST;
 
 	/** Το δικαιολογητικό το δημιούργησε ο χρήστης. */
-	boolean isUserDefined() { return script == null && (type & LISTED_XOR_EXPORTED) == 0; }
+	boolean isUserDefined() { return type == 0; }
 	/** Το δικαιολογητικό δύναται και να εξάγει έγγραφο και να καταχωρηθεί στο φύλλο καταχώρησης.
 	 * Μπορεί με βάση τις ρυθμίσεις να εξάγει. Αλλά εδώ γίνεται αναφορά στη δυνατότητα και όχι στο
 	 * τι θα κάνει τελικά. */
-	private boolean isAbleListedExported() { return script != null && (type & LISTED_XOR_EXPORTED) == 0; }
+	private boolean isAbleListedExported() { return (type & TYPE_MASK) == TYPE_MASK; }
 	/** Το δικαιολογητικό επιδέχεται αλλαγές από το χρήστη στο τι θα εξάγει. */
 	boolean hasChoice() { return (type & CHOICES_MASK) != CHOICES_YES_FIXED; }
 	/** Το δικαιολογητικό λαμβάνει τιμές εξαγωγής Όχι και Ναι.
@@ -124,13 +114,13 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	 * και καταχωρείται στο φύλλο καταχώρησης (αν το δικαιολογητικό υποστηρίζει μόνο το ένα από τα
 	 * δύο, τότε αφορά αυτό που υποστηρίζει). 2: Καταχωρείται μόνο στο φύλλο καταχώρησης (αφορά μόνο
 	 * τα δικαιολογητικά που και εξάγονται και καταχωρούνται στο φύλλο καταχώρησης). */
-	private int getActionInt() { return (type >> 5) & 3; }
+	private int getActionInt() { return (type >> 6) & 3; }
 	/** Επιστρέφει την προκαθορισμένη ενέργεια εξαγωγής του δικαιολογητικού.
 	 * @return 0: Ούτε εξάγεται έντυπο, ούτε καταχωρείται στο φύλλο καταχώρησης. 1: Εξάγεται έντυπο
 	 * και καταχωρείται στο φύλλο καταχώρησης (αν το δικαιολογητικό υποστηρίζει μόνο το ένα από τα
 	 * δύο, τότε αφορά αυτό που υποστηρίζει). 2: Καταχωρείται μόνο στο φύλλο καταχώρησης (αφορά μόνο
 	 * τα δικαιολογητικά που και εξάγονται και καταχωρούνται στο φύλλο καταχώρησης). */
-	private int getDefaultActionInt() { return (type >> 3) & 3; }
+	private int getDefaultActionInt() { return (type >> 4) & 3; }
 	/** Θέτει την ενέργεια ενός δικαιολογητικού σε μη εξαγωγή εντύπου, ούτε καταχώρηση στο φύλλο καταχώρησης.
 	 * Βεβαιωθείτε ότι το δικαιολογητικό είναι προκαθορισμένο και επιτρέπεται η αλλαγή της ενέργειας
 	 * εξαγωγής. */
@@ -146,51 +136,50 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	private void setListedOnly() { type &= VALUE_MASK_INVERT; type |= VALUE_LIST; }
 
 	/** Αρχικοποίηση καθορισμένου από το χρήστη δικαιολογητικού. */
-	ContentItem() { this(null, (byte) 1); }
+	ContentItem() { this(null, null); }
 
 	/** Αρχικοποίηση δικαιολογητικού με copy constructor. */
-	ContentItem(ContentItem i) { name = i.name; script = i.script; copies = i.copies; type = i.type; }
+	private ContentItem(ContentItem i) { name = i.name; issuer = i.issuer; type = i.type; total = i.total; }
 
 	/** Αρχικοποίηση καθορισμένου από το χρήστη δικαιολογητικού.
 	 * @param name Όνομα δικαιολογητικού
-	 * @param copies Ο αριθμός αντιτύπων */
-	private ContentItem(String name, byte copies) { this(name, null, INIT_YES_FIXED, copies); }
+	 * @param issuer Ο εκδότης του δικαιολογητικού, για οριζόμενα από το χρήστη δικαιολογητικά */
+	private ContentItem(String name, String issuer) { this.name = name; this.issuer = issuer; total = 1; }
+
+	/** Αρχικοποίηση προκαθορισμένου δικαιολογητικού.
+	 * @param name Όνομα δικαιολογητικού
+	 * @param type Ο τύπος εξαγωγής του δικαιολογητικού */
+	private ContentItem(String name, int type) { this.name = name; this.type = (byte) type; total = 1; }
 
 	/** Αρχικοποίηση του δικαιολογητικού.
 	 * @param name Όνομα δικαιολογητικού
-	 * @param script Όνομα του PHP script του δικαιολογητικού. Αν είναι null, δεν εξάγεται κάποιο
-	 * έντυπο, αλλά καταχωρείται στο φύλλο καταχώρησης.
 	 * @param type Ο τύπος εξαγωγής του δικαιολογητικού
-	 * @param copies Ο αριθμός αντιτύπων για μη προκαθορισμένα δικαιολογητικά, ή για προκαθορισμένα
-	 * τι θα εξαχθεί και αν θα εξαχθεί */
-	private ContentItem(String name, String script, byte type, byte copies) {
-		this.name = name; this.script = script; this.type = type; this.copies = copies;
+	 * @param total Ο αριθμός των δικαιολογητικών που απαιτούνται στη δαπάνη */
+	private ContentItem(String name, int type, int total) {
+		this.name = name; this.type = (byte) type; this.total = (byte) total;
 	}
 
 	/** Επιστρέφει το όνομα του δικαιολογητικού.
 	 * @return Το όνομα του δικαιολογητικού */
 	@Override public String toString() { return name; }
 
-	/** Επικεφαλίδες του πίνακα και ονόματα πεδίων αποθήκευσης για κάθε εγγραφή του φύλλου καταχώρησης. */
-	static final String[] H = { "Δικαιολογητικό", "Πλήθος" };
+	/** Ονόματα πεδίων αποθήκευσης για κάθε εγγραφή του φύλλου καταχώρησης. */
+	static final String[] H = { "Δικαιολογητικό", "Εκδότης", "Μετά από", "Εξαγωγή" };
 	/** Επιλογή εμφάνισης για δικαιολογητικό που δύναται και να εξαχθεί οστόσο μόνο καταχωρείται. */
 	static final String ONLY_LISTED = "Μόνο καταχώρηση";
-	/** Όνομα πεδίου αποθήκευσης για εγγραφή του φύλλου καταχώρησης κατασκευασμένη από το χρήστη. */
-	static final private String AFTER = "Μετά από";
-	/** Όνομα πεδίου αποθήκευσης για τον τύπο εξαγωγής προκαθορισμένης εγγραφής του φύλλου καταχώρησης. */
-	static final private String EXPORT = "Εξαγωγή";
 
 	/** Καθορίζει τα πεδία του αντικειμένου που θα εξαχθούν σε php serialize string format για επεξεργασία από PHP script.
 	 * @param fields Διαχειριστής των πεδίων του αντικεμένου για εξαγωγή. Όταν το αντικείμενο
 	 * θέλει να επιλέξει ένα πεδίο για εξαγωγή, χρησιμοποιεί την VariableFields.add(). */
 	@Override public void serialize(VariableFields fields) {
-		boolean export = script != null && (type & VALUE_MASK) == VALUE_YES;
-		boolean enlist = copies > 0 && (type & VALUE_MASK) != VALUE_NO &&
-				(script == null || (type & LISTED_XOR_EXPORTED) == 0);
-		if (name != null) fields.add(H[0],         name);
-		if (copies != 0)  fields.add(H[1],         copies);
-		if (export)       fields.add("Αρχείο",     script);
-		                  fields.add("Καταχώρηση", enlist);
+		boolean export = (type & TYPE_EXPORTED) == TYPE_EXPORTED && (type & VALUE_MASK) == VALUE_YES;
+		boolean enlist = isUserDefined()
+				|| (type & TYPE_LISTED) == TYPE_LISTED && (type & VALUE_MASK) != VALUE_NO;
+		if (name != null)   fields.add(H[0],         name);
+		if (issuer != null) fields.add(H[1],         issuer);
+							fields.add("Καταχώρηση", enlist);
+							fields.add(H[3],         export);
+							fields.add("Πλήθος",     total);
 	 }
 
 	/** Προετοιμάζει μια λίστα φύλλου καταχώρησης για αποθήκευση σε αρχείο.
@@ -206,18 +195,18 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		for (ContentItem i : contents) {
 			if (i.isUserDefined()) {
 				String prv = prev;
-				save.add((PhpSerializer export) ->
+				save.add(export ->
 						new Fields(export, 3)
 								.write(H[0], i.name)
-								.write(H[1], i.copies)
-								.write(AFTER, prv));
+								.write(H[1], i.issuer)
+								.write(H[2], prv));
 			} else {
 				int action = i.getActionInt();
 				if (i.hasChoice() && action != i.getDefaultActionInt())
-					save.add((PhpSerializer export) ->
+					save.add(export ->
 							new Fields(export, 2)
 									.write(H[0], i.name)
-									.write(EXPORT, action));
+									.write(H[3], action));
 			}
 			prev = i.name;
 		}
@@ -227,7 +216,7 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	@Override public Object getCell(int index) {
 		if (index == 0) return name;
 		else {
-			if (isUserDefined()) return copies;
+			if (isUserDefined()) return issuer;
 			if (hasChoice()) {
 				int a = getActionInt();
 				return a > 1 ? ONLY_LISTED : NOYES[a];
@@ -238,11 +227,9 @@ final class ContentItem implements VariableSerializable, TableRecord {
 
 	@Override public void setCell(int index, Object value) {
 		switch(index) {
-			case 0:
-				if (isUserDefined()) name = getString(value);
-				break;
+			case 0: name = getString(value); break;
 			case 1:
-				if (isUserDefined()) copies = getByte(value);
+				if (isUserDefined()) issuer = getString(value);
 				else if (hasChoice()) {
 					if ((hasChoiceNoYesList() || hasChoiceNoYes()) && value == NOYES[0])
 						setNo();
@@ -254,54 +241,156 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		}
 	}
 
-	@Override public boolean isEmpty() { return name == null && copies == 0; }
+	@Override public boolean isEmpty() { return name == null && issuer == null; }
 
 	private boolean equals(ContentItem ci) {
 		return this == ci || ci != null && (type & VALUE_MASK_INVERT) == (ci.type & VALUE_MASK_INVERT)
 				&& name == ci.name;
 	}
 
-	/** Κατασκευάζει το φύλλο καταχώρησης από τις αποθηκευμένες αλλαγές της.
+	static final private ContentItem ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ
+			= new ContentItem("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST);
+	static final private ContentItem ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού
+			= new ContentItem("Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST);
+	static final private ContentItem ΑπόσπασμαΠοινικούΜητρώου
+			= new ContentItem("Απόσπασμα Ποινικού Μητρώου", TYPE_LISTED | INIT_YESNO_YES);
+	static final private ContentItem ΦορολογικήΑσφαλιστικήΕνημερότητα
+			= new ContentItem("Φορολογική και Ασφαλιστική Ενημερότητα", TYPE_LISTED | INIT_YES_FIXED);
+	static final private ContentItem ΕπάρκειαΜέσωνΑυτοκάθαρσης
+			= new ContentItem("Αποδεικτικά Μέσα για τη Διαπίστωση της Επάρκειας ή Μη, των Μέτρων Αυτοκάθαρσης", TYPE_LISTED | INIT_YESNO_NO);
+	static final private ContentItem ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού
+			= new ContentItem("Αποδεικτικά μέσα ότι δεν Συντρέχουν οι Λόγοι Αποκλεισμού των Άρθρων 73 και 74 του Ν.4412/2016", TYPE_LISTED | INIT_YESNO_NO);
+	static final private ContentItem ΑπόφασηΑπευθείαςΑνάθεσης
+			= new ContentItem("Απόφαση Απευθείας Ανάθεσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES);
+	static final private ContentItem Σύμβαση
+			= new ContentItem("Σύμβαση", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST);
+	static final private ContentItem ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης
+			= new ContentItem("Απόφαση Παρεκκλίσεων Όρων Σύμβασης", TYPE_LISTED | INIT_YESNO_NO);	// καθαρή αξία > 2500
+//	static final private ContentItem ΒεβαίωσηΑπόδοσηςΦΕ = listed("Βεβαίωση Απόδοσης ΦΕ", INIT_YESNO_NO);
+
+	/** Έντυπα δαπάνης, προ των υποφακέλων. */
+	static final private ContentItem[] FOLDER_PREREQUISITES = {
+		new ContentItem("Διαβιβαστικό Δαπάνης", TYPE_EXPORTED | INIT_YESNO_YES),
+		new ContentItem("Εξώφυλλο Δαπάνης", TYPE_EXPORTED | INIT_YES_FIXED),
+		new ContentItem("Φύλλο Καταχώρησης", TYPE_EXPORTED | INIT_YES_FIXED)
+	};
+
+	/** Τα έντυπα του Υποφακέλου Α, Δικαιολογητικά Προμηθειών - Υπηρεσιών. */
+	static final private ContentItem[] FOLDER_A_SUPPLIES_SERVICES = {
+		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Α»: ΔΙΚΑΙΟΛΟΓΗΤΙΚΑ ΠΡΟΜΗΘΕΙΩΝ - ΥΠΗΡΕΣΙΩΝ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		new ContentItem("Απόφαση Ανάληψης Υποχρέωσης", TYPE_LISTED | INIT_YES_FIXED),
+		new ContentItem("Κατάσταση Πληρωμής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED, 3),
+		new ContentItem("Δγη Συγκρότησης Επιτροπών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),
+		new ContentItem("Τιμολόγια", TYPE_LISTED | INIT_YES_FIXED),
+		new ContentItem("Δελτία Αποστολής", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),	// καθαρή αξία > 2500
+		new ContentItem("Βεβαίωση Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),	// καθαρή αξία <= 2500
+		new ContentItem("ΑΔΔΥ", TYPE_LISTED | INIT_YESNO_YES),
+		new ContentItem("Βεβαίωση μη Χρέωσης Υλικών", TYPE_LISTED_EXPORTED | INIT_YESNO_YES)
+	};
+
+	/** Τα έντυπα του Υποφακέλου Β, Δικαιολογητικά Απευθείας Ανάθεσης. */
+	static private final ContentItem[] FOLDER_B_DIRECT_ASSIGNMENT = {
+		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Β»: ΔΙΚΑΙΟΛΟΓΗΤΙΚΑ ΑΠΕΥΘΕΙΑΣ ΑΝΑΘΕΣΗΣ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		ΑπόφασηΑπευθείαςΑνάθεσης,
+		ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ,
+		ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού,
+		ΑπόσπασμαΠοινικούΜητρώου,			// καθαρή αξία > 2500
+		ΦορολογικήΑσφαλιστικήΕνημερότητα,	// καταλογιστέο > 1500 και καταλογιστέο > 3000 && καθαρή αξία > 2500
+		ΕπάρκειαΜέσωνΑυτοκάθαρσης,			// καθαρή αξία > 2500
+		ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού,	// καθαρή αξία > 2500
+		Σύμβαση,							// καθαρή αξία > 2500
+		ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης		// καθαρή αξία > 2500
+	};
+
+	/** Τα έντυπα των Υποφακέλων Β, Γ και Δ, του Συνοπτικού Διαγωνισμού. */
+	static private final ContentItem[] FOLDER_BCD_CONCISE_TENDER = {
+		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Β»: ΥΠΟΒΟΛΗ ΠΡΟΣΦΟΡΩΝ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		new ContentItem("Διακήρυξη Διαγωνισμού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),	 // Με Αριθμό Διαδικτυακής Ανάρτησης Μητρώου (ΑΔΑΜ) στο ΚΥΜΔΗΣ και Αριθμό Διαδικτυακής Ανάρτησης (ΑΔΑ) στο ΔΙΑΥΓΕΙΑ
+		//new ContentItem("Πρόσκληση Συμμετοχής στο Διαγωνισμό", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),	// 3 τουλάχιστον Οικονομικών Φορέων
+		new ContentItem("Υποβληθέντα Δικαιολογητικά Οικονομικών Φορέων", TYPE_LISTED | INIT_YES_FIXED),
+		new ContentItem("Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		new ContentItem("Απόφαση Ανάδειξης Προσωρινού Αναδόχου", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		new ContentItem("Αποδεικτικό Κοινοποίησης της Απόφασης Ανάδειξης Προσωρινού Αναδόχου", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		new ContentItem("Απόφαση της Αναθέτουσας Αρχής επί Ενστάσεων", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Πρόσκληση Προσωρινού Αναδόχου για Προσκόμιση Δικαιολογητικών Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης,
+
+		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Γ»: ΑΠΟΔΕΙΚΤΙΚΑ ΜΕΣΑ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		new ContentItem("Πρακτικό Ελέγχου Δικαιολογητικών Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		ΑπόσπασμαΠοινικούΜητρώου,
+		ΦορολογικήΑσφαλιστικήΕνημερότητα,
+		ΕπάρκειαΜέσωνΑυτοκάθαρσης,
+		ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού,
+		new ContentItem("Πιστοποιητικό από τη Διεύθυνση Προγραμματισμού και Συντονισμού της Επιθεώρησης Εργασιακών Σχέσεων", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Πιστοποιητικό για την Απόδειξη Καταλληλότητας Άσκησης Επαγγελματικής Δραστηριότητας", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Απόδειξη Οικονομικής και Χρηματοοικονομικής Επάρκειας", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Πιστοποιητικά Τεχνικής και Επαγγελματικής Ικανότητας", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Πιστοποιητικό Συμμόρφωσης με Πρότυπα Διασφάλισης και Περιβαλλοντικής Διαχείρισης", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Δικαιολογητικά Νομιμοποίησης του Προσωρινού Αναδόχου", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Δικαιολογητικά Απόδειξης Δάνειας Εμπειρίας", TYPE_LISTED | INIT_YESNO_NO),
+		ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ,
+		ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού,
+		new ContentItem("Επικυρωμένο Αντίγραφο Εγγύησης Καλής Εκτέλεσης", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Επικυρωμένο Αντίγραφο Εγγύησης Προκαταβολής", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Επικυρωμένο Αντίγραφο Εγγύησης Καλής Λειτουργίας", TYPE_LISTED | INIT_YESNO_NO),
+
+		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Δ»: ΚΑΤΑΚΥΡΩΣΗ ΔΙΑΓΩΝΙΣΜΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		ΑπόφασηΑπευθείαςΑνάθεσης,	// Σε περίπτωση που έχουμε συνοπτικό διαγωνισμό και απευθείας ανάθεση μαζί
+		new ContentItem("Απόφαση Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		new ContentItem("Αποδεικτικό Κοινοποίησης της Απόφασης Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		new ContentItem("Απόφαση της Αναθέτουσας Αρχής επί Ενστάσεων", TYPE_LISTED | INIT_YESNO_NO)
+	};
+
+	/** Τα έντυπα του Υποφακέλου Ε, Υπογραφή Συμφωνητικού. */
+	static private final ContentItem[] FOLDER_E_SIGN_CONTRACT = {
+		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Ε»: ΥΠΟΓΡΑΦΗ ΣΥΜΦΩΝΗΤΙΚΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		new ContentItem("Πρόσκληση Αναδόχου για Υπογραφή Συμφωνητικού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		Σύμβαση,
+		new ContentItem("Τροποποίηση Σύμβασης", TYPE_LISTED | INIT_YESNO_NO)
+	};
+
+	/** Κατασκευάζει το φύλλο καταχώρησης από τις αποθηκευμένες αλλαγές του.
 	 * Από τη δαπάνη προκύπτει το προκαθορισμένο φύλλο καταχώρησης της δαπάνης. Σε αυτό
 	 * πραγματοποιούνται οι αλλαγές που ήταν αποθηκευμένες στο αρχείο της δαπάνης.
 	 * @param loaded Οι αποθηκευμένες στο αρχείο της δαπάνης, αλλαγές του προκαθορισμένου φύλλου
 	 * καταχώρησης
-	 * @param e Η δαπάνη */
-	static void unserialize(List<Node> loaded, Expenditure e) throws Exception {
-		ContentItem[] defContents = createDefaultContents(e);
-		e.contents.ensureCapacity(defContents.length + loaded.size());
+	 * @param contentConfig Bitwise μεταβλητή με τον τύπο του φύλλου καταχώρησης
+	 * @param contents Το τελικό φύλλο καταχώρησης της δαπάνης μετά τις αλλαγές */
+	static void unserialize(List<Node> loaded, int contentConfig, List<ContentItem> contents) throws Exception {
+		List<ContentItem> defContents = createAutoContents(contentConfig);
 		int from = 0;
 		for (Node node : loaded) {
 			String name = node.getField(H[0]).getString();
-			Node n = node.getField(AFTER);
+			Node n = node.getField(H[2]);
 			if (n.isExist()) {		// Δικαιολογητικό κατασκευασμένο από το χρήστη
 				String prev = n.getString();
 				// Το δικαιολογητικό
-				ContentItem userDef = new ContentItem(name, (byte) node.getField(H[1]).getInteger());
+				ContentItem userDef = new ContentItem(name, node.getField(ContentItem.H[1]).getString());
 				// Έλεγχος αν η αναφορά προς το προηγούμενο δικαιολογητικό, είναι το τελευταίο
 				// δικαιολογητικό της λίστας εξόδου, ειδάλλως εισάγουμε ένα-ένα τα δικαιολογητικά του
 				// προκαθορισμένου φύλλου μέχρι να βρούμε σε ποιο αναφέρεται η αναφορά. Αν δε βρεθεί
 				// αναφορά το δικαιολογητικό προστίθεται στο τέλος.
-				if (e.contents.isEmpty() || !e.contents.get(e.contents.size() - 1).name.equals(prev))
-					while(from < defContents.length) {	// ...καταχώρησης μέχρι να βρούμε την αναφορά
-						ContentItem ci = defContents[from++];
-						e.contents.add(ci.cloneMutable());
+				if (contents.isEmpty() || !Objects.equals(contents.get(contents.size() - 1).name, prev))
+					while(from < defContents.size()) {	// ...καταχώρησης μέχρι να βρούμε την αναφορά
+						ContentItem ci = defContents.get(from++);
+						contents.add(ci.cloneMutable());
 						if (ci.name.equals(prev)) break;
 					}
-				e.contents.add(userDef);
+				contents.add(userDef);
 			} else {					// Δικαιολογητικό προκαθορισμένο από το πρόγραμμα
 				int to = from;
-				while(to < defContents.length) {
-					ContentItem ci = defContents[to++];
+				while(to < defContents.size()) {
+					ContentItem ci = defContents.get(to++);
 					// Αν το δικαιολογητικό δεν επιδέχεται τροποποιήσεων χρήστη το αγνοούμε
 					// επίσης δεν εισάγουμε ένα-ένα τα στοιχεία του προκαθορισμένου φύλλου καταχώρησης
 					// αλλά όλα μαζί μόνο όταν όλες οι απαιτήσεις ικανοποιηθούν
 					if (ci.name.equals(name) && ci.hasChoice()) {
 						do
-							e.contents.add(defContents[from++].cloneMutable());
+							contents.add(defContents.get(from++).cloneMutable());
 						while(from < to);
-						ci = e.contents.get(e.contents.size() - 1);	// Του τελευταίου εισαχθέντος δικαιολογητικού...
-						switch((int) node.getField(EXPORT).getInteger()) {	// ...του θέτουμε την ενέργεια εξαγωγής
+						ci = contents.get(contents.size() - 1);	// Του τελευταίου εισαχθέντος δικαιολογητικού...
+						switch((int) node.getField(H[3]).getInteger()) {	// ...του θέτουμε την ενέργεια εξαγωγής
 							case 0: ci.setNo(); break;
 							case 2: if (ci.isAbleListedExported()) { ci.setListedOnly(); break; }
 							default: ci.setYes(); break;
@@ -312,70 +401,42 @@ final class ContentItem implements VariableSerializable, TableRecord {
 			}
 		}
 		// Προσθήκη και των υπολοίπων δικαιολητικών
-		while(from < defContents.length)
-			e.contents.add(defContents[from++].cloneMutable());
+		while(from < defContents.size())
+			contents.add(defContents.get(from++).cloneMutable());
 	}
 
-	static private ContentItem listed(String name, byte type) {
-		return new ContentItem(name, null, (byte) (type | LISTED_XOR_EXPORTED), (byte) 1);
-	}
-	static private ContentItem exported(String name, byte type) {
-		return new ContentItem(name, name + ".php", (byte) (type | LISTED_XOR_EXPORTED), (byte) 1);
-	}
-	static private ContentItem both(String name, byte type, int copies) {
-		return new ContentItem(name, name + ".php", type, (byte) copies);
-	}
-
-
-	static final ContentItem ΔιαβιβαστικόΔαπάνης = exported("Διαβιβαστικό Δαπάνης", INIT_YESNO_YES);
-	static final private ContentItem ΕξώφυλλοΔαπάνης = exported("Εξώφυλλο Δαπάνης", INIT_YES_FIXED);
-	static final private ContentItem ΦύλλοΚαταχώρησης = exported("Φύλλο Καταχώρησης", INIT_YES_FIXED);
-	static final private ContentItem Υποφάκελος = both("Υποφάκελος", INIT_YES_FIXED, 1);
-	static final ContentItem ΑπόφασηΑνάληψηςΥποχρέωσης = listed("Απόφαση Ανάληψης Υποχρέωσης", INIT_YES_FIXED);
-	static final private ContentItem ΚατάστασηΠληρωμής = both("Κατάσταση Πληρωμής", INIT_YES_FIXED, 3);
-	static final ContentItem ΔγηΣυγκρότησηςΕπιτροπών = both("Δγη Συγκρότησης Επιτροπών", INIT_YESLIST_YES, 1);
-	static final private ContentItem Τιμολόγια = listed("Τιμολόγια", INIT_YES_FIXED);
-	static final private ContentItem ΔελτίαΑποστολής = listed("Δελτία Αποστολής", INIT_YESNO_NO);
-	static final private ContentItem ΠρωτόκολλοΟριστικήςΠοιοτικήςΠοσοτικήςΠαραλαβής = both("Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής", INIT_YES_FIXED, 1);
-	static final private ContentItem ΑΔΔΥ = listed("ΑΔΔΥ", INIT_YESNO_YES);
-	static final private ContentItem ΒεβαίωσηΠαραλαβής = both("Βεβαίωση Παραλαβής", INIT_YES_FIXED, 1);
-	static final private ContentItem ΒεβαίωσηΜηΧρέωσηςΥλικών = both("Βεβαίωση μη Χρέωσης Υλικών", INIT_YESNO_YES, 1);
-	static final ContentItem ΑπόφασηΑπευθείαςΑνάθεσης = both("Απόφαση Απευθείας Ανάθεσης", INIT_YESLIST_YES, 1);
-	static final private ContentItem ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ = both("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ", INIT_YESNOLIST_LIST, 1);
-	static final private ContentItem ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού = both("Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού", INIT_YESNOLIST_LIST, 1);
-	static final private ContentItem ΑπόσπασμαΠοινικούΜητρώου = listed("Απόσπασμα Ποινικού Μητρώου", INIT_YESNO_YES);
-	static final private ContentItem ΦορολογικήΑσφαλιστικήΕνημερότητα = listed("Φορολογική και Ασφαλιστική Ενημερότητα", INIT_YES_FIXED);
-	static final private ContentItem ΕπάρκειαΜέσωνΑυτοκάθαρσης = listed("Αποδεικτικά μέσα για τη διαπίστωση της επάρκειας των μέτρων αυτοκάθαρσης", INIT_YESNO_NO);
-	static final private ContentItem ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού = listed("Αποδεικτικά μέσα για τη μη ύπαρξη δυνητικών λόγων αποκλεισμού", INIT_YESNO_NO);
-	static final private ContentItem Σύμβαση = both("Σύμβαση", INIT_YESLIST_LIST, 1);
-	static final private ContentItem ΒεβαίωσηΑπόδοσηςΦΕ = listed("Βεβαίωση Απόδοσης ΦΕ", INIT_YESNO_NO);
-
-	/** Τροποποιεί το φύλλο καταχώρησης με βάση τα δεδομένα της δαπάνης. */
-	static void fixContents(Expenditure e) {
-		ContentItem[] defContents = createDefaultContents(e);
-		int from = 0;	// To item του defContents στο οποίο αναφερόμαστε
-		int z = 0;		// To item του e.contents στο οποίο αναφερόμαστε
-		while(z < e.contents.size()) {
-			ContentItem ci = e.contents.get(z);
-			if (ci.isUserDefined()) ++z;	// Δικαιολογητικό του χρήστη δεν το πειράζουμε
+	/** Τροποποιεί το φύλλο καταχώρησης με βάση τα δεδομένα της δαπάνης.
+	 * Το πρόγραμμα προσπαθεί να διατηρήσει, στο μέτρο του δυνατού, τυχόν αλλαγές του χρήστη στις
+	 * επιλογές των εγγραφών του φύλλου καταχώρησης, καθώς και τα οριζόμενα από το χρήστη
+	 * δικαιολογητικά.
+	 * @param contents Το ισχύον φύλλο καταχώρησης. Μετά την κλήση, θα έχει τροποποιηθεί.
+	 * @param cfg Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό
+	 * διαγωνισμό. */
+	static void convertContents(List<ContentItem> contents, int cfg) {
+		List<ContentItem> defContents = createAutoContents(cfg);
+		int idxDef = 0;	// To item του defContents στο οποίο αναφερόμαστε
+		int idxCur = 0;		// To item του contents στο οποίο αναφερόμαστε
+		while(idxCur < contents.size()) {
+			ContentItem ci = contents.get(idxCur);
+			if (ci.isUserDefined()) ++idxCur;	// Δικαιολογητικό του χρήστη δεν το πειράζουμε
 			else {
-				int to = from;	// Ψάχνουμε στο τρέχον φύλλο, στοιχείο ίδιο με το προκαθορισμένο φύλλο
-				while(to < defContents.length && !defContents[to].equals(ci)) ++to;
+				int to = idxDef;	// Ψάχνουμε στο τρέχον φύλλο, στοιχείο ίδιο με το προκαθορισμένο φύλλο
+				while(to < defContents.size() && !defContents.get(to).equals(ci)) ++to;
 				// ...αν δε βρούμε, αφαιρούμε το στοιχείο από το τρέχον φύλλο και δεν προχωράμε
 				// στο defContents γιατί το τρέχον φύλλο μπορεί να είχε παραπανίσιο δικαιολογητικό
 				// που στο προκαθορισμένο φύλλο δεν υπάρχει...
-				if (to == defContents.length) e.contents.remove(z);
+				if (to == defContents.size()) contents.remove(idxCur);
 				else { // ...αν βρούμε, προσθέτουμε τα προηγούμενα του προκαθορισμένου φύλλου στο τρέχον
-					while(from < to)
-						e.contents.add(z++, defContents[from++].cloneMutable());
+					while(idxDef < to)
+						contents.add(idxCur++, defContents.get(idxDef++).cloneMutable());
 					// ...εκτός από αυτό στο οποίο βρήκαμε ομοιότητα γιατί μπορεί να του έχει
 					// τροποποιήσει την τιμή ο χρήστης (το κρατάμε ως έχει)
-					++z; ++from;
+					++idxCur; ++idxDef;
 				}
 			}
 		}
-		while(from < defContents.length)	// Αντιγραφή των υπολοίπων στοιχείων του προκαθορισμένου φύλλου
-			e.contents.add(defContents[from++].cloneMutable());
+		while(idxDef < defContents.size())	// Αντιγραφή των υπολοίπων στοιχείων του προκαθορισμένου φύλλου
+			contents.add(defContents.get(idxDef++).cloneMutable());
 	}
 
 	/** Αν η εγγραφή επιδέχεται αλλαγές από το χρήστη την κλωνοποιεί, ειδάλλως επιστρέφει την ίδια.
@@ -383,70 +444,26 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	 * πετυχαίνει κλωνοποιώντας την, αν επιδέχεται τροποποίησης από το χρήστη. */
 	private ContentItem cloneMutable() { return hasChoice() ? new ContentItem(this) : this; }
 
-	static private ContentItem[] createDefaultContents(Expenditure e) {
-		//TODO: Απαιτεί πολύ δουλειά όταν υλοποιηθούν συμβάσεις, διαγωνισμοί, έργα
-		return ΑπευθείαςΑνάθεση;
+	/** Δημιουργεί τα προκαθορισμένα περιεχόμενα της δαπάνης με βάση τον τύπο του διαγωνισμού.
+	 * @param cfg Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό
+	 * διαγωνισμό.
+	 * @return Η λίστα του φύλλου καταχώρησης, μόνο με προκαθορισμένα δικαιολογητικά */
+	static private List<ContentItem> createAutoContents(int cfg) {
+		ArrayList<ContentItem> contents = new ArrayList<>(70);
+		createAutoContents(cfg, contents);
+		return contents;
 	}
-
-	static private final ContentItem[] ΑπευθείαςΑνάθεση = {
-		ΔιαβιβαστικόΔαπάνης,
-		ΕξώφυλλοΔαπάνης,
-		ΦύλλοΚαταχώρησης,
-		Υποφάκελος,
-		ΑπόφασηΑνάληψηςΥποχρέωσης,
-		ΚατάστασηΠληρωμής,
-		ΔγηΣυγκρότησηςΕπιτροπών,
-		Τιμολόγια,
-		ΔελτίαΑποστολής,
-		ΠρωτόκολλοΟριστικήςΠοιοτικήςΠοσοτικήςΠαραλαβής,	// καθαρή αξία > 2500
-		ΒεβαίωσηΠαραλαβής,
-		ΑΔΔΥ,
-		ΒεβαίωσηΜηΧρέωσηςΥλικών,
-		Υποφάκελος,
-		ΑπόφασηΑπευθείαςΑνάθεσης,
-		ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ,
-		ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού,
-		ΑπόσπασμαΠοινικούΜητρώου,	// καθαρή αξία > 2500
-		ΦορολογικήΑσφαλιστικήΕνημερότητα,	// καταλογιστέο > 1500 και καταλογιστέο > 3000 && καθαρή αξία > 2500
-		ΕπάρκειαΜέσωνΑυτοκάθαρσης,	// καθαρή αξία > 2500
-		ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού,	// καθαρή αξία > 2500
-		Σύμβαση,	// καθαρή αξία > 2500
-//			s("Απόφαση Παρεκκλίσεων Όρων Σύμβασης"),	// καθαρή αξία > 2500
-		Υποφάκελος,
-		ΒεβαίωσηΑπόδοσηςΦΕ
-	};
-
-//		static private final Paper[] papers = {		// Συνοπτικός Διαγωνισμός
-	//			ΔιαβιβαστικόΔαπάνης,
-	//			Εξώφυλλο,
-	//			ΦύλλοΚαταχώρησης,
-	//			Υποφάκελος,
-	//			ΔιάθεσηΠίστωσης,
-	//			ΚατάστασηΠληρωμής,
-	//			ΔγηΣυγκρότησηςΕπιτροπών,
-	//			Τιμολόγια,
-	//			ΔελτίαΑποστολής,
-	//			ΠρωτόκολλοΟριστικήςΠοιοτικήςΠοσοτικήςΠαραλαβής,	// καθαρή αξία > 2500
-	//			ΑΔΔΥ,
-	//			ΒεβαίωσηΜηΧρέωσηςΥλικών,
-	//			Υποφάκελος,
-//			s("Διακήρυξη με ΑΔΑΜ στο ΚΥΜΔΗΣ και ΑΔΑ στο ΔΙΑΥΓΕΙΑ"),
-//			s("Έγγραφη Πρόσκληση Συμμετοχής στο Συνοπτικό Διαγωνισμό 3 τουλάχιστον Οικονομικών Φορέων"),
-//			s("ΤΕΥΔ Υποψηφίων Οικονομικών Φορέων"),
-//			s("Πρωτότυπες Τεχνικές Προσφορές"),
-//			s("Πρωτότυπες Οικονομικές Προσφορές"),
-//			s("Πρακτικά - Εισηγήσεις Αποσφράγισης και Αξιολόγησης Δικαιολογητικών Συμμετοχής - Τεχνικών Προσφορών και Οικονομικών Προσφορών"),
-//			s("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ"),
-//			p("Απόσπασμα Ποινικού Μητρώου"),	// καθαρή αξία > 2500
-//			ΦορολογικήΕνημερότητα,	// καθαρή αξία > 2500
-//			ΑσφαλιστικήΕνημερότητα,	// καθαρή αξία > 2500
-//			p("Αποδεικτικά Μέσα για τη Διαπίστωση της Επάρκειας ή Μη, των Μέτρων Αυτοκάθαρσης"),	// καθαρή αξία > 2500
-//			p("Αποδεικτικά Μέσα για τη Μη Ύπαρξη Δυνητικών Λόγων Αποκλεισμού"),	// καθαρή αξία > 2500
-//			s("Σύμβαση"),	// καθαρή αξία > 2500
-//			s("Απόφαση Παρεκκλίσεων Όρων Σύμβασης"),	// καθαρή αξία > 2500
-//		};
-
-
-	// ΑΔΑΜ = Αριθμό Διαδικτυακής Ανάρτησης Μητρώου
-	// ΑΔΑ = Αριθμό Διαδικτυακής Ανάρτησης
+	/** Δημιουργεί τα προκαθορισμένα περιεχόμενα της δαπάνης με βάση τον τύπο του διαγωνισμού.
+	 * @param cfg Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό
+	 * διαγωνισμό.
+	 * @param contents Η λίστα του φύλλου καταχώρησης, μόνο με προκαθορισμένα δικαιολογητικά */
+	static void createAutoContents(int cfg, List<ContentItem> contents) {
+		contents.addAll(Arrays.asList(FOLDER_PREREQUISITES));
+		contents.addAll(Arrays.asList(FOLDER_A_SUPPLIES_SERVICES));
+		if (cfg == 0) contents.addAll(Arrays.asList(FOLDER_B_DIRECT_ASSIGNMENT));
+		else if (cfg == 1) {
+			contents.addAll(Arrays.asList(FOLDER_BCD_CONCISE_TENDER));
+			contents.addAll(Arrays.asList(ContentItem.FOLDER_E_SIGN_CONTRACT));
+		}
+	}
 }

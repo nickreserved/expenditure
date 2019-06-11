@@ -8,7 +8,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 /** Μοντέλο δεδομένων για JComboBox, που περιέχει όλες τις συμβάσεις και τους δικαιούχους. */
-public class ContractDataModel implements ComboBoxModel {
+final class ContractsContractorsDataModel implements ComboBoxModel {
 	/** Το τρέχον επιλεγμένο αντικείμενο στο JComboBox. */
 	private Object idx;
 

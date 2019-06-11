@@ -8,7 +8,7 @@ $invoices = $invoices['Προμήθεια Υλικών'];
 $c = count($invoices) > 1 ? 'α' : 'ο';	// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
 ?>
 
-\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134\facingp\margmirror
 
 \pard\plain\qr <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\par\par
 \fs24\qc{\b ΒΕΒΑΙΩΣΗ ΜΗ ΧΡΕΩΣΗΣ ΥΛΙΚΩΝ}\par\par
@@ -17,15 +17,14 @@ $c = count($invoices) > 1 ? 'α' : 'ο';	// Κατάληξη πληθυντικού - ενικού σχετικά 
 \pard\plain\qr\par <?=rtf($data['Έδρα']) . ', ' . strftime('%d %b %y', get_newer_invoice_timestamp($invoices))?>\par
 
 \pard\plain\par
-\trowd\cellx3402\cellx6804\cellx10206\qc
+\trowd\clftsWidth1\clNoWrap\cellx2929\clftsWidth1\clNoWrap\cellx5859\clftsWidth1\clNoWrap\cellx8788\qc
 ΘΕΩΡΗΘΗΚΕ\line - Ο -\line ΔΚΤΗΣ\line\line\line <?=rtf($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=rtf($data['Δκτης']['Βαθμός'])?>\cell
 \line - Ο -\line ΕΟΥ\line\line\line <?=rtf($data['ΕΟΥ']['Ονοματεπώνυμο'])?>\line <?=rtf($data['ΕΟΥ']['Βαθμός'])?>\cell
 \line - Ο -\line Δχστης\line\line\line <?=rtf($data['Δχστης']['Ονοματεπώνυμο'])?>\line <?=rtf($data['Δχστης']['Βαθμός'])?>\cell\row
 
 \sect
 
-<?
+<?php
 unset($c, $invoices);
 
 rtf_close(__FILE__);
-?>

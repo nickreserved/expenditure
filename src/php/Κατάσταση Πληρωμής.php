@@ -37,11 +37,11 @@ if ($data['Τιμές']['ΦΕ'] > 0) { ?>
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx<?=$d+=round(1.2 * $c)?>
 
 <? $c2 = ob_get_flush(); ?>
-\qc\b Δικαιούχος\cell Διεύθυνση\cell e-mail\cell ΔΟΥ\cell Καθαρή Αξία\cell <?php
+\qc\b Δικαιούχος\cell Διεύθυνση\cell e-mail\cell ΔΟΥ\cell Καθαρή\line Αξία\cell <?php
 foreach($data['Κρατήσεις'] as $v)
 	echo "$v\cell ";
 if ($data['Τιμές']['ΦΕ'] > 0) echo 'ΦΕ\cell ';
-echo 'Καταλογιστέο\cell Πληρωτέο\b0\cell\row' . PHP_EOL;
+echo 'Καταλογιστέο\cell Υπόλοιπο\line Πληρωτέο\b0\cell\row' . PHP_EOL;
 echo '\trowd' . $c2 . PHP_EOL;
 
 
@@ -52,10 +52,9 @@ echo '\trowd' . $c2 . PHP_EOL;
 Πληρωτέου, ΦΕ και όλων των επιμέρους κρατήσεων. Το δεύτερο στοιχείο είναι ένα array με τα αθροίσματα
 των επιμέρους κρατήσεων όλων των τιμολογίων όλων των προμηθευτών. */
 // Υπολογισμοί για κάθε δικαιούχο
-$a = get_invoices_by_contractor($data['Τιμολόγια']);
 $b = array();
-$keys = array('Καθαρή Αξία', 'Καταλογιστέο', 'ΦΕ', 'Πληρωτέο');
-foreach($a as $invoices) {
+$keys = array('Καθαρή Αξία', 'Καταλογιστέο', 'ΦΕ', 'Υπόλοιπο Πληρωτέο');
+foreach(get_invoices_by_contractor($data['Τιμολόγια']) as $invoices) {
 	$c = calc_sum_of_invoices_prices($invoices, $keys);
 	$c['Κρατήσεις'] = calc_partial_deductions($invoices);
 	$b[] = array_merge($invoices[0]['Δικαιούχος'], $c);
@@ -80,7 +79,7 @@ foreach($a[0] as $v) {
 	if ($data['Τιμές']['ΦΕ'] > 0)
 		echo euro(ifexist($v, 'ΦΕ')) . '\cell ';
 	echo euro($v['Καταλογιστέο']) . '\cell ';
-	echo euro($v['Πληρωτέο']) . '\cell\row' . PHP_EOL;
+	echo euro($v['Υπόλοιπο Πληρωτέο']) . '\cell\row' . PHP_EOL;
 }
 
 echo '\qr\b\cell\cell\cell Σύνολο\cell ';
@@ -89,7 +88,7 @@ foreach($data['Κρατήσεις'] as $t)
 	echo euro(ifexist($a[1], $t)) . '\cell ';
 if ($data['Τιμές']['ΦΕ'] > 0) echo euro($data['Τιμές']['ΦΕ']) . '\cell ';
 echo euro($data['Τιμές']['Καταλογιστέο']) . '\cell ';
-echo euro($data['Τιμές']['Πληρωτέο']) . '\b0\cell\row' . PHP_EOL . PHP_EOL;
+echo euro($data['Τιμές']['Υπόλοιπο Πληρωτέο']) . '\b0\cell\row' . PHP_EOL . PHP_EOL;
 ?>
 \pard\plain\li10204\qc\par
 ΘΕΩΡΗΘΗΚΕ\line - Ο -\line ΔΚΤΗΣ\line\line\line <?=rtf($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=rtf($data['Δκτης']['Βαθμός'])?>\par
@@ -100,4 +99,3 @@ echo euro($data['Τιμές']['Πληρωτέο']) . '\b0\cell\row' . PHP_EOL . PHP_EOL;
 unset($a, $b, $c, $d, $v, $i, $t, $c2, $keys, $deductions, $invoices, $key);
 
 rtf_close(__FILE__);
-?>

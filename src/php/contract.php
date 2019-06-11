@@ -1,16 +1,16 @@
 <?php
 require_once('init.php');
 require_once('report.php');
-require_once('header.php');
 
-foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
-	if (!isset($per_contractor['Σύμβαση'])) continue;
+/** Εξάγει μια σύμβαση.
+ * Η σύμβαση εξάγεται χωρίς έναρξη και τέλος ενότητας.
+ * @param array $per_contractor Ένα στοιχείο του $data['Τιμολόγια ανά Δικαιούχο'], στο οποίο ο
+ * δικαιούχος έχει υπογράψει σύμβαση
+ * @param bool $draft Πρόκειται για σχέδιο σύμβασης */
+function export_contract($per_contractor, $draft) {
+	global $data;
 	$invoices = $per_contractor['Τιμολόγια'];
 	$contract = $per_contractor['Σύμβαση'];
-	$contractor = $per_contractor['Δικαιούχος'];
-	$date = null;
-	$contract_name = contract($contract['Σύμβαση'], $date);
-	$date = strftime('%d %b %y', mktime($date[2], $date[1], $date[3]));
 	// Όλες οι κατηγορίες των τιμολογίων σε ένα κείμενο
 	$categories = array();
 	$construction = false;			// Είναι έργο και έχει τιμολόγιο παροχής υπηρεσιών
@@ -21,27 +21,38 @@ foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
 	}
 	$construction &= $data['Έργο'];
 	$categories = get_names(array_unique($categories));
-	// Μέχρι πότε πρέπει ο ανάδοχος να παραδώσει το αντικείμενο της σύμβασης
-	$when = get_newer_invoice_timestamp($invoices);
-	if (!isset($when)) $when = time() + 24 * 3600 * 1000 * ($construction ? 40 : 20);
-
+	// Αν είναι σχέδιο σύμβασης υπάρχουν κενά
+	if ($draft) {
+		$contract_name = $when = $date = '. . . . . . . . . . . . . . . .';
+		$contractor = array('Επωνυμία' => $date, 'Τύπος' => 'Ιδιωτικός Τομέας');
+	} else {
+		$contractor = $per_contractor['Δικαιούχος'];
+		$date = null;
+		$contract_name = contract($contract['Σύμβαση'], $date);
+		$date = strftime('%d %b %y', mktime($date[2], $date[1], $date[3]));
+		// Μέχρι πότε πρέπει ο ανάδοχος να παραδώσει το αντικείμενο της σύμβασης
+		$when = get_newer_invoice_timestamp($invoices);
+		if (!isset($when)) $when = time() + 24 * 3600 * 1000 * ($construction ? 40 : 20);
+		$when = strftime('%d %b %Y', $when);
+	}
 ?>
-
-\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134\facingp\margmirror
 
 \pard\plain\li5103
 <?=wordwrap(rtf(strtouppergn($data['Μονάδα Πλήρες'])), 25, '\line ')?>\line <?=rtf(strtouppergn($data['Γραφείο']))?>\line<?=rtf($data['Έδρα'])?>, <?=$date?>\par
 
 \pard\plain\sb283\sa60\qc\b{\ul ΣΥΜΒΑΣΗ <?=$contract_name?>}\par
-\sb60 <?=rtf(orelse($contract, 'Τίτλος', $data['Τίτλος']))?>\par
-<?=euro($per_contractor['Τιμές']['Καταλογιστέο'])?>\par
+\sb60 <?=rtf($contract['Τίτλος'])?>\par
+<?php if (!$draft) echo euro($per_contractor['Τιμές']['Καταλογιστέο']) . '\par' . PHP_EOL; ?>
 
 \pard\plain\sb120\sa120\fi567\tx1134\tx1701\tx2268\qj
-Σήμερα την <?=$date?>, οι υπογεγραμμένοι, <?=person($data['Δκτης'])?>, Δκτης <?=article($data['Μονάδα Πλήρες'], 1)?> <?=inflectPhrase($data['Μονάδα Πλήρες'], 1)?>, ως εκπρόσωπος του Ελληνικού Δημοσίου το οποίο στο εξής θα καλείται για συντομία «Στρατιωτική Υπηρεσία» και <?=isset($contractor['Ονοματεπώνυμο']) ? article($contractor['Ονοματεπώνυμο'], 0) . ' ' . rtf($contractor['Ονοματεπώνυμο']) . ' ως' : 'ο'?> εκπρόσωπος της επιχείρησης «<?=rtf($contractor['Επωνυμία'])?>», η οποία στο εξής θα καλείται για συντομία «Επιχείρηση», συνήλθαν για το θέμα της σύμβασης και αφού συμφώνησαν, αποδέχθηκαν από κοινού τα ακόλουθα:\par
+Σήμερα την <?=$date?>, οι υπογεγραμμένοι, <?=person($data['Δκτης'])?>, Δκτης <?=rtf(article(gender($data['Μονάδα Πλήρες']), 1) . ' ' . inflectPhrase($data['Μονάδα Πλήρες'], 1))?>, ως εκπρόσωπος του Ελληνικού Δημοσίου το οποίο στο εξής θα καλείται για συντομία «Στρατιωτική Υπηρεσία» και <?=isset($contractor['Ονοματεπώνυμο']) ? article(gender($contractor['Ονοματεπώνυμο']), 0) . ' ' . rtf($contractor['Ονοματεπώνυμο']) . ' ως' : 'ο'?> εκπρόσωπος της επιχείρησης «<?=rtf($contractor['Επωνυμία'])?>», η οποία στο εξής θα καλείται για συντομία «Επιχείρηση», συνήλθαν για το θέμα της σύμβασης και αφού συμφώνησαν, αποδέχθηκαν από κοινού τα ακόλουθα:\par
 
 \sa30\qc{\b ΑΡΘΡΟ 1\par\sb30 Αντικείμενο - Οικονομικά Στοιχεία}\par\sa120\sb120\qj
 1.\tab <?=$categories?> όπως παρακάτω:\par
-<?php report($invoices, $per_contractor['Τιμές']); ?>
+<?php
+if ($draft) report_no_prices($invoices);
+else report($invoices, $per_contractor['Τιμές']);
+?>
 \pard\plain\sb120\sa120\fi567\tx1134\tx1701\tx2268\qj
 2.\tab Οι κρατήσεις <?php
 if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
@@ -52,7 +63,7 @@ if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
 ?>\par
 
 \sa30\qc{\b ΑΡΘΡΟ 2\par\sb30 Υποχρεώσεις Επιχείρησης}\par\sa120\sb120\qj
-1.\tab Η Επιχείρηση πρέπει να έχει ολοκληρώσει την παράδοση του αντικειμένου της σύμβασης, στη Στρατιωτική Υπηρεσία, μέχρι <?=strftime('%d %b %Y', $when)?>.\par
+1.\tab Η Επιχείρηση πρέπει να έχει ολοκληρώσει την παράδοση του αντικειμένου της σύμβασης, στη Στρατιωτική Υπηρεσία, μέχρι <?=$when?>.\par
 2.\tab Το αντικείμενο της σύμβασης πρέπει να παραδοθεί ποιοτικά και ποσοτικά σύμφωνο με την ισχύουσα νομοθεσία.\par
 3.\tab Η Επιχείρηση, προ της υπογραφής της σύμβασης έχει προσυπογράψει τις προδιαγραφές, τεχνικές μελέτες και ότι άλλο συνοδεύει τη σύμβαση και οφείλει να παραδώσει το αντικείμενο της σύμβασης ποιοτικά και ποσοτικά σύμφωνο με τα έντυπα που προσυπέγραψε.\par
 <?php if ($construction) { ?>
@@ -102,20 +113,24 @@ if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
 3.\tab Η σύμβαση υπερισχύει κάθε άλλου κειμένου.\par
 4.\tab Η Στρατιωτική Υπηρεσία δεν αναλαμβάνει καμία οικονομική υποχρέωση για αυξομειώσεις πάσης φύσεως δαπανών, φόρων τελών κλπ. που προκύψουν μετά την υπογραφή της σύμβασης.\par
 5.\tab Μετά την υπογραφή της σύμβασης από τους προαναφερθέντες εκπροσώπους της Στρατιωτικής Υπηρεσίας και της Επιχείρησης, η Στρατιωτική Υπηρεσία αναθέτει στην Επιχείρηση το αντικείμενο του θέματος της σύμβασης και η Επιχείρηση αναλαμβάνει την εκτέλεσή του.\par
-6.\tab Η σύμβαση συντάχθηκε σε 3 αντίγραφα, αναγνώσθηκε και υπογράφεται και από τους δύο συμβαλλόμενους, στην έδρα <?=article($data['Μονάδα Πλήρες'], 1)?> <?=inflectPhrase($data['Μονάδα Πλήρες'], 1)?>.\par
+6.\tab Η σύμβαση συντάχθηκε σε 3 αντίγραφα, αναγνώσθηκε και υπογράφεται και από τους δύο συμβαλλόμενους, στην έδρα <?=article(gender($data['Μονάδα Πλήρες']), 1)?> <?=inflectPhrase($data['Μονάδα Πλήρες'], 1)?>.\par
 
 \pard\plain\qc\par
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
 \clftsWidth1\clNoWrap\cellx4394\clftsWidth1\clNoWrap\cellx8788
-ΓΙΑ ΤΗ ΣΤΡΑΤΙΩΤΙΚΗ ΥΠΗΡΕΣΙΑ\line\line\line\line <?=person($data['Δκτης'])?>\line Διοικητής <?=rtf($data['Μονάδα'])?>\cell
-ΓΙΑ ΤΗΝ ΕΠΙΧΕΙΡΗΣΗ\line\line\line\line <?php if (isset($contractor['Ονοματεπώνυμο'])) echo rtf($contractor['Ονοματεπώνυμο']) . '\line '; ?>Εκπρόσωπος επιχείρησης\line <?=rtf($contractor['Επωνυμία'])?>\cell\row
-
-\sect
+ΓΙΑ ΤΗ ΣΤΡΑΤΙΩΤΙΚΗ ΥΠΗΡΕΣΙΑ\line\line\line\line <?=person($data['Δκτης'])?>\line ΔΙΟΙΚΗΤΗΣ\cell
+ΓΙΑ ΤΗΝ ΕΠΙΧΕΙΡΗΣΗ\line\line\line\line <?php if (isset($contractor['Ονοματεπώνυμο'])) echo rtf($contractor['Ονοματεπώνυμο']) . '\line '; ?>Εκπρόσωπος επιχείρησης\cell\row
 
 <?php
-
 }
 
-unset($a, $categories, $construction, $contract, $contract_name, $contractor, $date, $invoice, $invoices, $per_contractor, $when);
-
-rtf_close(__FILE__);
+/** Εξάγει όλες τις συμβάσεις της δαπάνης. */
+function export_contracts() {
+	global $data;
+	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor)
+		if (isset($per_contractor['Σύμβαση'])) {
+			start_35_20();
+			export_contract($per_contractor, false);
+			echo '\sect' . PHP_EOL . PHP_EOL;
+		}
+}

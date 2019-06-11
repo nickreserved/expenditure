@@ -51,9 +51,9 @@
         <macrodef name="create-symlinks">
             <attribute name="dir"/>
             <sequential>
-				<symlink link="${basedir}/@{dir}/php5" resource="${basedir}/${php.dir}"/>
-				<symlink link="${basedir}/@{dir}/php" resource="${basedir}/${src.dir}/php"/>
-				<symlink link="${basedir}/@{dir}/help" resource="${basedir}/${src.dir}/help"/>
+				<symlink link="${basedir}/@{dir}/php5" resource="../${php.dir}"/>
+				<symlink link="${basedir}/@{dir}/php" resource="../${src.dir}/php"/>
+				<symlink link="${basedir}/@{dir}/help" resource="../${src.dir}/help"/>
             </sequential>
         </macrodef>
     </target>

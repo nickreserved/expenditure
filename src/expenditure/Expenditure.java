@@ -1,16 +1,13 @@
 package expenditure;
 
-import static expenditure.ContentItem.fixContents;
-import static expenditure.ContentItem.ΑπόφασηΑνάληψηςΥποχρέωσης;
-import static expenditure.ContentItem.ΑπόφασηΑπευθείαςΑνάθεσης;
-import static expenditure.ContentItem.ΔιαβιβαστικόΔαπάνης;
+import static expenditure.ContentItem.createAutoContents;
+import static expenditure.Contract.TenderType.CONCISE_TENDER;
 import static expenditure.MainFrame.NOYES;
 import static expenditure.MainFrame.window;
 import java.io.File;
 import java.util.ArrayList;
 import static javax.swing.JOptionPane.CANCEL_OPTION;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
-import static javax.swing.JOptionPane.OK_OPTION;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import util.PhpSerializer.Node;
@@ -19,6 +16,7 @@ import util.PhpSerializer.VariableSerializable;
 import util.PropertiesTableModel.TableRecord;
 import static util.ResizableTableModel.getLong;
 import static util.ResizableTableModel.getString;
+import static expenditure.ContentItem.convertContents;
 
 /** Μια δαπάνη. */
 final class Expenditure implements VariableSerializable, TableRecord {
@@ -71,6 +69,10 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * κάτω-κάτω). */
 	final double[] prices = new double[7];
 
+	/** Ο τύπος των περιεχομένων.
+	 * 0 για απευθείας ανάθεση, 1 για συνοπτικό διαγωνισμό. */
+	private int cfg;
+
 	/** Αρχικοποίηση του αντικειμένου με τις προκαθορισμένες τιμές.
 	 * @param f Το αρχείο στο οποίο είναι αποθηκευμένη ή πρόκειται να αποθηκευτεί η δαπάνη.
 	 * @param u Τα στοιχεία της Μονάδας, τα οποία, αν και ίδια για όλες τις δαπάνες, αντιγράφονται
@@ -78,7 +80,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * χρόνια, να διατηρεί τα στοιχεία της Μονάδας στην οποία συντάχθηκε, στο χρόνο που συντάχθηκε. */
 	Expenditure(File f, UnitInfo u) {
 		file = f; unitInfo = u; financing = Financing.ARMY_BUDGET;
-		fixContents(this);
+		createAutoContents(cfg, contents);
 	}
 
 	/** Αρχικοποιεί μια δαπάνη από έναν node δεδομένων του unserialize().
@@ -112,7 +114,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα συμβάσεων");
 			for (Node i : n.getArray())
-				contracts.add(new Contract(i));
+				contracts.add(new Contract(this, i));
 		}
 		// Ανάγνωση τιμολογίων (πρώτα οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
 		n                       = node.getField(H[13]);
@@ -122,14 +124,15 @@ final class Expenditure implements VariableSerializable, TableRecord {
 				invoices.add(new Invoice(this, i));
 		}
 		// Ανάγνωση φύλλου καταχώρησης (πρώτα οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
-		ContentItem.unserialize(node.getField(H[14]).getArray(), this);
+		cfg = calcContentConfiguration();
+		ContentItem.unserialize(node.getField(H[14]).getArray(), cfg, contents);
 	}
 
 	/** Ονόματα πεδίων αποθήκευσης. */
-	static final String[] H = { ΑπόφασηΑνάληψηςΥποχρέωσης.toString(), "Αναρτητέα στο διαδίκτυο",
+	static final String[] H = { "Απόφαση Ανάληψης Υποχρέωσης", "Αναρτητέα στο διαδίκτυο",
 		"Έργο", "ΕΦ", "ΑΛΕ", "Τύπος Χρηματοδότησης", "Τίτλος",
-		ΑπόφασηΑπευθείαςΑνάθεσης.toString(), "ΑΔΑ Απόφασης Απευθείας Ανάθεσης",
-		ΔιαβιβαστικόΔαπάνης.toString(), "Αυτόματοι Υπολογισμοί",
+		"Απόφαση Απευθείας Ανάθεσης", "ΑΔΑ Απόφασης Απευθείας Ανάθεσης",
+		"Διαβιβαστικό Δαπάνης", "Αυτόματοι Υπολογισμοί",
 		"Εργασίες", "Συμβάσεις", "Τιμολόγια", "Φύλλο Καταχώρησης"
 	};
 
@@ -145,14 +148,14 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * θέλει να επιλέξει ένα πεδίο για εξαγωγή, χρησιμοποιεί την VariableFields.add(). */
 	@Override public void serialize(VariableFields fields) {
 		serializeC(fields);
-		fields.addV(H[14], contents);
+		fields.addListVariableSerializable(H[14], contents);
 	}
 	/** Μετατρέπει τη δαπάνη σε php serialize string format, για αποθήκευση σε αρχείο.
 	 * @return Μετατροπέας του αντικειμένου java σε php serialize string format. */
 	VariableSerializable save() {
-		return (VariableFields fields) -> {
+		return fields -> {
 			serializeC(fields);
-			fields.add(H[14], ContentItem.save(contents));
+			fields.addListSerializable(H[14], ContentItem.save(contents));
 		};
 	}
 	/** Καθορίζει τα πεδία του αντικειμένου που θα εξαχθούν σε php serialize string format.
@@ -171,9 +174,9 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		if (orderDirectAssignmentId != null) fields.add (H[8],  orderDirectAssignmentId);
 		if (orderTransport != null)          fields.add (H[9],  orderTransport);
 		                                     fields.add (H[10], smart);
-		if (!works.isEmpty())                fields.addV(H[11], works);
-		if (!contracts.isEmpty())            fields.addV(H[12], contracts);
-		if (!invoices.isEmpty())             fields.addV(H[13], invoices);
+		if (!works.isEmpty())                fields.addListVariableSerializable(H[11], works);
+		if (!contracts.isEmpty())            fields.addListVariableSerializable(H[12], contracts);
+		if (!invoices.isEmpty())             fields.addListVariableSerializable(H[13], invoices);
 	}
 
 	@Override public Object getCell(int index) {
@@ -200,20 +203,13 @@ final class Expenditure implements VariableSerializable, TableRecord {
 			case 0: break;	// Επικεφαλίδα «Στοιχεία Δαπάνης»
 			case 1: orderDispensation    = getString(value); break;
 			case 2: advertise = value == NOYES[1];
-			case 3: {		// Θέτει την πηγή χρηματοδότησης της δαπάνης
-				boolean s = value == NOYES[1];
-				if (s != construction && OK_OPTION == showConfirmDialog(window,
-						"Επιλέξατε να αλλάξετε τύπο δαπάνης.\n"
-						+ "Το φύλλο καταχώρησης της δαπάνης θα τροποποιηθεί.\n"
-						+ "Η τροποποίηση που θα γίνει είναι αδύνατο να αναιρεθεί.\n"
-						+ "Θέλετε να συνεχίσετε;\n"
-						, "Αλλαγή τύπου δαπάνης", OK_CANCEL_OPTION, WARNING_MESSAGE)) {
-					construction = s;
-					//TODO: τροποποίηση φύλλου καταχώρησης δαπάνης
+			case 3:		// Δαπάνη έργου ή όχι
+				if ((value == NOYES[1]) != construction) {
+					construction = !construction;
 					if (smart) invoices.forEach(i -> i.recalcFromConstruction());
+					calcContents();
 				}
 				break;
-			}
 			case 4: acb                     = getLong(value); break;
 			case 5: aae                     = getLong(value); break;
 			case 6:		// Θέτει την πηγή χρηματοδότησης της δαπάνης
@@ -227,23 +223,47 @@ final class Expenditure implements VariableSerializable, TableRecord {
 			case 9: orderDirectAssignmentId = getString(value); break;
 			case 10: orderTransport         = getString(value); break;
 			case 11: break;	// Επικεφαλίδα «Στοιχεία Δαπάνης»
-			case 12: {		// Απενεργοποιεί/ενεργοποιεί τον έλεγχο δεδομένων στα τιμολόγια
-				boolean s = value == NOYES[1];
-				if (s != smart && s) {
-					if (CANCEL_OPTION == showConfirmDialog(window,
-							"Επιλέξατε να ενεργοποιήσετε τον αυτόματο υπολογισμό.\n"
-							+ "Ο αυτόματος υπολογισμός υπολογίζει αυτόματα το ΦΠΑ, τις κρατήσεις και το ΦΕ.\n"
-							+ "Τυχόν τροποποιήσεις που θα γίνουν, θα είναι αδύνατο να αναιρεθούν.\n"
-							+ "Θέλετε να συνεχίσετε;\n"
-							, "Αυτοματισμός", OK_CANCEL_OPTION, WARNING_MESSAGE)) return;
-					smart = s;
-					invoices.forEach(i -> i.recalcFromSmart());
-				} else smart = s;
+			case 12:		// Απενεργοποιεί/ενεργοποιεί τον έλεγχο δεδομένων στα τιμολόγια
+				if ((value == NOYES[1]) != smart)
+					if (!smart) {
+						if (CANCEL_OPTION == showConfirmDialog(window,
+								"Επιλέξατε να ενεργοποιήσετε τον αυτόματο υπολογισμό.\n"
+								+ "Ο αυτόματος υπολογισμός ενδέχεται να τροποποιήσει στοιχεία\n"
+								+ "τιμολογίων, συμβάσεων και διαγωνισμών καθώς και το φύλλο καταχώρησης.\n"
+								+ "Τυχόν τροποποιήσεις που θα γίνουν, είναι αδύνατο να αναιρεθούν.\n"
+								+ "Θέλετε να συνεχίσετε;\n"
+								, "Αυτοματισμός", OK_CANCEL_OPTION, WARNING_MESSAGE)) return;
+						smart = true;
+						invoices.forEach(i -> i.recalcFromSmart());
+					} else smart = false;
 				break;
-			}
 			default: unitInfo.setCell(index - 13, value); break;
 		}
 	}
+
+	/** Τροποποιεί το φύλλο καταχώρησης, αν απαιτείται, από τα στοιχεία της δαπάνης.
+	 * Αν π.χ. αλλάζει ο τύπος διαγωνισμού της δαπάνης, αλλάζει και το φύλλο καταχώρησης.
+	 * <p>Το πρόγραμμα προσπαθεί να διατηρήσει, στο μέτρο του δυνατού, τυχόν αλλαγές του χρήστη στις
+	 * επιλογές των εγγραφών του φύλλου καταχώρησης, καθώς και τα οριζόμενα από το χρήστη
+	 * δικαιολογητικά. */
+	void calcContents() {
+		int newCfg = calcContentConfiguration();
+		if (newCfg != cfg) {
+			cfg = newCfg;
+			convertContents(contents, newCfg);
+		}
+	}
+
+	/** Δημιουργεί τα προκαθορισμένα περιεχόμενα της δαπάνης με βάση τον τύπο του διαγωνισμού.
+	 * @return Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό διαγωνισμό. */
+	private int calcContentConfiguration() {
+		int r = 0;
+		if (!contracts.isEmpty())
+			for (Contract c : contracts)
+				if (r < 1 && c.getTenderType() == CONCISE_TENDER) r = 1;
+		return r;
+	}
+
 
 	/** Αντικαθιστά τα άσχημα "0" στα κελιά των πινάκων, με κενό.
 	 * @param d Ένας αριθμός.

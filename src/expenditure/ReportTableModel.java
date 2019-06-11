@@ -2,6 +2,8 @@ package expenditure;
 
 import static expenditure.Expenditure.a;
 import static expenditure.MainFrame.data;
+import java.util.ArrayList;
+import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
@@ -12,7 +14,7 @@ import javax.swing.table.TableModel;
  * <li>Η τρίτη έχει αθροιστικά τα ποσά των τιμολογίων που ανήκουν στην ίδια σύμβαση με το επιλεγμένο
  * τιμολόγιο.
  * <li>Η τέταρτη έχει αθροιστικά τα ποσά όλων των τιμολογίων.</ul> */
-class ReportTableModel implements TableModel {
+final class ReportTableModel implements TableModel {
 	/** Οι επικεφαλίδες των γραμμών. */
 	static final String[] VERTICAL_HEADER = {
 		"Καθαρή Αξία", "ΦΠΑ", "Καταλογιστέο", "Κρατήσεις", "Πληρωτέο", "ΦΕ", "Υπόλοιπο Πληρωτέο"
@@ -23,14 +25,20 @@ class ReportTableModel implements TableModel {
 	};
 
 	/** Το τρέχον τιμολόγιο. */
-	private Invoice inv;
+	private Invoice invoice;
 
 	/** Ενημερώνεται το μοντέλο ότι το ενεργό τιμολόγιο άλλαξε.
 	 * @param i Το νέο τιμολόγιο */
-	void changedInvoiceSelection(Invoice i) { inv = i; }
+	void setSelectedInvoice(Invoice i) {
+		invoice = i;
+		fireTableDataChanged(new TableModelEvent(this, 0, 6, 1));
+		fireTableDataChanged(new TableModelEvent(this, 0, 6, 2));
+	}
 
-	@Override public void addTableModelListener(TableModelListener l) {}
-	@Override public void removeTableModelListener(TableModelListener l) {}
+	/** Οι listeners για κάθε αλλαγή στα δεδομένα του πίνακα. */
+	private final ArrayList<TableModelListener> listeners = new ArrayList<>();
+	@Override final public void addTableModelListener(TableModelListener l) { listeners.add(l); }
+	@Override final public void removeTableModelListener(TableModelListener l) { listeners.remove(l); }
 	@Override public int getRowCount() { return VERTICAL_HEADER.length; }
 	@Override public int getColumnCount() { return HORIZONTAL_HEADER.length; }
 	@Override public String getColumnName(int columnIndex) { return HORIZONTAL_HEADER[columnIndex]; }
@@ -40,9 +48,17 @@ class ReportTableModel implements TableModel {
 	@Override public Object getValueAt(int row, int col) {
 		if (col == 0) return VERTICAL_HEADER[row];
 		if (col == 3) return a(data.getActiveExpenditure().prices[row]);
-		if (inv == null) return null;
-		if (col == 1) return a(inv.prices[row]);
-		if (inv.getContract() == null) return null;
-		return a(inv.getContract().prices[row]);
+		if (invoice == null) return null;
+		if (col == 1) return a(invoice.prices[row]);
+		if (invoice.getContract() == null) return null;
+		return a(invoice.getContract().prices[row]);
 	}
+
+	/** Ενημερώνει όλους τους listeners ότι όλα τα δεδομένα του πίνακα άλλαξαν.
+	 * @param event Το event δεδομένων */
+	public void fireTableDataChanged(TableModelEvent event) {
+		listeners.stream().forEach(i -> i.tableChanged(event));
+	}
+	/** Ενημερώνει όλους τους listeners ότι όλα τα δεδομένα του πίνακα άλλαξαν. */
+	public void fireTableDataChanged() { fireTableDataChanged(new TableModelEvent(this)); }
 }

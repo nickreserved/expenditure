@@ -1,5 +1,6 @@
 package expenditure;
 
+import static expenditure.Contract.TenderType.DIRECT_ASSIGNMENT;
 import static expenditure.Deduction.D0_06216;
 import static expenditure.Deduction.D0_13468;
 import static expenditure.Deduction.D0_26216;
@@ -26,7 +27,6 @@ import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -35,7 +35,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import static java.lang.ClassLoader.getSystemResource;
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import java.net.ServerSocket;
@@ -56,12 +55,15 @@ import static javax.swing.BorderFactory.createLineBorder;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -71,6 +73,7 @@ import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import static javax.swing.JOptionPane.NO_OPTION;
 import static javax.swing.JOptionPane.OK_CANCEL_OPTION;
+import static javax.swing.JOptionPane.OK_OPTION;
 import static javax.swing.JOptionPane.PLAIN_MESSAGE;
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
@@ -93,13 +96,20 @@ import static javax.swing.UIManager.getSystemLookAndFeelClassName;
 import static javax.swing.UIManager.setLookAndFeel;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.event.TableModelEvent;
 import static javax.swing.event.TableModelEvent.ALL_COLUMNS;
 import static javax.swing.event.TableModelEvent.DELETE;
 import static javax.swing.event.TableModelEvent.INSERT;
+import static javax.swing.event.TableModelEvent.UPDATE;
 import javax.swing.table.TableColumnModel;
 import util.ComboDataModel;
+import util.ComboPlusOneDataModel;
 import util.ExtensionFileFilter;
 import util.PhpScriptRunner;
 import util.PhpScriptRunner.StdInStream;
@@ -107,11 +117,11 @@ import util.PhpSerializer;
 import util.PhpSerializer.FormatException;
 import util.PhpSerializer.VariableSerializable;
 import util.PropertiesTableModel;
-import util.PropertiesTableModel.TableColumnData;
 import util.PropertiesTableModel.TableRecord;
 import static util.PropertiesTableModel.createTable;
+import util.ResizableHeaderTableModel;
+import util.ResizablePropertiesTableModel;
 import util.ResizableTableModel;
-import util.ResizableTableModel.TableData;
 import static util.ResizableTableModel.createTable;
 
 /** Το κυρίως παράθυρο του προγράμματος.
@@ -136,20 +146,30 @@ final public class MainFrame extends JFrame {
 	/** Το παράθυρο του προγράμματος.
 	 * Κατά την εκτέλεση της main() είναι null. Μετά ορίζεται. */
 	static MainFrame window;
-	/** Ο πίνακας των τιμολογίων. */
+	/** Ο πίνακας τιμολογίων. */
 	private JTable tblInvoices;
-	/** Ο πίνακας των εργασιών. */
-	private JTable tblWorks;
-	/** Ο πίνακας των δικαιούχων. */
-	private JTable tblContractors;
-	/** Ο πίνακας των κρατήσεων. */
-	private JTable tblDeductions;
-	/** Ο πίνακας του προσωπικού. */
-	private JTable tblPersonnel;
-	/** Ο πίνακας με το φύλλο καταχώρησης της δαπάνης. */
-	private JTable tblContents;
-	/** Ο πίνακας με τα αθροίσματα τιμών των τιμολογίων. */
-	private JTable tblReport;
+	/** Το μοντέλο δεδομένων του πίνακα με τα αθροίσματα τιμολογίων. */
+	private ReportTableModel rtmReport;
+	/** Το μοντέλο δεδομένων του πίνακα εργασιών. */
+	private WorksTableModel rtmWorks;
+	/** Το μοντέλο δεδομένων του πίνακα των δικαιούχων. */
+	private ResizableHeaderTableModel<Contractor> rtmContractors;
+	/** Το μοντέλο δεδομένων του πίνακα κρατήσεων. */
+	private ResizableTableModel<Deduction> rtmDeductions;
+	/** Το μοντέλο δεδομένων του πίνακα προσωπικού. */
+	private ResizableHeaderTableModel rtmPersonnel;
+	/** Το μοντέλο δεδομένων του πίνακα με το φύλλο καταχώρησης της δαπάνης. */
+	private ContentsTableModel rtmContents;
+	/** Το μοντέλο δεδομένων του combobox των συμβάσεων. */
+	private ComboDataModel<Contract> cdmContracts;
+	/** Ο πίνακας με τα δικαιολογητικά και τους διαγωνιζόμενους. */
+	private DocumentTableModel rtmDocuments;
+	/** Ο πίνακας με τα στοιχεία της δαπάνης. */
+	private PropertiesTableModel rtmExpenditure;
+	/** Εικονίδιο δημιουργίας. */
+	final static public Icon ICON_NEW = loadIcon("new");
+	/** Εικονίδιο διαγραφής. */
+	final static public Icon ICON_DELETE = loadIcon("close");
 
 	/** Αρχικοποιεί το παράθυρο του προγράμματος. */
 	public MainFrame() {
@@ -157,7 +177,7 @@ final public class MainFrame extends JFrame {
 		setIconImage(loadIcon("app").getImage());
 		getContentPane().add(createPanels());
 		updatePanels();
-		setJMenuBar(createMainMenu());
+		setJMenuBar(createMenuMain());
 		updateMenus();
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -175,234 +195,39 @@ final public class MainFrame extends JFrame {
 		// πρέπει να επαναδημιουργούνται.
 
 		// Επιλογέας προσώπων που περιέχει λίστα όλου του προσωπικού.
-		JComboBox cbPersonnel = new JComboBox(new ComboDataModel(() -> data.personnel, true));
-		// Επιλογέας δικαιούχων / εργολάβων / προμηθευτών / ανάδοχων.
-		JComboBox cbContractors = new JComboBox(new ComboDataModel(() -> data.contractors, false));
-		// Επιλογέας δικαιούχων / εργολάβων / προμηθευτών / ανάδοχων και συμβάσεων.
-		JComboBox cbContracts = new JComboBox(new ContractDataModel());
-		// Επιλογέας κρατήσεων.
-		JComboBox cbDeductions = new JComboBox(new ComboDataModel(() -> data.deductions, true));
+		JComboBox cbPersonnel = new JComboBox(new ComboPlusOneDataModel() {
+			@Override protected List get() { return data.personnel; }
+		});
+		// Επιλογέας true / false.
+		JComboBox cbBoolean = new JComboBox(NOYES);
 		// Επιλογέας διαθέσιμων μονάδων μέτρησης, με δυνατότητα προσθήκης από το πληκτρολόγιο.
 		JComboBox cbUnits = new JComboBox(new String[] {
 			"τεμάχια", "Kgr", "ton", "lt", "mm", "cm", "cm²", "cm³", "m", "m²", "m³", "ρολά", "πόδια",
 			"λίβρες", "ζεύγη", "στρέμματα", "Km", "Km²", "τονοχιλιόμετρα", "ώρες", "ημέρες", "μήνες"
 		});
 		cbUnits.setEditable(true);
-		// Επιλογέας true / false.
-		JComboBox cbBoolean = new JComboBox(NOYES);
-		JComboBox cbTenderTypes = new JComboBox(Contract.TenderType.values());
 		// Περίγραμμα για όλα
 		Border border = createLineBorder(WHITE, 0);
-		cbPersonnel  .setBorder(border);
-		cbContracts  .setBorder(border);
-		cbContractors.setBorder(border);
-		cbDeductions .setBorder(border);
-		cbUnits      .setBorder(border);
-		cbBoolean    .setBorder(border);
-		cbTenderTypes.setBorder(border);
+		cbUnits    .setBorder(border);
+		cbPersonnel.setBorder(border);
+		cbBoolean  .setBorder(border);
 
 		// ======================== ΚΑΡΤΕΛΑ «ΕΡΓΑΣΙΕΣ» ========================
-		// Ρυθμίζεται ο πίνακας εργασιών
-		TableData td = new TableData() {
-			@Override public List<Work> get() {
-				return data.isEmpty() ? null : data.getActiveExpenditure().works;
-			}
-			@Override public Work createNew() { return new Work(); }
-		};
-		ResizableTableModel rtmWorks = new ResizableTableModel(td, Arrays.copyOf(Work.H, 3));
-		tblWorks = createTable(rtmWorks, true, false);
+		// Πίνακας εργασιών
+		rtmWorks = new WorksTableModel();
+		JTable tblWorks = createTable(rtmWorks, true, false);
 		tblWorks.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblWorks.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(cbUnits));
-
-		// Ρυθμίζεται ο πίνακας υλικών των εργασιών
-		TableData tdMaterials = new TableData() {
-			@Override public List<Material> get() {
-				int a = window.tblWorks.getSelectedRow();	// με το window.* γλιτώνουμε το capture
-				if (a == -1 || data.isEmpty()) return null;
-				List<Work> w = data.getActiveExpenditure().works;
-				return a < w.size() ? w.get(a).materials : null;
-			}
-			@Override public Material createNew() { return new Material(); }
-		};
-		ResizableTableModel rtmMaterials = new ResizableTableModel(tdMaterials, Material.H);
+		// Πίνακας υλικών
+		MaterialsTableModel rtmMaterials = new MaterialsTableModel(tblWorks);
 		JTable tblMaterial = createTable(rtmMaterials, true, true);
 		tblMaterial.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(cbUnits));
-		// Όταν επιλέγουμε άλλη εργασία στον πίνακα εργασιών, ο πίνακας υλικών προσαρμόζεται σε αυτή
-		tblWorks.getSelectionModel().addListSelectionListener((ListSelectionEvent e) ->
-				((ResizableTableModel) tblMaterial.getModel()).fireTableDataChanged());
 		// Δημιουργία του panel
 		JSplitPane spWorks = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				new JScrollPane(tblWorks),
 				new JScrollPane(tblMaterial));
 		spWorks.setDividerSize(3);
 		spWorks.setDividerLocation(75);
-
-		// ======================== ΚΑΡΤΕΛΑ «ΤΙΜΟΛΟΓΙΑ» ========================
-		// Ρύθμιση του πίνακα τιμολογίων
-		td = new TableData() {
-			@Override public List<Invoice> get() {
-				return data.isEmpty() ? null : data.getActiveExpenditure().invoices;
-			}
-			@Override public Invoice createNew() { return new Invoice(data.getActiveExpenditure()); }
-			@Override public void remove(int index) {
-				List<Invoice> list = get();
-				list.get(index).recalcRemove();
-				list.remove(index);
-			}
-		};
-		String[] header = { Invoice.H[0], Invoice.H[1], Invoice.H[2] + " ή Σύμβαση", Invoice.H[3], Invoice.H[4] };
-		ResizableTableModel rtmInvoices = new ResizableTableModel(td, header) {
-			@Override public boolean isCellEditable(int row, int col) {
-				// Αν οι αυτόματοι υπολογισμοί είναι ενεργοί, τα κελιά των κρατήσεων και ΦΕ
-				// δεν επεξεργάζονται
-				return col != 3 && col != 4 || !data.getActiveExpenditure().isSmart();
-			}
-		};
-		JComboBox invoiceTypes = new JComboBox(Invoice.Type.values());
-		JComboBox incomeTax    = new JComboBox(new Byte[] { 4, 8, 0, 1, 3, 20 });
-		invoiceTypes.setBorder(border);
-		incomeTax   .setBorder(border);
-		tblInvoices = createTable(rtmInvoices, false, false);
-		tblInvoices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		TableColumnModel cm = tblInvoices.getColumnModel();
-		cm.getColumn(1).setCellEditor(new DefaultCellEditor(invoiceTypes));
-		cm.getColumn(2).setCellEditor(new DefaultCellEditor(cbContracts));
-		cm.getColumn(3).setCellEditor(new DefaultCellEditor(cbDeductions));
-		cm.getColumn(4).setCellEditor(new DefaultCellEditor(incomeTax));
-
-		// Ρύθμιση του πίνακα ειδών τιμολογίου
-		TableData tdItems = new TableData<InvoiceItem>() {
-			@Override public List<InvoiceItem> get() {
-				int a = window.tblInvoices.getSelectedRow();	// με το window.* γλιτώνουμε το capture
-				if (a == -1 || data.isEmpty()) return null;
-				List<Invoice> w = data.getActiveExpenditure().invoices;
-				return a < w.size() ? w.get(a).items : null;
-			}
-			@Override public InvoiceItem createNew() {
-				return new InvoiceItem(data.getActiveExpenditure().invoices.get(
-						window.tblInvoices.getSelectedRow()));	// με το window.* γλιτώνουμε το capture
-			}
-			@Override public void remove(int index) {
-				List<InvoiceItem> list = get();
-				InvoiceItem ii = list.get(index);
-				list.remove(index);
-				ii.parent.recalcFromItems();
-			}
-		};
-		ResizableTableModel rtmItems = new ResizableTableModel(tdItems, InvoiceItem.H);
-		JTable tblItems = createTable(rtmItems, true, true);
-		cm = tblItems.getColumnModel();
-		JComboBox vat = new JComboBox(new Byte[] { 24, 13, 6, 0 });
-		vat.setBorder(border);
-		vat.setEditable(true);
-		cm.getColumn(4).setCellEditor(new DefaultCellEditor(vat));
-		cm.getColumn(7).setCellEditor(new DefaultCellEditor(cbUnits));
-
-		// Προσθήκη επιπλέον επιλογής στο popup menu για μεταφορά υλικών στις εργασίες
-		JPopupMenu popupMenu = tblItems.getComponentPopupMenu();
-		popupMenu.addSeparator();
-		popupMenu.add(createMenuItem("Αντιγραφή επιλεγμένων γραμμών στην τρέχουσα εργασία", "import",
-				(ActionEvent e) -> {
-					// Αντί να αποκτήσουμε πρόσβαση μέσω data, το οποίο είναι επίπονο γιατί πρέπει να
-					// εντοπίσουμε τρέχουσα εργασία και τρέχον τιμολόγιο, χρησιμοποιούμε τα δεδομένα των
-					// αντίστοιχων μοντέλων πινάκων
-					List<Material> materials = tdMaterials.get();
-					List<InvoiceItem> items = tdItems.get();
-					if (materials != null && items != null) {
-						int rows[] = tblItems.getSelectedRows();
-						int from = materials.size();
-						for (int row : rows)
-							if (row < items.size())
-								materials.add(new Material(items.get(row)));
-						rtmMaterials.fireTableDataChanged(new TableModelEvent(rtmMaterials, from,
-								materials.size() - 1, ALL_COLUMNS, INSERT));
-					} else showMessageDialog(this, "Δεν υπάρχει επιλεγμένη εργασία για να προστεθούν υλικά.\n" +
-							"Επιλέξτε πρώτα μια εργασία στην καρτέλα «Εργασίες» και μετά προσθέστε υλικά, από τα τιμολόγια, σε αυτή.",
-							"Αντιγραφή ειδών στην τρέχουσα εργασία", ERROR_MESSAGE);
-				}));
-
-		// Το μοντέλο δεδομένων του πίνακα που εμφανίζει τα κόστη των τιμολογίων, και ο πίνακας
-		ReportTableModel rtmReport = new ReportTableModel();
-		tblReport = PropertiesTableModel.createTable(rtmReport);
-		// Όταν επιλέγουμε άλλο τιμολόγιο στον πίνακα τιμολογίων
-		tblInvoices.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
-			ResizableTableModel src = new ResizableTableModel(null, (List) null);	// Hack: dumb != null
-			// Ο πίνακας με τα είδη τιμολογίου ανανεώνεται για να εμφανίζει τα είδη του νέου τιμολογίου
-			tblItems.tableChanged(new TableModelEvent(rtmInvoices));
-			// Ο πίνακας με τα κόστη ανανεώνεται για να εμφανίζει τα νέα κόστη
-			List<Invoice> invoices = data.getActiveExpenditure().invoices;
-			int row = window.tblInvoices.getSelectedRow();
-			Invoice invoice = row >= 0 && row < invoices.size() ? invoices.get(row) : null;
-			((ReportTableModel) window.tblReport.getModel()).changedInvoiceSelection(invoice);	// με το window.* γλιτώνουμε το capture
-			window.tblReport.tableChanged(new TableModelEvent(src, 0, 6, 1));	// Στήλη τιμολογίου
-			window.tblReport.tableChanged(new TableModelEvent(src, 0, 6, 2));	// Στήλη σύμβασης
-		});
-		// Όταν τροποποιούμε ένα είδος τιμολογίου στον αντίστοιχο πίνακα
-		rtmItems.addTableModelListener((TableModelEvent e) -> {
-			ResizableTableModel src = (ResizableTableModel) e.getSource();
-			int col = e.getColumn();
-			// Αλλαγή σε ένα κελί του πίνακα ειδών επηρεάζει και τα υπόλοιπα της γραμμής
-			if (col != ALL_COLUMNS) {
-				if (col == 0 || col == 7) return;	// Σίγουρα δεν είναι INSERT / DELETE
-				tblItems.tableChanged(new TableModelEvent(src, e.getFirstRow(), e.getLastRow(), ALL_COLUMNS));
-			}
-			// Όταν έχουμε αυτόματο υπολογισμό, ο πίνακας τιμολογίων ανανεώνει τις στήλες σύμβασης,
-			// κρατήσεων και ΦΕ (όλα τα τιμολόγια, λόγω πιθανού ίδιου δικαιούχου - όχι μόνο το τρέχον)
-			if (data.getActiveExpenditure().isSmart()) {	// έχουμε αυτόματο υπολογισμό
-				int to = data.getActiveExpenditure().invoices.size();
-				window.tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 2));
-				window.tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 3));
-				window.tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 4));
-			}
-			// Ο πίνακας με τα κόστη ανανεώνεται για να εμφανίζει τα νέα κόστη
-			window.tblReport.tableChanged(new TableModelEvent(src));
-		});
-		// Όταν τροποποιούμε ένα τιμολόγιο στον αντίστοιχο πίνακα
-		rtmInvoices.addTableModelListener((TableModelEvent e) -> {
-			ResizableTableModel src = (ResizableTableModel) e.getSource();
-			int col = e.getColumn();
-			// Διαγράφηκε ένα τιμολόγιο: Ο πίνακας με τα κόστη ανανεώνεται
-			if (e.getType() == DELETE) window.tblReport.tableChanged(new TableModelEvent(src, 0, 6, 3));	// Στήλη δαπάνης
-			else if (data.getActiveExpenditure().isSmart()) {	// έχουμε αυτόματο υπολογισμό
-				// Αν άλλαξε ο τύπος του τιμολογίου ή ο τύπος του δικαιούχου
-				if (col == 1 || col == 2) {
-					// Ενδέχεται να άλλαξαν κρατήσεις και ΦΕ σε όλα τα τιμολόγια του ίδιου δικαιούχου
-					int to = data.getActiveExpenditure().invoices.size();
-					window.tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 3));
-					window.tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 4));
-					// Ο πίνακας με τα είδη τιμολογίου ανανεώνεται γιατί μπορεί να άλλαξε το ΦΠΑ
-					int rows = rtmItems.getRowCount() - 1;
-					tblItems.tableChanged(new TableModelEvent(src, 0, rows, 4));	// Στήλη ΦΠΑ
-					tblItems.tableChanged(new TableModelEvent(src, 0, rows, 5));	// Στήλη καταλογιστέας αξίας ενός
-					tblItems.tableChanged(new TableModelEvent(src, 0, rows, 6));	// Στήλη καταλογιστέας αξίας όλων
-					// Ο πίνακας με τα κόστη ανανεώνεται γιατί μπορεί να άλλαξαν κρατήσεις και ΦΕ
-					window.tblReport.tableChanged(new TableModelEvent(src, 1, 6, 1));	// Στήλη τιμολογίου
-					window.tblReport.tableChanged(new TableModelEvent(src, 1, 6, 2));	// Στήλη σύμβασης
-					window.tblReport.tableChanged(new TableModelEvent(src, 1, 6, 3));	// Στήλη δαπάνης
-				}
-			// Αν άλλαξε η σύμβαση του τιμολογίου, ο πίνακας με τα κόστη ανανεώνεται
-			} else if (col == 2) window.tblReport.tableChanged(new TableModelEvent(rtmItems, 0, 6, 2));	// Στήλη σύμβασης
-			// Αν άλλαξαν κρατήσεις ή ΦΕ, ο πίνακας με τα κόστη ανανεώνεται
-			else if (col == 3 || col == 4) {
-				window.tblReport.tableChanged(new TableModelEvent(src, 2, 6, 1));	// Στήλη τιμολογίου
-				window.tblReport.tableChanged(new TableModelEvent(src, 2, 6, 2));	// Στήλη σύμβασης
-				window.tblReport.tableChanged(new TableModelEvent(src, 2, 6, 3));	// Στήλη δαπάνης
-			}
-		});
-
-		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				new JScrollPane(tblInvoices),
-				new JScrollPane(tblItems));
-		sp.setDividerSize(3);
-		sp.setDividerLocation(75);
-		// Hack: Αν αφαιρεθεί το pnl η στοίχιση του sp χαλάει. Γιατί; Μην πειράζεις ότι δεν καταλαβαίνεις!
-		Box pnl = Box.createHorizontalBox();
-		pnl.add(sp);
-		Box pnlInvoices = Box.createVerticalBox();
-		pnlInvoices.add(pnl);
-		// Αν ο JTable δεν είναι μέσα σε JScrollPane, ο header του πρέπει να προστεθεί manual
-		pnlInvoices.add(tblReport.getTableHeader());
-		pnlInvoices.add(tblReport);
 
 		// ======================== ΚΑΡΤΕΛΑ «ΣΤΟΙΧΕΙΑ ΜΟΝΑΔΑΣ» ========================
 		// Οι επικεφαλίδες του πίνακα στοιχείων Μονάδας
@@ -419,11 +244,6 @@ final public class MainFrame extends JFrame {
 			UnitInfo.H[19], UnitInfo.H[20], UnitInfo.H[21], UnitInfo.H[22], UnitInfo.H[23],
 			UnitInfo.H[24], UnitInfo.H[25], UnitInfo.H[26], UnitInfo.H[27]
 		};
-		// Ποιά πεδία του πίνακα στοιχείων Μονάδας είναι επεξεργάσιμα
-		boolean[] unitEditable = {
-			false, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
-			false, true
-		};
 		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της Μονάδας.
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
 		Component[] unitEditors = {
@@ -431,66 +251,20 @@ final public class MainFrame extends JFrame {
 			cbPersonnel, cbPersonnel,
 			null, null, null, cbPersonnel
 		};
-		// Ρύθμιση του πίνακα με τα στοιχεία Μονάδας
-		PropertiesTableModel ptm = new PropertiesTableModel((int index) -> data.unitInfo,
-				unitHeader, 1, unitEditable);
-		JScrollPane spUnit = new JScrollPane(createTable(ptm, unitEditors));
-
-		// ======================== ΚΑΡΤΕΛΑ «ΣΤΟΙΧΕΙΑ ΔΑΠΑΝΗΣ» ========================
-		// Επικεφαλίδα του πίνακα στοιχείων δαπάνης
-		String[] expHeader = Stream.concat(Stream.of(new String[] {
-			"<html><b>Στοιχεία Δαπάνης",
-			Expenditure.H[0], Expenditure.H[1],
-			"<html>" + Expenditure.H[2] + " <font color=gray size=2>(Πίστωση ΓΕΣ/Γ2)",
-			"Ειδικός Φορέας (ΕΦ)", "Αναλυτικός Λογαριασμός Εσόδων/Εξόδων (ΑΛΕ)", Expenditure.H[5],
-			"<html>" + Expenditure.H[6] + " <font color=gray size=2>(αιτιατική)", Expenditure.H[7],
-			Expenditure.H[8], Expenditure.H[9], "<html><b>Αυτοματισμοί", Expenditure.H[10]
-		}), Stream.of(unitHeader)).toArray(String[]::new);
-		// Ποιά πεδία του πίνακα στοιχείων δαπάνης είναι επεξεργάσιμα
-		boolean[] a = { false, true, true, false, true, true, true, true, true, true, true, false, true };
-		boolean[] expEditable = Arrays.copyOf(a, a.length + unitEditable.length);
-		System.arraycopy(unitEditable, 0, expEditable, a.length, unitEditable.length);
-		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της δαπάνης.
-		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
-		Component[] expEditors = Stream.concat(Stream.of(new Component[] {
-			null, null, cbBoolean, cbBoolean, null, null, new JComboBox(Financing.values()), null,
-			null, null, null, null, cbBoolean
-		}), Stream.of(unitEditors)).toArray(Component[]::new);
-		// Ρύθμιση του πίνακα με τα στοιχεία δαπάνης
-		ptm = new PropertiesTableModel((int index) -> data.getActiveExpenditure(),
-		expHeader, 1, expEditable);
-		JScrollPane spExpenditure = new JScrollPane(createTable(ptm, expEditors));
-
-		// ======================== ΚΑΡΤΕΛΑ «ΣΥΜΒΑΣΕΙΣ» ========================
-		// Επικεφαλίδα του πίνακα στοιχείων συμβάσεων
-		header = new String[] {
-			Contract.H[0], "<html>Τίτλος Σύμβασης <font color=gray size=2>(αιτιατική)",
-			Contract.H[2], Contract.H[3]
-		};
-		td = new TableData() {
-			@Override public List<Contract> get() { return data.isEmpty() ? null : data.getActiveExpenditure().contracts; }
-			@Override public Contract createNew() { return new Contract(); }
-		};
-		ResizableTableModel rtm = new ResizableTableModel(td, header);
-		JTable tblContracts = createTable(rtm, true, true);
-		cm = tblContracts.getColumnModel();
-		cm.getColumn(2).setCellEditor(new DefaultCellEditor(cbTenderTypes));
-		cm.getColumn(3).setCellEditor(new DefaultCellEditor(cbContractors));
-		JScrollPane spContracts = new JScrollPane(tblContracts);
 
 		// Το tabbed panel πρέπει να είναι πρώτο στοιχείο της φορμας και οι Εργασίες το 4ο στοιχείο
 		// του tabbed panel.
 		// Μετά από κάθε προσθηκη, διαγραφή, αλλαγή σειράς να ελέγχω το MainFrame.updatePanels().
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Στοιχεία Δαπάνης", spExpenditure);
-		tabs.addTab("Τιμολόγια", pnlInvoices);
-		tabs.addTab("Συμβάσεις", spContracts);
-		tabs.addTab("Φύλλο καταχώρησης", createContentsPanel());
+		tabs.addTab("Στοιχεία Δαπάνης", createPanelExpenditure(unitHeader, cbBoolean, unitEditors));
+		tabs.addTab("Τιμολόγια", createPanelInvoices(cbUnits, rtmMaterials));
+		tabs.addTab("Συμβάσεις", createPanelContracts(cbBoolean));
+		tabs.addTab("Φύλλο καταχώρησης", createPanelContents());
 		tabs.addTab("Εργασίες", spWorks);
-		tabs.addTab("Στοιχεία Μονάδας", spUnit);
-		tabs.addTab("Δικαιούχοι", createContractorsPanel());
-		tabs.addTab("Ανάλυση Κρατήσεων", createDeductionsPanel());
-		tabs.addTab("Προσωπικό Μονάδας", createPersonnelPanel());
+		tabs.addTab("Στοιχεία Μονάδας", createPanelUnit(unitHeader, unitEditors));
+		tabs.addTab("Δικαιούχοι", createPanelContractors(border));
+		tabs.addTab("Ανάλυση Κρατήσεων", createPanelDeductions());
+		tabs.addTab("Προσωπικό Μονάδας", createPanelPersonnel());
 
 		Color c = new Color(176, 208, 176);
 		tabs.setBackgroundAt(0, c);
@@ -507,32 +281,419 @@ final public class MainFrame extends JFrame {
 		return tabs;
 	}
 
-	/** Δημιουργεί ένα panel με τον πίνακα των αναδόχων. */
-	private JSplitPane createContractorsPanel() {
+	/** Δημιουργεί ένα panel με τα στοιχεία της Μονάδας.
+	 * @param unitHeader Οι επικεφαλίδες γραμμών του πίνακα
+	 * @param unitEditors Λίστα με τους χειριστές που επεξεργάζονται τα κελιά. Όσα είναι null
+	 * θεωρούνται ως text editors.
+	 * @return Το panel με τα στοιχεία της Μονάδας */
+	private JScrollPane createPanelUnit(String[] unitHeader, Component[] unitEditors) {
+		// Ρύθμιση του πίνακα με τα στοιχεία Μονάδας
+		PropertiesTableModel ptm = new PropertiesTableModel(unitHeader, 1) {
+			@Override public TableRecord get(int index) { return data.unitInfo; }
+			@Override public boolean isCellEditable(int row, int col) {
+				return super.isCellEditable(row, col) && row != 0 && row != 15;
+			}
+		};
+		return new JScrollPane(createTable(ptm, unitEditors));
+	}
+
+	/** Δημιουργεί ένα panel με τα στοιχεία των τιμολογίων.
+	 * @param cbUnit Ο επιλογέας με τις μονάδες μέτρησης
+	 * @param rtmMaterials Το μοντέλο δεδομένων του πίνακα υλικών της καρτέλας «Εργασίες»
+	 * @return Το panel με τα στοιχεία των τιμολογίων */
+	private Box createPanelInvoices(JComboBox cbUnits, MaterialsTableModel rtmMaterials) {
+		// Επιλογέας κρατήσεων.
+		JComboBox cbDeductions = new JComboBox(new ComboPlusOneDataModel() {
+			@Override protected List get() { return data.deductions; }
+		});
+		cbDeductions.setBorder(cbUnits.getBorder());
+		// Επιλογέας δικαιούχων / εργολάβων / προμηθευτών / ανάδοχων και συμβάσεων.
+		JComboBox cbContracts = new JComboBox(new ContractsContractorsDataModel());
+		cbContracts.setBorder(cbUnits.getBorder());
+		// Ρύθμιση του πίνακα τιμολογίων
+		InvoicesTableModel rtmInvoices = new InvoicesTableModel();
+		JComboBox invoiceTypes = new JComboBox(Invoice.Type.values());
+		JComboBox incomeTax    = new JComboBox(new Byte[] { 4, 8, 0, 1, 3, 20 });
+		invoiceTypes.setBorder(cbUnits.getBorder());
+		incomeTax   .setBorder(cbUnits.getBorder());
+		tblInvoices = createTable(rtmInvoices, false, false);
+		tblInvoices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		TableColumnModel cm = tblInvoices.getColumnModel();
+		cm.getColumn(1).setCellEditor(new DefaultCellEditor(invoiceTypes));
+		cm.getColumn(2).setCellEditor(new DefaultCellEditor(cbContracts));
+		cm.getColumn(3).setCellEditor(new DefaultCellEditor(cbDeductions));
+		cm.getColumn(4).setCellEditor(new DefaultCellEditor(incomeTax));
+
+		// Επιλογέας ΦΠΑ
+		JComboBox vat = new JComboBox(new Byte[] { 24, 13, 6, 0 });
+		vat.setBorder(cbUnits.getBorder());
+		vat.setEditable(true);
+		// Ρύθμιση του πίνακα ειδών τιμολογίου
+		InvoiceItemsTableModel rtmItems = new InvoiceItemsTableModel();
+		JTable tblItems = createTable(rtmItems, true, true);
+		cm = tblItems.getColumnModel();
+		cm.getColumn(4).setCellEditor(new DefaultCellEditor(vat));
+		cm.getColumn(7).setCellEditor(new DefaultCellEditor(cbUnits));
+		// Προσθήκη επιπλέον επιλογής στο popup menu για μεταφορά υλικών στις εργασίες
+		JPopupMenu popupMenu = tblItems.getComponentPopupMenu();
+		popupMenu.addSeparator();
+		popupMenu.add(createMenuItem("Αντιγραφή επιλεγμένων γραμμών στην τρέχουσα εργασία", "import", e -> {
+			// Αντί να αποκτήσουμε πρόσβαση μέσω data, το οποίο είναι επίπονο γιατί πρέπει να
+			// εντοπίσουμε τρέχουσα εργασία και τρέχον τιμολόγιο, χρησιμοποιούμε τα δεδομένα
+			// των αντίστοιχων μοντέλων πινάκων
+			List<Material> materials = rtmMaterials.get();
+			List<InvoiceItem> items = rtmItems.get();
+			if (materials != null) {
+				int rows[] = tblItems.getSelectedRows();
+				int from = materials.size();
+				for (int row : rows)
+					if (row < items.size())
+						materials.add(new Material(items.get(row)));
+				rtmMaterials.fireTableDataChanged(new TableModelEvent(rtmMaterials, from,
+						materials.size() - 1, ALL_COLUMNS, INSERT));
+			} else showMessageDialog(this, "Δεν υπάρχει επιλεγμένη εργασία για να προστεθούν υλικά.\n" +
+					"Επιλέξτε πρώτα μια εργασία στην καρτέλα «Εργασίες» και μετά προσθέστε υλικά, από τα τιμολόγια, σε αυτή.",
+					"Αντιγραφή ειδών στην τρέχουσα εργασία", ERROR_MESSAGE);
+		}));
+
+		// Ρύθμιση του πίνακα με τα κόστη των τιμολογίων
+		rtmReport = new ReportTableModel();
+		JTable tblReport = PropertiesTableModel.createTable(rtmReport);
+
+		// Όταν επιλέγουμε άλλο τιμολόγιο στον πίνακα τιμολογίων
+		tblInvoices.getSelectionModel().addListSelectionListener(e -> {
+			if (e.getValueIsAdjusting()) return;
+			// Εύρεση του επιλεγμένου τιμολογίου
+			int selection = window.tblInvoices.getSelectedRow();
+			List<Invoice> list = ((InvoicesTableModel) window.tblInvoices.getModel()).get();
+			Invoice i = list != null && selection >= 0 && selection < list.size()
+					? list.get(selection) : null;
+			// Ανανέωση δεδομένων των πινάκων ειδών και αθροισμάτων
+			rtmItems.setSelectedInvoice(i);
+			window.rtmReport.setSelectedInvoice(i);
+		});
+
+		// Όταν τροποποιούμε ένα είδος τιμολογίου στον αντίστοιχο πίνακα
+		rtmItems.addTableModelListener(e -> {
+			int col = e.getColumn();
+			// Κελιά που δεν αλλάζουν αθροίσματα. Σίγουρα δεν είναι INSERT / DELETE
+			if (col == 0 || col == 7) return;
+			ResizableTableModel src = (ResizableTableModel) e.getSource();
+			// Αν τροποποιηθεί κάποιο αριθμητικό κελί του πίνακα, επηρεάζεται όλη η εγγραφή
+			if (e.getType() == UPDATE && col > 0 && col < 7)
+				tblItems.tableChanged(new TableModelEvent(src, e.getFirstRow(), e.getLastRow(), ALL_COLUMNS));
+			// Όταν έχουμε αυτόματο υπολογισμό, ο πίνακας τιμολογίων ανανεώνει τις στήλες σύμβασης,
+			// κρατήσεων και ΦΕ (όλα τα τιμολόγια, λόγω πιθανού ίδιου δικαιούχου - όχι μόνο το τρέχον)
+			if (data.getActiveExpenditure().isSmart()) {	// έχουμε αυτόματο υπολογισμό
+				int to = data.getActiveExpenditure().invoices.size() - 1;
+				tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 2));
+				tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 3));
+				tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 4));
+				if (col != 4) {
+					window.rtmContents.fireTableDataChanged();
+					window.rtmDocuments.fireTableChanged();
+				}
+			}
+			// Ο πίνακας με τα κόστη ανανεώνεται για να εμφανίζει τα νέα κόστη
+			window.rtmReport.fireTableDataChanged(new TableModelEvent(src));
+		});
+
+		// Όταν τροποποιούμε ένα τιμολόγιο στον αντίστοιχο πίνακα
+		rtmInvoices.addTableModelListener(e -> {
+			ResizableTableModel src = (ResizableTableModel) e.getSource();
+			int col = e.getColumn();
+			// Εισήχθη ένα τιμολόγιο: Τίποτα
+			if (e.getType() == INSERT);
+			// Διαγράφηκε ένα τιμολόγιο: Ο πίνακας με τα κόστη και το φύλλο καταχώρησης ανανεώνεται
+			if (e.getType() == DELETE) {
+				window.rtmReport.fireTableDataChanged(new TableModelEvent(src, 0, 6, 3));	// Στήλη δαπάνης
+				window.rtmContents.fireTableDataChanged();
+			}
+			else if (data.getActiveExpenditure().isSmart()) {	// έχουμε αυτόματο υπολογισμό
+				// Αν άλλαξε ο τύπος του τιμολογίου ή ο τύπος του δικαιούχου
+				if (col == 1 || col == 2) {
+					// Ενδέχεται να άλλαξαν κρατήσεις και ΦΕ σε όλα τα τιμολόγια του ίδιου δικαιούχου
+					int to = data.getActiveExpenditure().invoices.size();
+					window.tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 3));
+					window.tblInvoices.tableChanged(new TableModelEvent(src, 0, to, 4));
+					// Ο πίνακας με τα είδη τιμολογίου ανανεώνεται γιατί μπορεί να άλλαξε το ΦΠΑ
+					int rows = rtmItems.getRowCount() - 1;
+					tblItems.tableChanged(new TableModelEvent(src, 0, rows, 4));	// Στήλη ΦΠΑ
+					tblItems.tableChanged(new TableModelEvent(src, 0, rows, 5));	// Στήλη καταλογιστέας αξίας ενός
+					tblItems.tableChanged(new TableModelEvent(src, 0, rows, 6));	// Στήλη καταλογιστέας αξίας όλων
+					// Ο πίνακας με τα κόστη ανανεώνεται γιατί μπορεί να άλλαξαν κρατήσεις και ΦΕ
+					window.rtmReport.fireTableDataChanged(new TableModelEvent(src, 1, 6, 1));	// Στήλη τιμολογίου
+					window.rtmReport.fireTableDataChanged(new TableModelEvent(src, 1, 6, 2));	// Στήλη σύμβασης
+					window.rtmReport.fireTableDataChanged(new TableModelEvent(src, 1, 6, 3));	// Στήλη δαπάνης
+				}
+			// Αν άλλαξε η σύμβαση του τιμολογίου, ο πίνακας με τα κόστη και το φύλλο καταχώρησης ανανεώνεται
+			} else if (col == 2) {
+				window.rtmReport.fireTableDataChanged(new TableModelEvent(rtmItems, 0, 6, 2));	// Στήλη σύμβασης
+				window.rtmContents.fireTableDataChanged();
+			}
+			// Αν άλλαξαν κρατήσεις ή ΦΕ, ο πίνακας με τα κόστη ανανεώνεται
+			else if (col == 3 || col == 4) {
+				window.rtmReport.fireTableDataChanged(new TableModelEvent(src, 2, 6, 1));	// Στήλη τιμολογίου
+				window.rtmReport.fireTableDataChanged(new TableModelEvent(src, 2, 6, 2));	// Στήλη σύμβασης
+				window.rtmReport.fireTableDataChanged(new TableModelEvent(src, 2, 6, 3));	// Στήλη δαπάνης
+			}
+		});
+
+		// Δημιουργία του πανελ
+		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				new JScrollPane(tblInvoices),
+				new JScrollPane(tblItems));
+		sp.setDividerSize(3);
+		sp.setDividerLocation(75);
+		// Hack: Αν αφαιρεθεί το pnl η στοίχιση του sp χαλάει. Γιατί; Μην πειράζεις ότι δεν καταλαβαίνεις!
+		Box pnl = Box.createHorizontalBox();
+		pnl.add(sp);
+		Box pnlInvoices = Box.createVerticalBox();
+		pnlInvoices.add(pnl);
+		// Αν ο JTable δεν είναι μέσα σε JScrollPane, ο header του πρέπει να προστεθεί manual
+		pnlInvoices.add(tblReport.getTableHeader());
+		pnlInvoices.add(tblReport);
+		return pnlInvoices;
+	}
+
+	/** Δημιουργεί ένα panel με τα στοιχεία της δαπάνης.
+	 * @param unitHeader Οι επικεφαλίδες του πίνακα της καρτέλας «Στοιχεία Μονάδας»
+	 * @param cbBoolean Ο επιλογέας Ναι/Όχι
+	 * @param unitEditors Οι επεξεργαστές του πίνακα της καρτέλας «Στοιχεία Μονάδας»
+	 * @return Το panel με τα στοιχεία της δαπάνης */
+	private JScrollPane createPanelExpenditure(String[] unitHeader, JComboBox cbBoolean,
+			Component[] unitEditors) {
+		// Επικεφαλίδα του πίνακα στοιχείων δαπάνης
+		String[] expHeader = Stream.concat(Stream.of(new String[] {
+			"<html><b>Στοιχεία Δαπάνης",
+			Expenditure.H[0], Expenditure.H[1],
+			"<html>" + Expenditure.H[2] + " <font color=gray size=2>(Πίστωση ΓΕΣ/Γ2)",
+			"Ειδικός Φορέας (ΕΦ)", "Αναλυτικός Λογαριασμός Εσόδων/Εξόδων (ΑΛΕ)", Expenditure.H[5],
+			"<html>" + Expenditure.H[6] + " <font color=gray size=2>(αιτιατική)", Expenditure.H[7],
+			Expenditure.H[8], Expenditure.H[9], "<html><b>Αυτοματισμοί", Expenditure.H[10]
+		}), Stream.of(unitHeader)).toArray(String[]::new);
+		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της δαπάνης.
+		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
+		Component[] expEditors = Stream.concat(Stream.of(new Component[] {
+			null, null, cbBoolean, cbBoolean, null, null, new JComboBox(Financing.values()), null,
+			null, null, null, null, cbBoolean
+		}), Stream.of(unitEditors)).toArray(Component[]::new);
+		// Ρύθμιση του πίνακα με τα στοιχεία δαπάνης
+		rtmExpenditure = new PropertiesTableModel(expHeader, 1) {
+			@Override public TableRecord get(int index) { return data.getActiveExpenditure(); }
+			@Override public boolean isCellEditable(int row, int col) {
+				return super.isCellEditable(row, col) && row != 0 && row != 3 && row != 11
+						&& row - 13 != 0 && row - 13 != 15;
+			}
+		};
+		// Ανανέωση πινάκων που τροποποιούνται λόγω αυτοματισμών
+		rtmExpenditure.addTableModelListener(e -> {
+			switch(e.getFirstRow()) {
+				case 12: window.rtmDocuments.fireTableChanged();	// no break
+				case 3: window.rtmContents.fireTableDataChanged(); break;
+			}
+		});
+		return new JScrollPane(createTable(rtmExpenditure, expEditors));
+	}
+
+	/** Δημιουργεί ένα panel με τους πίνακες των συμβάσεων.
+	 * @param cbBoolean Ο επιλογέας Ναι/Όχι
+	 * @return Το panel με τους πίνακες συμβάσεων */
+	private Box createPanelContracts(JComboBox cbBoolean) {
+		// Επιλογέας σύμβασης
+		cdmContracts = new ComboDataModel<Contract>() {
+			@Override protected List get() {
+				return data.isEmpty() ? new ArrayList() : data.getActiveExpenditure().contracts;
+			}
+		};
+		JComboBox cbContracts = new JComboBox(cdmContracts);
+		// Πλήκτρο νέας σύμβασης
+		JButton btnNew = new JButton("Νέα σύμβαση", ICON_NEW);
+		btnNew.addActionListener(e -> {
+			// Νέα σύμβαση: Επιλέγεται η πρώτη κενή, αλλιώς δημιουργείται μια.
+			Expenditure expenditure = data.getActiveExpenditure();
+			if (expenditure.isSmart())
+				showMessageDialog(window, "Όταν οι αυτόματοι υπολογισμοί είναι ενεργοί, οι συμβάσεις "
+						+ "δημιουργούνται αυτόματα,\nόταν τα τιμολόγια ξεπεράσουν το προβλεπόμενο ποσό.",
+						"Αποτυχία δημιουργίας σύμβασης", ERROR_MESSAGE);
+			else {
+				List<Contract> contracts = expenditure.contracts;
+				Contract contract = contracts.stream().filter(i -> i.isEmpty()).findAny().orElse(null);
+				if (contract == null) contracts.add(contract = new Contract(expenditure));
+				window.cdmContracts.setSelectedItem(contract);
+			}
+		});
+		// Πλήκτρο διαγραφής σύμβασης
+		JButton btnDelete = new JButton("Διαγραφή τρέχουσας σύμβασης", ICON_DELETE);
+		btnDelete.addActionListener(e -> {
+			Contract contract = window.cdmContracts.getSelectedItem();
+			if (contract != null) {
+				Expenditure expenditure = data.getActiveExpenditure();
+				if (expenditure.invoices.stream().anyMatch(i -> i.getContract() == contract))
+					showMessageDialog(window, "Η σύμβαση δε μπορεί να διαγραφεί όσο χρησιμοποιείται από τιμολόγια.",
+							"Αποτυχία διαγραφής της σύμβασης", ERROR_MESSAGE);
+				else if (contract.isEmpty() || OK_OPTION == showConfirmDialog(window,
+						"Είστε σίγουροι ότι θέλετε να διαγράψετε την τρέχουσα σύμβαση;",
+						"Διαγραφή τρέχουσας σύμβασης", OK_CANCEL_OPTION, WARNING_MESSAGE)) {
+					List<Contract> contracts = expenditure.contracts;
+					contracts.remove(contract);
+					expenditure.calcContents();
+					window.rtmContents.fireTableDataChanged();
+					window.cdmContracts.setSelectedItem(contracts.isEmpty() ? null : contracts.get(0));
+				}
+			}
+		});
+		cbContracts.setMaximumSize(new Dimension(300, 25));	// Hack
+		// Δημιουργία οριζόντιας μπάρας επιλογέα σύμβασης
+		Box hBox = Box.createHorizontalBox();
+		hBox.add(new JLabel("Τρέχουσα σύμβαση:"));
+		hBox.add(cbContracts);
+		hBox.add(btnNew);
+		hBox.add(btnDelete);
+
+		// Πίνακας στοιχείων σύμβασης
+		// Επιλογέας δικαιούχων / εργολάβων / προμηθευτών / ανάδοχων.
+		JComboBox cbContractors = new JComboBox(new ComboDataModel() {
+			@Override protected List get() { return data.contractors; }
+		});
+		cbContractors.setBorder(cbBoolean.getBorder());
+		// Οι τύποι διαγωνισμού
+		JComboBox cbTenderTypes = new JComboBox(Contract.TenderType.values());
+		cbTenderTypes.setBorder(cbBoolean.getBorder());
+		// Ο πίνακας με τα στοιχεία της σύμβασης
+		ContractInfoTableModel ptmInfo = new ContractInfoTableModel();
+		Component[] components = new Component[] {  null, null, cbTenderTypes, cbContractors, null };
+		JTable tblInfo = PropertiesTableModel.createTable(ptmInfo, components);
+
+		// Ο πίνακας με τα δικαιολογητικά και τους διαγωνιζόμενους
+		rtmDocuments = new DocumentTableModel();
+		JTable tblDocuments = createTable(rtmDocuments, true, false);
+		// Hack: Λόγω των διαγωνιζόμενων, ο πίνακας ξανασχεδιάζεται εξολοκλήρου, με αποτέλεσμα,
+		// όλες οι στήλες να διαγράφονται και να επαναδημιουργούνται και να χάνεται ο cell editor.
+		// Εδώ, κάθε φορά που μια νέα στήλη προστίθεται, τροποποιούμε το cell editor αν χρειάζεται.
+		tblDocuments.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
+			@Override public void columnAdded(TableColumnModelEvent e) {
+				if (e.getToIndex() == 1)
+					((TableColumnModel) e.getSource()).getColumn(1)
+							.setCellEditor(new DefaultCellEditor(cbBoolean));
+			}
+			@Override public void columnRemoved(TableColumnModelEvent e) {}
+			@Override public void columnMoved(TableColumnModelEvent e) {}
+			@Override public void columnMarginChanged(ChangeEvent e) {}
+			@Override public void columnSelectionChanged(ListSelectionEvent e) {}
+		});
+		// Προσθήκη popup menu στην επικεφαλίδα του πίνακα, για προσθαφαίρεση διαγωνιζόμενων
+		JPopupMenu popupMenu = new JPopupMenu();
+		popupMenu.add(createMenuItem("Εισαγωγή στήλης διαγωνιζόμενου", ICON_NEW, e -> {
+			Contract contract = window.cdmContracts.getSelectedItem();
+			if (contract == null) return;
+			Contractor contractor = (Contractor) showInputDialog(window, "Επιλέξτε διαγωνιζόμενο",
+					"Εισαγωγή διαγωνιζόμενου", QUESTION_MESSAGE, null, data.contractors.toArray(), null);
+			if (contractor != null) {
+				if (contract.competitors.contains(contractor))
+					showMessageDialog(window, "Υπάρχει ήδη στήλη με αυτόν το διαγωνιζόμενο.",
+							"Εισαγωγή στήλης", ERROR_MESSAGE);
+				else {
+					contract.competitors.add(contractor);
+					// Hack: Με το δεξί κλίκ στην επικεφαλίδα του πίνακα, προκειμένου να εμφανιστεί
+					// το μενού για προσθήκη νέας επιμέρους κράτησης, το JTable θεωρεί ότι η στήλη
+					// βρίσκεται σε κατάσταση drag & drop και κρατάει μια αναφορά στη συγκεκριμένη
+					// στήλη. Όμως εμείς επειδή με τη μεθεπόμενη εντολή λέμε να ξανασχεδιάσει
+					// εξολοκλήρου τον πίνακα, όλες οι στήλες διαγράφονται και επαναδημιουργούνται
+					// με αποτέλεσμα, όταν μετά το gui renderer thread θα ψάξει να βρει τη στήλη θα
+					// μας δώσει exception
+					tblDocuments.getTableHeader().setDraggedColumn(null);
+					((ResizableTableModel) tblDocuments.getModel()).fireTableChanged();
+				}
+			}
+		}));
+		popupMenu.add(createMenuItem("Διαγραφή στήλης διαγωνιζόμενου", "close", e -> {
+			Contract contract = window.cdmContracts.getSelectedItem();
+			if (contract == null || contract.competitors.isEmpty()) return;
+			Contractor contractor = (Contractor) showInputDialog(window, "Επιλέξτε διαγωνιζόμενο",
+					"Διαγραφή διαγωνιζόμενου", QUESTION_MESSAGE, null, contract.competitors.toArray(), null);
+			if (contractor != null)
+				if (contract.getTenderType() != DIRECT_ASSIGNMENT
+						&& contractor.equals(contract.getContractor()))
+					showMessageDialog(window, "Δεν μπορείτε να διαγράψετε τον νικητή του διαγωνισμού",
+							"Διαγραφή διαγωνιζόμενου", ERROR_MESSAGE);
+				else {
+					contract.competitors.remove(contractor);
+					// Hack: Με το δεξί κλίκ στην επικεφαλίδα του πίνακα, προκειμένου να εμφανιστεί
+					// το μενού για προσθήκη νέας επιμέρους κράτησης, το JTable θεωρεί ότι η στήλη
+					// βρίσκεται σε κατάσταση drag & drop και κρατάει μια αναφορά στη συγκεκριμένη
+					// στήλη. Όμως εμείς επειδή με τη μεθεπόμενη εντολή λέμε να ξανασχεδιάσει
+					// εξολοκλήρου τον πίνακα, όλες οι στήλες διαγράφονται και επαναδημιουργούνται
+					// με αποτέλεσμα, όταν μετά το gui renderer thread θα ψάξει να βρει τη στήλη θα
+					// μας δώσει exception
+					tblDocuments.getTableHeader().setDraggedColumn(null);
+					((ResizableTableModel) tblDocuments.getModel()).fireTableChanged();
+				}
+		}));
+		tblDocuments.getTableHeader().setComponentPopupMenu(popupMenu);
+
+		// Όταν τροποποιούνται διάφορα στοιχεία της σύμβασης
+		ptmInfo.addTableModelListener(e -> {
+			if (e.getFirstRow() != e.getLastRow()) return; // Μόνο για ανανέωση ενός κελιού
+			switch(e.getFirstRow()) {
+				case 0:	// Όνομα σύμβασης
+					cbContracts.repaint(); break;
+				case 2:	// Τύπος Διαγωνισμού
+					window.rtmContents.fireTableDataChanged();	// όχι break!
+				case 3:	// Ανάδοχος διαγωνισμού
+					window.rtmDocuments.fireTableChanged();
+					break;
+			}
+		});
+
+		// Όταν επιλέγουμε άλλη σύμβαση στον επιλογέα συμβάσεων
+		cdmContracts.addListDataListener(new ListDataListener() {
+			@Override public void intervalAdded(ListDataEvent e) { contentsChanged(e); }
+			@Override public void intervalRemoved(ListDataEvent e) { contentsChanged(e); }
+			@Override public void contentsChanged(ListDataEvent e) {
+				Contract contract = ((ComboDataModel<Contract>) e.getSource()).getSelectedItem();
+				ptmInfo.setSelectedContract(contract);
+				rtmDocuments.setSelectedContract(contract);
+			}
+		});
+
+		// Η τελική διαμόρφωση της καρτέλας
+		Box vBoxI = Box.createVerticalBox();
+		vBoxI.add(tblInfo);
+		vBoxI.add(Box.createVerticalStrut(20));
+		Box hBoxO = Box.createHorizontalBox();
+		hBoxO.add(new JLabel("<html>Δικαιολογητικά που πρέπει να υποβάλλουν οι διαγωνιζόμενοι.<br>"
+				+ "Προσθαφαιρούμε διαγωνιζόμενους με δεξί κλίκ στην επικεφαλίδα του πίνακα.<br>"
+				+ "Στο κελί γράφουμε το λόγο απορριψης του δικαιολογητικού"
+				+ " ή το αφήνουμε κενό αν κάνουμε δεκτό το δικαιολογητικό.<br>"
+				+ "Αν ο διαγωνιζόμενος δεν υπέβαλε το δικαιολογητικό βάζουμε -,"
+				+ " ενώ αν δεν όφειλε να το υποβάλει βάζουμε +.<br>"
+				+ "Αν ένα δικαιολογητικό τελειώνει με ' ή', το επόμενο αποτελεί ενναλλακτικό του."));
+		vBoxI.add(hBoxO);
+		vBoxI.add(tblDocuments.getTableHeader());
+		vBoxI.add(tblDocuments);
+		Box vBox = Box.createVerticalBox();
+		vBox.add(hBox);
+		vBox.add(new JScrollPane(vBoxI));
+		return vBox;
+	}
+
+	/** Δημιουργεί ένα panel με τον πίνακα των δικαιούχων.
+	 * @param border Το περίγραμμα των επιλογέων που επεξεργάζονται τα πεδία στον πίνακα
+	 * @return Το panel με τους πίνακες δικαιούχων */
+	private JSplitPane createPanelContractors(Border border) {
 		// Ο πάροχος δεδομένων για τον πίνακα με τις επωνυμίες των δικαιούχων
-		ResizableTableModel<Contractor> model = new ResizableTableModel<Contractor>(
-				(TableData)() -> data.contractors, new String[] { Contractor.H[0] }) {
+		rtmContractors = new ResizableHeaderTableModel<Contractor>(Arrays.copyOf(Contractor.H, 1)) {
+			@Override protected List<Contractor> get() { return data.contractors; }
+			@Override protected Contractor createNew() { return new Contractor(); }
 			@Override public boolean isCellEditable(int row, int col) { return false; }
 		};
 		// Ο πίνακας με τις επωνυμίες των δικαιούχων
-		tblContractors = createTable(model, true, true );
+		JTable tblContractors = createTable(rtmContractors, true, true );
+
 		// Ο επιλογέας τύπου του δικαιούχου
 		JComboBox type = new JComboBox(Contractor.Type.values());
-		type.setBorder(createLineBorder(WHITE, 0));
-		// Ο πάροχος δεδομένων για τον πίνακα με τα στοιχεία των δικαιούχων
-		TableColumnData tcd = new TableColumnData() {
-			private Contractor c = null;
-			@Override public TableRecord get(int index) {
-				if (window.tblContractors.getSelectedRowCount() != 1) { c = null; return null; }
-				int a = window.tblContractors.getSelectedRow();	// με το window.* γλιτώνουμε το capture
-				if (a == data.contractors.size()) {
-					if (c == null) c = new Contractor();
-					return c;
-				}
-				c = null;
-				return data.contractors.get(a);
-			}
-		};
+		type.setBorder(border);
 		// Ο πίνακας με τα στοιχεία του δικαιούχου
 		String[] h = {
 			Contractor.H[0], Contractor.H[1], Contractor.H[2], Contractor.H[3], "Έδρα, Διεύθυνση, Τ.Κ.",
@@ -540,33 +701,23 @@ final public class MainFrame extends JFrame {
 			PersonInfo.H[2], PersonInfo.H[3], PersonInfo.H[4], PersonInfo.H[5], PersonInfo.H[6],
 			PersonInfo.H[7] + " (Έδρα, Διεύθυνση, ΤΚ)", PersonInfo.H[8]
 		};
-		boolean[] b = { true, true, true, true, true, false, true };
-		PropertiesTableModel info = new PropertiesTableModel(tcd, h, 1, b);
-		JTable tblInfo = PropertiesTableModel.createTable(info, new Component[] { null, type, null });
-		tblInfo.setVisible(false);
-		info.addTableModelListener((TableModelEvent e) -> {
-			JTable t = window.tblContractors;	// με το window.* γλιτώνουμε το capture
-			int a = t.getSelectedRow();
-			Contractor tr = (Contractor) tcd.get(0);
-			if (a == data.contractors.size()) {
-				if (!tr.isEmpty()) {
-					data.contractors.add(tr);
-					t.tableChanged(new TableModelEvent(t.getModel(), a + 1, a + 1, 0, INSERT));
-				}
-			} else if (tr.isEmpty()) {
-				data.contractors.remove(a);
-				t.tableChanged(new TableModelEvent(t.getModel(), a, a, 0, DELETE));
-			} else if (e.getFirstRow() == 0)	// Αν ο επιλεγμένος δικαιούχος άλλαξε όνομα
-				t.tableChanged(new TableModelEvent(t.getModel(), t.getSelectedRow()));
-		});
+		ResizablePropertiesTableModel<Contractor> ptmInfo = new ResizablePropertiesTableModel<Contractor>(h) {
+			@Override protected List get() { return data.contractors; }
+			@Override protected Contractor createNew() { return new Contractor(); }
+			@Override public boolean isCellEditable(int row, int col) {
+				return super.isCellEditable(row, col) && row != 5;
+			}
+		};
+		JTable tblInfo = PropertiesTableModel.createTable(ptmInfo, new Component[] { null, type, null });
+
+		// Αλλαγές στη λίστα δικαιούχων από τον πίνακα στοιχείων δικαιούχου
+		ptmInfo.addSelectorTableModelListener(tblContractors);
 		// Όταν επιλέγουμε άλλο δικαιούχο στον πίνακα δικαιούχων
-		tblContractors.getSelectionModel().addListSelectionListener((ListSelectionEvent e) -> {
+		tblContractors.getSelectionModel().addListSelectionListener(e -> {
 			if (e.getValueIsAdjusting()) return;
-			// Ο πίνακας με τα στοιχεία δικαιούχου ανανεώνεται για να εμφανίζει το νέο δικαιούχο
-			tblInfo.setVisible(window.tblContractors.getSelectedRowCount() == 1);
-			tblInfo.tableChanged(new TableModelEvent(
-					window.tblContractors.getModel(), 0, tblInfo.getModel().getRowCount() - 1, 1));
+			ptmInfo.setIndex(((ListSelectionModel) e.getSource()).getMinSelectionIndex());
 		});
+
 		// Η τελική διαμόρφωση της καρτέλας
 		JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				new JScrollPane(tblContractors),
@@ -577,25 +728,27 @@ final public class MainFrame extends JFrame {
 	}
 
 	/** Δημιουργεί ένα panel με τον πίνακα των κρατήσεων. */
-	private JScrollPane createDeductionsPanel() {
-		TableData<Deduction> td = new TableData() {
-			@Override public List<Deduction> get() { return data.deductions; }
-			@Override public Deduction createNew() { return new Deduction(); }
-		};
-		// Η πρώτη στήλη του πίνακα, που έχει το σύνολο, δεν πρέπει να είναι επεξεργάσιμη
-		ResizableTableModel rtm = new ResizableTableModel(td, Deduction.TABLE_HEADER) {
+	private JScrollPane createPanelDeductions() {
+		// Το μοντέλο του πίνακα κρατήσεων
+		rtmDeductions = new ResizableTableModel<Deduction>() {
+			@Override protected List<Deduction> get() { return data.deductions; }
+			@Override protected Deduction createNew() { return new Deduction(); }
+			@Override public int getColumnCount() { return Deduction.TABLE_HEADER.size(); }
+			@Override public String getColumnName(int index) { return Deduction.TABLE_HEADER.get(index); }
+			// Η πρώτη στήλη του πίνακα, που έχει το σύνολο, δεν πρέπει να είναι επεξεργάσιμη
 			@Override public boolean isCellEditable(int row, int col) { return col != 0; }
+			@Override public void fireTableDataChanged(TableModelEvent e) {
+				super.fireTableDataChanged(e);
+				// Κάθε UPDATE σε μεμονωμένο κελί, πλην πρώτης στήλης, ανανεώνει το σύνολο κρατήσεων στο
+				// αντίστοιχο κελί της πρώτης στήλης
+				if (e.getType() == UPDATE && e.getColumn() > 0 && e.getFirstRow() == e.getLastRow())
+					super.fireTableDataChanged(new TableModelEvent(this, e.getFirstRow(), e.getLastRow(), 0));
+			}
 		};
-		tblDeductions = createTable(rtm, false, true);
-		// Ενημέρωση του πίνακα ότι το κελί του συνόλου της κράτησης πρέπει να ανανεωθεί
-		rtm.addTableModelListener((TableModelEvent e) ->
-				window.tblDeductions.tableChanged(			// με το window.* γλιτώνουμε το capture
-						new TableModelEvent((ResizableTableModel) e.getSource(),
-						e.getFirstRow(), e.getLastRow(), 0)));
+		JTable t = createTable(rtmDeductions, false, true);
 		// Προσθήκη popup menu στην επικεφαλίδα του πίνακα, για προσθήκη νέας επιμέρους κράτησης
 		JPopupMenu popupMenu = new JPopupMenu();
-		JMenuItem m = new JMenuItem("Προσθήκη στήλης");
-		m.addActionListener((ActionEvent e) -> {
+		popupMenu.add(createMenuItem("Προσθήκη στήλης", e -> {
 			String head = showInputDialog(window,			// με το window.* γλιτώνουμε το capture
 					"Δώστε της επικεφαλίδα της νέας στήλης.", "Εισαγωγή στήλης", QUESTION_MESSAGE);
 			if (head != null && !head.isEmpty()) {
@@ -611,54 +764,33 @@ final public class MainFrame extends JFrame {
 					// εξολοκλήρου τον πίνακα, όλες οι στήλες διαγράφονται και επαναδημιουργούνται
 					// με αποτέλεσμα, όταν μετά το gui renderer thread θα ψάξει να βρει τη στήλη θα
 					// μας δώσει exception
-					window.tblDeductions.getTableHeader().setDraggedColumn(null);
-					((ResizableTableModel) window.tblDeductions.getModel()).fireTableChanged();
+					t.getTableHeader().setDraggedColumn(null);
+					window.rtmDeductions.fireTableChanged();
 				}
 			}
-		});
-		popupMenu.add(m);
-		tblDeductions.getTableHeader().setComponentPopupMenu(popupMenu);
-
-		return new JScrollPane(tblDeductions);
+		}));
+		t.getTableHeader().setComponentPopupMenu(popupMenu);
+		return new JScrollPane(t);
 	}
 
 	/** Δημιουργεί το panel με τον πίνακα του προσωπικού της Μονάδας / Υπηρεσίας. */
-	private JScrollPane createPersonnelPanel() {
-		String[] header = {	// Οι επικεφαλίδες του πίνακα
-			Person.H[0], Person.H[1], "<html>Μονάδα <font color=gray size=2>(γενική με άρθρο)"
+	private JScrollPane createPanelPersonnel() {
+		// Οι επικεφαλίδες του πίνακα προσωπικού
+		String[] headers = { Person.H[0], Person.H[1], "<html>Μονάδα <font color=gray size=2>(γενική με άρθρο)" };
+		// Το μοντέλο του πίνακα προσωπικού
+		rtmPersonnel = new ResizableHeaderTableModel<Person>(headers) {
+			@Override protected List<Person> get() { return data.personnel; }
+			@Override protected Person createNew() { return new Person(); }
 		};
-		TableData td = new TableData() {
-			@Override public List<Person> get() { return data.personnel; }
-			@Override public Person createNew() { return new Person(); }
-		};
-		ResizableTableModel rtm = new ResizableTableModel(td, header);
-		tblPersonnel = createTable(rtm, true, true);
-		return new JScrollPane(tblPersonnel);
+		return new JScrollPane(createTable(rtmPersonnel, true, true));
 	}
 
 	/** Δημιουργεί το panel με τον πίνακα του φύλλου καταχώρησης της δαπάνης. */
-	private JScrollPane createContentsPanel() {
-		TableData td = new TableData() {
-			@Override public List<ContentItem> get() {
-				return data.isEmpty() ? null : data.getActiveExpenditure().contents;
-			}
-			@Override public ContentItem createNew() { return new ContentItem(); }
-			@Override public void remove(int index) {
-				List<ContentItem> lst = get();
-				if (lst.get(index).isUserDefined()) lst.remove(index);
-			}
-		};
-		ResizableTableModel rtm = new ResizableTableModel(td, ContentItem.H) {
-			@Override public boolean isCellEditable(int row, int column) {
-				List<ContentItem> ar = d.get();
-				if (row == ar.size()) return true;
-				ContentItem ci = ar.get(row);
-				return ci.isUserDefined() || column == 1 && ci.hasChoice();
-			}
-		};
-		tblContents = createTable(rtm, true, false);
-		tblContents.getColumnModel().getColumn(1).setCellEditor(new ContentTableCellEditor(td));
-		return new JScrollPane(tblContents);
+	private JScrollPane createPanelContents() {
+		rtmContents = new ContentsTableModel();
+		JTable t = createTable(rtmContents, true, false);
+		t.getColumnModel().getColumn(1).setCellEditor(new ContentsTableCellEditor(rtmContents));
+		return new JScrollPane(t);
 	}
 
 	/** Που πρέπει να τοποθετηθεί ένα παράθυρο για να είναι κεντραρισμένο στην οθόνη.
@@ -700,6 +832,16 @@ final public class MainFrame extends JFrame {
 		i.addActionListener(action);
 		return i;
 	}
+	/** Δημιουργεί μια επιλογή μενού.
+	 * @param name Το όνομα της επιλογής μενού, όπως θα εμφανίζεται στη γραμμή μενού του προγράμματος
+	 * @param icon Ένα εικονίδιο για την επιλογή μενού ή null
+	 * @param action Ένας listener που θα εκτελείται όταν επιλεγεί η επιλογή από το μενου
+	 * @return Η επιλογή του μενού */
+	static public JMenuItem createMenuItem(String name, Icon icon, ActionListener action) {
+		JMenuItem i = new JMenuItem(name, icon);
+		i.addActionListener(action);
+		return i;
+	}
 	/** Δημιουργεί μια επιλογή μενού On/Off.
 	 * @param name Το όνομα της επιλογής μενού, όπως θα εμφανίζεται στη γραμμή μενού του προγράμματος
 	 * @param icon Ένα εικονίδιο για την επιλογή μενού ή null
@@ -726,7 +868,7 @@ final public class MainFrame extends JFrame {
 		for (LookAndFeelInfo laf : lafs) {
 			String className = laf.getClassName();
 			JRadioButtonMenuItem i = new JRadioButtonMenuItem(laf.getName(), className.equals(s));
-			i.addActionListener((ActionEvent e) -> {
+			i.addActionListener(e -> {
 				data.skin = className;
 				setSkin(); dispose();
 				window = new MainFrame();
@@ -762,20 +904,20 @@ final public class MainFrame extends JFrame {
 	 * η κλήση updateMenus() όπου γίνεται αναφορά σε κάποιες από τις επιλογές με index (οπότε αλλαγή
 	 * σειράς στις επιλογές, προσθήκες ή διαγραφές, μπορεί να της δημιουργήσουν πρόβλημα).
 	 * @return Η γραμμή μενού */
-	private JMenuBar createMainMenu() {
+	private JMenuBar createMenuMain() {
 		return createMenuBar(new JMenuItem[] {
 			createMenu("Αρχείο", new JMenuItem[] {
-				createMenuItem("Νέα Δαπάνη", "new", (ActionEvent e) -> newExpenditure()),
-				createMenuItem("Άνοιγμα Δαπάνης...", "open", (ActionEvent e) -> openExpenditure()),
-				createMenuItem("Αποθήκευση Δαπάνης...", "save", (ActionEvent e) -> saveCurrentExpenditure()),
-				createMenuItem("Εισαγωγή στοιχείων...", "import", (ActionEvent e) -> importData()),
-				createMenuItem("Κλείσιμο Δαπάνης", "close", (ActionEvent e) -> closeActiveExpenditure()),
+				createMenuItem("Νέα Δαπάνη", ICON_NEW, e -> expenditureNew()),
+				createMenuItem("Άνοιγμα Δαπάνης...", "open", e -> expenditureOpen()),
+				createMenuItem("Αποθήκευση Δαπάνης...", "save", e -> expenditureSaveCurrent()),
+				createMenuItem("Εισαγωγή στοιχείων...", "import", e -> importData()),
+				createMenuItem("Κλείσιμο Δαπάνης", "close", e -> expenditureCloseActive()),
 				null,
-				createMenuItem("Έξοδος", "exit", (ActionEvent e) ->
+				createMenuItem("Έξοδος", "exit", e ->
 						dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)))
 			}),
 			createMenu("Εξαγωγή", new JMenuItem[] {
-				createMenuItem("Δαπάνη", (ActionEvent e) -> {
+				createMenuItem("Δαπάνη", e -> {
 					TreeMap<String, String> env = new TreeMap<>();
 					if (data.onlyOnce) env.put("one", "true");
 					exportReport("Δαπάνη.php", env);
@@ -785,42 +927,38 @@ final public class MainFrame extends JFrame {
 					createMenuItem("Προμηθευτής", (ActionEvent e) -> exportReport("ΦΕ για τον Προμηθευτή.php", null))
 				}),*/
 				createMenu("Αλληλογραφία", new JMenuItem[] {
-					createMenuItem("Συγκρότηση Επιτροπών", (ActionEvent e) ->
+					createMenuItem("Συγκρότηση Επιτροπών", e ->
 							showDraftDialogExport("Δγη Συγκρότησης Επιτροπών.php",
 									data.isEmpty() ? data.unitInfo : data.getActiveExpenditure())),
-					createMenuItem("Απόφαση Απευθείας Ανάθεσης", (ActionEvent e) ->
+					createMenuItem("Απόφαση Απευθείας Ανάθεσης", e ->
 							showDraftDialogExport("Απόφαση Απευθείας Ανάθεσης.php")),
-					/*createMenu("Διαγωνισμοί", new JMenuItem[] {
-						createMenuItem("Διακήρυξη", (ActionEvent e) ->
-							showDraftDialogExport("Δγη Διακήρυξης Διαγωνισμού.php")),
-						null,
-						createMenuItem("Πρακτικό", (ActionEvent e) ->
-								exportReport("Πρακτικό Διαγωνισμού.php", null)),
-						createMenuItem("Εισηγητική Έκθεση", (ActionEvent e) ->
-								exportReport("Εισηγητική Έκθεση Διαγωνισμού.php", null)),
-						createMenuItem("Κατακύρωση", (ActionEvent e) ->
-							showDraftDialogExport("Δγη Κατακύρωσης Διαγωνισμού.php"))
-					}),*/
-					createMenuItem("Διαβιβαστικό Δαπάνης", (ActionEvent e) ->
+					createMenuItem("Διαβιβαστικό Δαπάνης", e ->
 							showDraftDialogExport("Διαβιβαστικό Δαπάνης.php")),
 					/*createMenuItem("Εκθεση Απατούμενης Δαπάνης", (ActionEvent e) ->
 							showDraftDialogExport("Έκθεση Απαιτούμενης Δαπάνης.php"))*/
 				}),
-				createMenuItem("Σύμβαση", (ActionEvent e) -> exportReport("Σύμβαση.php", null)),
+				createMenuItem("Σύμβαση", e -> exportReport("export_contracts")),
 				createMenu("Διαγωνισμοί", new JMenuItem[] {
-					createMenuItem("Υπομονή!", null),
+					createMenuItem("Διακήρυξη", e ->
+						showDraftDialogExport("Διακήρυξη Διαγωνισμού.php")),
+//					null,
+//					createMenuItem("Πρακτικό", (ActionEvent e) ->
+//							exportReport("Πρακτικό Διαγωνισμού.php", null)),
+//					createMenuItem("Εισηγητική Έκθεση", (ActionEvent e) ->
+//							exportReport("Εισηγητική Έκθεση Διαγωνισμού.php", null)),
+//					createMenuItem("Κατακύρωση", (ActionEvent e) ->
+//						showDraftDialogExport("Δγη Κατακύρωσης Διαγωνισμού.php"))
 				}),
 				createMenu("Υπεύθυνες Δηλώσεις", new JMenuItem[] {
-					createMenuItem("Γνωστοποίηση τραπεζικού λογαριασμού", (ActionEvent e) ->
-							statement("Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού.php")),
-					createMenuItem("Μη χρησιμοποίηση στρατιωτικού ως αντιπρόσωπου", (ActionEvent e) ->
-							statement("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ.php")),
+					createMenuItem("Γνωστοποίηση τραπεζικού λογαριασμού", e -> statement("statement_IBAN")),
+					createMenuItem("Μη χρησιμοποίηση στρατιωτικού ως αντιπρόσωπου", e ->
+							statement("statement_representative")),
 					null,
-					createMenuItem("Κενή", (ActionEvent e) -> saveScriptOutput(
+					createMenuItem("Κενή", e -> saveScriptOutput(
 							"<?php require('header.php'); require_once('statement.php'); statement(null); ?>\n\n}")),
 				}),
 				createMenu("Διάφορα", new JMenuItem[] {
-					createMenuItem("Κατάσταση Πληρωμής", (ActionEvent e) ->
+					createMenuItem("Κατάσταση Πληρωμής", e ->
 							exportReport("Κατάσταση Πληρωμής.php", null)),
 				/*	createMenuItem("Πρόχειρη Λίστα Τιμολογίων", (ActionEvent e) ->
 							exportReport("Πρόχειρη Λίστα Τιμολογίων.php", null)),
@@ -830,20 +968,20 @@ final public class MainFrame extends JFrame {
 			}),
 			createMenu("Εργαλεία", new JMenuItem[] {
 				createMenuItem("Οδηγός Τιμολογίου", "wizard",
-						(ActionEvent e) -> new InvoiceWizardDialog(this).setVisible(true)),
-				createMenuItem("Πληροφορίες IBAN", "bank", (ActionEvent e) -> iban()),
+						e -> new InvoiceWizardDialog(this).setVisible(true)),
+				createMenuItem("Πληροφορίες IBAN", "bank", e -> iban()),
 				createMenuItem("Υπεύθυνη Δήλωση", "statement",
-						(ActionEvent e) -> new StatementDialog(this).setVisible(true))
+						e -> new StatementDialog(this).setVisible(true))
 			}),
 			createMenu("Ρυθμίσεις", new JMenuItem[] {
 				createMenuWithSkins("Κέλυφος", "skins"),
 				createMenuItem("Ένα Αντίγραφο", "only_one", data.onlyOnce,
-						(ActionEvent e) -> data.onlyOnce = !data.onlyOnce),
+						e -> data.onlyOnce = !data.onlyOnce),
 			}),
 			createMenu("Δαπάνες", new JMenuItem[] {}),
 			createMenu("Βοήθεια", new JMenuItem[] {
-				createMenuItem("Εγχειρίδιο", "help", (ActionEvent e) -> help()),
-				createMenuItem("Περί...", "about", (ActionEvent e) -> about())
+				createMenuItem("Εγχειρίδιο", "help", e -> help()),
+				createMenuItem("Περί...", "about", e -> about())
 			}),
 		});
 	}
@@ -862,7 +1000,7 @@ final public class MainFrame extends JFrame {
 		doc.getItem(1).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
 		doc.getItem(2).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
 		export.getItem(2).setEnabled(has);			// μενού Εξαγωγή/Σύμβαση
-		export.getItem(4).setEnabled(has);			// μενού Εξαγωγή/Διαγωνισμοί
+		export.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Διαγωνισμοί
 		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
 		JMenu expenditures = getJMenuBar().getMenu(4);		// μενού Δαπάνες
 		expenditures.setEnabled(has);
@@ -876,7 +1014,7 @@ final public class MainFrame extends JFrame {
 				if (f.endsWith(".δαπάνη")) f = f.substring(0, f.length() - 7);
 				JRadioButtonMenuItem jmi = new JRadioButtonMenuItem(f, active);
 				int zz = z;	// Σε lambda functions η Java θέλει οι τοπικές μεταβλητές να είναι σταθερές
-				ActionListener al = (ActionEvent e) -> {
+				ActionListener al = e -> {
 					data.activeExpenditure = zz;
 					window.updatePanels();					// με το window.* γλιτώνουμε το capture
 				};
@@ -907,7 +1045,7 @@ final public class MainFrame extends JFrame {
 	}
 
 	/** Δημιουργεί μια νέα δαπάνη και την κάνει τρέχουσα στο παράθυρο του προγράμματος. */
-	private void newExpenditure() {
+	private void expenditureNew() {
 		File s = null;
 		int z = 0;
 		do
@@ -938,7 +1076,7 @@ final public class MainFrame extends JFrame {
 	}
 
 	/** Ανοίγει το διάλογο "Αποθήκευση ως" και αποθηκεύει την τρέχουσα δαπάνη. */
-	private void saveCurrentExpenditure() {
+	private void expenditureSaveCurrent() {
 		try {
 			// Διάλογος Αποθήκευση ως...
 			Expenditure expenditure = data.getActiveExpenditure();
@@ -977,14 +1115,14 @@ final public class MainFrame extends JFrame {
 
 	/** Ανοίγει μια δαπάνη με το διάλογο "Άνοιγμα" και την κάνει τρέχουσα.
 	 * Ενημερώνει το παράθυρο του προγράμματος. */
-	private void openExpenditure() {
+	private void expenditureOpen() {
 		try {
 			// Ο διάλογος Άνοιγμα... θα ανοίξει στο φάκελο που είναι αποθηκευμένη η τρέχουσα δαπάνη
 			JFileChooser fc = new JFileChooser(data.isEmpty() ? null : data.getActiveExpenditure().file);
 			fc.setFileFilter(new ExtensionFileFilter("δαπάνη", "Αρχείο Δαπάνης"));
 			int returnVal = fc.showOpenDialog(this);
 			if(returnVal != JFileChooser.APPROVE_OPTION) return;
-			openExpenditure(this, appendExpenditureExt(fc.getSelectedFile()));
+			expenditureOpen(this, appendExpenditureExt(fc.getSelectedFile()));
 		} catch (IOException ex) {}
 	}
 
@@ -992,7 +1130,7 @@ final public class MainFrame extends JFrame {
 	 * Ενημερώνει το παράθυρο του προγράμματος.
 	 * @param frame Το παράθυρο του προγράμματος, προκειμένου να ενημερωθεί με την νέα τρέχουσα δαπάνη
 	 * @param file Το αρχείο της δαπάνης */
-	static private void openExpenditure(MainFrame frame, File file) {
+	static private void expenditureOpen(MainFrame frame, File file) {
 		try {
 			if (data.isExpenditureExist(file)) {
 				showMessageDialog(frame, "Το όνομα αυτό ανοίκει σε ανοικτή δαπάνη.\n"
@@ -1071,10 +1209,9 @@ final public class MainFrame extends JFrame {
 			flags &= IMPORT_CONTRACTORS | IMPORT_DEDUCTIONS | IMPORT_PERSONNEL;
 		}
 		// Ενημέρωση πινάκων γιατί μπορεί να άλλαξε ο αριθμός γραμμών τους
-		TableModelEvent e = new TableModelEvent(tblDeductions.getModel());
-		tblContractors.tableChanged(e);
-		tblDeductions.tableChanged(e);
-		tblPersonnel.tableChanged(e);
+		rtmContractors.fireTableDataChanged();
+		rtmDeductions.fireTableDataChanged();
+		rtmPersonnel.fireTableDataChanged();
 	}
 
 	/** Από ένα αρχείο ρυθμίσεων ένα αρχείο δαπάνης, εισάγει τα κοινά δεδομένα του προγράμματος.
@@ -1088,7 +1225,7 @@ final public class MainFrame extends JFrame {
 		try {
 			InputStream is = new FileInputStream(file);
 			if (fname.endsWith(".ini"))
-				importData(loadIni(is), flags);
+				importData(iniLoad(is), flags);
 			else importData(new Expenditure(file, PhpSerializer.unserialize(is, UTF_8)), flags);
 		} catch(Exception e) {
 			showExceptionMessage(this, e, "Άνοιγμα αρχείου",
@@ -1145,7 +1282,7 @@ final public class MainFrame extends JFrame {
 	}
 
 	/** Κλείσιμο της τρέχουσας δαπάνης. */
-	private void closeActiveExpenditure() {
+	private void expenditureCloseActive() {
 		if (YES_OPTION == showConfirmDialog(this,
 				"<html>Να κλείσω την τρέχουσα δαπάνη;", "Κλείσιμο Δαπάνης",
 				YES_NO_OPTION, WARNING_MESSAGE)) {
@@ -1159,16 +1296,21 @@ final public class MainFrame extends JFrame {
 	 * Αν υπάρχει ανοικτή δαπάνη, εξάγει Υπεύθυνη Δήλωση για όλους τους δικαιούχους των τιμολογίων
 	 * της δαπάνης. Αν δεν υπάρχει ανοικτή δαπάνη, εμφανίζει ένα παράθυρο επιλογής ενός δικαιούχου
 	 * και εξάγει μια Υπεύθυνη Δήλωση για το δικαιούχο που θα επιλεγεί.
-	 * @param phpfile Το αρχείο PHP που θα εκτελεστεί προκειμένου να εξαχθεί η Υπεύθυνη Δήλωση */
-	static private void statement(String phpfile) {
+	 * @param function Το αρχείο PHP που θα εκτελεστεί προκειμένου να εξαχθεί η Υπεύθυνη Δήλωση */
+	static private void statement(String function) {
 		VariableSerializable o;
+		boolean many;
 		if (data.isEmpty()) {
 			o = (Contractor) showInputDialog(window, "Επιλέξτε το δικαιούχο για τον οποίο θα βγει η Υπεύθυνη Δήλωση",
 					"Εξαγωγή Υπεύθυνης Δήλωσης", QUESTION_MESSAGE, null,
 					data.contractors.toArray(new Contractor[data.contractors.size()]), null);
 			if (o == null) return;
-		} else o = data.getActiveExpenditure();
-		exportReport(phpfile, o, null);
+			many = false;
+		} else { o = data.getActiveExpenditure(); many = true;  }
+		TreeMap<String, String> env = new TreeMap<>();
+		env.put("export", function);
+		env.put("many", Boolean.toString(many));
+		exportReport("export.php", o, env);
 	}
 
 
@@ -1185,16 +1327,20 @@ final public class MainFrame extends JFrame {
 		j.setEnabledAt(4, con);	// Καρτέλα "Εργασίες"
 		// Ανανέωση πινάκων οι οποίοι ενδεχομένως να έχουν αλλάξει μέγεθος
 		if (has) {
-			tblInvoices.tableChanged(new TableModelEvent(tblInvoices.getModel()));
-			tblWorks.tableChanged(new TableModelEvent(tblWorks.getModel()));
-			tblContents.tableChanged(new TableModelEvent(tblContents.getModel()));
-			((ReportTableModel) tblReport.getModel()).changedInvoiceSelection(null);
+			List<Contract> contracts = data.getActiveExpenditure().contracts;
+			cdmContracts.setSelectedItem(contracts.isEmpty() ? null : contracts.get(0));
+			((InvoicesTableModel) tblInvoices.getModel()).fireTableDataChanged();
+			rtmWorks.fireTableDataChanged();
+			rtmContents.fireTableDataChanged();
+			rtmReport.fireTableDataChanged(new TableModelEvent(rtmReport, 0, 6, 3));
+			rtmExpenditure.fireTableDataChanged(new TableModelEvent(
+					rtmExpenditure, 0, rtmExpenditure.getRowCount() - 1, 1));
 		} else if (j.getSelectedIndex() < 5) j.setSelectedIndex(5);
 	}
 
 	@Override protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-			try { saveIni(); }
+			try { iniSave(); }
 			catch(IOException ex) {
 				if (NO_OPTION == showConfirmDialog(this,
 						"<html>Αποτυχία κατά την αποθήκευση του <b>" + INI + "</b>.<br>Να κλείσω τo πρόγραμμα;",
@@ -1208,7 +1354,7 @@ final public class MainFrame extends JFrame {
 
 	/** Αποθηκεύει τις ρυθμίσεις του προγράμματος (συμπεριλαμβάνονται οι ανοικτές δαπάνες).
 	 * @throws IOException */
-	static private void saveIni() throws IOException {
+	static private void iniSave() throws IOException {
 		PhpSerializer.serialize(data, new FileOutputStream(iniPath), UTF_8);
 	}
 
@@ -1259,8 +1405,8 @@ final public class MainFrame extends JFrame {
 	 * <p>Αν συμβεί σφάλμα (σχεδόν αδύνατο), ένα μύνημα εμφανίζεται που προειδοποιεί το χρήστη, και
 	 * οι ρυθμίσεις είναι κενές.
 	 * @return Τα δεδομένα του προγράμματος (τα οποία είναι κενά αν συμβεί σφάλμα) */
-	static private AppData loadDefaultIni() {
-		try { return loadIni(getSystemResourceAsStream(INI)); }
+	static private AppData iniLoadDefault() {
+		try { return iniLoad(getSystemResourceAsStream(INI)); }
 		catch(Exception e) {
 			showExceptionMessage(null, e, "Πρόβλημα",
 				"Πρόβλημα κατά τη φόρτωση του default <b>" + INI + "</b>.");
@@ -1271,7 +1417,7 @@ final public class MainFrame extends JFrame {
 	/** Φορτώνει το αρχείο ρυθμίσεων του προγράμματος.
 	 * @param is Ένα stream που περιέχει το αρχείο ρυθμίσεων του προγράμματος
 	 * @return Τα δεδομένα του προγράμματος */
-	static private AppData loadIni(InputStream is) throws Exception {
+	static private AppData iniLoad(InputStream is) throws Exception {
 		return new AppData(PhpSerializer.unserialize(is, UTF_8));
 	}
 
@@ -1281,11 +1427,11 @@ final public class MainFrame extends JFrame {
 	 * <p>Η καταστροφή που απαγορεύει τη φόρτωση του κανονικου αρχείου ρυθμίσεων, εμφανίζεται σε
 	 * ένα παράθυρο σφάλματος.
 	 * @return Τα δεδομένα του προγράμματος */
-	static private AppData loadDefaultIniWarn(Exception e) {
+	static private AppData iniLoadDefaultWarn(Exception e) {
 		showExceptionMessage(null, e, "Πρόβλημα",
 				"Πρόβλημα κατά τη φόρτωση του <b>" + INI + "</b><br>"
 				+ "Θα φορτώσω τη default έκδοσή του.");
-		return loadDefaultIni();
+		return iniLoadDefault();
 	}
 
 	/** Αρχικοποίηση της μηχανής PHP.
@@ -1304,9 +1450,9 @@ final public class MainFrame extends JFrame {
 
 	/** Σώζει αυτόματα, κάθε 5 λεπτά, τις ρυθμίσεις του προγράμματος.
 	 * Συμπεριλαμβάνονται όσες δαπάνες είναι ανοικτές. */
-	static private void autosaveIni() {
+	static private void iniAutoSave() {
 		newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-				try { saveIni(); } catch(IOException ex) {}
+				try { iniSave(); } catch(IOException ex) {}
 			}, 5, 5, MINUTES);
 
 	}
@@ -1330,17 +1476,17 @@ final public class MainFrame extends JFrame {
 	 * Αυτό σημαίνει ότι το αρχείο ρυθμίσεων είτε στην portable είτε στην κανονική θέση, θα
 	 * αντικατασταθούν από το προκαθορισμένο. Αν υπάρξει οποιοδήποτε πρόβλημα, πάμε στο βήμα 4.
 	 * <li>Το πρόγραμμα ξεκινάει με όλα τα δεδομένα κενά.</ol> */
-	static private void loadIni() {
+	static private void iniLoad() {
 		// Πρώτα ψάχνει το αρχείο ρυθμίσεων στο φάκελο εγκατάστασης (φορητή λειτουργία)
 		iniPath = rootPath + INI;
-		try { data = loadIni(new FileInputStream(iniPath)); }
+		try { data = iniLoad(new FileInputStream(iniPath)); }
 		catch(FileNotFoundException ex) {
 			// Αν αποτύχει, ψάχνει το αρχείο ρυθμίσεων στο φάκελο του χρήστη (κανονική λειτουργία)
 			iniPath = System.getProperty("user.home") + "/" + INI;
-			try { data = loadIni(new FileInputStream(iniPath)); }
-			catch(FileNotFoundException e) { data = loadDefaultIni(); }
-			catch(Exception e) { data = loadDefaultIniWarn(e); }
-		} catch(Exception ex) { data = loadDefaultIniWarn(ex); }
+			try { data = iniLoad(new FileInputStream(iniPath)); }
+			catch(FileNotFoundException e) { data = iniLoadDefault(); }
+			catch(Exception e) { data = iniLoadDefaultWarn(e); }
+		} catch(Exception ex) { data = iniLoadDefaultWarn(ex); }
 	}
 
 	/** Εισάγει τις κρατήσεις στα δεδομένα του προγράμματος.
@@ -1359,9 +1505,9 @@ final public class MainFrame extends JFrame {
 
 	/** Φορτώνει δαπάνες στο πρόγραμμα.
 	 * @param filenames Τα ονόματα αρχείου των δαπανών για φόρτωση */
-	static private void openExpenditures(String[] filenames) {
+	static private void expendituresOpen(String[] filenames) {
 		for (String s : filenames)
-			openExpenditure(null, new File(s));
+			expenditureOpen(null, new File(s));
 	}
 
 	/** Επιλογή αν θέλουμε μια διαταγή να εξαχθεί ως σχέδιο ή ως ακριβές αντίγραφο.
@@ -1389,6 +1535,25 @@ final public class MainFrame extends JFrame {
 		}
 	}
 
+	/** Εξάγει ένα PHP πρότυπο, από αυτά που περιέχονται στο αρχείο export.php.
+	 * Εκτελεί το export.php script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο,
+	 * που να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
+	 * @param function Το όνομα που αφορά το κείμενο που θα εξαχθεί. Συνήθως το όνομα της συνάρτησης
+	 * που θα κληθεί για να δημιουργήσει το κείμενο. */
+	static private void exportReport(String function) { exportReport(data.getActiveExpenditure(), function); }
+
+	/** Εξάγει ένα PHP πρότυπο, από αυτά που περιέχονται στο αρχείο export.php.
+	 * Εκτελεί το export.php script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο,
+	 * που να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
+	 * @param obj Το αντικείμενο που θα γίνει serialize και θα εισαχθεί στο script από το stdin
+	 * @param function Το όνομα που αφορά το κείμενο που θα εξαχθεί. Συνήθως το όνομα της συνάρτησης
+	 * που θα κληθεί για να δημιουργήσει το κείμενο. */
+	static void exportReport(VariableSerializable obj, String function) {
+		TreeMap<String, String> env = new TreeMap<>();
+		env.put("export", function);
+		exportReport("export.php", obj, env);
+	}
+
 	/** Εξάγει ένα PHP πρότυπο.
 	 * Εκτελεί ένα PHP script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο, που
 	 * να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
@@ -1403,11 +1568,12 @@ final public class MainFrame extends JFrame {
 	 * Εκτελεί ένα PHP script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο, που
 	 * να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
 	 * @param fname Το όνομα αρχείου του PHP προτύπου
+	 * @param obj Το αντικείμενο που θα γίνει serialize και θα εισαχθεί στο script από το stdin
 	 * @param env Οι μεταβλητές περιβάλλοντος για το PHP script που θα δημιουργήσει το εξαγόμενο
 	 * αρχείο ή null */
-	static void exportReport(String fname, VariableSerializable obj, Map<String, String> env) {
+	static private void exportReport(String fname, VariableSerializable obj, Map<String, String> env) {
 		// Εκτέλεση του PHP script με την αντίστοιχη είσοδο και έξοδο
-		StdInStream sin = (OutputStream os) -> {
+		StdInStream sin = os -> {
 			// Το try-catch απαιτείται γιατί αν το script έχει ήδη τερματίσει, επειδή δε θέλει
 			// να επεξεργαστεί το stdin, έχει κλείσει το stdin στο οποίο εμείς εδώ γράφουμε.
 			try {
@@ -1420,7 +1586,7 @@ final public class MainFrame extends JFrame {
 
 	/** Εμφανίζει ένα διάλογο για την αποθήκευση του αρχείου RTF.
 	 * @param out Τα δεδομένα για εξαγωγή στο αρχείο */
-	static void exportPromptRTF(byte[] out) throws IOException {
+	static private void exportPromptRTF(byte[] out) throws IOException {
 		// Διάλογος αποθήκευσης του αρχείου δαπάνης
 		File file = data.isEmpty() ? null : data.getActiveExpenditure().file;
 		JFileChooser fc = new JFileChooser(file);
@@ -1466,9 +1632,9 @@ final public class MainFrame extends JFrame {
 	 * αρχείο. Το null επιτρέπεται.
 	 * @param redirectError Ανακατευθύνει την έξοδο του stderr στο stdout
 	 * @return Η έξοδος του PHP script στο stdout */
-	private byte[] exportScriptOutput(String script, Map<String, String> env,
+	static private byte[] exportScriptOutput(String script, Map<String, String> env,
 			boolean redirectError) throws Exception {
-		StdInStream sin = (OutputStream os) -> {
+		StdInStream sin = os -> {
 			os.write(script.getBytes(GREEK));
 			os.close();
 		};
@@ -1495,7 +1661,7 @@ final public class MainFrame extends JFrame {
 	 * Εκτελεί ένα PHP script και εξάγει ένα αρχείο κειμένου RTF. Ζητά από το χρήστη με διάλογο, που
 	 * να το αποθηκεύσει ή εμφανίζει τυχόν λάθη που προέκυψαν κατά τη διαδικασία.
 	 * @param script Το PHP script */
-	private void saveScriptOutput(String script) {
+	static private void saveScriptOutput(String script) {
 		try { exportPromptRTF(exportScriptOutput(script, null, false)); }
 		catch (Exception e) { showError(e.getMessage()); }
 	}
@@ -1549,14 +1715,14 @@ final public class MainFrame extends JFrame {
 		if (!serverStart(args)) return;				// Απλό return γιατί ο server δεν άνοιξε
 		initRootPath();
 		if (!initPHP()) { serverKill(); return; }
-		loadIni();									// Οι ρυθμίσεις του προγράμματος
+		iniLoad();									// Οι ρυθμίσεις του προγράμματος
 		importNewDeductions();		// Εισάγει τυχόν νέες κρατήσεις κατά την πρώτη εκτέλεση νέας έκδοσης
-		openExpenditures(args);		// Ανοίγει δαπάνες που έχουν δωθεί ως παράμετροι
+		expendituresOpen(args);		// Ανοίγει δαπάνες που έχουν δωθεί ως παράμετροι
 		setSkin();					// Ορίζει το κέλυφος του παραθύρου (L&F)
 		window = new MainFrame();	// Δημιουργία του παραθύρου του προγράμματος
 		// Όχι μέσα στη MainFrame() γιατί θα υπάρξουν αναφορές στο window πριν αυτό τεθεί
 		window.setVisible(true);	// Εμφάνιση του παραθύρου του προγράμματος
-		autosaveIni();				// Αποθήκευση αλλαγών κάθε 5 λεπτά
+		iniAutoSave();				// Αποθήκευση αλλαγών κάθε 5 λεπτά
 	}
 
 	/** Εξασφαλίζει ότι μόνο μια παρουσία (instance) του προγράμματος εκτελείται.
@@ -1591,7 +1757,7 @@ final public class MainFrame extends JFrame {
 				try {
 					byte[] buf = readAllBytes(ss.accept().getInputStream());
 					if (buf.length == 1 && buf[0] == 0) return;			// Τερματισμός του server
-					openExpenditure(window, new File(new String(buf, UTF_8)));	// Ανοιγμα δαπάνης
+					expenditureOpen(window, new File(new String(buf, UTF_8)));	// Ανοιγμα δαπάνης
 				} catch(IOException e) {}
 		};
 		new Thread(server).start();

@@ -9,7 +9,7 @@ import util.ResizableTableModel;
 import static util.ResizableTableModel.getString;
 
 /** Ένας δικαιούχος / προμηθευτής / εργολάβος / μειοδότης. */
-public class Contractor implements VariableSerializable, ResizableTableModel.TableRecord,
+final class Contractor implements VariableSerializable, ResizableTableModel.TableRecord,
 		PropertiesTableModel.TableRecord {
 	/** Η επωνυμία του δικαιούχου. */
 	private String name;
@@ -41,6 +41,14 @@ public class Contractor implements VariableSerializable, ResizableTableModel.Tab
 		address   = node.getField(H[4]).getString();
 		iban      = node.getField(H[5]).getString();
 		person    = new PersonInfo(node);
+	}
+
+	/** Αρχικοποιεί ένα δικαιούχο από έναν node δεδομένων του unserialize().
+	 * @param node Ο node δεδομένων
+	 * @return Ο δικαιούχος ή null αν ο node είναι null
+	 * @throws Exception Αν ο node δεν είναι αντικείμενο, ούτε null */
+	static Contractor create(Node node) throws Exception {
+		return node.isExist() && !node.isNull() ? new Contractor(node) : null;
 	}
 
 	/** Ο τύπος του δικαιούχου. Π.χ. Δημόσιο, Ιδιώτης, κτλ
