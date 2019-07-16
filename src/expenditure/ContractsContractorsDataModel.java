@@ -21,13 +21,13 @@ final class ContractsContractorsDataModel implements ComboBoxModel {
 
 	@Override public int getSize() {
 		int r = data.contractors.size();
-		if (!data.isEmpty()) r += data.getActiveExpenditure().contracts.size();
+		if (!data.isEmpty()) r += data.expenditure.contracts.size();
 		return r;
 	}
 	@Override public Object getElementAt(int i) {
 		if (i >= 0) {
 			if (!data.isEmpty()) {
-				List<Contract> lst = data.getActiveExpenditure().contracts;
+				List<Contract> lst = data.expenditure.contracts;
 				if (i < lst.size()) return lst.get(i);
 				i -= lst.size();
 			}

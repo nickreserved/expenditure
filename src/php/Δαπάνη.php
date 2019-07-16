@@ -1,6 +1,7 @@
 <?php
 require_once('init.php');
 require_once('contract.php');
+require_once('tender.php');
 require_once('statement.php');
 require_once('header.php');
 
@@ -32,10 +33,11 @@ function export($name) {
 		case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ':
 			statement_common('statement_representative'); break;
 		case 'Σύμβαση': export_contracts(); break;
+		case 'Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής': offer_unseal_reports(); break;
 		default:
 			if (substr($name, 0, 12) == 'ΥΠΟΦΑΚΕΛΟΣ «') export_subfolder($name);
 			else {
-				global $data, $draft;
+				global $data, $output;
 				require($name . '.php');
 			}
 	}
@@ -43,9 +45,11 @@ function export($name) {
 
 
 // Για να βγεί ακριβές αντίγραφο των διαταγών και όχι σχέδιο
-$draft = false;
+$output = 'δαπάνη';
 // Αν η ρύθμιση "Μόνο μια φορά" είναι ενεργή
 $onlyone = isset($_ENV['one']) && $_ENV['one'] == 'true';
+// Ενημερώνουμε ότι πρόκειται για δαπάνη
+$data['Δαπάνη'] = true;
 
 foreach($data['Φύλλο Καταχώρησης'] as $paper_v)
 	if ($paper_v['Εξαγωγή']) {
@@ -54,6 +58,6 @@ foreach($data['Φύλλο Καταχώρησης'] as $paper_v)
 		echo str_repeat(ob_get_clean(), $onlyone ? 1 : $paper_v['Πλήθος']);
 	}
 
-unset($draft, $onlyone, $paper_v, $name);
+unset($output, $onlyone, $paper_v, $name);
 
 rtf_close(__FILE__);

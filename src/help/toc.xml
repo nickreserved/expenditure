@@ -25,26 +25,30 @@
 		<menu name="Επικοινωνία" url="general.html#contactus" />
 	</menu>
 	<menu name="Καρτέλες" url="tabs.html">
-		<menu name="Στοιχεία δαπάνης" url="tabs.html#cost">
-			<menu name="Κοινές δαπάνες" url="tabs.html#costtypical" />
-			<menu name="Δαπάνες έργων" url="tabs.html#costworks" />
-			<menu name="Διαγωνισμοί" url="tabs.html#costcontest" />
-			<menu name="Αμετάβλητα στοιχεία" url="tabs.html#coststatic" />
+		<menu name="Στοιχεία δαπάνης" url="tabs.html#expenditure" />
+		<menu name="Τιμολόγια" url="tabs.html#invoices">
+			<menu name="Πίνακας τιμολογίων" url="tabs.html#invoices.invoices" />
+			<menu name="Πίνακας ειδών" url="tabs.html#invoices.items" />
+			<menu name="Εποπτικός πίνακας" url="tabs.html#invoices.report" />
 		</menu>
-		<menu name="Τιμολόγια" url="tabs.html#bills">
-			<menu name="Λίστα τιμολογίων" url="tabs.html#billsbills" />
-			<menu name="Λίστα ειδών" url="tabs.html#billsitems" />
-			<menu name="Λίστα παρατήρησης" url="tabs.html#billswatch" />
+		<menu name="Συμβάσεις" url="tabs.html#contracts" />
+		<menu name="Διαγωνισμοί" url="tabs.html#tenders">
+			<menu name="Επιλογή διαγωνισμού" url="tabs.html#tenders.switch" />
+			<menu name="Πίνακας στοιχείων διαγωνισμού" url="tabs.html#tenders.info" />
+			<menu name="Πίνακας στοιχείων ενδιαφερομένων" url="tabs.html#tenders.competitors" />
 		</menu>
-		<menu name="Φύλλο καταχώρησης" url="tabs.html#contents" />
-		<menu name="Εργασίες" url="tabs.html#works">
+		<menu name="Φύλλο καταχώρησης" url="tabs.html#contents">
+			<menu name="Αυτόματα δικαιολογητικά" url="tabs.html#contents.auto" />
+			<menu name="Δικαιολογητικά χρήστη" url="tabs.html#contents.user" />
+		</menu>
+		<!--menu name="Εργασίες" url="tabs.html#works">
 			<menu name="Λίστα εργασιών" url="tabs.html#worksworks" />
 			<menu name="Λίστα υλικών" url="tabs.html#worksitems" />
-		</menu>
-		<menu name="Αμετάβλητα στοιχεία" url="tabs.html#static" />
+		</menu-->
+		<menu name="Στοιχεία Μονάδας" url="tabs.html#unit" />
 		<menu name="Δικαιούχοι" url="tabs.html#contractors" />
 		<menu name="Κρατήσεις" url="tabs.html#deductions" />
-		<menu name="Προσωπικό μονάδας" url="tabs.html#personnel" />
+		<menu name="Προσωπικό Μονάδας" url="tabs.html#personnel" />
 	</menu>
 	<menu name="Menus" url="menus.html">
 		<menu name="Αρχείο" url="menus.html#file" />

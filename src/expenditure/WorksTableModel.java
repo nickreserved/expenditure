@@ -13,7 +13,7 @@ final class WorksTableModel extends ResizableHeaderTableModel<Work> {
 	WorksTableModel() { super(Arrays.copyOf(Work.H, 3)); updateExpenditure(); }
 	/** Ενημερώνει το μοντέλο ότι η ενεργή δαπάνη άλλαξε. */
 	private void updateExpenditure() {
-		list = data.isEmpty() ? null : data.getActiveExpenditure().works;
+		list = data.isEmpty() ? null : data.expenditure.works;
 	}
 	@Override protected List<Work> get() { return list; }
 	@Override protected Work createNew() { return new Work(); }

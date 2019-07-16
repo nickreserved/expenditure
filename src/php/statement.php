@@ -65,7 +65,7 @@ else if (isset($data['Ημερομηνία Έκδοσης']))
  * @param callable $function Κλήση που επεξεργάζεται τα δεδομένα */
 function statement_common($function) {
 	global $data;
-	foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+	foreach($data['Δικαιούχοι'] as $per_contractor) {
 		$v = $per_contractor['Δικαιούχος'];
 		if ($v['Τύπος'] == 'Ιδιωτικός Τομέας') {
 			$v['Ημερομηνία Έκδοσης'] =

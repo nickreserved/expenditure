@@ -3,7 +3,7 @@ require_once('init.php');
 require_once('header.php');
 
 $invoices = array();
-foreach($data['Τιμολόγια ανά Δικαιούχο'] as $per_contractor) {
+foreach($data['Δικαιούχοι'] as $per_contractor) {
 	if (isset($per_contractor['Σύμβαση'])) continue;
 	$invoices = array_merge($invoices, $per_contractor['Τιμολόγια']);
 }

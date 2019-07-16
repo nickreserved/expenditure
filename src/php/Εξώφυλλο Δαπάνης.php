@@ -20,7 +20,7 @@ require_once('header.php');
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΚΑΤΑΛΟΓΙΣΤΕΟ ΠΟΣΟ ΔΑΠΑΝΗΣ:} <?=euro($data['Τιμές']['Καταλογιστέο'])?>\par
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΣΥΝΤΑΞΑΣ:} <?=person($data['Αξκος Γραφείου'])?>\par
-\pard\plain\qr\fs32\line\line\line\line{\b <?=strftime('%B %Y', $data['Timestamp Τελευταίου Τιμολογίου'])?>}\par
+\pard\plain\qr\fs32\line\line\line\line{\b <?=strftime('%B %Y', $data['Ημερομηνία Τελευταίου Τιμολογίου'])?>}\par
 
 \sect
 

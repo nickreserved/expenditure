@@ -256,10 +256,6 @@ final class ContentItem implements VariableSerializable, TableRecord {
 			= new ContentItem("Απόσπασμα Ποινικού Μητρώου", TYPE_LISTED | INIT_YESNO_YES);
 	static final private ContentItem ΦορολογικήΑσφαλιστικήΕνημερότητα
 			= new ContentItem("Φορολογική και Ασφαλιστική Ενημερότητα", TYPE_LISTED | INIT_YES_FIXED);
-	static final private ContentItem ΕπάρκειαΜέσωνΑυτοκάθαρσης
-			= new ContentItem("Αποδεικτικά Μέσα για τη Διαπίστωση της Επάρκειας ή Μη, των Μέτρων Αυτοκάθαρσης", TYPE_LISTED | INIT_YESNO_NO);
-	static final private ContentItem ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού
-			= new ContentItem("Αποδεικτικά μέσα ότι δεν Συντρέχουν οι Λόγοι Αποκλεισμού των Άρθρων 73 και 74 του Ν.4412/2016", TYPE_LISTED | INIT_YESNO_NO);
 	static final private ContentItem ΑπόφασηΑπευθείαςΑνάθεσης
 			= new ContentItem("Απόφαση Απευθείας Ανάθεσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES);
 	static final private ContentItem Σύμβαση
@@ -297,8 +293,10 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού,
 		ΑπόσπασμαΠοινικούΜητρώου,			// καθαρή αξία > 2500
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,	// καταλογιστέο > 1500 και καταλογιστέο > 3000 && καθαρή αξία > 2500
-		ΕπάρκειαΜέσωνΑυτοκάθαρσης,			// καθαρή αξία > 2500
-		ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού,	// καθαρή αξία > 2500
+		// καθαρή αξία > 2500
+		new ContentItem("Αποδεικτικά Μέσα για τη Διαπίστωση της Επάρκειας ή Μη, των Μέτρων Αυτοκάθαρσης", TYPE_LISTED | INIT_YESNO_NO),
+		// καθαρή αξία > 2500
+		new ContentItem("Αποδεικτικά μέσα ότι δεν Συντρέχουν οι Λόγοι Αποκλεισμού των Άρθρων 73 και 74 του Ν.4412/2016", TYPE_LISTED | INIT_YESNO_NO),
 		Σύμβαση,							// καθαρή αξία > 2500
 		ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης		// καθαρή αξία > 2500
 	};
@@ -306,46 +304,30 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	/** Τα έντυπα των Υποφακέλων Β, Γ και Δ, του Συνοπτικού Διαγωνισμού. */
 	static private final ContentItem[] FOLDER_BCD_CONCISE_TENDER = {
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Β»: ΥΠΟΒΟΛΗ ΠΡΟΣΦΟΡΩΝ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
-		new ContentItem("Διακήρυξη Διαγωνισμού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),	 // Με Αριθμό Διαδικτυακής Ανάρτησης Μητρώου (ΑΔΑΜ) στο ΚΥΜΔΗΣ και Αριθμό Διαδικτυακής Ανάρτησης (ΑΔΑ) στο ΔΙΑΥΓΕΙΑ
-		//new ContentItem("Πρόσκληση Συμμετοχής στο Διαγωνισμό", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),	// 3 τουλάχιστον Οικονομικών Φορέων
-		new ContentItem("Υποβληθέντα Δικαιολογητικά Οικονομικών Φορέων", TYPE_LISTED | INIT_YES_FIXED),
+		new ContentItem("Διακήρυξη Διαγωνισμού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		new ContentItem("Δικαιολογητικά Συμμετοχής Οικονομικών Φορέων", TYPE_LISTED | INIT_YES_FIXED),
 		new ContentItem("Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		new ContentItem("Απόφαση Ανάδειξης Προσωρινού Αναδόχου", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
-		new ContentItem("Αποδεικτικό Κοινοποίησης της Απόφασης Ανάδειξης Προσωρινού Αναδόχου", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		new ContentItem("Απόφαση της Αναθέτουσας Αρχής επί Ενστάσεων", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Πρόσκληση Προσωρινού Αναδόχου για Προσκόμιση Δικαιολογητικών Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης,
 
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Γ»: ΑΠΟΔΕΙΚΤΙΚΑ ΜΕΣΑ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
 		new ContentItem("Πρακτικό Ελέγχου Δικαιολογητικών Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		ΑπόσπασμαΠοινικούΜητρώου,
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,
-		ΕπάρκειαΜέσωνΑυτοκάθαρσης,
-		ΜηΎπαρξηΔυνητικώνΛόγωνΑποκλεισμού,
-		new ContentItem("Πιστοποιητικό από τη Διεύθυνση Προγραμματισμού και Συντονισμού της Επιθεώρησης Εργασιακών Σχέσεων", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Πιστοποιητικό για την Απόδειξη Καταλληλότητας Άσκησης Επαγγελματικής Δραστηριότητας", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Απόδειξη Οικονομικής και Χρηματοοικονομικής Επάρκειας", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Πιστοποιητικά Τεχνικής και Επαγγελματικής Ικανότητας", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Πιστοποιητικό Συμμόρφωσης με Πρότυπα Διασφάλισης και Περιβαλλοντικής Διαχείρισης", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Δικαιολογητικά Νομιμοποίησης του Προσωρινού Αναδόχου", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Δικαιολογητικά Απόδειξης Δάνειας Εμπειρίας", TYPE_LISTED | INIT_YESNO_NO),
 		ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ,
 		ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού,
-		new ContentItem("Επικυρωμένο Αντίγραφο Εγγύησης Καλής Εκτέλεσης", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Επικυρωμένο Αντίγραφο Εγγύησης Προκαταβολής", TYPE_LISTED | INIT_YESNO_NO),
-		new ContentItem("Επικυρωμένο Αντίγραφο Εγγύησης Καλής Λειτουργίας", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Δικαιολογητικά Κατακύρωσης Προσωρινού Αναδόχου", TYPE_LISTED | INIT_YES_FIXED),
 
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Δ»: ΚΑΤΑΚΥΡΩΣΗ ΔΙΑΓΩΝΙΣΜΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
 		ΑπόφασηΑπευθείαςΑνάθεσης,	// Σε περίπτωση που έχουμε συνοπτικό διαγωνισμό και απευθείας ανάθεση μαζί
-		new ContentItem("Απόφαση Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
-		new ContentItem("Αποδεικτικό Κοινοποίησης της Απόφασης Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
+		new ContentItem("Κατακύρωση Διαγωνισμού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		new ContentItem("Απόφαση της Αναθέτουσας Αρχής επί Ενστάσεων", TYPE_LISTED | INIT_YESNO_NO)
 	};
 
 	/** Τα έντυπα του Υποφακέλου Ε, Υπογραφή Συμφωνητικού. */
 	static private final ContentItem[] FOLDER_E_SIGN_CONTRACT = {
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Ε»: ΥΠΟΓΡΑΦΗ ΣΥΜΦΩΝΗΤΙΚΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
-		new ContentItem("Πρόσκληση Αναδόχου για Υπογραφή Συμφωνητικού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		Σύμβαση,
 		new ContentItem("Τροποποίηση Σύμβασης", TYPE_LISTED | INIT_YESNO_NO)
 	};

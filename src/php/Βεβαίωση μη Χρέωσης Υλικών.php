@@ -3,9 +3,9 @@ require_once('init.php');
 require_once('header.php');
 
 $invoices = get_invoices_by_category($data['Τιμολόγια']);
-if (!isset($invoices['Προμήθεια Υλικών'])) return;
-$invoices = $invoices['Προμήθεια Υλικών'];
-$c = count($invoices) > 1 ? 'α' : 'ο';	// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
+if (isset($invoices['Προμήθεια Υλικών'])) {
+	$invoices = $invoices['Προμήθεια Υλικών'];
+	$c = count($invoices) > 1 ? 'α' : 'ο';	// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
 ?>
 
 \sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134\facingp\margmirror
@@ -25,6 +25,9 @@ $c = count($invoices) > 1 ? 'α' : 'ο';	// Κατάληξη πληθυντικού - ενικού σχετικά 
 \sect
 
 <?php
+
+}
+
 unset($c, $invoices);
 
 rtf_close(__FILE__);

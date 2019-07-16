@@ -21,7 +21,7 @@ final class ReportTableModel implements TableModel {
 	};
 	/** Οι επικεφαλίδες των στηλών. */
 	private static final String[] HORIZONTAL_HEADER = {
-		null, "Τρέχον τιμολόγιο", "Τιμολόγια σύμβασης", "Όλα τα τιμολόγια"
+		null, "Τρέχον τιμολόγιο", "Τιμολόγια σύμβασης", "Τιμολόγια διαγωνισμού", "Όλα τα τιμολόγια"
 	};
 
 	/** Το τρέχον τιμολόγιο. */
@@ -33,6 +33,7 @@ final class ReportTableModel implements TableModel {
 		invoice = i;
 		fireTableDataChanged(new TableModelEvent(this, 0, 6, 1));
 		fireTableDataChanged(new TableModelEvent(this, 0, 6, 2));
+		fireTableDataChanged(new TableModelEvent(this, 0, 6, 3));
 	}
 
 	/** Οι listeners για κάθε αλλαγή στα δεδομένα του πίνακα. */
@@ -47,11 +48,15 @@ final class ReportTableModel implements TableModel {
 	@Override public void setValueAt(Object aValue, int rowIndex, int columnIndex) {}
 	@Override public Object getValueAt(int row, int col) {
 		if (col == 0) return VERTICAL_HEADER[row];
-		if (col == 3) return a(data.getActiveExpenditure().prices[row]);
+		if (col == 4) return a(data.expenditure.prices[row]);
 		if (invoice == null) return null;
 		if (col == 1) return a(invoice.prices[row]);
-		if (invoice.getContract() == null) return null;
-		return a(invoice.getContract().prices[row]);
+		Contract contract = invoice.getContract();
+		if (contract == null) return null;
+		if (col == 2) return a(contract.prices[row]);
+		Tender tender = contract.getTender();
+		if (tender == null) return null;
+		return a(tender.prices[row]);
 	}
 
 	/** Ενημερώνει όλους τους listeners ότι όλα τα δεδομένα του πίνακα άλλαξαν.

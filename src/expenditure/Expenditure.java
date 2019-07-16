@@ -1,7 +1,7 @@
 package expenditure;
 
 import static expenditure.ContentItem.createAutoContents;
-import static expenditure.Contract.TenderType.CONCISE_TENDER;
+import static expenditure.Tender.TenderType.CONCISE_TENDER;
 import static expenditure.MainFrame.NOYES;
 import static expenditure.MainFrame.window;
 import java.io.File;
@@ -20,10 +20,11 @@ import static expenditure.ContentItem.convertContents;
 
 /** Μια δαπάνη. */
 final class Expenditure implements VariableSerializable, TableRecord {
-	/** Η διαταγή της διάθεσης της πίστωσης. */
+	/** Η διαταγή διάθεσης της πίστωσης. */
 	private String orderDispensation;
-	/** Η διαταγή της διάθεσης είναι αναρτητέα στο διαδίκτυο. */
-	private boolean advertise;
+	/** Το ΑΔΑ της διαταγής διάθεσης της πίστωσης.
+	 * Η διαταγή της διάθεσης είναι αναρτητέα στο διαδίκτυο. */
+	private String orderDispensationId;
 	/** Η δαπάνη είναι δαπάνη έργου. */
 	private boolean construction;
 	/** Ειδικός Φορέας ΕΦ. */
@@ -52,6 +53,8 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	final ArrayList<Work> works = new ArrayList<>(100);
 	/** Οι συμβάσεις της δαπάνης. */
 	final ArrayList<Contract> contracts = new ArrayList<>(7);
+	/** Οι διαγωνισμοί της δαπάνης. */
+	final ArrayList<Tender> tenders = new ArrayList<>(7);
 
 	/** Το αρχείο στο οποίο είναι αποθηκευμένη ή πρόκειται να αποθηκευτεί η δαπάνη.
 	 * Δεν είναι απαραίτητο η δαπάνη να είναι αποθηκευμένη σε αυτό το αρχείο. Μπορεί η δαπάνη μόλις
@@ -92,7 +95,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		if (!node.isObject()) throw new Exception("Για δαπάνη, αναμένονταν αντικείμενο");
 		unitInfo                = new UnitInfo(node);
 		orderDispensation       = node.getField(H[0]).getString();
-		advertise               = node.getField(H[1]).getBoolean();
+		orderDispensationId     = node.getField(H[1]).getString();
 		construction            = node.getField(H[2]).getBoolean();
 		acb                     = node.getField(H[3]).getInteger();
 		aae                     = node.getField(H[4]).getInteger();
@@ -109,31 +112,37 @@ final class Expenditure implements VariableSerializable, TableRecord {
 			for (Node i : n.getArray())
 				works.add(new Work(i));
 		}
-		// Ανάγνωση συμβάσεων (πρώτα οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
+		// Ανάγνωση διαγωνισμών (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
 		n                       = node.getField(H[12]);
+		if (n.isExist()) {
+			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα διαγωνισμών");
+			for (Node i : n.getArray())
+				tenders.add(new Tender(this, i));
+		}
+		// Ανάγνωση συμβάσεων (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
+		n                       = node.getField(H[13]);
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα συμβάσεων");
 			for (Node i : n.getArray())
 				contracts.add(new Contract(this, i));
 		}
-		// Ανάγνωση τιμολογίων (πρώτα οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
-		n                       = node.getField(H[13]);
+		// Ανάγνωση τιμολογίων (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
+		n                       = node.getField(H[14]);
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα τιμολογίων");
 			for (Node i : n.getArray())
 				invoices.add(new Invoice(this, i));
 		}
-		// Ανάγνωση φύλλου καταχώρησης (πρώτα οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
+		// Ανάγνωση φύλλου καταχώρησης (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
 		cfg = calcContentConfiguration();
-		ContentItem.unserialize(node.getField(H[14]).getArray(), cfg, contents);
+		ContentItem.unserialize(node.getField(H[15]).getArray(), cfg, contents);
 	}
 
 	/** Ονόματα πεδίων αποθήκευσης. */
-	static final String[] H = { "Απόφαση Ανάληψης Υποχρέωσης", "Αναρτητέα στο διαδίκτυο",
-		"Έργο", "ΕΦ", "ΑΛΕ", "Τύπος Χρηματοδότησης", "Τίτλος",
-		"Απόφαση Απευθείας Ανάθεσης", "ΑΔΑ Απόφασης Απευθείας Ανάθεσης",
-		"Διαβιβαστικό Δαπάνης", "Αυτόματοι Υπολογισμοί",
-		"Εργασίες", "Συμβάσεις", "Τιμολόγια", "Φύλλο Καταχώρησης"
+	static final String[] H = { "Απόφαση Ανάληψης Υποχρέωσης", "ΑΔΑ Απόφασης Ανάληψης Υποχρέωσης",
+		"Έργο", "ΕΦ", "ΑΛΕ", "Τύπος Χρηματοδότησης", "Τίτλος", "Απόφαση Απευθείας Ανάθεσης",
+		"ΑΔΑ Απόφασης Απευθείας Ανάθεσης", "Διαβιβαστικό Δαπάνης", "Αυτόματοι Υπολογισμοί",
+		"Εργασίες", "Διαγωνισμοί", "Συμβάσεις", "Τιμολόγια", "Φύλλο Καταχώρησης"
 	};
 
 	/** Ο φορέας διάθεσης της δαπάνης είναι το ΓΕΣ/ΔΥΠΠΕ. */
@@ -148,14 +157,14 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * θέλει να επιλέξει ένα πεδίο για εξαγωγή, χρησιμοποιεί την VariableFields.add(). */
 	@Override public void serialize(VariableFields fields) {
 		serializeC(fields);
-		fields.addListVariableSerializable(H[14], contents);
+		fields.addListVariableSerializable(H[15], contents);
 	}
 	/** Μετατρέπει τη δαπάνη σε php serialize string format, για αποθήκευση σε αρχείο.
 	 * @return Μετατροπέας του αντικειμένου java σε php serialize string format. */
 	VariableSerializable save() {
 		return fields -> {
 			serializeC(fields);
-			fields.addListSerializable(H[14], ContentItem.save(contents));
+			fields.addListSerializable(H[15], ContentItem.save(contents));
 		};
 	}
 	/** Καθορίζει τα πεδία του αντικειμένου που θα εξαχθούν σε php serialize string format.
@@ -164,8 +173,10 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	private void serializeC(VariableFields fields) {
 		unitInfo.serialize(fields);	// Συγχώνευση των 2 αντικειμένων σε ένα
 		if (orderDispensation != null)       fields.add (H[0],  orderDispensation);
-		                                     fields.add (H[1],  advertise);
-		                                     fields.add (H[2],  construction);
+		if (orderDispensationId != null)     fields.add (H[1],  orderDispensationId);
+		/* Το πεδίο υπάρχει πάντα σε μια δαπάνη. Τα PHP scripts, αν το εντοπίσουν
+		καταλαβαίνουν ότι τα δεδομένα που εισήχθησαν είναι δαπάνη. Αν δεν υπάρχει
+		καταλαβαίνουν ότι δεν είναι δαπάνη */fields.add (H[2],  construction);
 		if (acb != 0)                        fields.add (H[3],  acb);
 		if (aae != 0)                        fields.add (H[4],  aae);
 		                                     fields.add (H[5],  financing.toString());
@@ -175,15 +186,16 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		if (orderTransport != null)          fields.add (H[9],  orderTransport);
 		                                     fields.add (H[10], smart);
 		if (!works.isEmpty())                fields.addListVariableSerializable(H[11], works);
-		if (!contracts.isEmpty())            fields.addListVariableSerializable(H[12], contracts);
-		if (!invoices.isEmpty())             fields.addListVariableSerializable(H[13], invoices);
+		if (!tenders.isEmpty())              fields.addListVariableSerializable(H[12], tenders);
+		if (!contracts.isEmpty())            fields.addListVariableSerializable(H[13], contracts);
+		if (!invoices.isEmpty())             fields.addListVariableSerializable(H[14], invoices);
 	}
 
 	@Override public Object getCell(int index) {
 		switch(index) {
 			case 0: return null;	// Επικεφαλίδα «Στοιχεία Δαπάνης»
 			case 1: return orderDispensation;
-			case 2: return advertise ? NOYES[1] : NOYES[0];
+			case 2: return orderDispensationId;
 			case 3: return construction ? NOYES[1] : NOYES[0];
 			case 4: return a(acb);
 			case 5: return a(aae);
@@ -202,7 +214,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		switch(index) {
 			case 0: break;	// Επικεφαλίδα «Στοιχεία Δαπάνης»
 			case 1: orderDispensation    = getString(value); break;
-			case 2: advertise = value == NOYES[1];
+			case 2: orderDispensationId  = getString(value); break;
 			case 3:		// Δαπάνη έργου ή όχι
 				if ((value == NOYES[1]) != construction) {
 					construction = !construction;
@@ -258,9 +270,8 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * @return Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό διαγωνισμό. */
 	private int calcContentConfiguration() {
 		int r = 0;
-		if (!contracts.isEmpty())
-			for (Contract c : contracts)
-				if (r < 1 && c.getTenderType() == CONCISE_TENDER) r = 1;
+		for (Tender tender : tenders)
+			if (r < 1 && tender.getTenderType() == CONCISE_TENDER) r = 1;
 		return r;
 	}
 

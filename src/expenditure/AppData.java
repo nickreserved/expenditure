@@ -16,8 +16,8 @@ import util.PhpSerializer.Serializable;
 final class AppData implements Serializable {
 	/** Λίστα με τις ανοικτές δαπάνες. */
 	final ArrayList<Expenditure> expenditures = new ArrayList<>();
-	/** Το index της τρέχουσας δαπάνης, στη λίστα με τις ανοικτές δαπάνες. */
-	int activeExpenditure;
+	/** Η τρέχουσα δαπάνη. */
+	Expenditure expenditure;
 	/** Λίστα με τις κρατήσεις. */
 	ArrayList<Deduction> deductions = new ArrayList<>();
 	/** Λίστα με το προσωπικό της Μονάδας / Υπηρεσίας. */
@@ -60,7 +60,9 @@ final class AppData implements Serializable {
 				expenditures.add(new Expenditure(new File(name), n.getField(name)));
 		}
 		// Ανάγνωση τρέχουσας δαπάνης
-		activeExpenditure = (int) node.getField(H[2]).getInteger();
+		int a = (int) node.getField(H[2]).getInteger();
+		if (a >= expenditures.size()) a = expenditures.size() - 1;
+		if (a >= 0) expenditure = expenditures.get(a);
 		// Ανάγνωση κρατήσεων
 		n = node.getField(H[3]);
 		if (n.isExist()) {
@@ -111,7 +113,7 @@ final class AppData implements Serializable {
 		new Fields(export, H.length)
 				.write (H[0], version)
 				.write (H[1], expendituresWithFilename)
-				.write (H[2], activeExpenditure)
+				.write (H[2], expenditures.indexOf(expenditure))
 				.writeListVariableSerializable(H[3], deductions)
 				.writeListVariableSerializable(H[4], personnel)
 				.writeListVariableSerializable(H[5], contractors)
@@ -121,20 +123,16 @@ final class AppData implements Serializable {
 				.write (H[9], onlyOnce);
 	}
 
-	/** Επιστρέφει την τρέχουσα δαπάνη που εμφανίζεται στο πρόγραμμα αυτή τη στιγμή.
-	 * @return Η δαπάνη
-	 * @throws IndexOutOfBoundsException Αν δεν υπάρχει ανοικτή δαπάνη στο πρόγραμμα */
-	Expenditure getActiveExpenditure() { return expenditures.get(activeExpenditure); }
 	/** Δεν υπάρχουν ανοικτές δαπάνες στο πρόγραμμα.
 	 * @return Δεν υπάρχουν ανοικτές δαπάνες στο πρόγραμμα */
-	boolean isEmpty() { return expenditures.isEmpty(); }
+	boolean isEmpty() { return expenditure == null; }
 	/** Ελέγχει αν υπάρχει ανοικτή δαπάνη, με συγκεκριμένο όνομα αρχείου.
 	 * @param file Το αρχείο της δαπάνης
 	 * @return Αν υπάρχει ανοικτή δαπάνη με αυτό το όνομα αρχείου */
-	boolean isExpenditureExist(File file) { return expenditures.stream().anyMatch(i -> i.file.equals(file)); }
-	/** Προσθέτει μια νέα δαπάνη στις ανοικτές και την κάνει τρέχουσα στο παράθυρο του προγράμματος. */
-	void addActiveExpenditure(Expenditure cost) {
-		activeExpenditure = expenditures.size();
-		expenditures.add(cost);
+	boolean isExpenditureFileExist(File file) {
+		return expenditures.stream().anyMatch(i -> i.file.equals(file));
 	}
+	/** Προσθέτει μια νέα δαπάνη στις ανοικτές και την κάνει τρέχουσα στο παράθυρο του προγράμματος.
+	 * @param cost Η δαπάνη */
+	void addActiveExpenditure(Expenditure cost) { expenditures.add(expenditure = cost); }
 }

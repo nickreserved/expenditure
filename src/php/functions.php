@@ -64,14 +64,12 @@ function invoice($invoice, & $date = null) {
 
 /** Ελέγχει την ταυτότητα μιας σύμβασης.
  * @param string $contract Η ταυτότητα της σύμβασης που πρέπει να έχει τη μορφή 123/31-12-2019
- * @param array $date Αν η ταυτότητα της σύμβασης είναι έγκυρη, επιστρέφει ένα array με 4 στοιχεία:
- * τον αριθμό πρωτοκόλλου, την ημέρα, το μήνα και το έτος έκδοσης της σύμβασης, όλα αριθμητικά. Π.χ.
- * 123, 31, 12, 2019.
  * @return string Η ταυτότητα της σύμβασης, στη μορφή '123/2019' δηλαδή 'αρ. πρωτοκόλου'/'έτος' */
-function contract($contract, & $date = null) {
-	if (preg_match('/(\d+)\/(\d{1,2})-(\d{1,2})-(\d{4})/', $contract, $date)) {
-		array_shift($date);
-		return $date[0] . '/' . $date[3];
+function contract($contract) {
+	$a = null;
+	if (preg_match('/(\d+)\/(\d{1,2})-(\d{1,2})-(\d{4})/', $contract, $a)) {
+		array_shift($a);
+		return "{$a[0]}/{$a[3]}";
 	}
 	trigger_error(($contract ? "Το '<b>$contract</b>' δεν είναι ταυτότητα σύμβασης"
 		: 'Η ταυτότητα σύμβασης πρέπει να δίνεται') . ' στη μορφή 132/31-12-2019 (αρ. πρωτοκόλλου/ημερομηνία)');
@@ -361,7 +359,7 @@ function parse_date($a) {
  * @return array Ημερομηνία της μορφής ('59', '23', '31', '12', '2019') */
 function parse_datetime($a) {
 	$m = null;
-	if (preg_match('/(\d{1,2}) (\d{1,2})\:(\d\d) (.{3,4}) (\d\d|\d\d\d\d)/', $a, $m)) {
+	if (preg_match('/^(\d{1,2}) (\d{1,2})\:(\d\d) (.{3,4}) (\d\d|\d\d\d\d)$/', $a, $m)) {
 		array_shift($m);
 		$m[3] = get_month($m[3]);
 		$m[4] = get_year($m[4]);
@@ -379,14 +377,9 @@ function parse_datetime($a) {
  * @return int Τετραψήφιος αριθμός του έτους */
 function get_year($year) {
 	$n = strlen($year);
-	if ($n == 2 || $n == 4) {
-		$curyear = date('Y');
-		if ($year >= 0 && $year < 100 || $year >= 1900 && $year < $curyear + 3) {
-			if ($year < 100)
-				$year += 1997 + $year > $curyear ? 1900 : 2000;
-			return (int) $year;
-		}
-	}
+	$curyear = date('Y');
+	if ($n == 2) return $year + (2000 + $year > $curyear + 3 ? 1900 : 2000);
+	else if ($n == 4 && $year >= 1900 && $year < $curyear + 3) return (int) $year;
 }
 
 /** Επιστρέφει τον αριθμό του μήνα από το σύντομο όνομα του μήνα.
@@ -539,20 +532,10 @@ function calc_per_deduction_incometax_vat($invoices) {
 }
 
 
-/** Επιστρέφει ένα array με τις λίστες τιμολογίων του κάθε δικαιούχου.
- * @param array $invoices Λίστα με τιμολόγια
- * @return array Ένα στοιχείο για κάθε δικαιούχο, που περιέχει ένα array με όλα του τα τιμολόγια */
-function get_invoices_by_contractor($invoices) {
-	$b = array();
-	foreach($invoices as $invoice)
-		$b[$invoice['Δικαιούχος']['Επωνυμία']][] = $invoice;
-	return array_values($b);
-}
-
 /** Επιστρέφει ένα array με λίστες τιμολογίων χωριστά για προμήθειες και για υπηρεσίες.
  * @param array $invoices Λίστα με τιμολόγια
- * @return array Το στοιχείο με κλειδί 'Προμήθειες' είναι array με όλα τα τιμολόγια που αφορούν
- *  προμήθειες. Το στοιχείο με κλειδί 'Υπηρεσίες' είναι array με όλα τα τιμολόγια που αφορούν
+ * @return array Το στοιχείο με κλειδί 'Προμήθεια Υλικών' είναι array με όλα τα τιμολόγια που αφορούν
+ *  προμήθειες. Το στοιχείο με κλειδί 'Παροχή Υπηρεσιών' είναι array με όλα τα τιμολόγια που αφορούν
  *  υπηρεσίες. Αν δεν υπάρχουν αντίστοιχα τιμολόγια, δεν υπάρχει και το αντίστοιχο στοιχείο. */
 function get_invoices_by_category($invoices) {
 	$b = array();
@@ -574,24 +557,24 @@ function get_invoice_category($category) {
  * @return boolean Η κατηγορία του τιμολογίου είναι προμήθεια */
 function is_supply($category) { return $category == 'Προμήθεια υλικών' || $category == 'Προμήθεια υγρών καυσίμων'; }
 
-/** Επιστρέφει τον τύπο διαγωνισμού που έγινε για το τιμολόγιο.
- * @param array $invoice Το τιμολόγιο
- * @return string Ο τύπος του διαγωνισμού ή 'Απευθείας Ανάθεση' */
-function get_invoice_tender_type($invoice) {
-	return isset($invoice['Σύμβαση']) ? $invoice['Σύμβαση']['Τύπος Διαγωνισμού'] : 'Απευθείας Ανάθεση';
-}
-
 /** Έλεγχος αν υπάρχει στη δαπάνη απευθείας ανάθεση.
  * @return bool Υπάρχει στη δαπάνη απευθείας ανάθεση */
-function has_direct_assignment() { return has_tender_type('Απευθείας Ανάθεση'); }
+function has_direct_assignment() {
+	global $data;
+	foreach($data['Τιμολόγια'] as $invoice)
+		if (!isset($invoice['Σύμβαση']['Διαγωνισμός'])) return true;
+	return false;
+}
 
 /** Έλεγχος αν υπάρχει στη δαπάνη διαγωνισμός.
+ * Δεν είναι το αντίθετο της has_direct_assignment(), καθώς μπορεί να υπάρχει και διαγωνισμός και
+ * απευθείας ανάθεση.
  * @return bool Υπάρχει στη δαπάνη διαγωνισμός */
 function has_tender() {
 	global $data;
 	if (isset($data['Συμβάσεις']))
 		foreach($data['Συμβάσεις'] as $contract)
-			if ($contract['Τύπος Διαγωνισμού'] != 'Απευθείας Ανάθεση') return true;
+			if ($contract['Τύπος'] != 'Απευθείας Ανάθεση') return true;
 	return false;
 }
 
@@ -603,7 +586,7 @@ function has_tender_type($type) {
 	$b = $type == 'Απευθείας Ανάθεση';
 	if (!isset($data['Συμβάσεις'])) return $b;		// Δεν υπάρχουν συμβάσεις: Απευθείας Ανάθεση
 	foreach($data['Συμβάσεις'] as $contract)		// Υπάρχουν συμβάσεις: έλεγχος ισότητας
-		if ($contract['Τύπος Διαγωνισμού'] == $type) return true;
+		if ($contract['Τύπος'] == $type) return true;
 	if ($b)						// Μόνο για Απευθείας Ανάθεση: έλεγχος για τιμολογια δίχως σύμβαση
 		foreach($data['Τιμολόγια'] as $invoice)
 			if (!isset($invoice['Σύμβαση'])) return true;
@@ -626,31 +609,39 @@ function get_newer_invoice_timestamp($invoices) {
 	return $a;
 }
 
+/** Επιστρέφει το πιο πρόσφατο timestamp σύμβασης.
+ * Πρέπει να κληθεί μετά από την init_contracts().
+ * @param array $contracts Λίστα συμβάσεων
+ * @return int|null Το timestamp της πιο πρόσφατης σύμβασης ή null αν δεν υπάρχουν συμβάσεις ή δεν
+ * έχει οριστεί η ταυτότητα καμίας από αυτές */
+function get_newer_contract_timestamp($contracts) {
+	$a = null;
+	foreach($contracts as $contract)
+		if (isset($contract['Χρόνος Υπογραφής Σύμβασης']) && $contract['Χρόνος Υπογραφής Σύμβασης'] > $a)
+			$a = $contract['Χρόνος Υπογραφής Σύμβασης'];
+	return $a;
+}
+
 /** Επιστρέφει σε κείμενο, όλα τα ονόματα ενός array με στοιχεία.
  * @param array $a Η λίστα με τα στοιχεία. Δεν μπορεί να είναι άδεια.
  * @param string $key Το κλειδί, για κάθε στοιχείο, με το όνομα του στοιχείου
  * @return string Τα ονόματα των στοιχείων του array χωρισμένα με ',' εκτός από τα τελευταία 2 που
  * είναι χωρισμένα με 'και' */
-function get_names_key($a, $key) { return get_names_func($a, function($b) use($key) { return $b[$key]; }); }
+function get_names_key($a, $key) {
+	return get_names(array_values(array_map(function($b) use($key) { return $b[$key]; }, $a)));
+}
 
 /** Επιστρέφει σε κείμενο, όλα τα ονόματα ενός array.
  * @param array $a Η λίστα με τα ονόματα. Δεν μπορεί να είναι άδεια.
  * @return string Τα ονόματα του array χωρισμένα με ',' εκτός από τα τελευταία 2 που είναι χωρισμένα
  * με 'και' */
-function get_names($a) { return get_names_func($a, function($b) { return $b; }); }
-
-/** Επιστρέφει σε κείμενο, όλα τα ονόματα ενός array με στοιχεία.
- * @param array $a Η λίστα με τα στοιχεία. Δεν μπορεί να είναι άδεια.
- * @param callable $func Συνάρτηση που επιστρέφει το όνομα για κάθε στοιχείο του array
- * @return string Τα ονόματα των στοιχείων του array χωρισμένα με ',' εκτός από τα τελευταία 2 που
- * είναι χωρισμένα με 'και' */
-function get_names_func($a, $func) {
+function get_names($a) {
 	$n = count($a);
 	$r = '';
 	for ($z = 0; $z < $n - 2; ++$z)
-		$r .= $func($a[$z]) . ', ';
-	if ($n > 1) $r .= $func($a[$n - 2]) . ' και ';
-	$r .= $func($a[$n - 1]);
+		$r .= "{$a[$z]}, ";
+	if ($n > 1) $r .= "{$a[$n - 2]} και ";
+	$r .= $a[$n - 1];
 	return $r;
 }
 
@@ -731,31 +722,6 @@ function article($gender, $inflection, $on = false) {
 		}
 }
 
-/** Επιστρέφει έναν τίτλο για έναν δικαιούχο της μορφής 'προμηθευτής'.
- * @param array $invoices Μια λίστα τιμολογίων από την οποία θα αποφασιστεί αν είναι προμηθευτής,
- * εργολάβος ή υπηρεσία
- * @param int $inflection 0 για ονομαστική, 1 για γενική, 2 για αιτιατική και 3 για κλιτική
- * @param int $article null χωρίς άρθρο, false για άρθρο και true για 'στου', 'στον', 'στης', 'στην'
- * @return string Ο τίτλος του δικαιούχου, με τη μορφή που ζητήθηκε */
-function get_contractor_title($invoices, $inflection, $article) {
-	/*TODO: Οι περιπτώσεις είναι:
-	 * Προμήθεια υλικών (όλα): προμηθευτής
-	 * Παροχή υπηρεσιών (όλα) και όχι Ιδιωτικός Τομέας: υπηρεσία (ΔΕΗ, ΟΤΕ)
-	 * Παροχή υπηρεσιών και όχι έργο: Μηχανουργείο, Ηλεκτρολόγος
-	 * Μίσθωση Ακινήτων:
-	 * Παροχή υπηρεσιών και έργο: ανάδοχος (Κατασκευή έργου, Σύνταξη ή επίβλεψη μελέτης) */
-	$name = 'προμηθευτής'; $gender = 0;
-	foreach($invoices as $invoice)
-		if (!is_supply($invoice['Κατηγορία'])) {
-			if ($invoice['Δικαιούχος']['Τύπος'] == 'Ιδιωτικός Τομέας') $name = 'ανάδοχος';
-			else { $name = 'υπηρεσία'; $gender = 1; }
-			break;
-		}
-	$name = inflection($name, $inflection);
-	if (isset($article)) $article = article($gender, $inflection, $article);
-	return isset($article) ? "$article $name" : $name;
-}
-
 /** Υλοποίηση τελεστή spaceship (&lt;=&gt;) στο PHP 5.
  * Ισοδύναμο με $a &lt;=&gt; $b.
  * @param mixed $a Τιμή
@@ -764,16 +730,50 @@ function get_contractor_title($invoices, $inflection, $article) {
 function ss($a, $b) { return $a === $b ? 0 : ($a < $b ? -1 : 1); }
 
 /** Επιστρέφει τα ταχυδρομικά στοιχεία της Μονάδας.
- * @param bool $name Συμπεριλαμβάνεται η επωνυμία της Μονάδας
- * @return string Η επωνυμία, η έδρα, η διεύθυνση, το τηλέφωνο και ο ΤΚ της Μονάδας */
-function get_unit_address($name = true) {
+ * @return string Η έδρα, η διεύθυνση, το τηλέφωνο και ο ΤΚ της Μονάδας */
+function get_unit_address() {
 	global $data;
-	$a = $name ? $data['Μονάδα Πλήρες'] . ', ' : '';
-	$a .= 'διεύθυνση: ' . $data['Έδρα'];
+	$a = 'διεύθυνση: ' . $data['Έδρα'];
 	if (isset($data['Διεύθυνση'])) $a .= ', ' . $data['Διεύθυνση'];
 	if (isset($data['Τηλέφωνο'])) $a .= ', τηλέφωνο: ' . $data['Τηλέφωνο'];
 	if (isset($data['Τ.Κ.'])) $a .= ', Τ.Κ. ' . $data['Τ.Κ.'];
 	return $a;
+}
+
+/** Επιστρέφει τα συμαντικά στοιχεία ενός οικονομικού φορέα.
+ * @param array $contractor Ο οικονομικός φορέας
+ * @return string Η επωνυμία, το ΑΦΜ, η διεύθυνση, το τηλέφωνο και το e-mail του οικονομικού φορέα */
+function get_contractor_full_info($contractor) {
+	$r = "{$contractor['Επωνυμία']}, ΑΦΜ: {$contractor['ΑΦΜ']}";
+	if (isset($contractor['Τηλέφωνο'])) $r .= ", τηλέφωνο: {$contractor['Τηλέφωνο']}";
+	if (isset($contractor['Διεύθυνση'])) $r .= ", διεύθυνση: {$contractor['Διεύθυνση']}";
+	if (isset($contractor['e-mail'])) $r .= ", e-mail: {$contractor['e-mail']}";
+	return $r;
+}
+
+/** Επιστρέφει τα διακριτικά στοιχεία ενός οικονομικού φορέα.
+ * @param array $contractor Ο οικονομικός φορέας
+ * @return string Η επωνυμία και το ΑΦΜ του οικονομικού φορέα */
+function get_contractor_id($contractor) { return "{$contractor['Επωνυμία']} (ΑΦΜ: {$contractor['ΑΦΜ']})"; }
+
+/** Οι πράξεις της δαπάνης κοινοποιούνται στο διαδίκτυο. */
+function published() {
+	global $data;
+	return isset($data['ΑΔΑ Απόφασης Ανάληψης Υποχρέωσης']);
+}
+
+/** Το έγγραφο που εξάγεται είναι ολόκληρη δαπάνη. */
+function is_expenditure() {
+	global $output;
+	return $output === 'δαπάνη';
+}
+
+/** Επιστρέφει αν η αποσφράγιση των προσφορών θα γίνει σε δυο φάσεις.
+ * @param array $tender Ο διαγωνισμός
+ * @return boolean Η αποσφράγιση των προσφορών θα γίνει σε 2 φάσεις */
+function unseal_2_phases($tender) {
+	return $tender['Τύπος'] != 'Συνοπτικός Διαγωνισμός'
+				|| isset($tender['Χρόνος Αποσφράγισης Οικονομικών Προσφορών']);
 }
 
 //TODO: Δεν χρησιμοποιούνται

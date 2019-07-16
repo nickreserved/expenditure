@@ -11,7 +11,7 @@ function report($invoices, $prices = null) {
 \trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx454
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx3799
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx4819
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx5046
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx6066
 
 EOD;
@@ -28,7 +28,7 @@ EOD;
 ?>
 \pard\plain\fs21
 \trowd\trhdr<?=$cells?>
-\qc\b A/A\cell ΠΕΡΙΓΡΑΦΗ\cell ΜΟΝΑΔΑ\cell ΠΟΣΟΤΗΤΑ\cell<?php if (count($categories['ΦΠΑ']) > 1) echo ' ΦΠΑ\cell'; ?> ΜΟΝΑΔΑ\cell ΣΥΝΟΛΟ\b0\cell\row
+\qc\b A/A\cell ΠΕΡΙΓΡΑΦΗ\cell ΜΟΝΑΔΑ\line ΜΕΤΡΗΣΗΣ\cell ΠΟΣΟΤΗΤΑ\cell<?php if (count($categories['ΦΠΑ']) > 1) echo ' ΦΠΑ\cell'; ?> ΑΞΙΑ\line ΜΟΝΑΔΑΣ\cell ΑΞΙΑ\line ΣΥΝΟΛΟΥ\b0\cell\row
 \trowd<?=$cells?>
 <?php
 $count_items = 0;
@@ -60,27 +60,8 @@ foreach($invoices as $invoice)
  * @param array $invoices Λίστα με τα τιμολόγια της έκθεσης */
 function report_no_prices($invoices) {
 	$categories = calc_per_deduction_incometax_vat($invoices);
-	$cells = <<<'EOD'
-\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
-\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx454
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx3799
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx4819
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx6066
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx7654
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx8788
+	report_no_prices_no_sums($invoices); ?>
 
-EOD;
-?>
-\pard\plain\fs21
-\trowd\trhdr<?=$cells?>
-\qc\b A/A\cell ΠΕΡΙΓΡΑΦΗ\cell ΜΟΝΑΔΑ\cell ΠΟΣΟΤΗΤΑ\cell ΜΟΝΑΔΑ\cell ΣΥΝΟΛΟ\b0\cell\row
-\trowd<?=$cells?>
-<?php
-$count_items = 0;
-foreach($invoices as $invoice)
-	foreach($invoice['Είδη'] as $item) {
-		?>\qr <?=++$count_items?>\cell\qj <?=rtf($item['Είδος'])?>\cell\qc <?=rtf($item['Μονάδα Mέτρησης'])?>\cell <?=num($item['Ποσότητα'])?>\cell\cell\cell\row
-<?php } ?>
 \pard\tx1\tqdec\tx8760\trowd\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx8788
 {\b ΚΑΘΑΡΗ ΑΞΙΑ:}\cell\row
@@ -98,4 +79,31 @@ foreach($invoices as $invoice)
 		echo '- ΦΕ ' . percent($k) . ':\cell\row' . PHP_EOL;
 	if (count($categories['ΦΕ']))
 		echo '{\b ΥΠΟΛΟΙΠΟ ΠΛΗΡΩΤΕΟ:}\cell\row' . PHP_EOL;
+}
+
+/** Εξάγει τα στοιχεία μιας έκθεσης, χωρίς τιμές, για ένα σχέδιο σύμβασης.
+ * Χρησιμοποιείται αποκλειστικά στην εξαγωγή διακήρυξης διαγωνισμού.
+ * @param array $invoices Λίστα με τα τιμολόγια της έκθεσης */
+function report_no_prices_no_sums($invoices) {
+	$cells = <<<'EOD'
+\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
+\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx454
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx3799
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx5046
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx6066
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx7654
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx8788
+
+EOD;
+?>
+\pard\plain\fs21
+\trowd\trhdr<?=$cells?>
+\qc\b A/A\cell ΠΕΡΙΓΡΑΦΗ\cell ΜΟΝΑΔΑ\line ΜΕΤΡΗΣΗΣ\cell ΠΟΣΟΤΗΤΑ\cell ΑΞΙΑ\line ΜΟΝΑΔΑΣ\cell ΑΞΙΑ\line ΣΥΝΟΛΟΥ\b0\cell\row
+\trowd<?=$cells?>
+<?php
+$count_items = 0;
+foreach($invoices as $invoice)
+	foreach($invoice['Είδη'] as $item) {
+		?>\qr <?=++$count_items?>\cell\qj <?=rtf($item['Είδος'])?>\cell\qc <?=rtf($item['Μονάδα Mέτρησης'])?>\cell <?=num($item['Ποσότητα'])?>\cell\cell\cell\row
+<?php }
 }

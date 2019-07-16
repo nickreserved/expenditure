@@ -15,7 +15,7 @@ final class ContentsTableModel extends ResizableHeaderTableModel<ContentItem> {
 	}
 	/** Ενημερώνει το μοντέλο ότι η ενεργή δαπάνη άλλαξε. */
 	private void updateExpenditure() {
-		list = data.isEmpty() ? null : data.getActiveExpenditure().contents;
+		list = data.isEmpty() ? null : data.expenditure.contents;
 	}
 	@Override protected List<ContentItem> get() { return list; }
 	@Override protected ContentItem createNew() { return new ContentItem(); }

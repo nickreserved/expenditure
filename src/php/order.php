@@ -1,25 +1,16 @@
 <?php
 require_once('functions.php');
 
-$draft = isset($_ENV['draft']) && $_ENV['draft'] == 'true';
+if (!isset($output)) $output = !isset($_ENV['draft']) || $_ENV['draft'] != 'true';
 
 /** Εξάγει το αν η διαταγή είναι αναρτητέα στο διαδίκτυο ή όχι, καθώς και το ΑΔΑ της.
- * @param string adaKey Το κλειδί του $data με το ΑΔΑ της διαταγής, εφόσον κοινοποιείται στο διαδίκτυο
- * @param bool draft Το έγγραφο είναι σχέδιο */
-function order_publish($adaKey, $draft) {
-	global $data;
-	order_publish_plain($data['Αναρτητέα στο διαδίκτυο'], $adaKey, $draft);
-}
+ * @param array $ar Το array του οποίου ένα στοιχείο περιλαμβάνει το ΑΔΑ της διαταγής
+ * @param string $adaKey Το κλειδί του array με το ΑΔΑ της διαταγής, εφόσον κοινοποιείται στο διαδίκτυο
+ * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο */
+function order_publish($ar, $adaKey, $output) {
+	if (published() || isset($ar[$adaKey])) { ?>
 
-/** Εξάγει το αν η διαταγή είναι αναρτητέα στο διαδίκτυο ή όχι, καθώς και το ΑΔΑ της.
- * @param bool $public Είναι αναρτητέα στο διαδίκτυο
- * @param string adaKey Το κλειδί του $data με το ΑΔΑ της διαταγής, εφόσον κοινοποιείται στο διαδίκτυο
- * @param bool draft Το έγγραφο είναι σχέδιο */
-function order_publish_plain($public, $adaKey, $draft) {
-	global $data;
-	if ($public) { ?>
-
-\pard\plain\qr ΑΔΑ: <?=orelse2(!$draft, $data, $adaKey, '........')?>\par
+\pard\plain\qr ΑΔΑ: <?=rtf(orelse2($output, $ar, $adaKey, '........'))?>\par
 \pard\plain\qc{\ul\b ΑΝΑΡΤΗΤΕΑ ΣΤΟ ΔΙΑΔΙΚΤΥΟ}\par\par
 
 <?php } else { ?>
@@ -35,14 +26,14 @@ function order_publish_plain($public, $adaKey, $draft) {
  * @param string|null $order Η ταυτότητα του εγγράφου
  * @param array $to Οι αποδέκτες προς ενέργεια
  * @param array|null $info Οι αποδέκτες προς κοινοποίηση
- * @param bool draft Το έγγραφο είναι σχέδιο
+ * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο
  * @param string|null $attached Ο αριθμός συνημμένων
  * @param string $subject Το θέμα του εγγράφου
  * @param array|null $references Τα σχετικά του εγγράφου */
-function order_header_autorecipients($order, $to, $info, $draft, $attached, $subject, $references) {
+function order_header_autorecipients($order, $to, $info, $output, $attached, $subject, $references) {
 	if (need_recipient_table($to, $info))
-		order_header_recipients($order, $draft, $attached, $subject, $references);
-	else order_header($order, $to, $info, $draft, $attached, $subject, $references);
+		order_header_recipients($order, $output, $attached, $subject, $references);
+	else order_header($order, $to, $info, $output, $attached, $subject, $references);
 }
 
 /** Ελέγχει αν απαιτείται πίνακας αποδεκτών σε ένα στρατιωτικό έγγραφο.
@@ -53,46 +44,46 @@ function need_recipient_table($to, $info) { return (count($to) + is_array($info)
 
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου, με πίνακα αποδεκτών.
  * @param string|null $order Η ταυτότητα του εγγράφου
- * @param bool draft Το έγγραφο είναι σχέδιο
+ * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο
  * @param string|null $attached Ο αριθμός συνημμένων
  * @param string $subject Το θέμα του εγγράφου
  * @param array|null $references Τα σχετικά του εγγράφου */
-function order_header_recipients($order, $draft, $attached, $subject, $references) {
+function order_header_recipients($order, $output, $attached, $subject, $references) {
 	$r = <<<'EOT'
 {\b ΠΡΟΣ:}\line Πίνακας Αποδεκτών\line\par
 {\b ΚΟΙΝ.:}
 EOT;
-	order_header_common($order, $r, $draft, $attached, $subject, $references);
+	order_header_common($order, $r, $output, $attached, $subject, $references);
 }
 
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου.
  * @param string|null $order Η ταυτότητα του εγγράφου
  * @param array $to Οι αποδέκτες προς ενέργεια
  * @param array|null $info Οι αποδέκτες προς κοινοποίηση
- * @param bool draft Το έγγραφο είναι σχέδιο
+ * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο
  * @param string|null $attached Ο αριθμός συνημμένων
  * @param string $subject Το θέμα του εγγράφου
  * @param array|null $references Τα σχετικά του εγγράφου */
-function order_header($order, $to, $info, $draft, $attached, $subject, $references) {
+function order_header($order, $to, $info, $output, $attached, $subject, $references) {
 	$r = '{\b ΠΡΟΣ:}\tab ';
 	foreach($to as $v) $r .= rtf($v) . '\line';
 	$r .= '\par' . PHP_EOL;
 	$r .= '{\b ΚΟΙΝ.:}\tab ';
 	if (is_array($info))
 		foreach($info as $v) $r .= rtf($v) . '\line';
-	order_header_common($order, $r, $draft, $attached, $subject, $references);
+	order_header_common($order, $r, $output, $attached, $subject, $references);
 }
 
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου.
  * @param string|null $order Η ταυτότητα του εγγράφου
  * @param string $recipients Οι αποδέκτες του εγγράφου
- * @param bool draft Το έγγραφο είναι σχέδιο
+ * @param mixed $output Το έγγραφο είναι ακριβές αντίγραφο
  * @param string|null $attached Ο αριθμός συνημμένων
  * @param string $subject Το θέμα του εγγράφου
  * @param array|null $references Τα σχετικά του εγγράφου */
-function order_header_common($order, $recipients, $draft, $attached, $subject, $references) {
+function order_header_common($order, $recipients, $output, $attached, $subject, $references) {
 	global $data;
-	if (!$draft || isset($order)) { $ord = null; order($order, $ord); }
+	if ($output || isset($order)) { $ord = null; order($order, $ord); }
 ?>
 
 \trowd\trautofit1\trpaddl0\trpaddr0\cellx5103\clftsWidth1\clNoWrap\cellx8788
@@ -100,7 +91,7 @@ function order_header_common($order, $recipients, $draft, $attached, $subject, $
 <?=$recipients?>\cell
 \pard\plain\intbl
 <?=wordwrap(rtf(strtouppergn($data['Μονάδα Πλήρες'])), 25, '\line ')?>\line <?=rtf(strtouppergn($data['Γραφείο']))?>\line Τηλ. <?=rtf($data['Τηλέφωνο'])?>\line <?php
-	if (!$draft || isset($ord))
+	if ($output || isset($ord))
 		echo rtf($ord[0]) . '/' . rtf($ord[1]) . '/' . rtf($ord[2]) . '\line ' . rtf($ord[3]) . '\line ' . rtf($data['Έδρα']) . ', ' . rtf($ord[4]);
 	else echo 'Φ. \u8230_ / \u8230_ / \u8230_\line Σ. \u8230_\line ' . rtf($data['Έδρα']) . ', \u8230_ ' . strftime('%b %y');
 	if ($attached) echo '\line Συνημμένα: ' . $attached;
@@ -115,7 +106,7 @@ function order_header_common($order, $recipients, $draft, $attached, $subject, $
 			echo '\pard\plain\fi-1644\li1644\tx1134\tx1644\qj{\b ΣΧΕΤ.:}';
 			for($z = 0; $z < $a - 1; $z++)
 				echo '\tab ' . greeknum($z + 1) . '.\tab ' . rtf($references[$z]) . '\par' . PHP_EOL;
-			echo '\pard\plain\sa120\fi-1644\li1644\tx1134\tx1644\tab ' . greeknum($a) . '.';
+			echo '\pard\plain\sa120\fi-1644\li1644\tx1134\tx1644\qj\tab ' . greeknum($a) . '.';
 		} else echo '\pard\plain\sa120\fi-1134\li1134\tx1134\qj{\b ΣΧΕΤ.:}';
 		echo '\tab{\ul ' . rtf($references[$a - 1]) . '}\par' . PHP_EOL . PHP_EOL;
 	} ?>
@@ -123,8 +114,8 @@ function order_header_common($order, $recipients, $draft, $attached, $subject, $
 <?php }
 
 /** Εξάγει το μετά του κειμένου μέρος, ενός στρατιωτικού εγγράφου.
- * @param bool $draft Το έγγραφο εκδίδεται σαν σχέδιο, ειδάλλως σαν ακριβές αντίγραφο */
-function order_footer($draft) { if ($draft) order_footer_draft(); else order_footer_copy(); }
+ * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο */
+function order_footer($output) { if ($output) order_footer_copy(); else order_footer_draft(); }
 
 /** Εξάγει το μετά του κειμένου μέρος, ενός σχεδίου στρατιωτικού εγγράφου. */
 function order_footer_draft() {
@@ -240,8 +231,8 @@ function appendix_header($order, $appendix, $title) {
 <?php }
 
 /** Εξάγει το μετά του κειμένου μέρος, ενός παραρτήματος στρατιωτικού εγγράφου.
- * @param bool $draft Το έγγραφο εκδίδεται σαν σχέδιο, ειδάλλως σαν ακριβές αντίγραφο */
-function appendix_footer($draft) { if ($draft) appendix_footer_draft(); else appendix_footer_copy(); }
+ * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο */
+function appendix_footer($output) { if ($output) appendix_footer_copy(); else appendix_footer_draft(); }
 
 /** Εξάγει το μετά του κειμένου μέρος, ενός σχεδίου παραρτήματος στρατιωτικού εγγράφου. */
 function appendix_footer_draft() {

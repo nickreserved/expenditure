@@ -16,7 +16,7 @@ set_error_handler(function($errno, $str, $file, $line) {
 	// Εμφάνιση του μυνήματος λάθους όσο γίνεται πιο ανθρώπινα
 	$str = str_replace('Undefined index:', 'Δεν ορίστηκε το πεδίο <b>', $str);
 	$file = basename($file, '.php');
-	fwrite(STDERR, "<html><b><font color=green>$file</font>(<font color=red>$line</font>):</b> <font color=orange>$str</font>\n");
+	fwrite(STDERR, "<html><b>$file($line):</b> $str\n");
 
 	if ($errno == E_USER_ERROR) die();
 });

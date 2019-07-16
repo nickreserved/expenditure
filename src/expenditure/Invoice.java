@@ -152,11 +152,11 @@ final class Invoice implements VariableSerializable, TableRecord {
 					Contract oldContract = contract;
 					Contractor oldContractor = getContractor();
 					// Αλλάζει σύμβαση ή δικαιούχο
-					if (contract != null) sub(contract.prices, prices);
+					if (contract != null) sub(contract, prices);
 					if (value instanceof Contract) {
 						contractor = null;
 						contract = (Contract) value;
-						add(contract.prices, prices);
+						add(contract, prices);
 					} else {
 						contract = null;
 						contractor = (Contractor) value;
@@ -373,11 +373,11 @@ final class Invoice implements VariableSerializable, TableRecord {
 		// Έλεγχος αν απαιτείται η σύμβαση
 		Contract cact = contract;
 		if (net <= CONTRACT_PRICE) cact = null;
-		else cact.setTenderType(net);
-		// Μετά από πιθανή αλλαγή στοιχείων σύμβασης, επανυπολογισμός φύλλου καταχώρησης
-		expenditure.calcContents();
 		// Πιθανός επανυπολογισμός για όλα τα τιμολόγια της σύμβασης
 		recalcInvoicesGroupFromNet(expenditure, pred, net, cact, contractor);
+		// Αφού υπολογιστούν οι νέες τιμές, τίθεται το είδος του διαγωνισμού και από αυτό, το φύλλο καταχώρησης
+		if (cact != null) cact.calcTenderType(net);
+		expenditure.calcContents();
 	}
 
 	/** Επανυπολογίζει την ομάδα τιμολογίων του ίδιου δικαιούχου.
@@ -400,12 +400,14 @@ final class Invoice implements VariableSerializable, TableRecord {
 				contract = new Contract(expenditure, contractor);
 				expenditure.contracts.add(contract);
 			}
-			contract.setTenderType(net);
-			// Μετά από πιθανή αλλαγή στοιχείων σύμβασης, επανυπολογισμός φύλλου καταχώρησης
-			expenditure.calcContents();
 		}
 		// Πιθανός επανυπολογισμός για όλα τα τιμολόγια της σύμβασης
 		recalcInvoicesGroupFromNet(expenditure, pred, net, contract, contractor);
+		// Αφού υπολογιστούν οι νέες τιμές, τίθεται το είδος του διαγωνισμού και από αυτό, το φύλλο καταχώρησης
+		if (contract != null) {
+			contract.calcTenderType(net);
+			expenditure.calcContents();
+		}
 	}
 
 	/** Επανυπολογίζει τις αξίες όλων των τιμολογίων του ίδιου δικαιούχου.
@@ -422,9 +424,9 @@ final class Invoice implements VariableSerializable, TableRecord {
 		expenditure.invoices.stream().filter(pred)
 				.forEach(i -> {
 					if (i.contract != contract) {
-						if (i.contract != null) sub(i.contract.prices, i.prices);
+						if (i.contract != null) sub(i.contract, i.prices);
 						if (contract != null) {
-							add(contract.prices, i.prices);
+							add(contract, i.prices);
 							i.contractor = null;
 						} else i.contractor = contractor;
 						i.contract = contract;
@@ -450,41 +452,45 @@ final class Invoice implements VariableSerializable, TableRecord {
 	/** Κόστος πάνω από το οποίο έχουμε σύμβαση. */
 	static final private int CONTRACT_PRICE = 2500;
 
-	/** Ενημερώνει ένα στοιχείο του πίνακα με τα αθροίσματα τιμών τιμολογίων από τη διαφορά παλιάς και νέας τιμής του τιμολογίου.
-	 * Η στήλη με το άθροισμα των τιμολογίων της τρέχουσας σύμβασης και η στήλη με το άθροισμα όλων
-	 * των τιμολογίων ενημερώνεται.
-	 * @param d Μια τιμή του τιμολογίου πριν από κάποια αλλαγή που θα αφαιρεθεί από την τρέχουσα τιμή
-	 * του τιμολογίου και θα προστεθεί στην υπάρχουσα τιμή των αντίστοιχων στηλών
-	 * @param index Ο δείκτης της τιμής του τιμολογίου, με τιμές 0 ως 6 για καθαρή αξία, ΦΠΑ,
-	 * καταλογιστέο, κρατήσεις, πληρωτέο, ΦΕ, υπόλοιπο πληρωτέο */
-	private void recalcReportDiff(double d, int index) {
-		d = Math.round((prices[index] - d) * 100) / 100.0;
-		if (contract != null)
-			contract.prices[index] = Math.round((contract.prices[index] + d) * 100) / 100.0;
-		parent.prices[index] = Math.round((parent.prices[index] + d) * 100) / 100.0;
-	}
-
 	/** Ενημερώνει τον πίνακα με τα αθροίσματα τιμών τιμολογίων από τις διαφορές παλιών και νέων τιμών του τιμολογίου.
-	 * Η στήλη με το άθροισμα των τιμολογίων της τρέχουσας σύμβασης και η στήλη με το άθροισμα όλων
-	 * των τιμολογίων ενημερώνεται.
+	 * Η στήλη με το άθροισμα των τιμολογίων της τρέχουσας σύμβασης, η στήλη με το άθροισμα τιμολογίων
+	 * του τρέχοντος διαγωνισμού  και η στήλη με το άθροισμα όλων των τιμολογίων ενημερώνεται.
 	 * @param d Array με τις 7 τιμές του τιμολογίου πριν από κάποια αλλαγή που θα αφαιρεθούν από τις
 	 * τρέχουσες 7 τιμές του τιμολογίου και θα προστεθούν στις υπάρχουσες τιμές των αντίστοιχων στηλών */
 	private void recalcReportDiff(double[] d) { sub(d, prices); neg(d); recalcReport(d); }
 
 	/** Ενημερώνει τον πίνακα με τα αθροίσματα τιμών τιμολογίων.
-	 * Η στήλη με το άθροισμα των τιμολογίων της τρέχουσας σύμβασης και η στήλη με το άθροισμα όλων
-	 * των τιμολογίων ενημερώνεται.
+	 * Η στήλη με το άθροισμα των τιμολογίων της τρέχουσας σύμβασης, η στήλη με το άθροισμα τιμολογίων
+	 * του τρέχοντος διαγωνισμού και η στήλη με το άθροισμα όλων των τιμολογίων ενημερώνεται.
 	 * @param d Array με τις διαφορές των 7 τιμών του τιμολογίου που θα προστεθούν στις υπάρχουσες
 	 * τιμές των αντίστοιχων στηλών */
 	private void recalcReport(double[] d) {
-		if (contract != null) add(contract.prices, d);
+		if (contract != null) add(contract, d);
 		add(parent.prices, d);
+	}
+
+	/** Προσθέτει το διάνυσμα prices στα ποσά της σύμβσσης.
+	 * @param contract Η σύμβαση
+	 * @param prices Ο προσθεταίος */
+	static private void add(Contract contract, double[] prices) {
+		add(contract.prices, prices);
+		Tender tender = contract.getTender();
+		if (tender != null) add(tender.prices, prices);
+	}
+
+	/** Αφαιρεί το διάνυσμα prices από τα ποσά της σύμβσσης.
+	 * @param contract Η σύμβαση
+	 * @param prices Ο αφαιρέτης */
+	static private void sub(Contract contract, double[] prices) {
+		sub(contract.prices, prices);
+		Tender tender = contract.getTender();
+		if (tender != null) sub(tender.prices, prices);
 	}
 
 	/** Προσθέτει το διάνυσμα a στο διάνυσμα to.
 	 * @param to Ο προσθεταίος πριν την κλήση και το αποτέλεσμα της πρόσθεσης μετά την κλήση
 	 * @param a Ο 2ος προσθεταίος */
-	static private void add(double[] to, double[] a) {
+	static void add(double[] to, double[] a) {
 		for (int z = 0; z < to.length; ++z)
 			to[z] = Math.round((to[z] + a[z]) * 100) / 100.0;
 	}
@@ -499,7 +505,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 	/** Αφαιρεί το διάνυσμα a από το διάνυσμα to.
 	 * @param to Ο αφαιρεταίος πριν την κλήση και το αποτέλεσμα της αφαίρεσης μετά την κλήση
 	 * @param a Ο αφαιρέτης */
-	static private void sub(double[] to, double[] a) {
+	static void sub(double[] to, double[] a) {
 		for (int z = 0; z < to.length; ++z)
 			to[z] = Math.round((to[z] - a[z]) * 100) / 100.0;
 	}
