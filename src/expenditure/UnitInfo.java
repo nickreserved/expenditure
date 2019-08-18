@@ -38,8 +38,6 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 	private Person accountant;
 	/** Διαταγή συγκρότησης επιτροπών. */
 	private String orderCommittee;
-	/** ΑΔΑ διαταγής συγκρότησης επιτροπών. */
-	private String orderCommitteeId;
 	/** Πρόεδρος Επιτροπής Παρακολούθησης και Παραλαβής Προμηθειών. */
 	private Person supplyChief;
 	/** Α' Μέλος Επιτροπής Παρακολούθησης και Παραλαβής Προμηθειών. */
@@ -65,6 +63,7 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 	/** Β' Μέλος Επιτροπής Αξιολόγησης Ενστάσεων. */
 	private Person objectionMemberB;
 
+
 	/** Αρχικοποίηση του αντικειμένου. */
 	UnitInfo() {}
 	/** Αρχικοποίηση του αντικειμένου από άλλο αντικείμενο του τύπου.
@@ -86,7 +85,6 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 		operator         = p.operator;
 		accountant       = p.accountant;
 		orderCommittee   = p.orderCommittee;
-		orderCommitteeId = p.orderCommitteeId;
 		supplyChief      = p.supplyChief;
 		supplyMemberA    = p.supplyMemberA;
 		supplyMemberB    = p.supplyMemberB;
@@ -121,26 +119,25 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 		operator         = Person.create(node.getField(H[12]));
 		accountant       = Person.create(node.getField(H[13]));
 		orderCommittee   = node.getField(H[14]).getString();
-		orderCommitteeId = node.getField(H[15]).getString();
-		supplyChief      = Person.create(node.getField(H[16]));
-		supplyMemberA    = Person.create(node.getField(H[17]));
-		supplyMemberB    = Person.create(node.getField(H[18]));
-		serviceChief     = Person.create(node.getField(H[19]));
-		serviceMemberA   = Person.create(node.getField(H[20]));
-		serviceMemberB   = Person.create(node.getField(H[21]));
-		tenderChief      = Person.create(node.getField(H[22]));
-		tenderMemberA    = Person.create(node.getField(H[23]));
-		tenderMemberB    = Person.create(node.getField(H[24]));
-		objectionChief   = Person.create(node.getField(H[25]));
-		objectionMemberA = Person.create(node.getField(H[26]));
-		objectionMemberB = Person.create(node.getField(H[27]));
+		supplyChief      = Person.create(node.getField(H[15]));
+		supplyMemberA    = Person.create(node.getField(H[16]));
+		supplyMemberB    = Person.create(node.getField(H[17]));
+		serviceChief     = Person.create(node.getField(H[18]));
+		serviceMemberA   = Person.create(node.getField(H[19]));
+		serviceMemberB   = Person.create(node.getField(H[20]));
+		tenderChief      = Person.create(node.getField(H[21]));
+		tenderMemberA    = Person.create(node.getField(H[22]));
+		tenderMemberB    = Person.create(node.getField(H[23]));
+		objectionChief   = Person.create(node.getField(H[24]));
+		objectionMemberA = Person.create(node.getField(H[25]));
+		objectionMemberB = Person.create(node.getField(H[26]));
 	}
 
 	/** Ονόματα πεδίων αποθήκευσης. */
 	static final String[] H = {
 		"Ελέγχουσα Αρχή", "Σχηματισμός", "Μονάδα Πλήρες", "Μονάδα", "Έδρα", "Διεύθυνση", "Τ.Κ.",
 		"Γραφείο", "Ιδιότητα Αξκου", "Τηλέφωνο", "Δκτης", "ΕΟΥ", "Αξκος Γραφείου", "Δχστης",
-		"Δγη Συγκρότησης Επιτροπών", "ΑΔΑ Δγης Συγκρότησης Επιτροπών",
+		"Δγη Συγκρότησης Επιτροπών",
 		"Πρόεδρος Παραλαβής Προμηθειών", "Α Μέλος Παραλαβής Προμηθειών", "Β Μέλος Παραλαβής Προμηθειών",
 		"Πρόεδρος Παραλαβής Υπηρεσιών", "Α Μέλος Παραλαβής Υπηρεσιών", "Β Μέλος Παραλαβής Υπηρεσιών",
 		"Πρόεδρος Διαγωνισμών", "Α Μέλος Διαγωνισμών", "Β Μέλος Διαγωνισμών",
@@ -157,38 +154,38 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 			serviceChief, serviceMemberA, serviceMemberB,
 			tenderChief, tenderMemberA, tenderMemberB,
 			objectionChief, objectionMemberA, objectionMemberB
+
 		};
 	}
 
 	@Override public void serialize(VariableFields fields) {
-		if (checkAuthority != null)   fields.add (H[0],  checkAuthority);
-		if (formation != null)        fields.add (H[1],  formation);
-		if (unitFull != null)         fields.add (H[2],  unitFull);
-		if (unit != null)             fields.add (H[3],  unit);
-		if (city != null)             fields.add (H[4],  city);
-		if (address != null)          fields.add (H[5],  address);
-		if (zipCode != null)          fields.add (H[6],  zipCode);
-		if (office != null)           fields.add (H[7],  office);
-		if (operatorTitle != null)    fields.add (H[8],  operatorTitle);
-		if (phone != null)            fields.add (H[9],  phone);
-		if (commander != null)        fields.add (H[10], commander);
-		if (deputy_commander != null) fields.add (H[11], deputy_commander);
-		if (operator != null)         fields.add (H[12], operator);
-		if (accountant != null)       fields.add (H[13], accountant);
-		if (orderCommittee != null)   fields.add (H[14], orderCommittee);
-		if (orderCommitteeId != null) fields.add (H[15], orderCommitteeId);
-		if (supplyChief != null)      fields.add (H[16], supplyChief);
-		if (supplyMemberA != null)    fields.add (H[17], supplyMemberA);
-		if (supplyMemberB != null)    fields.add (H[18], supplyMemberB);
-		if (serviceChief != null)     fields.add (H[19], serviceChief);
-		if (serviceMemberA != null)   fields.add (H[20], serviceMemberA);
-		if (serviceMemberB != null)   fields.add (H[21], serviceMemberB);
-		if (tenderChief != null)      fields.add (H[22], tenderChief);
-		if (tenderMemberA != null)    fields.add (H[23], tenderMemberA);
-		if (tenderMemberB != null)    fields.add (H[24], tenderMemberB);
-		if (objectionChief != null)   fields.add (H[25], objectionChief);
-		if (objectionMemberA != null) fields.add (H[26], objectionMemberA);
-		if (objectionMemberB != null) fields.add (H[27], objectionMemberB);
+		if (checkAuthority != null)   fields.add(H[ 0], checkAuthority);
+		if (formation != null)        fields.add(H[ 1], formation);
+		if (unitFull != null)         fields.add(H[ 2], unitFull);
+		if (unit != null)             fields.add(H[ 3], unit);
+		if (city != null)             fields.add(H[ 4], city);
+		if (address != null)          fields.add(H[ 5], address);
+		if (zipCode != null)          fields.add(H[ 6], zipCode);
+		if (office != null)           fields.add(H[ 7], office);
+		if (operatorTitle != null)    fields.add(H[ 8], operatorTitle);
+		if (phone != null)            fields.add(H[ 9], phone);
+		if (commander != null)        fields.add(H[10], commander);
+		if (deputy_commander != null) fields.add(H[11], deputy_commander);
+		if (operator != null)         fields.add(H[12], operator);
+		if (accountant != null)       fields.add(H[13], accountant);
+		if (orderCommittee != null)   fields.add(H[14], orderCommittee);
+		if (supplyChief != null)      fields.add(H[15], supplyChief);
+		if (supplyMemberA != null)    fields.add(H[16], supplyMemberA);
+		if (supplyMemberB != null)    fields.add(H[17], supplyMemberB);
+		if (serviceChief != null)     fields.add(H[18], serviceChief);
+		if (serviceMemberA != null)   fields.add(H[19], serviceMemberA);
+		if (serviceMemberB != null)   fields.add(H[20], serviceMemberB);
+		if (tenderChief != null)      fields.add(H[21], tenderChief);
+		if (tenderMemberA != null)    fields.add(H[22], tenderMemberA);
+		if (tenderMemberB != null)    fields.add(H[23], tenderMemberB);
+		if (objectionChief != null)   fields.add(H[24], objectionChief);
+		if (objectionMemberA != null) fields.add(H[25], objectionMemberA);
+		if (objectionMemberB != null) fields.add(H[26], objectionMemberB);
 	}
 
 	@Override public Object getCell(int index) {
@@ -210,18 +207,17 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 			case 14: return accountant;
 			case 15: return null;	// Επικεφαλίδα
 			case 16: return orderCommittee;
-			case 17: return orderCommitteeId;
-			case 18: return supplyChief;
-			case 19: return supplyMemberA;
-			case 20: return supplyMemberB;
-			case 21: return serviceChief;
-			case 22: return serviceMemberA;
-			case 23: return serviceMemberB;
-			case 24: return tenderChief;
-			case 25: return tenderMemberA;
-			case 26: return tenderMemberB;
-			case 27: return objectionChief;
-			case 28: return objectionMemberA;
+			case 17: return supplyChief;
+			case 18: return supplyMemberA;
+			case 19: return supplyMemberB;
+			case 20: return serviceChief;
+			case 21: return serviceMemberA;
+			case 22: return serviceMemberB;
+			case 23: return tenderChief;
+			case 24: return tenderMemberA;
+			case 25: return tenderMemberB;
+			case 26: return objectionChief;
+			case 27: return objectionMemberA;
 			default: return objectionMemberB;
 		}
 	}
@@ -245,19 +241,18 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 			case 14: accountant       = (Person) value; break;
 			//case 15: break;
 			case 16: orderCommittee   = getString(value); break;
-			case 17: orderCommitteeId = getString(value); break;
-			case 18: supplyChief      = (Person) value; break;
-			case 19: supplyMemberA    = (Person) value; break;
-			case 20: supplyMemberB    = (Person) value; break;
-			case 21: serviceChief     = (Person) value; break;
-			case 22: serviceMemberA   = (Person) value; break;
-			case 23: serviceMemberB   = (Person) value; break;
-			case 24: tenderChief      = (Person) value; break;
-			case 25: tenderMemberA    = (Person) value; break;
-			case 26: tenderMemberB    = (Person) value; break;
-			case 27: objectionChief   = (Person) value; break;
-			case 28: objectionMemberA = (Person) value; break;
-			case 29: objectionMemberB = (Person) value; break;
+			case 17: supplyChief      = (Person) value; break;
+			case 18: supplyMemberA    = (Person) value; break;
+			case 19: supplyMemberB    = (Person) value; break;
+			case 20: serviceChief     = (Person) value; break;
+			case 21: serviceMemberA   = (Person) value; break;
+			case 22: serviceMemberB   = (Person) value; break;
+			case 23: tenderChief      = (Person) value; break;
+			case 24: tenderMemberA    = (Person) value; break;
+			case 25: tenderMemberB    = (Person) value; break;
+			case 26: objectionChief   = (Person) value; break;
+			case 27: objectionMemberA = (Person) value; break;
+			case 28: objectionMemberB = (Person) value; break;
 		}
 	}
 }

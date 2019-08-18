@@ -48,7 +48,7 @@ if (!$data || isset($data['Ημερομηνία Έκδοσης']) && $data['Ημερομηνία Έκδοσης'] 
 		echo '..................\line{\fs16 (Ημερομηνία)}';
 else if (isset($data['Ημερομηνία Έκδοσης']))
 		echo chk_date($data['Ημερομηνία Έκδοσης']);
-	else echo now();
+	else echo strftime('%d %b %y', time());
 ?>
 \line\line
 Ο Δηλών:\line\line\line <?=$data && $data['Ονοματεπώνυμο'] != '' ? rtf($data['Ονοματεπώνυμο']) : '............................\line{\fs16 (Ονοματεπώνυμο & Υπογραφή)}'?>\cell\row
@@ -69,7 +69,7 @@ function statement_common($function) {
 		$v = $per_contractor['Δικαιούχος'];
 		if ($v['Τύπος'] == 'Ιδιωτικός Τομέας') {
 			$v['Ημερομηνία Έκδοσης'] =
-					strftime('%d %b %y', get_newer_invoice_timestamp($per_contractor['Τιμολόγια']));
+					strftime('%d %b %y', get_newer_timestamp($per_contractor['Τιμολόγια']));
 			$function($v);
 		}
 	}

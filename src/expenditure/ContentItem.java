@@ -260,8 +260,6 @@ final class ContentItem implements VariableSerializable, TableRecord {
 			= new ContentItem("Απόφαση Απευθείας Ανάθεσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES);
 	static final private ContentItem Σύμβαση
 			= new ContentItem("Σύμβαση", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST);
-	static final private ContentItem ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης
-			= new ContentItem("Απόφαση Παρεκκλίσεων Όρων Σύμβασης", TYPE_LISTED | INIT_YESNO_NO);	// καθαρή αξία > 2500
 //	static final private ContentItem ΒεβαίωσηΑπόδοσηςΦΕ = listed("Βεβαίωση Απόδοσης ΦΕ", INIT_YESNO_NO);
 
 	/** Έντυπα δαπάνης, προ των υποφακέλων. */
@@ -278,11 +276,15 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		new ContentItem("Κατάσταση Πληρωμής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED, 3),
 		new ContentItem("Δγη Συγκρότησης Επιτροπών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),
 		new ContentItem("Τιμολόγια", TYPE_LISTED | INIT_YES_FIXED),
-		new ContentItem("Δελτία Αποστολής", TYPE_LISTED | INIT_YESNO_NO),
+		new ContentItem("Αποδεικτικό Πληρωμής ΤΠΕΔΕ, Π.Ο.ΕΜΔΥΔΑΣ, ΤΜΕΔΕ", TYPE_LISTED | INIT_YESNO_YES),	// Έργο
 		new ContentItem("Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),	// καθαρή αξία > 2500
 		new ContentItem("Βεβαίωση Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),	// καθαρή αξία <= 2500
 		new ContentItem("ΑΔΔΥ", TYPE_LISTED | INIT_YESNO_YES),
-		new ContentItem("Βεβαίωση μη Χρέωσης Υλικών", TYPE_LISTED_EXPORTED | INIT_YESNO_YES)
+		new ContentItem("Βεβαίωση μη Χρέωσης Υλικών", TYPE_LISTED_EXPORTED | INIT_YESNO_YES),
+		new ContentItem("Πρωτόκολλο Προσωρινής και Οριστικής Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
+		new ContentItem("Πρωτόκολλο Παραλαβής Αφανών Εργασιών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
+		new ContentItem("Οριστική και Αναλυτική Επιμέτρηση", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
+		new ContentItem("Βεβαίωση Εκτέλεσης του Έργου από Οπλίτες", TYPE_LISTED_EXPORTED | INIT_YESNO_YES)	// Έργο
 	};
 
 	/** Τα έντυπα του Υποφακέλου Β, Δικαιολογητικά Απευθείας Ανάθεσης. */
@@ -298,18 +300,15 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		// καθαρή αξία > 2500
 		new ContentItem("Αποδεικτικά μέσα ότι δεν Συντρέχουν οι Λόγοι Αποκλεισμού των Άρθρων 73 και 74 του Ν.4412/2016", TYPE_LISTED | INIT_YESNO_NO),
 		Σύμβαση,							// καθαρή αξία > 2500
-		ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης		// καθαρή αξία > 2500
 	};
 
-	/** Τα έντυπα των Υποφακέλων Β, Γ και Δ, του Συνοπτικού Διαγωνισμού. */
-	static private final ContentItem[] FOLDER_BCD_CONCISE_TENDER = {
+	/** Τα έντυπα των Υποφακέλων Β, Γ, Δ και Ε, του Διαγωνισμού (Συνοπτικού ή Ανοικτής Διαδικασίας). */
+	static private final ContentItem[] FOLDER_BCDE_TENDER = {
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Β»: ΥΠΟΒΟΛΗ ΠΡΟΣΦΟΡΩΝ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
 		new ContentItem("Διακήρυξη Διαγωνισμού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		new ContentItem("Δικαιολογητικά Συμμετοχής Οικονομικών Φορέων", TYPE_LISTED | INIT_YES_FIXED),
 		new ContentItem("Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		new ContentItem("Απόφαση Ανάδειξης Προσωρινού Αναδόχου", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
-		new ContentItem("Απόφαση της Αναθέτουσας Αρχής επί Ενστάσεων", TYPE_LISTED | INIT_YESNO_NO),
-		ΑπόφασηΠαρεκκλίσεωνΌρωνΣύμβασης,
 
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Γ»: ΑΠΟΔΕΙΚΤΙΚΑ ΜΕΣΑ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
 		new ContentItem("Πρακτικό Ελέγχου Δικαιολογητικών Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
@@ -322,14 +321,9 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Δ»: ΚΑΤΑΚΥΡΩΣΗ ΔΙΑΓΩΝΙΣΜΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
 		ΑπόφασηΑπευθείαςΑνάθεσης,	// Σε περίπτωση που έχουμε συνοπτικό διαγωνισμό και απευθείας ανάθεση μαζί
 		new ContentItem("Κατακύρωση Διαγωνισμού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
-		new ContentItem("Απόφαση της Αναθέτουσας Αρχής επί Ενστάσεων", TYPE_LISTED | INIT_YESNO_NO)
-	};
 
-	/** Τα έντυπα του Υποφακέλου Ε, Υπογραφή Συμφωνητικού. */
-	static private final ContentItem[] FOLDER_E_SIGN_CONTRACT = {
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Ε»: ΥΠΟΓΡΑΦΗ ΣΥΜΦΩΝΗΤΙΚΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
-		Σύμβαση,
-		new ContentItem("Τροποποίηση Σύμβασης", TYPE_LISTED | INIT_YESNO_NO)
+		Σύμβαση
 	};
 
 	/** Κατασκευάζει το φύλλο καταχώρησης από τις αποθηκευμένες αλλαγές του.
@@ -337,10 +331,10 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	 * πραγματοποιούνται οι αλλαγές που ήταν αποθηκευμένες στο αρχείο της δαπάνης.
 	 * @param loaded Οι αποθηκευμένες στο αρχείο της δαπάνης, αλλαγές του προκαθορισμένου φύλλου
 	 * καταχώρησης
-	 * @param contentConfig Bitwise μεταβλητή με τον τύπο του φύλλου καταχώρησης
+	 * @param cfg Ο τύπος του φύλλου καταχώρησης. false για απευθείας ανάθεση, true για διαγωνισμό.
 	 * @param contents Το τελικό φύλλο καταχώρησης της δαπάνης μετά τις αλλαγές */
-	static void unserialize(List<Node> loaded, int contentConfig, List<ContentItem> contents) throws Exception {
-		List<ContentItem> defContents = createAutoContents(contentConfig);
+	static void unserialize(List<Node> loaded, boolean cfg, List<ContentItem> contents) throws Exception {
+		List<ContentItem> defContents = createAutoContents(cfg);
 		int from = 0;
 		for (Node node : loaded) {
 			String name = node.getField(H[0]).getString();
@@ -392,9 +386,8 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	 * επιλογές των εγγραφών του φύλλου καταχώρησης, καθώς και τα οριζόμενα από το χρήστη
 	 * δικαιολογητικά.
 	 * @param contents Το ισχύον φύλλο καταχώρησης. Μετά την κλήση, θα έχει τροποποιηθεί.
-	 * @param cfg Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό
-	 * διαγωνισμό. */
-	static void convertContents(List<ContentItem> contents, int cfg) {
+	 * @param cfg Ο τύπος του φύλλου καταχώρησης. false για απευθείας ανάθεση, true για διαγωνισμό. */
+	static void convertContents(List<ContentItem> contents, boolean cfg) {
 		List<ContentItem> defContents = createAutoContents(cfg);
 		int idxDef = 0;	// To item του defContents στο οποίο αναφερόμαστε
 		int idxCur = 0;		// To item του contents στο οποίο αναφερόμαστε
@@ -427,25 +420,19 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	private ContentItem cloneMutable() { return hasChoice() ? new ContentItem(this) : this; }
 
 	/** Δημιουργεί τα προκαθορισμένα περιεχόμενα της δαπάνης με βάση τον τύπο του διαγωνισμού.
-	 * @param cfg Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό
-	 * διαγωνισμό.
+	 * @param cfg Ο τύπος του φύλλου καταχώρησης. false για απευθείας ανάθεση, true για διαγωνισμό.
 	 * @return Η λίστα του φύλλου καταχώρησης, μόνο με προκαθορισμένα δικαιολογητικά */
-	static private List<ContentItem> createAutoContents(int cfg) {
+	static private List<ContentItem> createAutoContents(boolean cfg) {
 		ArrayList<ContentItem> contents = new ArrayList<>(70);
 		createAutoContents(cfg, contents);
 		return contents;
 	}
 	/** Δημιουργεί τα προκαθορισμένα περιεχόμενα της δαπάνης με βάση τον τύπο του διαγωνισμού.
-	 * @param cfg Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό
-	 * διαγωνισμό.
+	 * @param cfg Ο τύπος του φύλλου καταχώρησης. false για απευθείας ανάθεση, true για διαγωνισμό.
 	 * @param contents Η λίστα του φύλλου καταχώρησης, μόνο με προκαθορισμένα δικαιολογητικά */
-	static void createAutoContents(int cfg, List<ContentItem> contents) {
+	static void createAutoContents(boolean cfg, List<ContentItem> contents) {
 		contents.addAll(Arrays.asList(FOLDER_PREREQUISITES));
 		contents.addAll(Arrays.asList(FOLDER_A_SUPPLIES_SERVICES));
-		if (cfg == 0) contents.addAll(Arrays.asList(FOLDER_B_DIRECT_ASSIGNMENT));
-		else if (cfg == 1) {
-			contents.addAll(Arrays.asList(FOLDER_BCD_CONCISE_TENDER));
-			contents.addAll(Arrays.asList(ContentItem.FOLDER_E_SIGN_CONTRACT));
-		}
+		contents.addAll(Arrays.asList(cfg ? FOLDER_BCDE_TENDER : FOLDER_B_DIRECT_ASSIGNMENT));
 	}
 }

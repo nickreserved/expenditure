@@ -4,14 +4,13 @@ require_once('functions.php');
 if (!isset($output)) $output = !isset($_ENV['draft']) || $_ENV['draft'] != 'true';
 
 /** Εξάγει το αν η διαταγή είναι αναρτητέα στο διαδίκτυο ή όχι, καθώς και το ΑΔΑ της.
- * @param array $ar Το array του οποίου ένα στοιχείο περιλαμβάνει το ΑΔΑ της διαταγής
- * @param string $adaKey Το κλειδί του array με το ΑΔΑ της διαταγής, εφόσον κοινοποιείται στο διαδίκτυο
- * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο */
-function order_publish($ar, $adaKey, $output) {
-	if (published() || isset($ar[$adaKey])) { ?>
+ * @param array $order Το array με τα στοιχεία ταυτότητας του στρατιωτικού εγγράφου ή null */
+function order_publish($order) {
+	if (published()) { ?>
 
-\pard\plain\qr ΑΔΑ: <?=rtf(orelse2($output, $ar, $adaKey, '........'))?>\par
-\pard\plain\qc{\ul\b ΑΝΑΡΤΗΤΕΑ ΣΤΟ ΔΙΑΔΙΚΤΥΟ}\par\par
+\pard\plain\li5670 ΑΔΑ: <?=orelse($order, 'ΑΔΑ', '\u8230.\u8230.')?>\par
+ΑΔΑΜ: <?=orelse($order, 'ΑΔΑΜ', '\u8230.\u8230.')?>\par\par
+\li0\qc{\ul\b ΑΝΑΡΤΗΤΕΑ ΣΤΟ ΔΙΑΔΙΚΤΥΟ}\par\par
 
 <?php } else { ?>
 
@@ -20,10 +19,9 @@ function order_publish($ar, $adaKey, $output) {
 <?php }
 }
 
-
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου.
  * Υπολογίζει αυτόματα αν πρέπει να εξαχθούν οι αποδέκτες ή πρέπει να μπει 'Πίνακας Αποδεκτών'.
- * @param string|null $order Η ταυτότητα του εγγράφου
+ * @param array|null $order Τα στοιχεία της ταυτότητας του εγγράφου
  * @param array $to Οι αποδέκτες προς ενέργεια
  * @param array|null $info Οι αποδέκτες προς κοινοποίηση
  * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο
@@ -43,7 +41,7 @@ function order_header_autorecipients($order, $to, $info, $output, $attached, $su
 function need_recipient_table($to, $info) { return (count($to) + is_array($info) ? count($info) : 0) > 5; }
 
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου, με πίνακα αποδεκτών.
- * @param string|null $order Η ταυτότητα του εγγράφου
+ * @param array|null $order Τα στοιχεία της ταυτότητας του εγγράφου
  * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο
  * @param string|null $attached Ο αριθμός συνημμένων
  * @param string $subject Το θέμα του εγγράφου
@@ -57,7 +55,7 @@ EOT;
 }
 
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου.
- * @param string|null $order Η ταυτότητα του εγγράφου
+ * @param array|null $order Τα στοιχεία της ταυτότητας του εγγράφου
  * @param array $to Οι αποδέκτες προς ενέργεια
  * @param array|null $info Οι αποδέκτες προς κοινοποίηση
  * @param bool $output Το έγγραφο είναι ακριβές αντίγραφο
@@ -75,7 +73,7 @@ function order_header($order, $to, $info, $output, $attached, $subject, $referen
 }
 
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου.
- * @param string|null $order Η ταυτότητα του εγγράφου
+ * @param array|null $order Τα στοιχεία της ταυτότητας του εγγράφου
  * @param string $recipients Οι αποδέκτες του εγγράφου
  * @param mixed $output Το έγγραφο είναι ακριβές αντίγραφο
  * @param string|null $attached Ο αριθμός συνημμένων
@@ -83,7 +81,6 @@ function order_header($order, $to, $info, $output, $attached, $subject, $referen
  * @param array|null $references Τα σχετικά του εγγράφου */
 function order_header_common($order, $recipients, $output, $attached, $subject, $references) {
 	global $data;
-	if ($output || isset($order)) { $ord = null; order($order, $ord); }
 ?>
 
 \trowd\trautofit1\trpaddl0\trpaddr0\cellx5103\clftsWidth1\clNoWrap\cellx8788
@@ -91,8 +88,8 @@ function order_header_common($order, $recipients, $output, $attached, $subject, 
 <?=$recipients?>\cell
 \pard\plain\intbl
 <?=wordwrap(rtf(strtouppergn($data['Μονάδα Πλήρες'])), 25, '\line ')?>\line <?=rtf(strtouppergn($data['Γραφείο']))?>\line Τηλ. <?=rtf($data['Τηλέφωνο'])?>\line <?php
-	if ($output || isset($ord))
-		echo rtf($ord[0]) . '/' . rtf($ord[1]) . '/' . rtf($ord[2]) . '\line ' . rtf($ord[3]) . '\line ' . rtf($data['Έδρα']) . ', ' . rtf($ord[4]);
+	if ($output || isset($order))
+		echo $order['Φάκελος - Πρωτόκολλο'] . '\line ' . $order['Σχέδιο']  . '\line ' . rtf($data['Έδρα']) . ', ' . $order['Ημερομηνία'];
 	else echo 'Φ. \u8230_ / \u8230_ / \u8230_\line Σ. \u8230_\line ' . rtf($data['Έδρα']) . ', \u8230_ ' . strftime('%b %y');
 	if ($attached) echo '\line Συνημμένα: ' . $attached;
 	?>\cell\row
@@ -210,7 +207,7 @@ function order_appendices($a) {
 }
 
 /** Εξάγει το προ του κειμένου μέρος ενός παραρτήματος στρατιωτικού εγγράφου.
- * @param string $order Η ταυτότητα του στρατιωτικού εγγράφου, ή null αν είναι σχέδιο
+ * @param array|null $order Τα στοιχεία της ταυτότητας του εγγράφου
  * @param string $appendix Ο αριθμός του παραρτήματος, π.χ. 'Α' ή 'ΣΤ'
  * @param string $title Ο τίτλος του παραρτήματος */
 function appendix_header($order, $appendix, $title) {
@@ -218,13 +215,8 @@ function appendix_header($order, $appendix, $title) {
 ?>
 \trowd\trautofit1\trpaddl0\trpaddr0\cellx5103\clftsWidth1\clNoWrap\cellx8788
 \line\ul ΠΑΡΑΡΤΗΜΑ «<?=$appendix?>» ΣΤΗ\line
-<?php
-	if (isset($order)) {
-		order($order, $order);
-		echo "{$order[0]}/{$order[1]}/{$order[2]}/{$order[3]}";
-	} else echo 'Φ. \u8230_ / \u8230_ / \u8230_ / \u8230_';
-?>\ul0\cell
-<?=wordwrap(rtf(strtouppergn($data['Μονάδα Πλήρες'])), 25, '\line ')?>\line <?=rtf(strtouppergn($data['Γραφείο']))?>\line <?=isset($order) ? $order[4] : ('\u8230_ ' . strftime('%b %y'))?>\cell\row
+<?=isset($order) ? "{$order['Φάκελος - Πρωτόκολλο']}/{$order['Σχέδιο']}" : 'Φ. \u8230_ / \u8230_ / \u8230_ / \u8230_'?>\ul0\cell
+<?=wordwrap(rtf(strtouppergn($data['Μονάδα Πλήρες'])), 25, '\line ')?>\line <?=rtf(strtouppergn($data['Γραφείο']))?>\line <?=isset($order) ? $order['Ημερομηνία'] : ('\u8230_ ' . strftime('%b %y'))?>\cell\row
 
 \pard\plain\sb227\sa113\qc{\b\ul <?=rtf($title)?>}\par
 

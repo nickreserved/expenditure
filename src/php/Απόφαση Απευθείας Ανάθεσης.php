@@ -1,13 +1,14 @@
 <?php
-require_once('init.php');
+require_once('functions.php');
 require_once('order.php');
 require_once('report.php');
-require_once('header.php');
+
+init(6);
 
 if (has_direct_assignment()) {
 
 start_35_20();
-order_publish($data, 'ΑΔΑ Απόφασης Απευθείας Ανάθεσης', $output);
+order_publish(ifexist($data, 'Απόφαση Απευθείας Ανάθεσης'));
 order_header_recipients(ifexist2($output, $data, 'Απόφαση Απευθείας Ανάθεσης'), $output, null,
 		'Απόφαση Απευθείας Ανάθεσης για ' . rtf(ucwords($data['Τίτλος'])),
 		array(
@@ -24,18 +25,20 @@ order_header_recipients(ifexist2($output, $data, 'Απόφαση Απευθείας Ανάθεσης'), 
 την ανάθεση της πίστωσης για «<?=rtf($data['Τίτλος'])?>», όπως παρακάτω:\par
 <?php
 $count = count($data['Δικαιούχοι']) > 1 ? 1 : 0;
-$contracts = 0;
+$contracts = array();
+$to = array();	// Αποδέκτες
 foreach($data['Δικαιούχοι'] as $per_contractor) {
 	if (isset($per_contractor['Σύμβαση'])) {
 		if (isset($per_contractor['Διαγωνισμός'])) continue;
-		++$contracts;
+		$contracts[] = $per_contractor['Σύμβαση']['Σύμβαση'];
 	}
+	$to[] = get_contractor_recipient($per_contractor['Δικαιούχος']);
 	$invoices = $per_contractor['Τιμολόγια'];
 	$contractor = $per_contractor['Δικαιούχος'];
 	echo '\tab ' . ($count ? greeknum($count++) . '.\tab ' : null);
 	echo isset($per_contractor['Σύμβαση']) && $per_contractor['Σύμβαση']['Τίτλος'] != $data['Τίτλος']
-		? 'Για «' . rtf($per_contractor['Σύμβαση']['Τίτλος']) . '» στον ανάδοχο ' : 'Στον ανάδοχο ';
-	echo rtf(get_contractor_full_info($contractor));
+		? 'Για «' . rtf($per_contractor['Σύμβαση']['Τίτλος']) . '» σ' : 'Σ';
+	echo 'την επιχείρηση ' . rtf(get_contractor_full_info($contractor));
 	?>, με τα ακόλουθα αναλυτικά οικονομικά στοιχεία.\par
 <?php report($invoices, $per_contractor['Τιμές']); ?>
 \pard\plain\sb120\sa120\fi567\tx1134\tx1701\tx2268\qj
@@ -48,15 +51,10 @@ if ($data['Τύπος Χρηματοδότησης'] != 'Ιδίων Πόρων')
 	echo " έτους " . date('Y', orelse($data, 'Ημερομηνία Τελευταίου Τιμολογίου', time()));
 ?>.\par
 \tab γ.\tab Αρμοδιότητας: Ε.Φ. <?=$data['ΕΦ']?>.\par
-3.\tab Κατά τα λοιπά ισχύουν<?=$contracts ? ' οι όροι ' . ($contracts == 1 ? 'της Σύμβασης' : 'των Συμβάσεων') . ' και' : null?> οι διατάξεις του (ε) σχετικού νόμου.\par
-4.\tab Στοιχεία Αναθέτουσας Αρχής: <?=rtf($data['Μονάδα Πλήρες'] . ', ' . get_unit_address())?>.\par
+3.\tab Κατά τα λοιπά ισχύουν<?=$contracts ? ' οι όροι ' . (count($contracts) == 1 ? 'της σύμβασης ' : 'των συμβάσεων ') . get_names($contracts) . ' και' : null?> οι διατάξεις του (ε) σχετικού νόμου.\par
+4.\tab Στοιχεία Αναθέτουσας Αρχής: <?=rtf($data['Μονάδα Πλήρες'] . ', ' . get_unit_info())?>.\par
 <?php
 order_footer($output);
-
-$to = array();
-foreach($data['Δικαιούχοι'] as $per_contractor)
-	if (!isset($per_contractor['Διαγωνισμός']))
-		$to[] = get_contractor_recipient($per_contractor['Δικαιούχος']);
 order_recipient_table($to, array($data['Μονάδα']));
 ?>
 

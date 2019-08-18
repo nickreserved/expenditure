@@ -19,12 +19,10 @@ import static util.ResizableTableModel.getString;
 final class Tender implements VariableSerializable, TableRecord {
 	/** Το θέμα του διαγωνισμού. */
 	private String title;
-	/** Ο τύπος του διαγωνισμού. */
-	private TenderType tenderType;
+	/** Ο τύπος του διαγωνισμού είναι ανοικτή διαδικασία, ειδάλλως είναι συνοπτικός διαγωνισμός. */
+	private boolean openProcTender;
 	/** Η διακήρυξη του διαγωνισμού. */
 	private String tenderAnnouncement;
-	/** Το ΑΔΑ της διακήρυξης του διαγωνισμού. */
-	private String tenderAnnouncementId;
 	/** Χρόνος διεξαγωγής διαγωνισμού.
 	 * Αφορά την αποσφράγιση των δικαιολογητικών συμμετοχής, των τεχνικών
 	 * προσφορών και αν πρόκειται για συνοπτικό διαγωνισμό, και των οικονομικών
@@ -71,7 +69,7 @@ final class Tender implements VariableSerializable, TableRecord {
 	/** Αρχικοποίηση του αντικειμένου με τις προκαθορισμένες τιμές.
 	 * @param parent Η δαπάνη στην οποία ανήκει ο διαγωνισμός */
 	Tender(Expenditure parent) {
-		this.parent = parent; tenderType = TenderType.CONCISE_TENDER;
+		this.parent = parent;
 		tenderDocuments = "ΤΕΥΔ & Τεχνική Προσφορά & Οικονομική Προσφορά";
 		awardDocuments = "Αποδεικτικά Μέσα για τη Διαπίστωση της Επάρκειας ή Μη, των Μέτρων Αυτοκάθαρσης & "
 				+ "Αποδεικτικά μέσα ότι δεν Συντρέχουν οι Λόγοι Αποκλεισμού των Άρθρων 73 και 74 του Ν.4412/2016 & "
@@ -95,22 +93,21 @@ final class Tender implements VariableSerializable, TableRecord {
 		this.parent = parent;
 		if (!node.isObject()) throw new Exception("Για διαγωνισμό, αναμένονταν αντικείμενο");
 		title                 = node.getField(H[ 0]).getString();
-		tenderType            = TenderType.valueOf(node.getField(H[1]).getString());
+		openProcTender        = node.getField(H[ 1]).getBoolean();
 		tenderAnnouncement    = node.getField(H[ 2]).getString();
-		tenderAnnouncementId  = node.getField(H[ 3]).getString();
-		tenderTime            = node.getField(H[ 4]).getString();
-		tenderTimeEconomic    = node.getField(H[ 5]).getString();
-		cpv                   = node.getField(H[ 6]).getString();
-		cpvAux                = node.getField(H[ 7]).getString();
-		perItem               = node.getField(H[ 8]).getBoolean();
-		tenderDocuments       = node.getField(H[ 9]).getString();
-		mixed                 = node.getField(H[10]).getDecimal();
-		tenderContractorOrder = node.getField(H[11]).getString();
-		awardDocuments        = node.getField(H[12]).getString();
-		awardTime             = node.getField(H[13]).getString();
-		awardWarranty         = node.getField(H[14]).getBoolean();
-		awardContractorOrder  = node.getField(H[15]).getString();
-		for (Node m           : node.getField(H[16]).getArray())
+		tenderTime            = node.getField(H[ 3]).getString();
+		tenderTimeEconomic    = node.getField(H[ 4]).getString();
+		cpv                   = node.getField(H[ 5]).getString();
+		cpvAux                = node.getField(H[ 6]).getString();
+		perItem               = node.getField(H[ 7]).getBoolean();
+		tenderDocuments       = node.getField(H[ 8]).getString();
+		mixed                 = node.getField(H[ 9]).getDecimal();
+		tenderContractorOrder = node.getField(H[10]).getString();
+		awardDocuments        = node.getField(H[11]).getString();
+		awardTime             = node.getField(H[12]).getString();
+		awardWarranty         = node.getField(H[13]).getBoolean();
+		awardContractorOrder  = node.getField(H[14]).getString();
+		for (Node m           : node.getField(H[15]).getArray())
 			competitors.add(new Competitor(this, m));
 	}
 
@@ -118,64 +115,57 @@ final class Tender implements VariableSerializable, TableRecord {
 	static final private int OPEN_PRICE = 60000;
 
 	/** Καθορίζει το είδος του διαγωνισμού ανάλογα με την καθαρή αξία των τιμολογίων. */
-	void setTenderType() {
-		tenderType = prices[0] > OPEN_PRICE ? TenderType.OPEN_PROC : TenderType.CONCISE_TENDER;
-	}
+	void setTenderType() { openProcTender = prices[0] > OPEN_PRICE; }
 
 	/** Επικεφαλίδες του αντίστοιχου πίνακα, αλλά και ονόματα πεδίων αποθήκευσης. */
 	static final String[] H = {
-		"Τίτλος", "Τύπος", "Διακήρυξη Διαγωνισμού", "ΑΔΑ Διακήρυξης", "Χρόνος Αποσφράγισης Προσφορών",
+		"Τίτλος", "Ανοικτή Διαδικασία", "Διακήρυξη Διαγωνισμού", "Χρόνος Αποσφράγισης Προσφορών",
 		"Χρόνος Αποσφράγισης Οικονομικών Προσφορών", "CPV", "Συμπληρωματικό CPV",
 		"Προσφορά κατά είδος", "Δικαιολογητικά Συμμετοχής", "Καταλογιστέο",
 		"Απόφαση Ανάδειξης Προσωρινού Αναδόχου", "Δικαιολογητικά Κατακύρωσης",
 		"Χρόνος Κατάθεσης Δικαιολογητικών Κατακύρωσης", "Εγγυητική Επιστολή Καλής Εκτέλεσης",
 		"Κατακύρωση Διαγωνισμού", "Ενδιαφερόμενοι"
 	};
-
-	/** Επιστρέφει τον τύπο του διαγωνισμού. */
-	TenderType getTenderType() { return tenderType; }
-
+	
 	@Override public String toString() { return tenderAnnouncement == null ? "Ανώνυμος" : tenderAnnouncement; }
 
 	@Override public void serialize(VariableFields fields) {
 		if (title != null)                 fields.add(H[ 0], title);
-		                                   fields.add(H[ 1], tenderType.toString());	// Δεν είναι ποτέ null
+		                                   fields.add(H[ 1], openProcTender);
 		if (tenderAnnouncement != null)    fields.add(H[ 2], tenderAnnouncement);
-		if (tenderAnnouncementId != null)  fields.add(H[ 3], tenderAnnouncementId);
-		if (tenderTime != null)            fields.add(H[ 4], tenderTime);
-		if (tenderTimeEconomic != null)    fields.add(H[ 5], tenderTime);
-		if (cpv != null)                   fields.add(H[ 6], cpv);
-		if (cpvAux != null)                fields.add(H[ 7], cpvAux);
-		                                   fields.add(H[ 8], perItem);
-		if (tenderDocuments != null)       fields.add(H[ 9], tenderDocuments);
-		if (mixed != 0)                    fields.add(H[10], mixed);
-		if (tenderContractorOrder != null) fields.add(H[11], tenderContractorOrder);
-		if (awardDocuments != null)        fields.add(H[12], awardDocuments);
-		if (awardTime != null)             fields.add(H[13], awardTime);
-		                                   fields.add(H[14], awardWarranty);
-		if (awardContractorOrder != null)  fields.add(H[15], awardContractorOrder);
-		if (!competitors.isEmpty())        fields.addListVariableSerializable(H[16], competitors);
+		if (tenderTime != null)            fields.add(H[ 3], tenderTime);
+		if (tenderTimeEconomic != null)    fields.add(H[ 4], tenderTime);
+		if (cpv != null)                   fields.add(H[ 5], cpv);
+		if (cpvAux != null)                fields.add(H[ 6], cpvAux);
+		                                   fields.add(H[ 7], perItem);
+		if (tenderDocuments != null)       fields.add(H[ 8], tenderDocuments);
+		if (mixed != 0)                    fields.add(H[ 9], mixed);
+		if (tenderContractorOrder != null) fields.add(H[10], tenderContractorOrder);
+		if (awardDocuments != null)        fields.add(H[11], awardDocuments);
+		if (awardTime != null)             fields.add(H[12], awardTime);
+		                                   fields.add(H[13], awardWarranty);
+		if (awardContractorOrder != null)  fields.add(H[14], awardContractorOrder);
+		if (!competitors.isEmpty())        fields.addListVariableSerializable(H[15], competitors);
 	}
 
 	@Override public Object getCell(int index) {
 		switch(index) {
 			case  0: return null;	// Επικεφαλίδα «Διαγωνισμός»
 			case  1: return title;
-			case  2: return tenderType;
+			case  2: return openProcTender ? "Ανοικτή Διαδικασία" : "Συνοπτικός Διαγωνισμός";
 			case  3: return tenderAnnouncement;
-			case  4: return tenderAnnouncementId;
-			case  5: return tenderTime;
-			case  6: return tenderTimeEconomic;
-			case  7: return cpv;
-			case  8: return cpvAux;
-			case  9: return NOYES[perItem ? 1 : 0];
-			case 10: return tenderDocuments;
-			case 11: return a(mixed);
-			case 12: return tenderContractorOrder;
-			case 13: return null;	// Επικεφαλίδα «Κατακύρωση»
-			case 14: return awardDocuments;
-			case 15: return awardTime;
-			case 16: return NOYES[awardWarranty ? 1 : 0];
+			case  4: return tenderTime;
+			case  5: return tenderTimeEconomic;
+			case  6: return cpv;
+			case  7: return cpvAux;
+			case  8: return NOYES[perItem ? 1 : 0];
+			case  9: return tenderDocuments;
+			case 10: return a(mixed);
+			case 11: return tenderContractorOrder;
+			case 12: return null;	// Επικεφαλίδα «Κατακύρωση»
+			case 13: return awardDocuments;
+			case 14: return awardTime;
+			case 15: return NOYES[awardWarranty ? 1 : 0];
 			default: return awardContractorOrder;
 		}
 	}
@@ -185,55 +175,26 @@ final class Tender implements VariableSerializable, TableRecord {
 			//case  0: break;				// Επικεφαλίδα «Διαγωνισμός»
 			case  1: title                 = getString(value); break;
 			case  2:
-				tenderType                 = (TenderType) value;
+				openProcTender             = "Ανοικτή Διαδικασία".equals(value);
 				parent.calcContents();
 				break;
 			case  3: tenderAnnouncement    = getString(value); break;
-			case  4: tenderAnnouncementId  = getString(value); break;
-			case  5: tenderTime            = getString(value); break;
-			case  6: tenderTimeEconomic    = getString(value); break;
-			case  7: cpv                   = getString(value); break;
-			case  8: cpvAux                = getString(value); break;
-			case  9: perItem               = value == NOYES[1]; break;
-			case 10: tenderDocuments       = getString(value); break;
-			case 11: mixed                 = getDouble(value); break;
-			case 12: tenderContractorOrder = getString(value); break;
-			//case  13: break;				// Επικεφαλίδα «Κατακύρωση»
-			case 14: awardDocuments        = getString(value); break;
-			case 15: awardTime             = getString(value); break;
-			case 16: awardWarranty         = value == NOYES[1]; break;
-			case 17: awardContractorOrder  = getString(value); break;
+			case  4: tenderTime            = getString(value); break;
+			case  5: tenderTimeEconomic    = getString(value); break;
+			case  6: cpv                   = getString(value); break;
+			case  7: cpvAux                = getString(value); break;
+			case  8: perItem               = value == NOYES[1]; break;
+			case  9: tenderDocuments       = getString(value); break;
+			case 10: mixed                 = getDouble(value); break;
+			case 11: tenderContractorOrder = getString(value); break;
+			//case  12: break;				// Επικεφαλίδα «Κατακύρωση»
+			case 13: awardDocuments        = getString(value); break;
+			case 14: awardTime             = getString(value); break;
+			case 15: awardWarranty         = value == NOYES[1]; break;
+			case 16: awardContractorOrder  = getString(value); break;
 		}
 	}
 
-
-	/** Ο τύπος του διαγωνισμού. */
-	static final class TenderType {
-		/** Ιδιωτική αρχικοποίηση του enum. */
-		private TenderType(String s) { a = s; }
-		/** Ο τύπος του διαγωνισμού με κείμενο. */
-		final private String a;
-		@Override public String toString() { return a; }
-		/** Λαμβάνει τον τύπο του διαγωνισμού από το κείμενο περιγραφής του.
-		 * Αν το κείμενο είναι εσφαλμένο ή null επιστρέφει DIRECT_ASSIGNMENT.
-		 * @param s Ο τύπος του διαγωνισμού σε κείμενο
-		 * @return Ο τύπος του διαγωνισμού ή null αν πρόκειται για απευθείας ανάθεση */
-		static private TenderType valueOf(String s) {
-			if (CONCISE_TENDER.a.equals(s)) return CONCISE_TENDER;
-			if (OPEN_PROC.a.equals(s)) return OPEN_PROC;
-			if (CLOSED_PROC.a.equals(s)) return CLOSED_PROC;
-			return null;
-		}
-		/** Συνοπτικός Διαγωνισμός. */
-		static final TenderType CONCISE_TENDER = new TenderType("Συνοπτικός Διαγωνισμός");
-		/** Ανοικτή Διαδικασία. */
-		static final private TenderType OPEN_PROC = new TenderType("Ανοικτή Διαδικασία");
-		/** Κλειστή Διαδικασία. */
-		static final private TenderType CLOSED_PROC = new TenderType("Κλειστή Διαδικασία");
-		/** Επιστρέφει λίστα με όλους τους τύπους διαγωνισμού.
-		 * @return Λίστα με όλους τους τύπους διαγωνισμού */
-		static TenderType[] values() { return new TenderType[] { CONCISE_TENDER, OPEN_PROC, CLOSED_PROC }; }
-	}
 
 
 	/** Ενδιαφερόμενοι οικονομικοί φορείς για το διαγωνισμό. */

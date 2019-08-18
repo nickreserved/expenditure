@@ -11,19 +11,19 @@ import java.util.List;
 import static javax.swing.BorderFactory.createLineBorder;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableCellEditor;
 
 /** Ο επεξεργαστής της στήλης του πλήθους του φύλλου καταχώρησης. */
 final class ContentsTableCellEditor implements TableCellEditor {
-	/** Το ενεργό combo box επεξεργασίας κελιών. */
-	final private JComboBox combo = new JComboBox();
+	/** Το ενεργό component επεξεργασίας κελιών. */
+	private JComponent c;
 	/** Ο παροχέας εγγραφών. */
 	final private ContentsTableModel model;
-	/** Λίστα με τον αριθμό των αντιγράφων των δικαιολογητικών που ορίζει ο χρήστης. */
-	static final private Byte[] COPIES = new Byte[] { 0, 1, 2, 3, 4 };
 	/** Λίστα με τις επιλογές για προκαθορισμένα δικαιολογητικά. Όχι, Ναι, Μόνο Καταχώρηση. */
 	static final private String[] NOYESLIST = new String[] { NOYES[0], NOYES[1], ONLY_LISTED };
 	/** Λίστα με τις επιλογές για προκαθορισμένα δικαιολογητικά. Ναι, Μόνο Καταχώρηση. */
@@ -32,13 +32,11 @@ final class ContentsTableCellEditor implements TableCellEditor {
 	/** Αρχικοποίηση του επεξεργαστή κελιών του πίνακα.
 	 * Αφορά μόνο τη δεύτερη στήλη του πίνακα του φύλλου καταχώρησης.
 	 * @param model Ο παροχέας εγγραφών του πίνακα του φύλλου καταχώρησης */
-	ContentsTableCellEditor(ContentsTableModel model) {
-		this.model = model;
-		combo.setBorder(createLineBorder(WHITE, 0));
-		combo.addActionListener(e -> stopCellEditing());
-	}
+	ContentsTableCellEditor(ContentsTableModel model) { this.model = model; }
 
-	@Override public Object getCellEditorValue() { return combo.getSelectedItem(); }
+	@Override public Object getCellEditorValue() {
+		return c instanceof JComboBox ? ((JComboBox) c).getSelectedItem() : ((JTextField) c).getText();
+	}
 
 	@Override public boolean isCellEditable(EventObject anEvent) {
 		if (anEvent instanceof MouseEvent)	// Απαιτείται διπλό κλίκ για να ξεκινήσει η επεξεργασία
@@ -59,19 +57,27 @@ final class ContentsTableCellEditor implements TableCellEditor {
 
 	@Override public Component getTableCellEditorComponent(JTable table, Object value,
 			boolean isSelected, int row, int column) {
+		boolean combo = false;
 		List<ContentItem> lst = model.get();
-		Object[] list;
-		if (row == lst.size()) list = COPIES;
-		else {
+		if (row < lst.size()) {
 			ContentItem i = lst.get(row);
-			if (i.isUserDefined()) list = COPIES;
-			else if (i.hasChoiceNoYes()) list = NOYES;
-			else if (i.hasChoiceNoYesList()) list = NOYESLIST;
-			else list = YESLIST;
+			if (!i.isUserDefined()) {
+				Object[] list;
+				if (i.hasChoiceNoYes()) list = NOYES;
+				else if (i.hasChoiceNoYesList()) list = NOYESLIST;
+				else list = YESLIST;
+				c = new JComboBox(new DefaultComboBoxModel(list));
+				((JComboBox) c).setSelectedItem(value);
+				((JComboBox) c).addActionListener(e -> stopCellEditing());
+				combo = true;
+			}
 		}
-		combo.setModel(new DefaultComboBoxModel(list));
-		combo.setSelectedItem(value);
-		return combo;
+		if (!combo) {
+			c = new JTextField((String) value);
+			((JTextField) c).addActionListener(e -> stopCellEditing());
+		}
+		c.setBorder(createLineBorder(WHITE, 0));
+		return c;
 	}
 
 	// Είναι αστείο, αλλά λόγω ενός bug της Java δεν καλείται ποτέ

@@ -1,8 +1,8 @@
 <?php
-require_once('init.php');
+require_once('functions.php');
 require_once('order.php');
 require_once('tender.php');
-require_once('header.php');
+init(8);
 
 /** Κοινό κείμενο. */
 $common_func = function($tender) { ?>
@@ -13,21 +13,8 @@ $common_func = function($tender) { ?>
 	contractor_legal_documents($tender);
 };
 
-
 foreach($data['Διαγωνισμοί'] as $per_tender) {
 	$tender = $per_tender['Διαγωνισμός'];
-
-	// Κατηγορία του είδους του διαγωνισμού
-	//$category = tender_category($per_tender['Τιμολόγια']);
-
-	// Εύρεση ενδιαφερόμενων που τα δικαιολογητικά τους απορρίπτονται / εγκρίνονται
-	$reject_func = function($i) {
-		return isset($i['Λόγοι Απόρριψης Συμμετοχής'])
-		|| isset($i['Λόγοι Απόρριψης Οικονομικής Προσφοράς']);
-	};
-	$rejected_competitors = array_values(array_filter($tender['Ενδιαφερόμενοι'], $reject_func));
-	$accepted_competitors = array_values(array_filter($tender['Ενδιαφερόμενοι'],
-			function($i) use($reject_func) { return !$reject_func($i); }));
 
 	start_35_20();
 	order_header_recipients(ifexist2($output, $tender, 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου'), $output, 'Το (κα) σχετικό', 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου',
@@ -50,24 +37,26 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 				'Υπ\' αριθμ. 1191/14-03-17 Απόφασης των Υπουργών Δικαιοσύνης, Διαφάνειας και Ανθρωπίνων Δικαιωμάτων και του Αναπληρωτή Υπουργού Οικονομικών περί «Καθορισμού του χρόνου, τρόπου υπολογισμού της διαδικασίας παρακράτησης και απόδοσης της κράτησης 0,06% υπέρ της Αρχής Εξέτασης 384627 Προδικαστικών Προσφυγών (Α.Ε.Π.Π.), καθώς και των λοιπών λεπτομερειών εφαρμογής της παρ. 3 άρθρου 350 του Ν.4412/16 (ΦΕΚ Α\' 147)',
 				'Υπ\' αριθμ. 57654/22-05-17 (ΦΕΚ Β\' 1781/23-05-17) Απόφασης του Υπουργού Οικονομίας και περί «Ρύθμιση ειδικότερων θεμάτων λειτουργίας και διαχείρισης του Κεντρικού Ηλεκτρονικού Μητρώου Δημοσίων Συμβάσεων (ΚΗΜΔΗΣ) του Υπουργείου Οικονομίας και Ανάπτυξης',
 				//TODO: 'Υπ\' αριθμ. ___Αφορά στον αριθμό που δίδεται στην εντολή αγοράς που αναρτάται στο ΚΗΜΔΗΣ από τον αρμόδιο φορέα (π.χ. εφοδιασμός) πριν από την υπογραφή της από το ΕΟΕ___ Πρωτογενές Αίτημα μέσω της πλατφόρμας του Κεντρικού Ηλεκτρονικού Μητρώου Δημοσίων Συμβάσεων (ΚΗΜΔΗΣ) για ' . $category,
-				$data['Απόφαση Ανάληψης Υποχρέωσης'] . ' Απόφαση Ανάληψης Υποχρέωσης' . (published() ? " (ΑΔΑ: {$data['ΑΔΑ Απόφασης Ανάληψης Υποχρέωσης']})" : null),
+				$data['Απόφαση Ανάληψης Υποχρέωσης']['Ταυτότητα'] . ' Απόφαση Ανάληψης Υποχρέωσης',
 				//TODO: 'Υπ\' αριθμ. ___Αναγράφεται Αριθμός Διαδικτυακής Ανάρτησης Μητρώου (ΑΔΑΜ) του εγκεκριμένου αιτήματος, που αποτυπώνεται στην ΑΑΥ που αφορά στη συγκεκριμένη προμήθεια___ Εγκεκριμένο Αίτημα μέσω της πλατφόρμας του Κεντρικού Ηλεκτρονικού Μητρώου Δημοσίων Συμβάσεων (ΚΗΜΔΗΣ) για ' . $category,
-				$data['Δγη Συγκρότησης Επιτροπών'] . ' με την οποία συγκροτήθηκε η Επιτροπή Διενέργειας Διαγωνισμού και Αξιολόγησης Προσφορών' . (published() || isset($data['ΑΔΑ Δγης Συγκρότησης Επιτροπών']) ? " (ΑΔΑ: {$data['ΑΔΑ Δγης Συγκρότησης Επιτροπών']})" : null),
-				$tender['Διακήρυξη Διαγωνισμού'] . ' διακήρυξη ' . rtf(inflectPhrase($tender['Τύπος'], 1)) . (isset($tender['ΑΔΑ Διακήρυξης']) ? " (ΑΔΑ: {$tender['ΑΔΑ Διακήρυξης']})" : null),
+				$data['Δγη Συγκρότησης Επιτροπών']['Ταυτότητα'] . ' με την οποία συγκροτήθηκε η Επιτροπή Διενέργειας Διαγωνισμού και Αξιολόγησης Προσφορών',
+				$tender['Διακήρυξη Διαγωνισμού']['Ταυτότητα'] . ' διακήρυξη ' . rtf(inflectPhrase(get_tender_type($tender), 1)),
 				'Εισήγηση της Επιτροπής Διενέργειας Διαγωνισμού και Αξιολόγησης Προσφορών που αφορά την αξιολόγηση των δικαιολογητικών συμμετοχής, των τεχνικών προσφορών και των οικονομικών προσφορών των οικονομικών φορέων'
 			));
 ?>
 
 \pard\plain\sb120\sa120\fi567\tx1134\tx1701\tx2268\qj 1.\tab Λαμβάνοντας υπόψη τα σχετικά, <?php
 	// Κείμενο σχετικό με το ποιος απορρίφθηκε.
-	if (!count($accepted_competitors)) {
+	$accepted = $tender['Προκριθέντες Β'];
+	$rejected = $tender['Απορριφθέντες'];
+	if (!count($accepted)) {
 		echo 'δεν κρίνουμε αποδεκτές τις προσφορές των συμμετεχόντων οικονομικών φορέων, στους οποίους κοινοποιείται η παρούσα διαταγή, για τους παρακάτω λόγους:\par' . PHP_EOL;
-		tender_rejected_competitors_list($rejected_competitors);
+		tender_rejected_competitors_list($rejected);
 	} else {
 		echo 'κρίνουμε αποδεκτές τις προσφορές των συμμετεχόντων οικονομικών φορέων, στους οποίους κοινοποιείται η παρούσα διαταγή, καθώς πληρούν τις απαιτήσεις της διακήρυξης';
-		if (count($rejected_competitors)) {
+		if (count($rejected)) {
 			echo ', με εξαίρεση τους παρακάτω οικονομικούς φορείς που οι προσφορές τους δε γίνονται αποδεκτές για τους παρακάτω λόγους:\par' . PHP_EOL;
-			tender_rejected_competitors_list($rejected_competitors);
+			tender_rejected_competitors_list($rejected);
 		} else echo '.\par' . PHP_EOL;
 	}
 ?>
@@ -75,17 +64,17 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 2.\tab Κατόπιν των παραπάνω,\par
 \qc{\b Α π ο φ α σ ί ζ ου μ ε}\par\qj
 την αποδοχή της εισήγησης της Επιτροπής Διενέργειας Διαγωνισμού και Αξιολόγησης Προσφορών, όπως αποτυπώθηκε στο (κα) σχετικό, με <?php
-	if (count($accepted_competitors)) {
+	if (count($accepted)) {
 		if ($tender['Προσφορά κατά είδος']) {
 			unseal_per_item_contractors($tender);
 			$common_func($tender);
 			$par = 5;
 		} else {
-			$accepted_competitors = unseal_equal_offers($accepted_competitors);
-			if (count($accepted_competitors) != 1) {
+			$accepted = $tender['Μειοδότες'];
+			if (count($accepted) != 1) {
 				if (is_expenditure()) trigger_error('Ο διαγωνισμός δε μπορεί να είναι άγονος');
 				echo 'την επανάληψη του διαγωνισμού σε 24 ώρες, με υποβολή κατ\' ελάχιστον νέων οικονομικών προσφορών, μόνο από τους παρακάτω οικονομικούς φορείς, οι οποίοι υπέβαλαν την οικονομικότερη προσφορά, αλλά ισόποση:\par' . PHP_EOL;
-				foreach($accepted_competitors as $par => $competitor)
+				foreach($accepted as $par => $competitor)
 					tender_competitor($competitor['Ενδιαφερόμενος'], $par);
 				$par = 3;
 			} else {
@@ -119,13 +108,13 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 
 <?php
 	// Αποδεικτικό κοινοποίησης στον ανάδοχο
-	if ($output && count($accepted_competitors))
+	if ($output && count($accepted))
 		foreach($per_tender['Συμβάσεις'] as $contract)
 			sharing_proof($contract['Ανάδοχος'], 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου για το αντικείμενο '
-					. $tender['Τίτλος'], $tender['Απόφαση Ανάδειξης Προσωρινού Αναδόχου']);
+					. $tender['Τίτλος'], $tender['Απόφαση Ανάδειξης Προσωρινού Αναδόχου']['Ταυτότητα']);
 
 }	// foreach
 
-unset($accepted_competitors, /*$category,*/ $common_func, $competitor, $contract, $contractor, $output, $par, $per_tender, $reject_func, $rejected_competitors, $tender, $to);
+unset($accepted, $common_func, $competitor, $contract, $contractor, $par, $per_tender, $rejected, $tender, $to);
 
 rtf_close(__FILE__);

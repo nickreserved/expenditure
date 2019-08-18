@@ -1,6 +1,32 @@
 <?php
 require_once('functions.php');
 
+/** Επιστέφει τις κατηγορίες κρατήσεων, ΦΕ και ΦΠΑ για μια λίστα τιμολογίων.
+ * @param array $invoices Λίστα με τιμολόγια
+ * @return array 3 array με τα παρακάτω κλειδιά:
+ * <ul><li>'Κρατήσεις': array με κλειδιά τα ποσοστά των κρατήσεων των τιμολογίων και τιμές το
+ * αντίστοιχο άθροισμα σε €. (Δεν γίνεται ανάλυση κρατήσεων, αλλά μόνο για το συνολικό ποσοστό κάθε
+ * τιμολογίου)
+ * <li>'ΦΕ': array με κλειδιά τα ποσοστά του ΦΕ των τιμολογίων και τιμές το αντίστοιχο άθροισμα σε €.
+ * <li>'ΦΠΑ': array με κλειδιά τα ποσοστά των ΦΠΑ των τιμολογίων και τιμές το αντίστοιχο άθροισμα
+ * σε €.<ul> */
+function calc_per_deduction_incometax_vat($invoices) {
+	$deductions = array(); $vat = array(); $incometax = array();
+	foreach($invoices as $invoice) {
+		if ($invoice['ΦΕ']) {			// Αθροιση του ΦΕ για κάθε τιμολόγιο
+			$key = $invoice['ΦΕ']; $value = $invoice['Τιμές']['ΦΕ'];
+			if (isset($incometax[$key])) $incometax[$key] += $value; else $incometax[$key] = $value;
+		}
+		if ($invoice['Τιμές']['Κρατήσεις']) {	// Αθροιση των κρατήσεων για κάθε τιμολόγιο
+			$key = (string) $invoice['Κρατήσεις']['Σύνολο']; $value = $invoice['Τιμές']['Κρατήσεις'];
+			if (isset($deductions[$key])) $deductions[$key] += $value; else $deductions[$key] = $value;
+		}
+		foreach($invoice['Κατηγορίες ΦΠΑ'] as $key => $value)	// Αθροιση των αξιών ΦΠΑ για κάθε τιμολόγιο
+			if (isset($vat[$key])) $vat[$key] += $value; else $vat[$key] = $value;
+	}
+	return array('Κρατήσεις' => $deductions, 'ΦΕ' => $incometax, 'ΦΠΑ' => $vat);
+}
+
 /** Εξάγει τα στοιχεία μιας έκθεσης.
  * @param array $invoices Λίστα με τα τιμολόγια της έκθεσης
  * @param array $prices Λίστα με τα αθροίσματα των αξιών των τιμολογίων */

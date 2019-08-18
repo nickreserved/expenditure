@@ -1,6 +1,6 @@
 <?php
-require_once('init.php');
-require_once('header.php');
+require_once('functions.php');
+init(8);
 
 if (!function_exists('contents_subfolder')) {
 
@@ -21,7 +21,7 @@ function contents_invoices() {
 	global $data, $count, $countA;
 	foreach($data['Τιμολόγια'] as $invoice)
 		echo ++$count . '\cell ' . rtf($invoice['Δικαιούχος']['Επωνυμία']) . '\cell ' . $countA
-				. '\cell Τιμολόγιο ' . invoice($invoice['Τιμολόγιο']) . '\cell\cell\row' . PHP_EOL;
+				. '\cell Τιμολόγιο ' . $invoice['Τιμολόγιο'] . '\cell\cell\row' . PHP_EOL;
 }
 
 /** Εξάγει τις εγγραφές των πρωτοκόλλων οριστικής ποιοτικής και ποσοτικής παραλαβής. */
@@ -115,7 +115,7 @@ function contents_contract() {
 	if (isset($data['Συμβάσεις']))
 		foreach($data['Συμβάσεις'] as $per_contract)
 			echo ++$count . '\cell ' . rtf($data['Μονάδα']) . '\cell ' . $countA . '\cell Σύμβαση '
-					. contract($per_contract['Σύμβαση']['Σύμβαση']) . ' με «'
+					. $per_contract['Σύμβαση']['Σύμβαση'] . ' με «'
 					. rtf($per_contract['Δικαιούχος']['Επωνυμία'])
 					. '»\cell\cell\row' . PHP_EOL;
 }
@@ -154,7 +154,7 @@ function contents_order_tender($content_item, $proof = true) {
 		if ($proof)
 			echo ++$count . '\cell ' . rtf($data['Μονάδα']) . '\cell ' . $countA
 					. '\cell Αποδεικτικό Κοινοποίησης της\par'
-					. order($tender[$content_item['Δικαιολογητικό']]) . '\cell\cell\row' . PHP_EOL;
+					. $tender[$content_item['Δικαιολογητικό']]['Ταυτότητα'] . '\cell\cell\row' . PHP_EOL;
 	}
 }
 
@@ -174,7 +174,7 @@ function contents_unseal() {
 	foreach($data['Διαγωνισμοί'] as $per_tender) {
 		$tender = $per_tender['Διαγωνισμός'];
 		$b = strftime('%d %b %y', $tender['Χρόνος Αποσφράγισης Προσφορών']) . ')\cell\cell\row' . PHP_EOL;
-		if (unseal_2_phases($tender)) {
+		if (has_2_unseals($tender)) {
 			echo ++$count . $a . 'Πρακτικό αποσφράγισης δικαιολογητικών συμμετοχής και τεχνικών προσφορών (' . $b;
 			echo ++$count . $a . 'Πρακτικό αποσφράγισης οικονομικών προσφορών ('
 					. strftime('%d %b %y', $tender['Χρόνος Αποσφράγισης Οικονομικών Προσφορών'])
@@ -187,9 +187,7 @@ function contents_unseal() {
  * @param array $content_item Η καταχώρηση περιεχομένων
  * @param string $order Η ταυτότητα της διαταγής */
 function contents_order($content_item, $order) {
-	$b = null;
-	$line2 = '\par ' . order($order, $b);
-	contents_default_low($content_item, $b[5], $line2);
+	contents_default_low($content_item, $order['Εκδότης'], '\par ' . $order['Ταυτότητα']);
 }
 
 /** Εξάγει μια γενική εγγραφή.
@@ -206,9 +204,9 @@ function contents_default($content_item) {
  * @param string $line2 μια δεύτερη γραμμή κάτω από την βασική περιγραφή της καταχώρησης */
 function contents_default_low($content_item, $issuer, $line2) {
 	global $count, $countA;
-	$c = $content_item['Πλήθος'] > 1 ? " (x{$content_item['Πλήθος']})" : '';
+	$c = $content_item['Πλήθος'] > 1 ? " x{$content_item['Πλήθος']}" : null;
 	echo ++$count . '\cell ' . rtf($issuer) . '\cell ' . $countA . '\cell '
-			. rtf($content_item['Δικαιολογητικό']) . $c . $line2 . '\cell\cell\row' . PHP_EOL;
+			. rtf($content_item['Δικαιολογητικό']) . $line2 . '\cell' . $c . '\cell\row' . PHP_EOL;
 }
 
 /** Εξάγει μια βεβαίωση μη χρέωσης, ή ένα ΑΔΔΥ.
@@ -270,6 +268,12 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Απόφαση Απευθείας Ανάθεσης': if (!has_direct_assignment()) break; // else continue
 			case 'Απόφαση Ανάληψης Υποχρέωσης':
 			case 'Δγη Συγκρότησης Επιτροπών': contents_order($content_item, $data[$content_item['Δικαιολογητικό']]); break;
+			case 'Βεβαίωση Εκτέλεσης του Έργου από Οπλίτες':
+				if (has_service_category($data['Τιμολόγια'])) break; // else continue
+			case 'Πρωτόκολλο Παραλαβής Αφανών Εργασιών':
+			case 'Πρωτόκολλο Προσωρινής και Οριστικής Παραλαβής Παραλαβής':
+			case 'Οριστική και Αναλυτική Επιμέτρηση':
+				if (!$data['Έργο']) break; // else continue
 			default: contents_default($content_item); break;
 		}
 }

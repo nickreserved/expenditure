@@ -1,9 +1,7 @@
 <?php
-require_once('init.php');
 require_once('contract.php');
 require_once('tender.php');
 require_once('statement.php');
-require_once('header.php');
 
 /* Εξάγει υποφάκελο δαπάνης.
  * @param string $name Το κείμενο του υποφακέλου μαζί με τον αριθμό του, στη μορφή που δίνεται από
@@ -24,26 +22,6 @@ function export_subfolder($name) {
 
 }
 
-/** Εξάγει ένα δικαιολογητικό της δαπάνης.
- * @param string $name Το όνομα του δικαιολογητικού όπως δίνεται από το γραφικό περιβάλλον */
-function export($name) {
-	switch($name) {
-		case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
-			statement_common('statement_IBAN'); break;
-		case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ':
-			statement_common('statement_representative'); break;
-		case 'Σύμβαση': export_contracts(); break;
-		case 'Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής': offer_unseal_reports(); break;
-		default:
-			if (substr($name, 0, 12) == 'ΥΠΟΦΑΚΕΛΟΣ «') export_subfolder($name);
-			else {
-				global $data, $output;
-				require($name . '.php');
-			}
-	}
-}
-
-
 // Για να βγεί ακριβές αντίγραφο των διαταγών και όχι σχέδιο
 $output = 'δαπάνη';
 // Αν η ρύθμιση "Μόνο μια φορά" είναι ενεργή
@@ -51,10 +29,25 @@ $onlyone = isset($_ENV['one']) && $_ENV['one'] == 'true';
 // Ενημερώνουμε ότι πρόκειται για δαπάνη
 $data['Δαπάνη'] = true;
 
+init(8);
+
 foreach($data['Φύλλο Καταχώρησης'] as $paper_v)
 	if ($paper_v['Εξαγωγή']) {
 		ob_start();
-		export($paper_v['Δικαιολογητικό']);
+
+		$name = $paper_v['Δικαιολογητικό'];
+		switch($name) {
+			case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
+				statement_common('statement_IBAN'); break;
+			case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ':
+				statement_common('statement_representative'); break;
+			case 'Σύμβαση': export_contracts(); break;
+			case 'Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής': offer_unseal_reports(); break;
+			default:
+				if (substr($name, 0, 12) == 'ΥΠΟΦΑΚΕΛΟΣ «') export_subfolder($name);
+				else require($name . '.php');
+		}
+
 		echo str_repeat(ob_get_clean(), $onlyone ? 1 : $paper_v['Πλήθος']);
 	}
 

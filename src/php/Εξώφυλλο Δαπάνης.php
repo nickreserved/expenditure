@@ -1,6 +1,6 @@
 <?php
-require_once('init.php');
-require_once('header.php');
+require_once('functions.php');
+init(5);
 ?>
 
 \sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1701\margbsxn1134
@@ -15,7 +15,7 @@ require_once('header.php');
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΑΛΕ:} <?=rtf(ifexist($data, 'ΑΛΕ'))?>\par
 \pard\par
-\pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΔΙΑΤΑΓΗ ΔΙΑΘΕΣΗΣ:} <?=order($data['Απόφαση Ανάληψης Υποχρέωσης'])?>\par
+\pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΔΙΑΤΑΓΗ ΔΙΑΘΕΣΗΣ:} <?=$data['Απόφαση Ανάληψης Υποχρέωσης']['Ταυτότητα']?>\par
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ΚΑΤΑΛΟΓΙΣΤΕΟ ΠΟΣΟ ΔΑΠΑΝΗΣ:} <?=euro($data['Τιμές']['Καταλογιστέο'])?>\par
 \pard\par

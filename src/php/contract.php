@@ -1,5 +1,5 @@
 <?php
-require_once('init.php');
+require_once('functions.php');
 require_once('report.php');
 
 /** Εξάγει μια σύμβαση.
@@ -10,27 +10,17 @@ require_once('report.php');
 function export_contract($per_contract, $output) {
 	global $data;
 	$invoices = $per_contract['Τιμολόγια'];
-	// Όλες οι κατηγορίες των τιμολογίων σε ένα κείμενο
-	$categories = array();
-	$construction = false;			// Είναι έργο και έχει τιμολόγιο παροχής υπηρεσιών
-	foreach($invoices as $invoice) {
-		$a = is_supply($invoice['Κατηγορία']);
-		$construction |= !$a;
-		$categories[$a ? 'Προμήθεια Υλικών' : 'Παροχή Υπηρεσιών'] = null;
-	}
-	$construction &= $data['Έργο'];
-	$categories = get_names(array_keys($categories));
-	// Αν είναι σχέδιο σύμβασης υπάρχουν κενά
+	// Αν είναι σχέδιο σύμβασης υπάρχουν κενά (σχέδιο είναι στην διακήρυξη)
 	if ($output) {
 		$contractor = $per_contract['Δικαιούχος'];
 		$contractor['Επωνυμία'] = rtf($contractor['Επωνυμία']);
 		$contract = $per_contract['Σύμβαση'];
-		$contract_name = contract($contract['Σύμβαση']);
+		$contract_name = $contract['Σύμβαση'];
 		$contract_title = $contract['Τίτλος'];
-		$date = strftime('%d %b %y', $contract['Χρόνος Υπογραφής Σύμβασης']);
+		$date = strftime('%d %b %y', $contract['Ημερομηνία']);
 		// Μέχρι πότε πρέπει ο ανάδοχος να παραδώσει το αντικείμενο της σύμβασης
-		$when = get_newer_invoice_timestamp($invoices);
-		if (!isset($when)) $when = time() + 24 * 3600 * 1000 * ($construction ? 40 : 20);
+		$when = get_newer_timestamp($invoices);
+		if (!isset($when)) $when = time() + 24 * 3600 * 1000 * ($data['Έργο'] ? 40 : 20);
 		$when = strftime('%d %b %Y', $when);
 	} else {
 		$contract_name = $when = $date = '\u8230_\u8230_\u8230_';
@@ -50,7 +40,7 @@ function export_contract($per_contract, $output) {
 Σήμερα την <?=$date?>, οι υπογεγραμμένοι, <?=person($data['Δκτης'])?>, Δκτης <?=rtf(article(gender($data['Μονάδα Πλήρες']), 1) . ' ' . inflectPhrase($data['Μονάδα Πλήρες'], 1))?>, ως εκπρόσωπος του Ελληνικού Δημοσίου το οποίο στο εξής θα καλείται για συντομία «Στρατιωτική Υπηρεσία» και <?=isset($contractor['Ονοματεπώνυμο']) ? article(gender($contractor['Ονοματεπώνυμο']), 0) . ' ' . rtf($contractor['Ονοματεπώνυμο']) . ' ως' : 'ο'?> εκπρόσωπος της επιχείρησης «<?=$contractor['Επωνυμία']?>», η οποία στο εξής θα καλείται για συντομία «Επιχείρηση», συνήλθαν για το θέμα της σύμβασης και αφού συμφώνησαν, αποδέχθηκαν από κοινού τα ακόλουθα:\par
 
 \sa30\qc{\b ΑΡΘΡΟ 1\par\sb30 Αντικείμενο - Οικονομικά Στοιχεία}\par\sa120\sb120\qj
-1.\tab <?=$categories?> όπως παρακάτω:\par
+1.\tab <?=ucfirst($per_contract['Κατηγορία'])?> όπως παρακάτω:\par
 <?php
 if ($output) report($invoices, $per_contract['Τιμές']);
 else report_no_prices($invoices);
@@ -58,7 +48,7 @@ else report_no_prices($invoices);
 \pard\plain\sb120\sa120\fi567\tx1134\tx1701\tx2268\qj
 2.\tab Οι κρατήσεις <?php
 if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
-	if (!isset($per_contract['Τιμές']) /*TODO:από διαγωνισμό*/ || $per_contract['Τιμές']['ΦΕ'])
+	if (!isset($per_contract['Τιμές']) /*από διακήρυξη*/ || $per_contract['Τιμές']['ΦΕ'])
 		echo 'και το ΦΕ, βαρύνουν την Επιχείρηση. Για το ΦΕ, χορηγείται βεβαίωση από τη Στρατιωτική Υπηρεσία.';
 	else echo 'βαρύνουν την Επιχείρηση.';
 } else echo 'βαρύνουν τη Στρατιωτική Υπηρεσία.';
@@ -68,7 +58,7 @@ if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
 1.\tab Η Επιχείρηση πρέπει να έχει ολοκληρώσει την παράδοση του αντικειμένου της σύμβασης, στη Στρατιωτική Υπηρεσία, μέχρι <?=$when?>.\par
 2.\tab Το αντικείμενο της σύμβασης πρέπει να παραδοθεί ποιοτικά και ποσοτικά σύμφωνο με την ισχύουσα νομοθεσία.\par
 3.\tab Η Επιχείρηση, προ της υπογραφής της σύμβασης έχει προσυπογράψει τις προδιαγραφές, τεχνικές μελέτες και ότι άλλο συνοδεύει τη σύμβαση και οφείλει να παραδώσει το αντικείμενο της σύμβασης ποιοτικά και ποσοτικά σύμφωνο με τα έντυπα που προσυπέγραψε.\par
-<?php if ($construction) { ?>
+<?php if ($data['Έργο']) { ?>
 4.\tab Η Επιχείρηση εκτέλεσε ενδελεχή αναγνώριση στην περιοχή και στο χώρο του έργου και έχει πλήρη επίγνωση όλων των τοπικών περιορισμών τους οποίους αργότερα δε θα επικαλεστεί ως ανωτέρα βία ή υπαιτιότητα της Στρατιωτικής Υπηρεσίας. Παράδειγμα τέτοιων περιορισμών περιλαμβάνουν τοπικά καιρικά φαινόμενα, διαμόρφωση κτηρίων, εναέρια ή υπόγεια δίκτυα, πύλες που παραμένουν κλειστές κτλ\par
 <?php } ?>
 
@@ -129,6 +119,7 @@ if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
 /** Εξάγει όλες τις συμβάσεις της δαπάνης. */
 function export_contracts() {
 	global $data;
+	init(7);
 	foreach($data['Συμβάσεις'] as $per_contract) {
 		start_35_20();
 		export_contract($per_contract, true);

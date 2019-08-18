@@ -1,6 +1,37 @@
 <?php
-require_once('init.php');
-require_once('header.php');
+require_once('functions.php');
+init(6);
+
+if (!function_exists('calc_partial_deductions')) {
+
+/** Υπολογίζει αθροιστικά, τις επιμέρους κρατήσεις, μιας ομάδας τιμολογίων.
+ * @param array $invoices Μια λίστα τιμολογίων
+ * @return array Έχει κλειδιά τα ονόματα των επιμέρους κρατήσεων και το 'Σύνολο' και τιμές τις
+ * αντίστοιχες τιμές σε ευρώ, κάνοντας τη γνωστή αναγωγή για να μην υπάρχουν διαφορές δεκαδικών στο
+ * άθροισμα */
+function calc_partial_deductions($invoices) {
+	$a = array();
+	$priceSum = 0;
+	// Αθροίσματα επιμέρους κρατήσεων
+	foreach ($invoices as $invoice) {
+		$deduction = $invoice['Κρατήσεις'];
+		$sum = $deduction['Σύνολο'];
+		$price = $invoice['Τιμές']['Κρατήσεις'];	// Όχι επί της καθαρής αξίας γιατί οι κρατήσεις έχουν στρογγυλοποιηθεί
+		$priceSum += $price;
+		foreach($deduction as $name => $term) {
+			if ($name != 'Σύνολο') {
+				$val = $price * $term / $sum;
+				if (!isset($a[$name])) $a[$name] = $val; else $a[$name] += $val;
+			}
+		}
+	}
+	// Σφάλματα στρογγυλοποίησης
+	$a = adjust_partials($a, $priceSum);
+	$a['Σύνολο'] = $priceSum;
+	return $a;
+}
+
+}	// endif function_exists
 
 // Πλάτος κελιών πίνακα
 $c = count($data['Κρατήσεις']) + 3.6;	// 1.2 για Καθαρή Αξία, Καταλογιστέο, Πληρωτέο

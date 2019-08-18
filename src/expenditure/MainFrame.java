@@ -129,7 +129,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static final String VERSION = "01 Αυγ 19";
+	static private final String VERSION = "23 Αυγ 19";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -266,21 +266,21 @@ final public class MainFrame extends JFrame {
 			"<html><b>Στοιχεία Επιτροπών Δαπάνων",
 			UnitInfo.H[14], UnitInfo.H[15], UnitInfo.H[16], UnitInfo.H[17], UnitInfo.H[18],
 			UnitInfo.H[19], UnitInfo.H[20], UnitInfo.H[21], UnitInfo.H[22], UnitInfo.H[23],
-			UnitInfo.H[24], UnitInfo.H[25], UnitInfo.H[26], UnitInfo.H[27]
+			UnitInfo.H[24], UnitInfo.H[25], UnitInfo.H[26]
 		};
 		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της Μονάδας.
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
 		Component[] unitEditors = {
 			null, null, null, null, null, null, null, null, null, null, null, cbPersonnel, cbPersonnel,
 			cbPersonnel, cbPersonnel,
-			null, null, null, cbPersonnel
+			null, null, cbPersonnel
 		};
 
 		// Το tabbed panel πρέπει να είναι πρώτο στοιχείο της φορμας και οι Εργασίες το 4ο στοιχείο
 		// του tabbed panel.
 		// Μετά από κάθε προσθηκη, διαγραφή, αλλαγή σειράς να ελέγχω το MainFrame.updatePanels().
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Στοιχεία Δαπάνης", createPanelExpenditure(unitHeader, cbBoolean, unitEditors));
+		tabs.addTab("Στοιχεία Δαπάνης", createPanelExpenditure(unitHeader, unitEditors, cbBoolean, cbPersonnel));
 		tabs.addTab("Τιμολόγια", createPanelInvoices(cbUnits, rtmMaterials));
 		tabs.addTab("Συμβάσεις", createPanelContracts(cbContractors));
 		tabs.addTab("Διαγωνισμοί", createPanelTenders(cbBoolean, cbContractors));
@@ -303,7 +303,7 @@ final public class MainFrame extends JFrame {
 		PropertiesTableModel ptm = new PropertiesTableModel(unitHeader, 1) {
 			@Override public TableRecord get(int index) { return data.unitInfo; }
 			@Override public boolean isCellEditable(int row, int col) {
-				return super.isCellEditable(row, col) && row != 0 && row != 15;
+				return super.isCellEditable(row, col) && row != 0 && row != 15 && row != 29;
 			}
 		};
 		return new JScrollPane(createTable(ptm, unitEditors));
@@ -489,32 +489,36 @@ final public class MainFrame extends JFrame {
 
 	/** Δημιουργεί ένα panel με τα στοιχεία της δαπάνης.
 	 * @param unitHeader Οι επικεφαλίδες του πίνακα της καρτέλας «Στοιχεία Μονάδας»
-	 * @param cbBoolean Ο επιλογέας Ναι/Όχι
 	 * @param unitEditors Οι επεξεργαστές του πίνακα της καρτέλας «Στοιχεία Μονάδας»
+	 * @param cbBoolean Ο επιλογέας Ναι/Όχι
+	 * @param cbBoolean Ο επιλογέας προσωπικού
 	 * @return Το panel με τα στοιχεία της δαπάνης */
-	private JScrollPane createPanelExpenditure(String[] unitHeader, JComboBox cbBoolean,
-			Component[] unitEditors) {
+	private JScrollPane createPanelExpenditure(String[] unitHeader, Component[] unitEditors,
+			JComboBox cbBoolean, JComboBox cbPersonnel) {
 		// Επικεφαλίδα του πίνακα στοιχείων δαπάνης
 		String[] expHeader = Stream.concat(Stream.of(new String[] {
 			"<html><b>Στοιχεία Δαπάνης",
-			Expenditure.H[0], Expenditure.H[1],
-			"<html>" + Expenditure.H[2] + " <font size=2><i>(Πίστωση ΓΕΣ/Γ2)",
-			"Ειδικός Φορέας (ΕΦ)", "Αναλυτικός Λογαριασμός Εσόδων/Εξόδων (ΑΛΕ)", Expenditure.H[5],
-			"<html>" + Expenditure.H[6] + " <font size=2><i>(αιτιατική)", Expenditure.H[7],
-			Expenditure.H[8], Expenditure.H[9], "<html><b>Αυτοματισμοί", Expenditure.H[10]
+			Expenditure.H[0], "<html>" + Expenditure.H[1] + " <font size=2><i>(Πίστωση ΓΕΣ/Γ2)",
+			"Ειδικός Φορέας (ΕΦ)", "Αναλυτικός Λογαριασμός Εσόδων/Εξόδων (ΑΛΕ)", Expenditure.H[4],
+			"<html>" + Expenditure.H[5] + " <font size=2><i>(αιτιατική)", Expenditure.H[6],
+			Expenditure.H[7], "<html><b>Αυτοματισμοί", Expenditure.H[8],
+			"<html><b>Στοιχεία Επιτροπών Έργων",
+			Expenditure.H[9], Expenditure.H[10], Expenditure.H[11], Expenditure.H[12],
+			Expenditure.H[13], Expenditure.H[14]
 		}), Stream.of(unitHeader)).toArray(String[]::new);
 		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της δαπάνης.
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
 		Component[] expEditors = Stream.concat(Stream.of(new Component[] {
-			null, null, cbBoolean, cbBoolean, null, null, new JComboBox(Financing.values()), null,
-			null, null, null, null, cbBoolean
+			null, null, cbBoolean, null, null, new JComboBox(Financing.values()), null,
+			null, null, null, cbBoolean, null, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel,
+			cbPersonnel, cbPersonnel
 		}), Stream.of(unitEditors)).toArray(Component[]::new);
 		// Ρύθμιση του πίνακα με τα στοιχεία δαπάνης
 		rtmExpenditure = new PropertiesTableModel(expHeader, 1) {
 			@Override public TableRecord get(int index) { return data.expenditure; }
 			@Override public boolean isCellEditable(int row, int col) {
-				return super.isCellEditable(row, col) && row != 0 && row != 3 && row != 11
-						&& row - 13 != 0 && row - 13 != 15;
+				return super.isCellEditable(row, col) && row != 0 && row != 9 && row != 11
+						&& row - 18 != 0 && row - 18 != 15;
 			}
 		};
 		// Ανανέωση πινάκων που τροποποιούνται λόγω αυτοματισμών
@@ -594,7 +598,7 @@ final public class MainFrame extends JFrame {
 			window.cdmTenders.setSelectedItem(tender);
 		});
 		// Πλήκτρο διαγραφής διαγωνισμού
-		JButton btnDelete = new JButton("Διαγραφή τρέχουντος διαγωνισμού", ICON_DELETE);
+		JButton btnDelete = new JButton("Διαγραφή διαγωνισμού", ICON_DELETE);
 		btnDelete.addActionListener(e -> {
 			Tender tender = window.cdmTenders.getSelectedItem();
 			if (tender != null) {
@@ -622,12 +626,12 @@ final public class MainFrame extends JFrame {
 
 		// Πίνακας στοιχείων διαγωνισμού
 		// Οι τύποι διαγωνισμού
-		JComboBox cbTenderTypes = new JComboBox(Tender.TenderType.values());
+		JComboBox cbTenderTypes = new JComboBox(new String[] { "Συνοπτικός Διαγωνισμός", "Ανοικτή Διαδικασία" });
 		cbTenderTypes.setBorder(cbBoolean.getBorder());
 		// Ο πίνακας με τα στοιχεία του διαγωνισμού
 		TenderInfoTableModel ptmInfo = new TenderInfoTableModel();
 		Component[] cmp = {
-			null, null, cbTenderTypes, null, null, null, null, null, null, cbBoolean, null, null, null,
+			null, null, cbTenderTypes, null, null, null, null, null, cbBoolean, null, null, null,
 			null, null, null, cbBoolean, null
 		};
 		JTable tblInfo = PropertiesTableModel.createTable(ptmInfo, cmp);
@@ -784,7 +788,7 @@ final public class MainFrame extends JFrame {
 
 	/** Ενεργοποιεί και απενεργοποιεί τις καρτέλες δαπανών στο παράθυρο του προγράμματος.
 	 * Αν δεν υπάρχει καμία ανοικτή δαπάνη απενεργοποιεί τις καρτέλες δαπανών. */
-	private void updatePanels() {
+	void updatePanels() {
 		boolean has = !data.isEmpty();
 		boolean con = has && data.expenditure.isConstruction();
 		JTabbedPane j = (JTabbedPane) getContentPane().getComponent(0);
@@ -959,10 +963,6 @@ final public class MainFrame extends JFrame {
 					if (data.onlyOnce) env.put("one", "true");
 					exportReport("Δαπάνη.php", env);
 				}),
-				/*createMenu("ΦΕ", new JMenuItem[] {
-					createMenuItem("Εφορία", (ActionEvent e) -> exportReport("ΦΕ για την Εφορία.php", null)),
-					createMenuItem("Προμηθευτής", (ActionEvent e) -> exportReport("ΦΕ για τον Προμηθευτή.php", null))
-				}),*/
 				createMenu("Αλληλογραφία", new JMenuItem[] {
 					createMenuItem("Συγκρότηση Επιτροπών", e ->
 							showDraftDialogExport("Δγη Συγκρότησης Επιτροπών.php",
@@ -997,7 +997,11 @@ final public class MainFrame extends JFrame {
 							statement("statement_representative")),
 					null,
 					createMenuItem("Κενή", e -> saveScriptOutput(
-							"<?php require('header.php'); require_once('statement.php'); statement(null); ?>\n\n}")),
+							"<?php require_once('statement.php'); init(1); statement(null); ?>\n\n}")),
+				}),
+				createMenu("ΦΕ", new JMenuItem[] {
+					createMenuItem("Εφορία", e -> exportReport("ΦΕ για την Εφορία.php", null)),
+					createMenuItem("Δικαιούχος", e -> exportReport("ΦΕ για τον Δικαιούχο.php", null))
 				}),
 				createMenu("Διάφορα", new JMenuItem[] {
 					createMenuItem("Κατάσταση Πληρωμής", e ->
@@ -1043,8 +1047,9 @@ final public class MainFrame extends JFrame {
 		doc.getItem(2).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
 		export.getItem(2).setEnabled(has);			// μενού Εξαγωγή/Σύμβαση
 		export.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Διαγωνισμοί
-		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
-		JMenu expenditures = getJMenuBar().getMenu(4);		// μενού Δαπάνες
+		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/ΦΕ
+		export.getItem(6).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
+		JMenu expenditures = getJMenuBar().getMenu(4);	// μενού Δαπάνες
 		expenditures.setEnabled(has);
 		// Ξαναδημιουργείται το μενού με όλες τις ανοικτές δαπάνες σαν επιλογές του
 		if (has) {
@@ -1294,8 +1299,10 @@ final public class MainFrame extends JFrame {
 	 * @param expenditure Η δαπάνη
 	 * @param flags Το τι θα εισάγει. Διάζευξη των IMPORT_*. */
 	static private void importData(Expenditure expenditure, int flags) {
-		if ((flags & IMPORT_PERSONNEL) != 0)
-			MainFrame.importData(expenditure.unitInfo);
+		if ((flags & IMPORT_PERSONNEL) != 0) {
+			MainFrame.importData(expenditure.unitInfo.getPersonnel());
+			MainFrame.importData(expenditure.getPersonnel());
+		}
 		if ((flags & IMPORT_DEDUCTIONS) != 0)
 			importFiltered(expenditure.invoices.stream().map(i -> i.getDeduction()), data.deductions);
 		if ((flags & IMPORT_CONTRACTORS) != 0)
@@ -1308,10 +1315,9 @@ final public class MainFrame extends JFrame {
 	 * έχει καταστραφεί το αρχείο ρυθμίσεων και έχουμε κρατημένα μερικά αρχεία δαπανών, μπορούμε να
 	 * επαναφέρουμε αρκετά πράγματα.
 	 * @param p Τα αμετάβλητα δεδομένα */
-	static private void importData(UnitInfo p) {
-		Stream.of(p.getPersonnel())
-				.filter(i -> i != null && !data.personnel.contains(i))
-				.forEach(i -> data.personnel.add(i));
+	static private void importData(Person[] p) {
+		Stream.of(p).filter(i -> i != null && !data.personnel.contains(i))
+					.forEach(i -> data.personnel.add(i));
 	}
 
 	/** Εισάγει τα στοιχεία της λίστας in στη λίστα out, αν δεν είναι null και δεν υπάρχουν ήδη στην out. */

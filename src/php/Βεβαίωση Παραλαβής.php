@@ -1,17 +1,16 @@
 <?php
-require_once('init.php');
-require_once('header.php');
+require_once('functions.php');
 
+init(6);
 $invoices = array();
 foreach($data['Δικαιούχοι'] as $per_contractor) {
 	if (isset($per_contractor['Σύμβαση'])) continue;
 	$invoices = array_merge($invoices, $per_contractor['Τιμολόγια']);
 }
-foreach(get_invoices_by_category($invoices) as $category => $invoices) {
+foreach(get_invoices_by_category($invoices) as $a => $invoices) {
 	// Τμήματα κειμένου που αλλάζουν μέσα στο πρωτόκολλο σχετικά με το είδος τιμολογίου
-	$a = $category == 'Προμήθεια Υλικών'
-			? array('προμηθειών', 'Προμηθειών', 'ΠΡΟΜΗΘΕΙΩΝ')
-			: array('υπηρεσιών', 'Υπηρεσιών', 'ΥΠΗΡΕΣΙΩΝ');
+	$a = $a ? array('προμηθειών', 'Προμηθειών', 'ΠΡΟΜΗΘΕΙΩΝ')
+			: array('υπηρεσιών',  'Υπηρεσιών',  'ΥΠΗΡΕΣΙΩΝ');
 	// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
 	$c = count($invoices) > 1 ? 'α' : 'ο';
 ?>
@@ -21,8 +20,8 @@ foreach(get_invoices_by_category($invoices) as $category => $invoices) {
 \pard\plain\qr <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\par\par
 \fs24\qc{\b ΒΕΒΑΙΩΣΗ ΠΑΡΑΛΑΒΗΣ <?=$a[2]?>}\par\par
 
-\qj Βεβαιώνεται η αγορά, παραλαβή και διάθεση για ικανοποίηση άμεσων αναγκών της Μονάδας, των αναγραφόμενων στ<?=$c?> υπ' αριθμόν <?=get_names_key($invoices, 'Τιμολόγιο')?> τιμολόγι<?=$c?> <?=$a[0]?> σύμφωνα με την Φ.092/235631/9 Αυγ 1982 Απόφαση ΥΦΕΘΑ και Φ.600.9/12/601600/Σ.129/13 Ιαν 2005/ΓΕΣ/ΔΟΙ/3γ.\par
-\pard\plain\qr\par <?=rtf($data['Έδρα']) . ', ' . strftime('%d %b %y', get_newer_invoice_timestamp($invoices))?>\par
+\qj Βεβαιώνεται η αγορά, παραλαβή και διάθεση για ικανοποίηση άμεσων αναγκών <?=rtf(article(gender($data['Μονάδα Πλήρες']), 1) . ' ' . inflectPhrase($data['Μονάδα Πλήρες'], 1))?>, των αναγραφόμενων στ<?=$c?> υπ' αριθμόν <?=get_names_key($invoices, 'Τιμολόγιο')?> τιμολόγι<?=$c?> <?=$a[0]?> σύμφωνα με την Φ.092/235631/9 Αυγ 1982 Απόφαση ΥΦΕΘΑ και Φ.600.9/12/601600/Σ.129/13 Ιαν 2005/ΓΕΣ/ΔΟΙ/3γ.\par
+\pard\plain\qr\par <?=rtf($data['Έδρα']) . ', ' . strftime('%d %b %y', get_newer_timestamp($invoices))?>\par
 
 \pard\plain\par
 \trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
@@ -36,6 +35,6 @@ foreach(get_invoices_by_category($invoices) as $category => $invoices) {
 
 <?php }
 
-unset($a, $c, $category, $invoices, $per_contractor);
+unset($a, $c, $invoices, $per_contractor);
 
 rtf_close(__FILE__);
