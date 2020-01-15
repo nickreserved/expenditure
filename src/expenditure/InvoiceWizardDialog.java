@@ -125,7 +125,7 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 				cbInvoiceType.setSelectedIndex(invoiceType = 0); //Προμήθεια υλικών
 
 			boolean fpa = contractor != 2 /*Όχι Στρατός*/;
-			double hold = 0, valueforfe = net;
+			double hold = 0;
 			int fe = 0;
 
 			// Υπολογισμός κρατήσεων
@@ -168,13 +168,14 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 			}
 
 			// Υπολογισμός του ΦΕ
+			double valueforfe = net * (1 - hold / 100);	// Όλες οι περιπτώσεις εκτός από παροχή υπηρεσιών σε κατασκευές
 			if (construction || net > 150 && contractor == 0 /*Ίδιώτης*/)
 				switch (invoiceType) {
 					case 0: /*Προμήθεια υλικών*/ fe = 4; break;
 					case 1: /*Παροχή υπηρεσιών*/
 						if (construction /*Κατασκευή έργου*/) {
 							fe = 3;
-							valueforfe -= Math.round(hold * net) / 100.0;
+							valueforfe = net;
 						} else fe = 8;
 						break;
 					case 2: /*Προμήθεια υγρών καυσίμων*/ fe = 1; break;

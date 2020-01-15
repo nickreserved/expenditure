@@ -129,7 +129,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "23 Αυγ 19";
+	static private final String VERSION = "15 Ιαν 20";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -326,7 +326,7 @@ final public class MainFrame extends JFrame {
 		// Το μοντέλο του πίνακα τιμολογίων.
 		String[] headers = { Invoice.H[0], Invoice.H[1], Invoice.H[2] + " ή Σύμβαση", Invoice.H[3], Invoice.H[4] };
 		ResizableTableModel<Invoice> rtmInvoices = new ResizableHeaderTableModel<Invoice>(headers) {
-			@Override protected List<Invoice> get() { return data.expenditure.invoices; }
+			@Override protected List<Invoice> get() { return data.expenditure == null ? null : data.expenditure.invoices; }
 			@Override protected Invoice createNew() { return new Invoice(data.expenditure); }
 			@Override public void remove(int index) {
 				data.expenditure.invoices.get(index).recalcRemove();
@@ -542,7 +542,7 @@ final public class MainFrame extends JFrame {
 		};
 		// Το μοντέλο του πίνακα συμβάσεων
 		rtmContracts = new ResizableHeaderTableModel<Contract>(headers) {
-			@Override protected List<Contract> get() { return data.expenditure.contracts; }
+			@Override protected List<Contract> get() { return data.expenditure == null ? null : data.expenditure.contracts; }
 			@Override protected Contract createNew() { return new Contract(data.expenditure); }
 			@Override protected void remove(int index) {
 				// Διαγράφονται μόνο οι συμβάσεις που δε χρησιμοποιούνται από κανένα τιμολόγιο
@@ -1079,7 +1079,7 @@ final public class MainFrame extends JFrame {
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
 				"Σελίδα: <b>http://ha-expenditure.sourceforge.net/</b><br><br>" +
-				"<center>Το πρόγραμμα είναι 15 ετών!</center>",
+				"Το πρόγραμμα είναι 16 ετών! Προγραμματίζω 26 έτη!",
 				getTitle(), PLAIN_MESSAGE);
 	}
 
