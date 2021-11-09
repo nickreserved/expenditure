@@ -63,18 +63,16 @@ final class Contract implements VariableSerializable, TableRecord {
 	}
 
 	/** Κόστος πάνω από το οποίο έχουμε συνοπτικό διαγωνισμό. */
-	static final private int CONCISE_PRICE = 20000;
+	static final private int TENDER_PRICE1 = 30000;
+	static final private int TENDER_PRICE2 = 60000;
 
 	/** Καθορίζει το είδος του διαγωνισμού ανάλογα με τη δοσμένη καθαρή αξία.
 	 * @param price Η συνολική καθαρή αξία όλων των τιμολογίων του ανάδοχου */
 	void calcTenderType(double price) {
-		if (tender == null) return;
-		Tender t = tender;
-		if (parent.isSmart() && !parent.isConstruction() && price <= CONCISE_PRICE) {
+		if (tender != null && parent.isSmart() && price <= TENDER_PRICE1) {
+			sub(tender.prices, prices);
 			tender = null;
-			sub(t.prices, prices);
 		}
-		t.setTenderType();
 	}
 
 	/** Επικεφαλίδες του αντίστοιχου πίνακα, αλλά και ονόματα πεδίων αποθήκευσης. */
@@ -120,14 +118,13 @@ final class Contract implements VariableSerializable, TableRecord {
 				if (value != tender) {
 					// Σε αυτόματους υπολογισμούς, αν θέσουμε αντικανονικό διαγωνισμό δε γίνεται δεκτός
 					if (parent.isSmart())
-						if (value == null && (parent.isConstruction() || prices[0] > CONCISE_PRICE)
-								|| value != null && !parent.isConstruction() && prices[0] <= CONCISE_PRICE)
+						if (value == null && prices[0] > TENDER_PRICE2
+								|| value != null && prices[0] <= TENDER_PRICE1)
 							break;
 					if (tender != null) sub(tender.prices, prices);
 					tender = (Tender) value;
 					if (tender != null) {
 						add(tender.prices, prices);
-						if (parent.isSmart()) tender.setTenderType();
 						addCompetitorIfNotExist();
 					}
 					parent.calcContents();

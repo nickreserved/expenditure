@@ -53,6 +53,7 @@ if ($data['Τύπος Χρηματοδότησης'] != 'Ιδίων Πόρων')
 \tab γ.\tab Αρμοδιότητας: Ε.Φ. <?=$data['ΕΦ']?>.\par
 3.\tab Κατά τα λοιπά ισχύουν<?=$contracts ? ' οι όροι ' . (count($contracts) == 1 ? 'της σύμβασης ' : 'των συμβάσεων ') . get_names($contracts) . ' και' : null?> οι διατάξεις του (ε) σχετικού νόμου.\par
 4.\tab Στοιχεία Αναθέτουσας Αρχής: <?=rtf($data['Μονάδα Πλήρες'] . ', ' . get_unit_info())?>.\par
+5.\tab Χειριστής θέματος: <?=personi($data['Αξκος Γραφείου'], 0)?>, τηλ. <?=rtf($data['Τηλέφωνο'])?>.\par
 <?php
 order_footer($output);
 order_recipient_table($to, array($data['Μονάδα']));

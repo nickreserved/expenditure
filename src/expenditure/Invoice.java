@@ -374,8 +374,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 		double net = calcPredicateNet(expenditure, pred);
 		// Έλεγχος αν απαιτείται η σύμβαση
 		Contract cact = contract;
-		if (net <= CONTRACT_PRICE && !expenditure.isConstruction()
-				|| contractor != null && contractor.getType() != Contractor.Type.PRIVATE_SECTOR) cact = null;
+		if (net <= CONTRACT_PRICE || contractor != null && contractor.getType() != Contractor.Type.PRIVATE_SECTOR) cact = null;
 		// Πιθανός επανυπολογισμός για όλα τα τιμολόγια της σύμβασης
 		recalcInvoicesGroupFromNet(expenditure, pred, net, cact, contractor);
 		// Αφού υπολογιστούν οι νέες τιμές, τίθεται το είδος του διαγωνισμού και από αυτό, το φύλλο καταχώρησης
@@ -395,8 +394,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 		double net = calcPredicateNet(expenditure, pred);
 		// Εύρεση ή δημιουργία ή αφαίρεση σύμβασης
 		Contract contract = null;
-		if ((net > CONTRACT_PRICE || expenditure.isConstruction())
-				&& contractor.getType() == Contractor.Type.PRIVATE_SECTOR) {
+		if (net > CONTRACT_PRICE && contractor.getType() == Contractor.Type.PRIVATE_SECTOR) {
 			contract = expenditure.contracts.stream()
 					.filter(i -> contractor.equals(i.getContractor()))
 					.findFirst().orElse(null);

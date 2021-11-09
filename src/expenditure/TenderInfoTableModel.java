@@ -12,14 +12,13 @@ public class TenderInfoTableModel extends PropertiesTableModel {
 	TenderInfoTableModel() {
 		super(new String[] {
 			"<html><b>Διαγωνισμός", "<html>Τίτλος Διαγωνισμού <font size=2><i>(αιτιατική)",
-			"Τύπος", Tender.H[2], Tender.H[3], Tender.H[4], Tender.H[5], Tender.H[6],
-			Tender.H[7], u(Tender.H[8]), Tender.H[9], Tender.H[10],
-			"<html><b>Κατακύρωση", u(Tender.H[11]), Tender.H[12], Tender.H[13], Tender.H[14]
+			Tender.H[1], Tender.H[2], Tender.H[3], Tender.H[4], Tender.H[5], Tender.H[6],
+			u(Tender.H[7]), Tender.H[8], Tender.H[9], "<html><b>Κατακύρωση", u(Tender.H[10]),
+			Tender.H[11], Tender.H[12], Tender.H[13]
 		}, 1);
 	}
 	@Override public boolean isCellEditable(int row, int col) {
-		return col != 0 && tender != null && row != 0 && row != 12
-				&& (!data.expenditure.isSmart() || row != 2);
+		return col != 0 && tender != null && row != 0 && row != 11;
 	}
 	@Override public TableRecord get(int index) { return tender; }
 	/** Θέτει το διαγωνισμό που εμφανίζεται στον πίνακα.

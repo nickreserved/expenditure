@@ -19,7 +19,7 @@ function rtf_close($file) {
 /** Εξάγει τις ιδιότητες της ενότητας κειμένου ενός στρατιωτικού εγγράφου. */
 function start_35_20() { ?>
 
-\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134\facingp\margmirror
+\sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1700\margbsxn1134\facingp\margmirror
 
 <?php }
 
@@ -529,13 +529,6 @@ function get_invoices_category($invoices) {
 	return $b[1] >= $b[0] ? 'προμήθεια' : 'υπηρεσία';
 }
 
-/** Επιστρέφει τον τύπο του διαγωνισμού.
- * @param array $tender Ο διαγωνισμός
- * @return string Ο τύπος του διαγωνισμού */
-function get_tender_type($tender) {
-	return $tender['Ανοικτή Διαδικασία'] ? 'Διαγωνισμός με Ανοικτή Διαδικασία' : 'Συνοπτικός Διαγωνισμός';
-}
-
 
 // ------------------------------------------------------------------------- ΠΛΗΡΟΦΟΡΙΕΣ ΝΑΙ/ΟΧΙ ---
 
@@ -544,8 +537,9 @@ function get_tender_type($tender) {
  * @return bool Υπάρχει στη δαπάνη απευθείας ανάθεση */
 function has_direct_assignment() {
 	global $data;
-	foreach($data['Τιμολόγια'] as $invoice)
-		if (!isset($invoice['Σύμβαση']['Διαγωνισμός'])) return true;
+	if ($data['Τιμές']['Καθαρή Αξία'] > 2500)
+		foreach($data['Τιμολόγια'] as $invoice)
+			if (!isset($invoice['Σύμβαση']['Διαγωνισμός'])) return true;
 	return false;
 }
 
@@ -565,9 +559,7 @@ function is_expenditure() {
 /** Επιστρέφει αν η αποσφράγιση των προσφορών θα γίνει σε δυο φάσεις.
  * @param array $tender Ο διαγωνισμός
  * @return boolean Η αποσφράγιση των προσφορών θα γίνει σε 2 φάσεις */
-function has_2_unseals($tender) {
-	return $tender['Ανοικτή Διαδικασία'] || isset($tender['Χρόνος Αποσφράγισης Οικονομικών Προσφορών']);
-}
+function has_2_unseals($tender) { return isset($tender['Χρόνος Αποσφράγισης Οικονομικών Προσφορών']); }
 
 
 // ---------------------------------------------------------------------------- ΛΙΣΤΑ ΣΕ ΠΡΟΤΑΣΗ ---

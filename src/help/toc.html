@@ -1,97 +1,103 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<meta charset="UTF-8"><meta name="author" content="Γκέσος Παύλος (ΣΣΕ 2002)">
+	<meta charset="UTF-8" /><meta name="author" content="Γκέσος Παύλος (ΣΣΕ 2002)" />
 	<title>Στρατιωτικές Δαπάνες</title>
+
+	<style>
+	   /* menu functionality */
+	   div.menu div { margin-left: 15px; }
+	   div.menu span.collapse { background-image: url('expand.gif'); }
+	   div.menu span:hover { filter: invert(100%); }
+	   div.menu span { background-image: url('collapse.gif'); background-repeat: no-repeat; padding-left: 15px; position: relative; top: 6px; }
+	   div.menu span.collapse+a+br+div { display: none; }
+	   div.menu *:not(span)+a, div.menu a:first-child { margin-left: 15px; }
+	   /* menu stylish */
+	   body { background-color: #ffe; font-family: Tahoma; }
+	   h1 { font-size: 100%; }
+	   div.menu a { color: black; text-decoration: none; font-size: 90%; padding: 0 1px; }
+	   div.menu a:hover { border: black 1px solid; background-color: gainsboro; padding: 0; }
+	   div.menu a:active { border: blue 1px solid; background-color: powderblue; padding: 0; }
+   </style>
+
+	<base target="content" />
+    
 </head>
 
+
+<body>
+  
+
 <script>
+<!--
 function menuClick(e) {
 	if ('SPAN' == e.nodeName) swap(e);
 	else if ('A' == e.nodeName && e.href == '') swap(e.previousSibling);
 }
 function swap(e) { e.className = e.className == 'collapse' ? '' : 'collapse'; }
-</script>
+-->
+</script>  
 
-<style>
-	/* menu functionality */
-	div.menu div { margin-left: 15px; }
-	div.menu span.collapse { background-image: url('expand.gif'); }
-	div.menu span:hover { filter: invert(100%); }
-	div.menu span { background-image: url('collapse.gif'); background-repeat: no-repeat; padding-left: 15px; position: relative; top: 6px; }
-	div.menu span.collapse+a+br+div { display: none; }
-	div.menu *:not(span)+a, div.menu a:first-child { margin-left: 15px; }
-	/* menu stylish */
-	body { background-color: #ffe; font-family: Tahoma; }
-	h1 { font-size: 100%; }
-	div.menu a { color: black; text-decoration: none; font-size: 90%; padding: 0 1px; }
-	div.menu a:hover { border: black 1px solid; background-color: gainsboro; padding: 0; }
-	div.menu a:active { border: blue 1px solid; background-color: powderblue; padding: 0; }
-</style>
 
-<base target="content">
-
-<body>
 <h1>Στρατιωτικές Δαπάνες</h1>
 <div onclick="menuClick(event.target)" class="menu">
-	<span class="collapse"></span><a href="about.html">Γενικά</a><br><div>
-		<a href="about.html#what">Τι κάνει το πρόγραμμα</a><br>
-		<a href="about.html#who">Περί του Προγραμματιστή</a><br>
-		<a href="about.html#requirements">Απαιτήσεις</a><br>
-		<a href="about.html#lol">Το ανέκδοτο του προγράμματος</a><br>
+	<span class="collapse"></span><a href="about.html">Γενικά</a><br/><div>
+		<a href="about.html#what">Τι κάνει το πρόγραμμα</a><br/>
+		<a href="about.html#who">Περί του Προγραμματιστή</a><br/>
+		<a href="about.html#requirements">Απαιτήσεις</a><br/>
+		<a href="about.html#lol">Το ανέκδοτο του προγράμματος</a><br/>
 	</div>
-	<span class="collapse"></span><a href="license.html">Άδεια Χρήσης</a><br><div>
-		<a href="license.html#license">Άδεια χρήσης</a><br>
-		<a href="license.html#bsd_en">BSD (Αγγλικά)</a><br>
-		<a href="license.html#bsd_gr">BSD (Ελληνικά)</a><br>
+	<span class="collapse"></span><a href="license.html">Άδεια Χρήσης</a><br/><div>
+		<a href="license.html#license">Άδεια χρήσης</a><br/>
+		<a href="license.html#bsd_en">BSD (Αγγλικά)</a><br/>
+		<a href="license.html#bsd_gr">BSD (Ελληνικά)</a><br/>
 	</div>
-	<span class="collapse"></span><a href="general.html">Διάφορα</a><br><div>
-		<a href="general.html#log">Το παράθυρο σφαλμάτων του PHP</a><br>
-		<a href="general.html#tables">Οι πίνακες</a><br>
-		<span class="collapse"></span><a href="general.html#run_close">Εκκίνηση και τερματισμός</a><br><div>
-			<a href="general.html#run">Εκκίνηση</a><br>
-			<a href="general.html#close">Τερματισμός και αυτόματη αποθήκευση</a><br>
+	<span class="collapse"></span><a href="general.html">Διάφορα</a><br/><div>
+		<a href="general.html#log">Το παράθυρο σφαλμάτων του PHP</a><br/>
+		<a href="general.html#tables">Οι πίνακες</a><br/>
+		<span class="collapse"></span><a href="general.html#run_close">Εκκίνηση και τερματισμός</a><br/><div>
+			<a href="general.html#run">Εκκίνηση</a><br/>
+			<a href="general.html#close">Τερματισμός και αυτόματη αποθήκευση</a><br/>
 		</div>
-		<a href="general.html#portable">Φορητή Εγκατάσταση</a><br>
-		<a href="general.html#commandline">Γραμμή εντολών</a><br>
-		<a href="general.html#contactus">Επικοινωνία</a><br>
+		<a href="general.html#portable">Φορητή Εγκατάσταση</a><br/>
+		<a href="general.html#commandline">Γραμμή εντολών</a><br/>
+		<a href="general.html#contactus">Επικοινωνία</a><br/>
 	</div>
-	<span class="collapse"></span><a href="tabs.html">Καρτέλες</a><br><div>
-		<a href="tabs.html#expenditure">Στοιχεία δαπάνης</a><br>
-		<span class="collapse"></span><a href="tabs.html#invoices">Τιμολόγια</a><br><div>
-			<a href="tabs.html#invoices.invoices">Πίνακας τιμολογίων</a><br>
-			<a href="tabs.html#invoices.items">Πίνακας ειδών</a><br>
-			<a href="tabs.html#invoices.report">Εποπτικός πίνακας</a><br>
+	<span class="collapse"></span><a href="tabs.html">Καρτέλες</a><br/><div>
+		<a href="tabs.html#expenditure">Στοιχεία δαπάνης</a><br/>
+		<span class="collapse"></span><a href="tabs.html#invoices">Τιμολόγια</a><br/><div>
+			<a href="tabs.html#invoices.invoices">Πίνακας τιμολογίων</a><br/>
+			<a href="tabs.html#invoices.items">Πίνακας ειδών</a><br/>
+			<a href="tabs.html#invoices.report">Εποπτικός πίνακας</a><br/>
 		</div>
-		<a href="tabs.html#contracts">Συμβάσεις</a><br>
-		<span class="collapse"></span><a href="tabs.html#tenders">Διαγωνισμοί</a><br><div>
-			<a href="tabs.html#tenders.switch">Επιλογή διαγωνισμού</a><br>
-			<a href="tabs.html#tenders.info">Πίνακας στοιχείων διαγωνισμού</a><br>
-			<a href="tabs.html#tenders.competitors">Πίνακας στοιχείων ενδιαφερομένων</a><br>
+		<a href="tabs.html#contracts">Συμβάσεις</a><br/>
+		<span class="collapse"></span><a href="tabs.html#tenders">Διαγωνισμοί</a><br/><div>
+			<a href="tabs.html#tenders.switch">Επιλογή διαγωνισμού</a><br/>
+			<a href="tabs.html#tenders.info">Πίνακας στοιχείων διαγωνισμού</a><br/>
+			<a href="tabs.html#tenders.competitors">Πίνακας στοιχείων ενδιαφερομένων</a><br/>
 		</div>
-		<span class="collapse"></span><a href="tabs.html#contents">Φύλλο καταχώρησης</a><br><div>
-			<a href="tabs.html#contents.auto">Αυτόματα δικαιολογητικά</a><br>
-			<a href="tabs.html#contents.user">Δικαιολογητικά χρήστη</a><br>
+		<span class="collapse"></span><a href="tabs.html#contents">Φύλλο καταχώρησης</a><br/><div>
+			<a href="tabs.html#contents.auto">Αυτόματα δικαιολογητικά</a><br/>
+			<a href="tabs.html#contents.user">Δικαιολογητικά χρήστη</a><br/>
 		</div>
-		<span class="collapse"></span><a href="tabs.html#works">Εργασίες</a><br><div>
-			<a href="tabs.html#works.works">Λίστα εργασιών</a><br>
-			<a href="tabs.html#works.items">Λίστα υλικών</a><br>
+		<span class="collapse"></span><a href="tabs.html#works">Εργασίες</a><br/><div>
+			<a href="tabs.html#works.works">Λίστα εργασιών</a><br/>
+			<a href="tabs.html#works.items">Λίστα υλικών</a><br/>
 		</div>
-		<a href="tabs.html#unit">Στοιχεία Μονάδας</a><br>
-		<a href="tabs.html#contractors">Δικαιούχοι</a><br>
-		<a href="tabs.html#deductions">Κρατήσεις</a><br>
-		<a href="tabs.html#personnel">Προσωπικό Μονάδας</a><br>
+		<a href="tabs.html#unit">Στοιχεία Μονάδας</a><br/>
+		<a href="tabs.html#contractors">Δικαιούχοι</a><br/>
+		<a href="tabs.html#deductions">Κρατήσεις</a><br/>
+		<a href="tabs.html#personnel">Προσωπικό Μονάδας</a><br/>
 	</div>
-	<span class="collapse"></span><a href="menus.html">Menus</a><br><div>
-		<a href="menus.html#file">Αρχείο</a><br>
-		<a href="menus.html#export">Εξαγωγή</a><br>
-		<a href="menus.html#tools">Εργαλεία</a><br>
-		<a href="menus.html#options">Ρυθμίσεις</a><br>
-		<a href="menus.html#costs">Δαπάνες</a><br>
-		<a href="menus.html#help">Βοήθεια</a><br>
+	<span class="collapse"></span><a href="menus.html">Menus</a><br/><div>
+		<a href="menus.html#file">Αρχείο</a><br/>
+		<a href="menus.html#export">Εξαγωγή</a><br/>
+		<a href="menus.html#tools">Εργαλεία</a><br/>
+		<a href="menus.html#options">Ρυθμίσεις</a><br/>
+		<a href="menus.html#costs">Δαπάνες</a><br/>
+		<a href="menus.html#help">Βοήθεια</a><br/>
 	</div>
-	<a href="casestudy.html">Περίπτωση Δαπάνης</a><br>
+	<a href="casestudy.html">Περίπτωση Δαπάνης</a><br/>
 </div>
 </body>
 

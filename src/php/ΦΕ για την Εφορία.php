@@ -14,6 +14,7 @@ foreach($per_months as & $per_month)
 		'Τιμολόγια' => $per_month,
 		'Τιμές' => calc_sum_of_invoices_prices($per_month)
 	);
+unset($per_month); // Αν δεν απαλοιφθεί η αναφορά εδώ, το τελευταίο στοιχείο του array θα γίνει ίδιο με το πρώτο, αμέσως παρακάτω:
 // Επανάληψη για κάθε μήνα
 foreach ($per_months as $date => $per_month) {
 ?>
@@ -21,7 +22,7 @@ foreach ($per_months as $date => $per_month) {
 \sectd\pgwsxn11906\pghsxn16838\marglsxn850\margrsxn850\margtsxn1134\margbsxn1134
 
 \pard\plain\fs21\trowd\cellx7370\cellx10206
-Προς τη ΔΟΥ\line Περίοδος:  <?=$date?>\cell
+Προς τη ΔΟΥ\line Περίοδος: <?=$date?>\cell
 Δήλωση:\line Αριθμός Φακέλου:\line Φορ. Μητρώο:\cell\row
 
 \pard\plain\qc{\b Δ Η Λ Ω Σ Η}\par\par

@@ -143,7 +143,7 @@ final class Expenditure implements VariableSerializable, TableRecord {
 				invoices.add(new Invoice(this, i));
 		}
 		// Ανάγνωση φύλλου καταχώρησης (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
-		cfg = calcContentConfiguration();
+		cfg = hasTenders();
 		ContentItem.unserialize(node.getField(H[19]).getArray(), cfg, contents);
 	}
 
@@ -298,13 +298,13 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * επιλογές των εγγραφών του φύλλου καταχώρησης, καθώς και τα οριζόμενα από το χρήστη
 	 * δικαιολογητικά. */
 	void calcContents() {
-		if (cfg ^ calcContentConfiguration())
+		if (cfg ^ hasTenders())
 			convertContents(contents, cfg = !cfg);
 	}
 
-	/** Δημιουργεί τα προκαθορισμένα περιεχόμενα της δαπάνης με βάση τον τύπο του διαγωνισμού.
-	 * @return Ο τύπος του φύλλου καταχώρησης. 0 για απευθείας ανάθεση, 1 για συνοπτικό διαγωνισμό. */
-	private boolean calcContentConfiguration() { return !tenders.isEmpty() | construction; }
+	/** Απαιτείται στη δημιουργία των προκαθορισμένων περιεχομένων της δαπάνης με βάση τον τύπο του διαγωνισμού.
+	 * @return Ο τύπος του φύλλου καταχώρησης. false για απευθείας ανάθεση, true για διαγωνισμό. */
+	private boolean hasTenders() { return !tenders.isEmpty(); }
 
 
 	/** Αντικαθιστά τα άσχημα "0" στα κελιά των πινάκων, με κενό.
