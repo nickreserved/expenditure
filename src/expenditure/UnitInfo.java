@@ -56,12 +56,6 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 	private Person tenderMemberA;
 	/** Β' Μέλος Επιτροπής ∆ιενέργειας ∆ιαγωνισµού και Αξιολόγησης Προσφορών. */
 	private Person tenderMemberB;
-	/** Πρόεδρος Επιτροπής Αξιολόγησης Ενστάσεων. */
-	private Person objectionChief;
-	/** Α' Μέλος Επιτροπής Αξιολόγησης Ενστάσεων. */
-	private Person objectionMemberA;
-	/** Β' Μέλος Επιτροπής Αξιολόγησης Ενστάσεων. */
-	private Person objectionMemberB;
 
 
 	/** Αρχικοποίηση του αντικειμένου. */
@@ -94,9 +88,6 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 		tenderChief      = p.tenderChief;
 		tenderMemberA    = p.tenderMemberA;
 		tenderMemberB    = p.tenderMemberB;
-		objectionChief   = p.objectionChief;
-		objectionMemberA = p.objectionMemberA;
-		objectionMemberB = p.objectionMemberB;
 	}
 
 	/** Αρχικοποιεί τα στοιχεία της Μονάδας από έναν node δεδομένων του unserialize().
@@ -128,9 +119,6 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 		tenderChief      = Person.create(node.getField(H[21]));
 		tenderMemberA    = Person.create(node.getField(H[22]));
 		tenderMemberB    = Person.create(node.getField(H[23]));
-		objectionChief   = Person.create(node.getField(H[24]));
-		objectionMemberA = Person.create(node.getField(H[25]));
-		objectionMemberB = Person.create(node.getField(H[26]));
 	}
 
 	/** Ονόματα πεδίων αποθήκευσης. */
@@ -140,8 +128,7 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 		"Δγη Συγκρότησης Επιτροπών",
 		"Πρόεδρος Παραλαβής Προμηθειών", "Α Μέλος Παραλαβής Προμηθειών", "Β Μέλος Παραλαβής Προμηθειών",
 		"Πρόεδρος Παραλαβής Υπηρεσιών", "Α Μέλος Παραλαβής Υπηρεσιών", "Β Μέλος Παραλαβής Υπηρεσιών",
-		"Πρόεδρος Διαγωνισμών", "Α Μέλος Διαγωνισμών", "Β Μέλος Διαγωνισμών",
-		"Πρόεδρος Ενστάσεων", "Α Μέλος Ενστάσεων", "Β Μέλος Ενστάσεων",
+		"Πρόεδρος Διαγωνισμών", "Α Μέλος Διαγωνισμών", "Β Μέλος Διαγωνισμών"
 	};
 
 	/** Επιστρέφει array με όλα τα πρόσωπα που εμπλέκονται στα αμετάβλητα στοιχεία.
@@ -152,8 +139,7 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 			commander, deputy_commander, operator, accountant,
 			supplyChief, supplyMemberA, supplyMemberB,
 			serviceChief, serviceMemberA, serviceMemberB,
-			tenderChief, tenderMemberA, tenderMemberB,
-			objectionChief, objectionMemberA, objectionMemberB
+			tenderChief, tenderMemberA, tenderMemberB
 
 		};
 	}
@@ -183,9 +169,6 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 		if (tenderChief != null)      fields.add(H[21], tenderChief);
 		if (tenderMemberA != null)    fields.add(H[22], tenderMemberA);
 		if (tenderMemberB != null)    fields.add(H[23], tenderMemberB);
-		if (objectionChief != null)   fields.add(H[24], objectionChief);
-		if (objectionMemberA != null) fields.add(H[25], objectionMemberA);
-		if (objectionMemberB != null) fields.add(H[26], objectionMemberB);
 	}
 
 	@Override public Object getCell(int index) {
@@ -215,10 +198,7 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 			case 22: return serviceMemberB;
 			case 23: return tenderChief;
 			case 24: return tenderMemberA;
-			case 25: return tenderMemberB;
-			case 26: return objectionChief;
-			case 27: return objectionMemberA;
-			default: return objectionMemberB;
+			default: return tenderMemberB;
 		}
 	}
 
@@ -250,9 +230,6 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 			case 23: tenderChief      = (Person) value; break;
 			case 24: tenderMemberA    = (Person) value; break;
 			case 25: tenderMemberB    = (Person) value; break;
-			case 26: objectionChief   = (Person) value; break;
-			case 27: objectionMemberA = (Person) value; break;
-			case 28: objectionMemberB = (Person) value; break;
 		}
 	}
 }

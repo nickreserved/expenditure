@@ -248,10 +248,6 @@ final class ContentItem implements VariableSerializable, TableRecord {
 				&& name == ci.name;
 	}
 
-	static final private ContentItem ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ
-			= new ContentItem("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST);
-	static final private ContentItem ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού
-			= new ContentItem("Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST);
 	static final private ContentItem ΑπόσπασμαΠοινικούΜητρώου
 			= new ContentItem("Απόσπασμα Ποινικού Μητρώου", TYPE_LISTED | INIT_YESNO_YES);
 	static final private ContentItem ΦορολογικήΑσφαλιστικήΕνημερότητα
@@ -284,15 +280,15 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		new ContentItem("Πρωτόκολλο Προσωρινής και Οριστικής Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
 		new ContentItem("Πρωτόκολλο Παραλαβής Αφανών Εργασιών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
 		new ContentItem("Οριστική και Αναλυτική Επιμέτρηση", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
-		new ContentItem("Βεβαίωση Εκτέλεσης του Έργου από Οπλίτες", TYPE_LISTED_EXPORTED | INIT_YESNO_YES)	// Έργο
+		new ContentItem("Βεβαίωση Εκτέλεσης του Έργου από Οπλίτες", TYPE_LISTED_EXPORTED | INIT_YESNO_YES),	// Έργο
+		new ContentItem("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST),
+		new ContentItem("Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST)
 	};
 
 	/** Τα έντυπα του Υποφακέλου Β, Δικαιολογητικά Απευθείας Ανάθεσης. */
 	static private final ContentItem[] FOLDER_B_DIRECT_ASSIGNMENT = {
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Β»: ΔΙΚΑΙΟΛΟΓΗΤΙΚΑ ΑΠΕΥΘΕΙΑΣ ΑΝΑΘΕΣΗΣ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
 		ΑπόφασηΑπευθείαςΑνάθεσης,
-		ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ,
-		ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού,
 		ΑπόσπασμαΠοινικούΜητρώου,			// καθαρή αξία > 2500
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,	// καταλογιστέο > 1500 και καταλογιστέο > 3000 && καθαρή αξία > 2500
 		// καθαρή αξία > 2500
@@ -314,8 +310,6 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		new ContentItem("Πρακτικό Ελέγχου Δικαιολογητικών Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		ΑπόσπασμαΠοινικούΜητρώου,
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,
-		ΥπεύθυνηΔήλωσηMηΧρησιμοποίησηςΑντιπροσώπουΕταιρίαςΑξκουΕΔ,
-		ΥπεύθυνηΔήλωσηΓνωστοποίησηςΤραπεζικούΛογαριασμού,
 		new ContentItem("Δικαιολογητικά Κατακύρωσης Προσωρινού Αναδόχου", TYPE_LISTED | INIT_YES_FIXED),
 
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Δ»: ΚΑΤΑΚΥΡΩΣΗ ΔΙΑΓΩΝΙΣΜΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),

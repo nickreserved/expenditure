@@ -129,7 +129,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "11 Νοε 21";
+	static private final String VERSION = "27 Νοε 22";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -265,8 +265,7 @@ final public class MainFrame extends JFrame {
 			UnitInfo.H[10], UnitInfo.H[11], UnitInfo.H[12], UnitInfo.H[13],
 			"<html><b>Στοιχεία Επιτροπών Δαπάνων",
 			UnitInfo.H[14], UnitInfo.H[15], UnitInfo.H[16], UnitInfo.H[17], UnitInfo.H[18],
-			UnitInfo.H[19], UnitInfo.H[20], UnitInfo.H[21], UnitInfo.H[22], UnitInfo.H[23],
-			UnitInfo.H[24], UnitInfo.H[25], UnitInfo.H[26]
+			UnitInfo.H[19], UnitInfo.H[20], UnitInfo.H[21], UnitInfo.H[22], UnitInfo.H[23]
 		};
 		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της Μονάδας.
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
@@ -768,10 +767,8 @@ final public class MainFrame extends JFrame {
 
 	/** Δημιουργεί το panel με τον πίνακα του προσωπικού της Μονάδας / Υπηρεσίας. */
 	private JScrollPane createPanelPersonnel() {
-		// Οι επικεφαλίδες του πίνακα προσωπικού
-		String[] headers = { Person.H[0], Person.H[1], "<html>Μονάδα <font size=2><i>(γενική με άρθρο)" };
 		// Το μοντέλο του πίνακα προσωπικού
-		rtmPersonnel = new ResizableHeaderTableModel<Person>(headers) {
+		rtmPersonnel = new ResizableHeaderTableModel<Person>(Person.H) {
 			@Override protected List<Person> get() { return data.personnel; }
 			@Override protected Person createNew() { return new Person(); }
 		};
@@ -1078,8 +1075,11 @@ final public class MainFrame extends JFrame {
 				"<font size=3>Έκδοση " + VERSION + "</font></b></center><br>" +
 				"Προγραμματισμός: <b>Γκέσος Παύλος (ΣΣΕ 2002)</b><br>" +
 				"Άδεια χρήσης: <b>BSD</b><br>" +
-				"Σελίδα: <b>http://ha-expenditure.sourceforge.net/</b><br><br>" +
-				"Το πρόγραμμα είναι 16 ετών! Προγραμματίζω 26 έτη!",
+				"Σελίδα λήψης: <b>http://ha-expenditure.sourceforge.net/</b><br>" +
+				"Σελίδα υποστήριξης: <b>https://www.facebook.com/haexpenditure/</b><br>" +
+				"Ηλεκτρονικό ταχυδρομείο: <b>gessos.paul@gmail.com</b><br><br>" +
+				"Στείλτε τυχόν σφάλματα ή παραλείψεις του προγράμματος<br>προκειμένου να διορθώνονται.<br><br>" +
+				"Η πρώτη έκδοση του προγράμματος ήταν το 2004!",
 				getTitle(), PLAIN_MESSAGE);
 	}
 

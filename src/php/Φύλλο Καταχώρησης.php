@@ -5,14 +5,21 @@ init(8);
 if (!function_exists('contents_subfolder')) {
 
 /** Εξάγει την εγγραφή ενός υποφακέλου.
- * @param array $content_item Η καταχώρηση περιεχομένων
- * @return Ο αριθμός υποφακέλου στη μορφή 'Α2' */
+ * @param array $content_item Η καταχώρηση περιεχομένων */
 function contents_subfolder($content_item) {
-	global $countA;
+	global $data, $countA;
 	$name = $content_item['Δικαιολογητικό'];
-	$pos = strpos($name, '»', 13);
-	$countA = substr($name, 12, $pos - 12);
-	$name = substr($name, $pos + 3);
+	$a = substr($name, 13 - 1, 1);
+	// Εδώ κάνουμε μια χακιά γιατί στις δαπάνες ήσσονος σημασίας δεν πρέπει να εμφανίζεται
+	// Υποφάκελος «Β».
+	// Από τη μια όμως τυχόν Φορολογική Ενημερότητα στις Απευθείας Αναθέσεις πάει στον Υποφάκελο «Β»
+	// και από την άλλη, αν δεν υπάρχει Φορολογική Ενημερότητα, εμφανίζεται ένας Υποφάκελος «Β»
+	// χωρίς καθόλου περιεχόμενα.
+	// Η αντιμετώπιση είναι, αν έχουμε δαπάνη ήσσονος σημασίας, να ανήκουν όλα στον Υποφάκελο «Α»
+	// και να μην υπάρχει Υποφάκελος «Β».
+	if (!isset($data['Συμβάσεις']) && $a == 'Β') return;
+	$countA = $a;
+	$name = substr($name, 13 + 3);
 	echo '\cell\cell\b\line ' . $countA . '\cell\line ' . $name . '\b0\cell\cell\row' . PHP_EOL;
 }
 
@@ -240,7 +247,7 @@ function contents_debit_affirmation($content_item) {
 <? $c2 = ob_get_flush(); ?>
 \qc\b Α/Α\cell ΕΚΔΟΤΗΣ\cell Α/Υ\cell ΠΕΡΙΛΗΨΗ ΕΓΓΡΑΦΟΥ\cell ΠΑΡ.\b0\cell\row
 <?php
-echo '\trowd' . $c2 . '\qj ' . PHP_EOL;
+echo '\trowd' . $c2 . PHP_EOL . '\qj ';
 
 foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 	if (!$content_item['Καταχώρηση']) continue;
@@ -265,9 +272,13 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Κατακύρωση Διαγωνισμού':
 			case 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου': contents_order_tender($content_item, true); break;
 			case 'Διακήρυξη Διαγωνισμού': contents_order_tender($content_item, false); break;
-			case 'Απόφαση Απευθείας Ανάθεσης': if (!has_direct_assignment()) break; // else continue
-			case 'Απόφαση Ανάληψης Υποχρέωσης':
-			case 'Δγη Συγκρότησης Επιτροπών': contents_order($content_item, $data[$content_item['Δικαιολογητικό']]); break;
+			case 'Απόφαση Απευθείας Ανάθεσης':
+				if (has_direct_assignment()) contents_order($content_item, $data[$name]);
+				break;
+			case 'Δγη Συγκρότησης Επιτροπών':
+				if (isset($data['Συμβάσεις'])) contents_order($content_item, $data[$name]);
+				break;
+			case 'Απόφαση Ανάληψης Υποχρέωσης': contents_order($content_item, $data[$name]); break;
 			case 'Βεβαίωση Εκτέλεσης του Έργου από Οπλίτες':
 				if (has_service_category($data['Τιμολόγια'])) break; // else continue
 			case 'Πρωτόκολλο Παραλαβής Αφανών Εργασιών':

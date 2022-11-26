@@ -5,6 +5,7 @@ import util.PhpSerializer.Node;
 import util.PhpSerializer.VariableFields;
 import util.PhpSerializer.VariableSerializable;
 import util.ResizableTableModel.TableRecord;
+import static util.ResizableTableModel.getLong;
 import static util.ResizableTableModel.getString;
 
 /** Τα στοιχεία ενός προσώπου της Μονάδας / Υπηρεσίας. */
@@ -13,8 +14,8 @@ final class Person implements VariableSerializable, TableRecord {
 	private String rank;
 	/** Ονοματεπώνυμο. */
 	private String name;
-	/** Μονάδα στην οποία ανήκει, σε γενική μορφή με άρθρο. Π.χ. του 3 ΛΜΧ. */
-	private String unit;
+	/** ΑΜ. */
+	private long id;
 
 	/** Αρχικοποίηση του αντικειμένου. */
 	Person() {}
@@ -26,7 +27,7 @@ final class Person implements VariableSerializable, TableRecord {
 		if (!node.isObject()) throw new Exception("Για πρόσωπο, αναμένονταν αντικείμενο");
 		rank = node.getField(H[0]).getString();
 		name = node.getField(H[1]).getString();
-		unit = node.getField(H[2]).getString();
+		id = node.getField(H[2]).getInteger();
 	}
 
 	/** Αρχικοποιεί ένα πρόσωπο από έναν node δεδομένων του unserialize().
@@ -39,7 +40,7 @@ final class Person implements VariableSerializable, TableRecord {
 
 	/** Ονόματα πεδίων αποθήκευσης.
 	 * Αν αλλάξει οτιδήποτε, πρέπει να αναπροσαρμοστεί η κλήση MainFrame.createPersonnelPanel() */
-	static final String[] H = { "Βαθμός", "Ονοματεπώνυμο", "Μονάδα" };
+	static final String[] H = { "Βαθμός", "Ονοματεπώνυμο", "ΑΜ" };
 
 	@Override public String toString() { return rank + " " + name; }
 
@@ -47,7 +48,7 @@ final class Person implements VariableSerializable, TableRecord {
 		if (o == this) return true;
 		else if (o instanceof Person) {
 			Person person = (Person) o;
-			return Objects.equals(rank, person.rank) && Objects.equals(name, person.name);
+			return Objects.equals(rank, person.rank) && Objects.equals(name, person.name) && id == person.id;
 		} else return false;
 	}
 
@@ -55,31 +56,31 @@ final class Person implements VariableSerializable, TableRecord {
 		int hash = 7;
 		hash = 83 * hash + Objects.hashCode(rank);
 		hash = 83 * hash + Objects.hashCode(name);
+		hash = 83 * hash + (int) id;
 		return hash;
 	}
 
 	@Override public void serialize(VariableFields fields) {
-		if (rank != null) fields.add (H[0], rank);
-		if (name != null) fields.add (H[1], name);
-		if (unit != null) fields.add (H[2], unit);
+		if (rank != null) fields.add(H[0], rank);
+		if (name != null) fields.add(H[1], name);
+		if (id != 0)      fields.add(H[2], id);
 	}
 
-	@Override public String getCell(int index) {
+	@Override public Object getCell(int index) {
 		switch(index) {
 			case 0: return rank;
 			case 1: return name;
-			default: return unit;
+			default: return id == 0 ? "" : id;
 		}
 	}
 
 	@Override public void setCell(int index, Object value) {
-		String s = getString(value);
 		switch(index) {
-			case 0: rank = s; break;
-			case 1: name = s; break;
-			case 2: unit = s; break;
+			case 0: rank = getString(value); break;
+			case 1: name = getString(value); break;
+			case 2: id = getLong(value); break;
 		}
 	}
 
-	@Override public boolean isEmpty() { return rank == null && name == null && unit == null; }
+	@Override public boolean isEmpty() { return rank == null && name == null && id == 0; }
 }

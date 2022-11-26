@@ -5,35 +5,27 @@ init(6);
 $invoices = array();
 foreach($data['Δικαιούχοι'] as $per_contractor) {
 	if (isset($per_contractor['Σύμβαση'])) continue;
-	$invoices = array_merge($invoices, $per_contractor['Τιμολόγια']);
-}
-foreach(get_invoices_by_category($invoices) as $a => $invoices) {
-	// Τμήματα κειμένου που αλλάζουν μέσα στο πρωτόκολλο σχετικά με το είδος τιμολογίου
-	$a = $a ? array('προμηθειών', 'Προμηθειών', 'ΠΡΟΜΗΘΕΙΩΝ')
-			: array('υπηρεσιών',  'Υπηρεσιών',  'ΥΠΗΡΕΣΙΩΝ');
-	// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
-	$c = count($invoices) > 1 ? 'α' : 'ο';
+	$invoices = $per_contractor['Τιμολόγια'];
+
+	foreach(get_invoices_by_category($invoices) as $a => $invoices) {
+		// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
+		$c = count($invoices) > 1 ? 'α' : 'ο';
 ?>
 
 \sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134\facingp\margmirror
 
-\pard\plain\qr <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\par\par
-\fs24\qc{\b ΒΕΒΑΙΩΣΗ ΠΑΡΑΛΑΒΗΣ <?=$a[2]?>}\par\par
+\pard\plain\qr <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\line <?=rtf($data['Έδρα']) . ', ' . strftime('%d %b %y', get_newer_timestamp($invoices))?>\par\par
+\fs24\qc{\b ΒΕΒΑΙΩΣΗ ΠΑΡΑΛΑΒΗΣ <?=$a ? 'ΠΡΟΜΗΘΕΙΩΝ' : 'ΥΠΗΡΕΣΙΩΝ'?>}\par\par
 
-\qj Βεβαιώνεται η αγορά, παραλαβή και διάθεση για ικανοποίηση άμεσων αναγκών <?=rtf(article(gender($data['Μονάδα Πλήρες']), 1) . ' ' . inflectPhrase($data['Μονάδα Πλήρες'], 1))?>, των αναγραφόμενων στ<?=$c?> υπ' αριθμόν <?=get_names_key($invoices, 'Τιμολόγιο')?> τιμολόγι<?=$c?> <?=$a[0]?> σύμφωνα με την Φ.092/235631/9 Αυγ 1982 Απόφαση ΥΦΕΘΑ και Φ.600.9/12/601600/Σ.129/13 Ιαν 2005/ΓΕΣ/ΔΟΙ/3γ.\par
-\pard\plain\qr\par <?=rtf($data['Έδρα']) . ', ' . strftime('%d %b %y', get_newer_timestamp($invoices))?>\par
-
+\qj Βεβαιώνεται η ποιοτική και ποσοτική παραλαβή <?=$a ? 'και παράδοση στον διαχειριστή υλικού, ' : ''?>των ακόλουθων ειδών, που αναγράφονται στ<?=$c?> υπ' αριθμόν <?=get_names_key($invoices, 'Τιμολόγιο')?> τιμολόγι<?=$c?> <?=$a ? 'προμήθειας υλικών' : 'παροχής υπηρεσιών'?> τα οποία παρείχε ο οικονομικός φορέας <?=rtf(get_contractor_id($per_contractor['Δικαιούχος']))?>.\par
+<?php report($invoices); ?>
 \pard\plain\par
-\trowd\trkeep\trqc\trautofit1\trpaddfl3\trpaddl113\trpaddfr3\trpaddr113
-\clftsWidth1\clNoWrap\cellx2929\clftsWidth1\clNoWrap\cellx5859\clftsWidth1\clNoWrap\cellx8788\qc
-ΘΕΩΡΗΘΗΚΕ\line - Ο -\line ΔΚΤΗΣ\line\line\line <?=rtf($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=rtf($data['Δκτης']['Βαθμός'])?>\cell
-\line - Ο -\line ΠΡΟΕΔΡΟΣ\line\line\line <?=rtf($data["Πρόεδρος Παραλαβής $a[1]"]['Ονοματεπώνυμο'])?>\line <?=rtf($data["Πρόεδρος Παραλαβής $a[1]"]['Βαθμός'])?>\cell
-\line - ΤΑ -\line ΜΕΛΗ\line\line\line <?=rtf($data["Α Μέλος Παραλαβής $a[1]"]['Ονοματεπώνυμο'])?>\line <?=rtf($data["Α Μέλος Παραλαβής $a[1]"]['Βαθμός'])?>
-\line\line\line <?=rtf($data["Β Μέλος Παραλαβής $a[1]"]['Ονοματεπώνυμο'])?>\line <?=rtf($data["Β Μέλος Παραλαβής $a[1]"]['Βαθμός'])?>\cell\row
+\pard\plain\qc\li4535 ΘΕΩΡΗΘΗΚΕ\line - Ο -\line ΔΚΤΗΣ\line\line\line <?=rtf($data['Δκτης']['Ονοματεπώνυμο'])?>\line <?=rtf($data['Δκτης']['Βαθμός'])?>\par
 
 \sect
 
 <?php }
+}
 
 unset($a, $c, $invoices, $per_contractor);
 
