@@ -31,8 +31,6 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	private Financing financing;
 	/** Τίτλος δαπάνης. */
 	private String title;
-	/** Η απόφαση απευθείας ανάθεσης. */
-	private String orderDirectAssignment;
 	/** Διαβιβαστικό της δαπάνης. */
 	private String orderTransport;
 	/** Κρατήσεις, ΦΕ και ΦΠΑ υπολογίζονται αυτόματα. */
@@ -105,38 +103,37 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		aae                   = node.getField(H[3]).getInteger();
 		financing             = Financing.valueOf(node.getField(H[4]).getString());
 		title                 = node.getField(H[5]).getString();
-		orderDirectAssignment = node.getField(H[6]).getString();
-		orderTransport        = node.getField(H[7]).getString();
-		smart                 = node.getField(H[8]).getBoolean();
-		projectManager        = Person.create(node.getField(H[9]));
-		acceptChief           = Person.create(node.getField(H[10]));
-		acceptMemberA         = Person.create(node.getField(H[11]));
-		acceptMemberB         = Person.create(node.getField(H[12]));
-		worksChief            = Person.create(node.getField(H[13]));
-		worksMember           = Person.create(node.getField(H[14]));
+		orderTransport        = node.getField(H[6]).getString();
+		smart                 = node.getField(H[7]).getBoolean();
+		projectManager        = Person.create(node.getField(H[8]));
+		acceptChief           = Person.create(node.getField(H[9]));
+		acceptMemberA         = Person.create(node.getField(H[10]));
+		acceptMemberB         = Person.create(node.getField(H[11]));
+		worksChief            = Person.create(node.getField(H[12]));
+		worksMember           = Person.create(node.getField(H[13]));
 		// Ανάγνωση εργασιών
-		Node n                = node.getField(H[15]);
+		Node n                = node.getField(H[14]);
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα εργασιών");
 			for (Node i : n.getArray())
 				works.add(new Work(i));
 		}
 		// Ανάγνωση διαγωνισμών (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
-		n                     = node.getField(H[16]);
+		n                     = node.getField(H[15]);
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα διαγωνισμών");
 			for (Node i : n.getArray())
 				tenders.add(new Tender(this, i));
 		}
 		// Ανάγνωση συμβάσεων (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
-		n                     = node.getField(H[17]);
+		n                     = node.getField(H[16]);
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα συμβάσεων");
 			for (Node i : n.getArray())
 				contracts.add(new Contract(this, i));
 		}
 		// Ανάγνωση τιμολογίων (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
-		n                     = node.getField(H[18]);
+		n                     = node.getField(H[17]);
 		if (n.isExist()) {
 			if (!n.isArray()) throw new Exception("Εσφαλμένη δομή στη λίστα τιμολογίων");
 			for (Node i : n.getArray())
@@ -144,13 +141,13 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		}
 		// Ανάγνωση φύλλου καταχώρησης (πρώτα οι διαγωνισμοί, μετά οι συμβάσεις, μετά τα τιμολόγια, μετά το φύλλο καταχώρησης)
 		cfg = hasTenders();
-		ContentItem.unserialize(node.getField(H[19]).getArray(), cfg, contents);
+		ContentItem.unserialize(node.getField(H[18]).getArray(), cfg, contents);
 	}
 
 	/** Ονόματα πεδίων αποθήκευσης. */
 	static final String[] H = {
 		"Απόφαση Ανάληψης Υποχρέωσης", "Έργο", "ΕΦ", "ΑΛΕ", "Τύπος Χρηματοδότησης", "Τίτλος",
-		"Απόφαση Απευθείας Ανάθεσης", "Διαβιβαστικό Δαπάνης", "Αυτόματοι Υπολογισμοί",
+		"Διαβιβαστικό Δαπάνης", "Αυτόματοι Υπολογισμοί",
 		"Αξκος Έργου", "Πρόεδρος Προσωρινής και Οριστικής Παραλαβής",
 		"Α Μέλος Προσωρινής και Οριστικής Παραλαβής", "Β Μέλος Προσωρινής και Οριστικής Παραλαβής",
 		"Πρόεδρος Αφανών Εργασιών", "Μέλος Αφανών Εργασιών",
@@ -181,14 +178,14 @@ final class Expenditure implements VariableSerializable, TableRecord {
 	 * θέλει να επιλέξει ένα πεδίο για εξαγωγή, χρησιμοποιεί την VariableFields.add(). */
 	@Override public void serialize(VariableFields fields) {
 		serializeC(fields);
-		fields.addListVariableSerializable(H[19], contents);
+		fields.addListVariableSerializable(H[18], contents);
 	}
 	/** Μετατρέπει τη δαπάνη σε php serialize string format, για αποθήκευση σε αρχείο.
 	 * @return Μετατροπέας του αντικειμένου java σε php serialize string format. */
 	VariableSerializable save() {
 		return fields -> {
 			serializeC(fields);
-			fields.addListSerializable(H[19], ContentItem.save(contents));
+			fields.addListSerializable(H[18], ContentItem.save(contents));
 		};
 	}
 	/** Καθορίζει τα πεδία του αντικειμένου που θα εξαχθούν σε php serialize string format.
@@ -204,19 +201,18 @@ final class Expenditure implements VariableSerializable, TableRecord {
 		if (aae != 0)                      fields.add(H[ 3], aae);
 		                                   fields.add(H[ 4], financing.toString());
 		if (title != null)                 fields.add(H[ 5], title);
-		if (orderDirectAssignment != null) fields.add(H[ 6], orderDirectAssignment);
-		if (orderTransport != null)        fields.add(H[ 7], orderTransport);
-		                                   fields.add(H[ 8], smart);
-		if (projectManager != null)        fields.add(H[ 9], projectManager);
-		if (acceptChief != null)           fields.add(H[10], acceptChief);
-		if (acceptMemberA != null)         fields.add(H[11], acceptMemberA);
-		if (acceptMemberB != null)         fields.add(H[12], acceptMemberB);
-		if (worksChief != null)            fields.add(H[13], worksChief);
-		if (worksMember != null)           fields.add(H[14], worksMember);
-		if (!works.isEmpty())              fields.addListVariableSerializable(H[15], works);
-		if (!tenders.isEmpty())            fields.addListVariableSerializable(H[16], tenders);
-		if (!contracts.isEmpty())          fields.addListVariableSerializable(H[17], contracts);
-		if (!invoices.isEmpty())           fields.addListVariableSerializable(H[18], invoices);
+		if (orderTransport != null)        fields.add(H[ 6], orderTransport);
+		                                   fields.add(H[ 7], smart);
+		if (projectManager != null)        fields.add(H[ 8], projectManager);
+		if (acceptChief != null)           fields.add(H[ 9], acceptChief);
+		if (acceptMemberA != null)         fields.add(H[10], acceptMemberA);
+		if (acceptMemberB != null)         fields.add(H[11], acceptMemberB);
+		if (worksChief != null)            fields.add(H[12], worksChief);
+		if (worksMember != null)           fields.add(H[13], worksMember);
+		if (!works.isEmpty())              fields.addListVariableSerializable(H[14], works);
+		if (!tenders.isEmpty())            fields.addListVariableSerializable(H[15], tenders);
+		if (!contracts.isEmpty())          fields.addListVariableSerializable(H[16], contracts);
+		if (!invoices.isEmpty())           fields.addListVariableSerializable(H[17], invoices);
 	}
 
 	@Override public Object getCell(int index) {
@@ -228,18 +224,17 @@ final class Expenditure implements VariableSerializable, TableRecord {
 			case 4: return a(aae);
 			case 5: return financing;
 			case 6: return title;
-			case 7: return orderDirectAssignment;
-			case 8: return orderTransport;
-			case 9: return null;	// Επικεφαλίδα «Αυτοματισμοί»
-			case 10: return smart ? NOYES[1] : NOYES[0];
-			case 11: return null; // Επικεφαλίδα «Επιτροπές Έργων»
-			case 12: return projectManager;
-			case 13: return acceptChief;
-			case 14: return acceptMemberA;
-			case 15: return acceptMemberB;
-			case 16: return worksChief;
-			case 17: return worksMember;
-			default: return unitInfo.getCell(index - 18);
+			case 7: return orderTransport;
+			case 8: return null;	// Επικεφαλίδα «Αυτοματισμοί»
+			case 9: return smart ? NOYES[1] : NOYES[0];
+			case 10: return null; // Επικεφαλίδα «Επιτροπές Έργων»
+			case 11: return projectManager;
+			case 12: return acceptChief;
+			case 13: return acceptMemberA;
+			case 14: return acceptMemberB;
+			case 15: return worksChief;
+			case 16: return worksMember;
+			default: return unitInfo.getCell(index - 17);
 		}
 	}
 
@@ -264,10 +259,9 @@ final class Expenditure implements VariableSerializable, TableRecord {
 				}
 				break;
 			case 6: title                 = getString(value); break;
-			case 7: orderDirectAssignment = getString(value); break;
-			case 8: orderTransport        = getString(value); break;
-			case 9: break;	// Επικεφαλίδα «Στοιχεία Δαπάνης»
-			case 10:		// Απενεργοποιεί/ενεργοποιεί τον έλεγχο δεδομένων στα τιμολόγια
+			case 7: orderTransport        = getString(value); break;
+			//case 8: break;	// Επικεφαλίδα «Στοιχεία Δαπάνης»
+			case 9:		// Απενεργοποιεί/ενεργοποιεί τον έλεγχο δεδομένων στα τιμολόγια
 				if ((value == NOYES[1]) != smart)
 					if (!smart) {
 						if (CANCEL_OPTION == showConfirmDialog(window,
@@ -281,14 +275,14 @@ final class Expenditure implements VariableSerializable, TableRecord {
 						invoices.forEach(i -> i.recalcFromSmart());
 					} else smart = false;
 				break;
-			//case 11: break;
-			case 12: projectManager   = (Person) value; break;
-			case 13: acceptChief      = (Person) value; break;
-			case 14: acceptMemberA    = (Person) value; break;
-			case 15: acceptMemberB    = (Person) value; break;
-			case 16: worksChief       = (Person) value; break;
-			case 17: worksMember      = (Person) value; break;
-			default: unitInfo.setCell(index - 18, value); break;
+			//case 10: break;
+			case 11: projectManager   = (Person) value; break;
+			case 12: acceptChief      = (Person) value; break;
+			case 13: acceptMemberA    = (Person) value; break;
+			case 14: acceptMemberB    = (Person) value; break;
+			case 15: worksChief       = (Person) value; break;
+			case 16: worksMember      = (Person) value; break;
+			default: unitInfo.setCell(index - 17, value); break;
 		}
 	}
 

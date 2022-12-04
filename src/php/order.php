@@ -38,7 +38,7 @@ function order_header_autorecipients($order, $to, $info, $output, $attached, $su
  * @param array $to Οι αποδέκτες προς ενέργεια
  * @param array|null $info Οι αποδέκτες προς κοινοποίηση
  * @return bool Οι αποδέκτες είναι αρκετοί άρα απαιτείται πίνακας αποδεκτών */
-function need_recipient_table($to, $info) { return (count($to) + is_array($info) ? count($info) : 0) > 5; }
+function need_recipient_table($to, $info) { return count($to) + (is_array($info) ? count($info) : 0) > 5; }
 
 /** Εξάγει το προ του κειμένου μέρος ενός στρατιωτικού εγγράφου, με πίνακα αποδεκτών.
  * @param array|null $order Τα στοιχεία της ταυτότητας του εγγράφου

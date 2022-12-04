@@ -127,7 +127,6 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 		appendix_footer($output);
 		echo '\sect' . PHP_EOL . PHP_EOL;
 
-		require('ΕΕΕΣ.php');
 		require('Οικονομική Προσφορά.php');
 		// Εξαγωγή κενής υπεύθυνης δήλωσης
 		statement_representative(array(

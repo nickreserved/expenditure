@@ -15,6 +15,10 @@ final class Contract implements VariableSerializable, TableRecord {
 	private String name;
 	/** Το θέμα της σύμβασης. */
 	private String title;
+	/** Πρόσκληση υποβολής προσφορών. */
+	private String callForOffers;
+	/** Η απόφαση απευθείας ανάθεσης. */
+	private String orderDirectAssignment;
 	/** Ο διαγωνισμός από τον οποίο προέκυψε η σύμβαση. */
 	private Tender tender;
 	/** Ο δικαιούχος με τον οποίο συνυπογράφεται η σύμβαση. */
@@ -44,10 +48,12 @@ final class Contract implements VariableSerializable, TableRecord {
 		if (!node.isObject()) throw new Exception("Για σύμβαση, αναμένονταν αντικείμενο");
 		name              = node.getField(H[0]).getString();
 		title             = node.getField(H[1]).getString();
-		Node n            = node.getField(H[2]);
+		callForOffers         = node.getField(H[2]).getString();
+		orderDirectAssignment = node.getField(H[3]).getString();
+		Node n            = node.getField(H[4]);
 		if (n.isInteger() && n.getInteger() < parent.tenders.size())
 			tender        = parent.tenders.get((int) n.getInteger());
-		n                 = node.getField(H[3]);
+		n                 = node.getField(H[5]);
 		// Σε διαγωνισμό, ο νικητής αποθηκεύεται ως index των διαγωνιζόμενων
 		if (tender == null) contractor = Contractor.create(n);
 		else if (n.isInteger() && n.getInteger() < tender.competitors.size())
@@ -76,7 +82,8 @@ final class Contract implements VariableSerializable, TableRecord {
 	}
 
 	/** Επικεφαλίδες του αντίστοιχου πίνακα, αλλά και ονόματα πεδίων αποθήκευσης. */
-	static final String[] H = { "Σύμβαση", "Τίτλος", "Διαγωνισμός", "Ανάδοχος" };
+	static final String[] H = { "Σύμβαση", "Τίτλος", "Πρόσκληση Υποβολής Προσφορών",
+								"Απόφαση Απευθείας Ανάθεσης", "Διαγωνισμός", "Ανάδοχος" };
 
 	/** Επιστρέφει τον ανάδοχο της σύμβασης. */
 	Contractor getContractor() { return contractor; }
@@ -86,35 +93,41 @@ final class Contract implements VariableSerializable, TableRecord {
 	@Override public String toString() { return name == null ? "Σύμβαση ανώνυμη" : "Σύμβαση " + name; }
 
 	@Override public void serialize(VariableFields fields) {
-		if (name != null)              fields.add(H[0], name);
-		if (title != null)             fields.add(H[1], title);
+		if (name != null)                  fields.add(H[0], name);
+		if (title != null)                 fields.add(H[1], title);
+		if (callForOffers != null)         fields.add(H[2], callForOffers);
+		if (orderDirectAssignment != null) fields.add(H[3], orderDirectAssignment);
 		if (tender != null) {
 			// Αν έχουμε διαγωνισμό, αποθηκεύεται με το index του
 			int idx = parent.tenders.indexOf(tender);
-			if (idx != -1)             fields.add(H[2], idx);
+			if (idx != -1)             fields.add(H[4], idx);
 			// Αν έχουμε διαγωνισμό ο νικητής αποθηκεύεται με το index των διαγωνιζόμενων
 			if (contractor != null)
 				for (int z = 0; z < tender.competitors.size(); ++z)
 					if (contractor.equals(tender.competitors.get(z).getContractor())) {
-						fields.add(H[3], z); break;
+						fields.add(H[5], z); break;
 					}
-		} else if (contractor != null) fields.add(H[3], contractor);
+		} else if (contractor != null) fields.add(H[5], contractor);
 	}
 
 	@Override public Object getCell(int index) {
 		switch(index) {
 			case 0: return name;
 			case 1: return title;
-			case 2: return tender;
+			case 2: return callForOffers;
+			case 3: return orderDirectAssignment;
+			case 4: return tender;
 			default: return contractor;
 		}
 	}
 
 	@Override public void setCell(int index, Object value) {
 		switch(index) {
-			case 0: name   = getString(value); break;
-			case 1: title  = getString(value); break;
-			case 2:
+			case 0: name                  = getString(value); break;
+			case 1: title                 = getString(value); break;
+			case 2: callForOffers         = getString(value); break;
+			case 3: orderDirectAssignment = getString(value); break;
+			case 4:
 				if (value != tender) {
 					// Σε αυτόματους υπολογισμούς, αν θέσουμε αντικανονικό διαγωνισμό δε γίνεται δεκτός
 					if (parent.isSmart())
@@ -130,7 +143,7 @@ final class Contract implements VariableSerializable, TableRecord {
 					parent.calcContents();
 				}
 				break;
-			case 3:
+			case 5:
 				contractor = (Contractor) value;
 				if (tender != null) addCompetitorIfNotExist();
 				break;
@@ -139,7 +152,8 @@ final class Contract implements VariableSerializable, TableRecord {
 
 	/** Η σύμβαση έχει όλα της τα πεδία κενά. */
 	@Override public boolean isEmpty() {
-		return name == null && title == null && tender == null && contractor == null;
+		return name == null && title == null && callForOffers == null
+				&& orderDirectAssignment == null && tender == null && contractor == null;
 	}
 
 	/** Προσθέτει τον ανάδοχο της σύμβασης, σαν διαγωνιζόμενο στο διαγωνισμό, αν δεν είναι ήδη. */

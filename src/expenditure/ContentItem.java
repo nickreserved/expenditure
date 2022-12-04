@@ -252,6 +252,12 @@ final class ContentItem implements VariableSerializable, TableRecord {
 			= new ContentItem("Απόσπασμα Ποινικού Μητρώου", TYPE_LISTED | INIT_YESNO_YES);
 	static final private ContentItem ΦορολογικήΑσφαλιστικήΕνημερότητα
 			= new ContentItem("Φορολογική και Ασφαλιστική Ενημερότητα", TYPE_LISTED | INIT_YES_FIXED);
+	static final private ContentItem ΥπεύθυνηΔήλωσηΕισφορώνΑσφάλισης
+			= new ContentItem("Υπεύθυνη Δήλωση Σχετικά με τους Οργανισμούς Κύριας και Επικουρικής Ασφάλισης που Καταβάλλονται Εισφορές", TYPE_LISTED | INIT_YES_FIXED);
+	static final private ContentItem ΥπεύθυνηΔήλωσηΔικαστικήςΑπόφασης
+			= new ContentItem("Υπεύθυνη Δήλωση Περί μη Έκδοσης Δικαστικής ή Διοικητικής Απόφασης με Τελεσίδικη και Δεσμευτική Ισχύ, για την Αθέτηση των Υποχρεώσεων, όσον Αφορά στην Καταβολή Φόρων ή Εισφορών Κοινωνικής Ασφάλισης", TYPE_LISTED | INIT_YES_FIXED);
+	static final private ContentItem ΠρόσκλησηΥποβολήςΠροσφορών
+			= new ContentItem("Πρόσκληση Υποβολής Προσφορών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES);
 	static final private ContentItem ΑπόφασηΑπευθείαςΑνάθεσης
 			= new ContentItem("Απόφαση Απευθείας Ανάθεσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES);
 	static final private ContentItem Σύμβαση
@@ -288,13 +294,12 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	/** Τα έντυπα του Υποφακέλου Β, Δικαιολογητικά Απευθείας Ανάθεσης. */
 	static private final ContentItem[] FOLDER_B_DIRECT_ASSIGNMENT = {
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Β»: ΔΙΚΑΙΟΛΟΓΗΤΙΚΑ ΑΠΕΥΘΕΙΑΣ ΑΝΑΘΕΣΗΣ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		ΠρόσκλησηΥποβολήςΠροσφορών,
 		ΑπόφασηΑπευθείαςΑνάθεσης,
 		ΑπόσπασμαΠοινικούΜητρώου,			// καθαρή αξία > 2500
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,	// καταλογιστέο > 1500 και καταλογιστέο > 3000 && καθαρή αξία > 2500
-		// καθαρή αξία > 2500
-		new ContentItem("Αποδεικτικά Μέσα για τη Διαπίστωση της Επάρκειας ή Μη, των Μέτρων Αυτοκάθαρσης", TYPE_LISTED | INIT_YESNO_NO),
-		// καθαρή αξία > 2500
-		new ContentItem("Αποδεικτικά μέσα ότι δεν Συντρέχουν οι Λόγοι Αποκλεισμού των Άρθρων 73 και 74 του Ν.4412/2016", TYPE_LISTED | INIT_YESNO_NO),
+		ΥπεύθυνηΔήλωσηΕισφορώνΑσφάλισης,	// καθαρή αξία > 2500
+		ΥπεύθυνηΔήλωσηΔικαστικήςΑπόφασης,	// καθαρή αξία > 2500
 		Σύμβαση,							// καθαρή αξία > 2500
 	};
 
@@ -310,9 +315,12 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		new ContentItem("Πρακτικό Ελέγχου Δικαιολογητικών Κατακύρωσης", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 		ΑπόσπασμαΠοινικούΜητρώου,
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,
+		ΥπεύθυνηΔήλωσηΕισφορώνΑσφάλισης,
+		ΥπεύθυνηΔήλωσηΔικαστικήςΑπόφασης,
 		new ContentItem("Δικαιολογητικά Κατακύρωσης Προσωρινού Αναδόχου", TYPE_LISTED | INIT_YES_FIXED),
 
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Δ»: ΚΑΤΑΚΥΡΩΣΗ ΔΙΑΓΩΝΙΣΜΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),
+		ΠρόσκλησηΥποβολήςΠροσφορών,	// Σε περίπτωση που έχουμε συνοπτικό διαγωνισμό και απευθείας ανάθεση μαζί
 		ΑπόφασηΑπευθείαςΑνάθεσης,	// Σε περίπτωση που έχουμε συνοπτικό διαγωνισμό και απευθείας ανάθεση μαζί
 		new ContentItem("Κατακύρωση Διαγωνισμού", TYPE_LISTED_EXPORTED | INIT_YESLIST_LIST),
 

@@ -23,7 +23,7 @@
                     <label>${src.dir}</label>
                     <type>php</type>
                     <location>${src.dir}/php</location>
-                    <encoding>ISO-8859-7</encoding>
+					<encoding>windows-1253</encoding>
                 </source-folder>
             </folders>
             <ide-actions>

@@ -140,9 +140,13 @@ final class UnitInfo implements VariableSerializable, TableRecord {
 			supplyChief, supplyMemberA, supplyMemberB,
 			serviceChief, serviceMemberA, serviceMemberB,
 			tenderChief, tenderMemberA, tenderMemberB
-
 		};
 	}
+	
+	/** Επιστρέφει το πλήρες όνομα της Μονάδας.
+	 * @returns Το πλήρες όνομα της Μονάδας */
+	String getUnitName() { return unitFull; }
+
 
 	@Override public void serialize(VariableFields fields) {
 		if (checkAuthority != null)   fields.add(H[ 0], checkAuthority);

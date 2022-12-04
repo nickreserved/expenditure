@@ -129,7 +129,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "27 Νοε 22";
+	static private final String VERSION = "05 Δεκ 22";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -496,35 +496,34 @@ final public class MainFrame extends JFrame {
 			JComboBox cbBoolean, JComboBox cbPersonnel) {
 		// Επικεφαλίδα του πίνακα στοιχείων δαπάνης
 		String[] expHeader = Stream.concat(Stream.of(new String[] {
-			"<html><b>Στοιχεία Δαπάνης",
-			Expenditure.H[0], "<html>" + Expenditure.H[1] + " <font size=2><i>(Πίστωση ΓΕΣ/Γ2)",
+			"<html><b>Στοιχεία Δαπάνης", Expenditure.H[0],
+			"<html>" + Expenditure.H[1] + " <font size=2><i>(Πίστωση ΓΕΣ/Γ2)",
 			"Ειδικός Φορέας (ΕΦ)", "Αναλυτικός Λογαριασμός Εσόδων/Εξόδων (ΑΛΕ)", Expenditure.H[4],
 			"<html>" + Expenditure.H[5] + " <font size=2><i>(αιτιατική)", Expenditure.H[6],
-			Expenditure.H[7], "<html><b>Αυτοματισμοί", Expenditure.H[8],
-			"<html><b>Στοιχεία Επιτροπών Έργων",
-			Expenditure.H[9], Expenditure.H[10], Expenditure.H[11], Expenditure.H[12],
-			Expenditure.H[13], Expenditure.H[14]
+			"<html><b>Αυτοματισμοί", Expenditure.H[7],
+			"<html><b>Στοιχεία Επιτροπών Έργων", Expenditure.H[8], Expenditure.H[9],
+			Expenditure.H[10], Expenditure.H[11], Expenditure.H[12], Expenditure.H[13]
 		}), Stream.of(unitHeader)).toArray(String[]::new);
 		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της δαπάνης.
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
 		Component[] expEditors = Stream.concat(Stream.of(new Component[] {
-			null, null, cbBoolean, null, null, new JComboBox(Financing.values()), null,
-			null, null, null, cbBoolean, null, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel,
-			cbPersonnel, cbPersonnel
+			null, null, cbBoolean, null, null, new JComboBox(Financing.values()), null, null,
+			null, cbBoolean,
+			null, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel
 		}), Stream.of(unitEditors)).toArray(Component[]::new);
 		// Ρύθμιση του πίνακα με τα στοιχεία δαπάνης
 		rtmExpenditure = new PropertiesTableModel(expHeader, 1) {
 			@Override public TableRecord get(int index) { return data.expenditure; }
 			@Override public boolean isCellEditable(int row, int col) {
-				return super.isCellEditable(row, col) && row != 0 && row != 9 && row != 11
-						&& row - 18 != 0 && row - 18 != 15;
+				return super.isCellEditable(row, col) && row != 0 && row != 8 && row != 10
+						&& row - 17 != 0 && row - 17 != 15;
 			}
 		};
 		// Ανανέωση πινάκων που τροποποιούνται λόγω αυτοματισμών
 		rtmExpenditure.addTableModelListener(e -> {
 			switch(e.getFirstRow()) {
-				case 12: window.rtmContracts.fireTableDataChanged();	// Αυτοματισμοί - no break
-				case 3: window.rtmContents.fireTableDataChanged(); break;	// Έργο
+				case 9: window.rtmContracts.fireTableDataChanged();		// Αυτοματισμοί - no break
+				case 2: window.rtmContents.fireTableDataChanged(); break;	// Έργο
 			}
 		});
 		return new JScrollPane(createTable(rtmExpenditure, expEditors));
@@ -537,7 +536,7 @@ final public class MainFrame extends JFrame {
 		// Οι επικεφαλίδες του πίνακα συμβάσεων
 		String[] headers = {
 			Contract.H[0], "<html>Τίτλος Σύμβασης <font size=2><i>(αιτιατική)",
-			Contract.H[2], Contract.H[3]
+			Contract.H[2], Contract.H[3], Contract.H[4], Contract.H[5]
 		};
 		// Το μοντέλο του πίνακα συμβάσεων
 		rtmContracts = new ResizableHeaderTableModel<Contract>(headers) {
@@ -553,14 +552,14 @@ final public class MainFrame extends JFrame {
 							"Αποτυχία διαγραφής της σύμβασης", ERROR_MESSAGE);
 			}
 			@Override public boolean isCellEditable(int row, int col) {
-				return !data.expenditure.isSmart() || col != 3;
+				return !data.expenditure.isSmart() || col != 5;
 			}
 		};
 		// Αλλαγή στο διαγωνισμό της σύμβασης τροποποιεί τον πίνακα αθροισμάτων τιμολογίων
 		rtmContracts.addTableModelListener(l -> {
 			switch(l.getColumn()) {
-				case 2: window.rtmReport.fireTableDataChanged(new TableModelEvent(window.rtmReport, 0, 6, 3));	// no break
-				case 3: window.rtmCompetitors.fireTableDataChanged(); break;
+				case 4: window.rtmReport.fireTableDataChanged(new TableModelEvent(window.rtmReport, 0, 6, 3));	// no break
+				case 5: window.rtmCompetitors.fireTableDataChanged(); break;
 			}
 		});
 		// Επιλογέας διαγωνισμού
@@ -572,8 +571,8 @@ final public class MainFrame extends JFrame {
 		cbTenders.setBorder(cbContractors.getBorder());
 		// Ο πίνακας και οι στήλες με τους επιλογείς
 		JTable tblContracts = createTable(rtmContracts, true, true);
-		tblContracts.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(cbTenders));
-		tblContracts.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(cbContractors));
+		tblContracts.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(cbTenders));
+		tblContracts.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(cbContractors));
 		return new JScrollPane(tblContracts);
 	}
 
@@ -964,6 +963,8 @@ final public class MainFrame extends JFrame {
 					createMenuItem("Συγκρότηση Επιτροπών", e ->
 							showDraftDialogExport("Δγη Συγκρότησης Επιτροπών.php",
 									data.isEmpty() ? data.unitInfo : data.expenditure)),
+					createMenuItem("Πρόσκληση Υποβολής Προσφορών", e ->
+							showDraftDialogExport("Πρόσκληση Υποβολής Προσφορών.php")),
 					createMenuItem("Απόφαση Απευθείας Ανάθεσης", e ->
 							showDraftDialogExport("Απόφαση Απευθείας Ανάθεσης.php")),
 					createMenuItem("Διαβιβαστικό Δαπάνης", e ->
@@ -992,6 +993,8 @@ final public class MainFrame extends JFrame {
 					createMenuItem("Γνωστοποίηση τραπεζικού λογαριασμού", e -> statement("statement_IBAN")),
 					createMenuItem("Μη χρησιμοποίηση στρατιωτικού ως αντιπρόσωπου", e ->
 							statement("statement_representative")),
+					createMenuItem("Μη συνδρομή λόγων αποκλεισμού", e ->
+							statement("statement_disqualification")),
 					null,
 					createMenuItem("Κενή", e -> saveScriptOutput(
 							"<?php require_once('statement.php'); init(1); statement(null); ?>\n\n}")),
@@ -1041,9 +1044,12 @@ final public class MainFrame extends JFrame {
 		export.getItem(0).setEnabled(has);			// μενού Εξαγωγή/Δαπάνη
 		JMenu doc = (JMenu) export.getItem(1);		// μενού Εξαγωγή/Αλληλογραφία
 		doc.getItem(1).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
-		doc.getItem(2).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
+		doc.getItem(2).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
+		doc.getItem(3).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
 		export.getItem(2).setEnabled(has);			// μενού Εξαγωγή/Σύμβαση
 		export.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Διαγωνισμοί
+		JMenu statement = (JMenu) export.getItem(4);// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις
+		statement.getItem(2).setEnabled(has);		// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις/Μη συνδρομή λόγων αποκλεισμού
 		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/ΦΕ
 		export.getItem(6).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
 		JMenu expenditures = getJMenuBar().getMenu(4);	// μενού Δαπάνες
@@ -1497,13 +1503,14 @@ final public class MainFrame extends JFrame {
 	 * @param function Το αρχείο PHP που θα εκτελεστεί προκειμένου να εξαχθεί η Υπεύθυνη Δήλωση */
 	static private void statement(String function) {
 		VariableSerializable o;
+		TreeMap<String, String> env = new TreeMap<>();
 		if (data.isEmpty()) {
 			o = (Contractor) showInputDialog(window, "Επιλέξτε το δικαιούχο για τον οποίο θα βγει η Υπεύθυνη Δήλωση",
 					"Εξαγωγή Υπεύθυνης Δήλωσης", QUESTION_MESSAGE, null,
 					data.contractors.toArray(new Contractor[data.contractors.size()]), null);
 			if (o == null) return;
+			env.put("unit", data.unitInfo.getUnitName());
 		} else o = data.expenditure;
-		TreeMap<String, String> env = new TreeMap<>();
 		env.put("export", function);
 		exportReport("export.php", o, env);
 	}

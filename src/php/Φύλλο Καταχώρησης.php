@@ -76,14 +76,14 @@ function contents_acceptance_affirmation() {
 	}
 }
 
-/** Εξάγει τις εγγραφές των αποσπασμάτων ποινικών μητρώων. */
-function contents_criminal_record() {
+/** Εξάγει τις εγγραφές διαφόρων βεβαιώσεων και δηλώσεων των δικαιούχων. */
+function contents_contractor_certificate($certificate) {
 	global $data, $count, $countA;
 	foreach($data['Δικαιούχοι'] as $per_contractor) {
 		$contractor = $per_contractor['Δικαιούχος'];
 		if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας' && isset($per_contractor['Σύμβαση']))
 			echo ++$count . '\cell ' . rtf($contractor['Επωνυμία']) . '\cell ' . $countA
-				. '\cell Απόσπασμα Ποινικού Μητρώου\cell\cell\row' . PHP_EOL;
+				. '\cell ' . $certificate . '\cell\cell\row' . PHP_EOL;
 	}
 }
 
@@ -113,6 +113,18 @@ function contents_tax_insurrance_currency() {
 				echo ++$count . '\cell ' . rtf($contractor['Επωνυμία']) . '\cell ' . $countA
 					. '\cell Ασφαλιστική Ενημερότητα\cell\cell\row' . PHP_EOL;
 		}
+	}
+}
+
+/** Εξάγει διαταγές συμβάσεων.
+ * Οι διαταγές συμβάσεων είναι Πρόσκληση Υποβολής Προσφοράς και Απόφαση Απευθείας Ανάθεσης.
+ * @param array $content_item Τα στοιχεία μιας εγγραφής περιεχομένων */
+function contents_order_contract($content_item) {
+	global $data;
+	foreach($data['Συμβάσεις'] as $per_contract) {
+		$contract = $per_contract['Σύμβαση'];
+		if (!isset($contract['Διαγωνισμός']))
+			contents_order($content_item, $contract[$content_item['Δικαιολογητικό']]);
 	}
 }
 
@@ -260,7 +272,9 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Βεβαίωση Παραλαβής': contents_acceptance_affirmation(); break;
 			case 'ΑΔΔΥ':
 			case 'Βεβαίωση μη Χρέωσης Υλικών': contents_debit_affirmation($content_item); break;
-			case 'Απόσπασμα Ποινικού Μητρώου': contents_criminal_record(); break;
+			case 'Υπεύθυνη Δήλωση Σχετικά με τους Οργανισμούς Κύριας και Επικουρικής Ασφάλισης που Καταβάλλονται Εισφορές':
+			case 'Υπεύθυνη Δήλωση Περί μη Έκδοσης Δικαστικής ή Διοικητικής Απόφασης με Τελεσίδικη και Δεσμευτική Ισχύ, για την Αθέτηση των Υποχρεώσεων, όσον Αφορά στην Καταβολή Φόρων ή Εισφορών Κοινωνικής Ασφάλισης':
+			case 'Απόσπασμα Ποινικού Μητρώου': contents_contractor_certificate($name); break;
 			case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
 			case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ': contents_statement($content_item); break;
 			case 'Φορολογική και Ασφαλιστική Ενημερότητα': contents_tax_insurrance_currency(); break;
@@ -272,9 +286,8 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Κατακύρωση Διαγωνισμού':
 			case 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου': contents_order_tender($content_item, true); break;
 			case 'Διακήρυξη Διαγωνισμού': contents_order_tender($content_item, false); break;
-			case 'Απόφαση Απευθείας Ανάθεσης':
-				if (has_direct_assignment()) contents_order($content_item, $data[$name]);
-				break;
+			case 'Πρόσκληση Υποβολής Προσφορών':	
+			case 'Απόφαση Απευθείας Ανάθεσης': contents_order_contract($content_item); break;
 			case 'Δγη Συγκρότησης Επιτροπών':
 				if (isset($data['Συμβάσεις'])) contents_order($content_item, $data[$name]);
 				break;

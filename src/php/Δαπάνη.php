@@ -22,12 +22,11 @@ function export_subfolder($name) {
 
 }
 
-// Για να βγεί ακριβές αντίγραφο των διαταγών και όχι σχέδιο
+// Για να βγεί ακριβές αντίγραφο των διαταγών (true) και όχι σχέδιο (false)
+// Παράλληλα με το 'δαπάνη', πετυχαίνουμε το true και ταυτόχρονα ότι εξάγεται δαπάνη
 $output = 'δαπάνη';
 // Αν η ρύθμιση "Μόνο μια φορά" είναι ενεργή
 $onlyone = isset($_ENV['one']) && $_ENV['one'] == 'true';
-// Ενημερώνουμε ότι πρόκειται για δαπάνη
-$data['Δαπάνη'] = true;
 
 init(8);
 
@@ -38,9 +37,9 @@ foreach($data['Φύλλο Καταχώρησης'] as $paper_v)
 		$name = $paper_v['Δικαιολογητικό'];
 		switch($name) {
 			case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
-				statement_common('statement_IBAN'); break;
+				statement_common('statement_IBAN', $data['Μονάδα Πλήρες']); break;
 			case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ':
-				statement_common('statement_representative'); break;
+				statement_common('statement_representative', $data['Μονάδα Πλήρες']); break;
 			case 'Σύμβαση': export_contracts(); break;
 			case 'Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής': offer_unseal_reports(); break;
 			default:

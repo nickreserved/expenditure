@@ -6,12 +6,16 @@ $name = $_ENV['export'];
 switch($name) {
 	case 'statement_IBAN':
 	case 'statement_representative':
+	case 'statement_disqualification':
 		require_once('statement.php');
 		init(3);
 		if (isset($data['Έργο'])) {	// Υπάρχει ανοικτή δαπάνη
 			init(6);
-			statement_common($name);
-		} else $name($data);
+			statement_common($name, $data['Μονάδα Πλήρες']);
+		} else {
+			$data['Μονάδα Πλήρες'] = $_ENV['unit'];
+			$name($data);
+		}
 		break;
 	case 'statement_gui':
 		require_once('statement.php');

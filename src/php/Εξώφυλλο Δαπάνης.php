@@ -15,7 +15,7 @@ init(5);
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ÁËÅ:} <?=rtf(ifexist($data, 'ÁËÅ'))?>\par
 \pard\par
-\pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ĞÑÏÛĞÏËÏÃÉÆÏÌÅÍÇ ÁÎÉÁ ÄÁĞÁÍÇÓ (×ÙÑÉÓ ÖĞÁ):} <?=euro($data['Ôéìİò']['ÊáèáñŞ Áîßá'])?>\par
+\pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ÊÁÈÁÑÇ ÁÎÉÁ ÄÁĞÁÍÇÓ:} <?=euro($data['Ôéìİò']['ÊáèáñŞ Áîßá'])?>\par
 \pard\par
 \pard\plain\box\brdrs\brdrw1\brsp28\fs28 {\b ÊÁÔÁËÏÃÉÓÔÅÏ ĞÏÓÏ ÄÁĞÁÍÇÓ:} <?=euro($data['Ôéìİò']['Êáôáëïãéóôİï'])?>\par
 \pard\par

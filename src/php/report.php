@@ -133,3 +133,30 @@ foreach($invoices as $invoice)
 		?>\qr <?=++$count_items?>\cell\qj <?=rtf($item['Είδος'])?>\cell\qc <?=rtf($item['Μονάδα Mέτρησης'])?>\cell <?=num($item['Ποσότητα'])?>\cell\cell\cell\row
 <?php }
 }
+
+
+/** Εξάγει τα στοιχεία μιας έκθεσης, χωρίς τιμές.
+ * Χρησιμοποιείται αποκλειστικά στην στην πρόσκληση υποβολής προσφορών.
+ * @param array $invoices Λίστα με τα τιμολόγια της έκθεσης */
+function report_no_prices_no_sums2($invoices) {
+	$cells = <<<'EOD'
+\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
+\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx454
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx4366
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx5613
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx6916
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx8788
+
+EOD;
+?>
+\pard\plain\fs21
+\trowd\trhdr<?=$cells?>
+\qc\b A/A\cell ΠΕΡΙΓΡΑΦΗ\cell ΜΟΝΑΔΑ\line ΜΕΤΡΗΣΗΣ\cell ΠΟΣΟΤΗΤΑ\cell ΠΑΡΑΤΗΡΗΣΕΙΣ\b0\cell\row
+\trowd<?=$cells?>
+<?php
+$count_items = 0;
+foreach($invoices as $invoice)
+	foreach($invoice['Είδη'] as $item) {
+		?>\qr <?=++$count_items?>\cell\qj <?=rtf($item['Είδος'])?>\cell\qc <?=rtf($item['Μονάδα Mέτρησης'])?>\cell <?=num($item['Ποσότητα'])?>\cell\cell\row
+<?php }
+}
