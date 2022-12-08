@@ -121,11 +121,12 @@ function contents_tax_insurrance_currency() {
  * @param array $content_item Τα στοιχεία μιας εγγραφής περιεχομένων */
 function contents_order_contract($content_item) {
 	global $data;
-	foreach($data['Συμβάσεις'] as $per_contract) {
-		$contract = $per_contract['Σύμβαση'];
-		if (!isset($contract['Διαγωνισμός']))
-			contents_order($content_item, $contract[$content_item['Δικαιολογητικό']]);
-	}
+	if (isset($data['Συμβάσεις']))
+		foreach($data['Συμβάσεις'] as $per_contract) {
+			$contract = $per_contract['Σύμβαση'];
+			if (!isset($contract['Διαγωνισμός']))
+				contents_order($content_item, $contract[$content_item['Δικαιολογητικό']]);
+		}
 }
 
 /** Εξάγει τις εγγραφές των συμβάσεων. */
@@ -270,7 +271,6 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Τιμολόγια': contents_invoices(); break;
 			case 'Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής': contents_acceptance_protocol(); break;
 			case 'Βεβαίωση Παραλαβής': contents_acceptance_affirmation(); break;
-			case 'ΑΔΔΥ':
 			case 'Βεβαίωση μη Χρέωσης Υλικών': contents_debit_affirmation($content_item); break;
 			case 'Υπεύθυνη Δήλωση Σχετικά με τους Οργανισμούς Κύριας και Επικουρικής Ασφάλισης που Καταβάλλονται Εισφορές':
 			case 'Υπεύθυνη Δήλωση Περί μη Έκδοσης Δικαστικής ή Διοικητικής Απόφασης με Τελεσίδικη και Δεσμευτική Ισχύ, για την Αθέτηση των Υποχρεώσεων, όσον Αφορά στην Καταβολή Φόρων ή Εισφορών Κοινωνικής Ασφάλισης':
@@ -295,7 +295,7 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Βεβαίωση Εκτέλεσης του Έργου από Οπλίτες':
 				if (has_service_category($data['Τιμολόγια'])) break; // else continue
 			case 'Πρωτόκολλο Παραλαβής Αφανών Εργασιών':
-			case 'Πρωτόκολλο Προσωρινής και Οριστικής Παραλαβής Παραλαβής':
+			case 'Πρωτόκολλο Προσωρινής και Οριστικής Παραλαβής':
 			case 'Οριστική και Αναλυτική Επιμέτρηση':
 				if (!$data['Έργο']) break; // else continue
 			default: contents_default($content_item); break;

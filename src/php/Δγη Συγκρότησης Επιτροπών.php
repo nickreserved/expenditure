@@ -4,6 +4,8 @@ require_once('order.php');
 
 init(4);
 
+if (isset($data['Συμβάσεις'])) {
+
 start_35_20();
 order_publish(ifexist($data, 'Δγη Συγκρότησης Επιτροπών'));
 order_header(ifexist2($output, $data, 'Δγη Συγκρότησης Επιτροπών'), array('Μέλη Επιτροπών'),
@@ -65,5 +67,7 @@ order_header(ifexist2($output, $data, 'Δγη Συγκρότησης Επιτροπών'), array('Μέλη 
 \sect
 
 <?php
+
+} // if
 
 rtf_close(__FILE__);

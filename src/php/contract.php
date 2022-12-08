@@ -120,9 +120,11 @@ if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') {
 function export_contracts() {
 	global $data;
 	init(7);
-	foreach($data['Συμβάσεις'] as $per_contract) {
-		start_35_20();
-		export_contract($per_contract, true);
-		echo '\sect' . PHP_EOL . PHP_EOL;
-	}
+	if (isset($data['Συμβάσεις']))
+		foreach($data['Συμβάσεις'] as $per_contract) {
+			start_35_20();
+			export_contract($per_contract, true);
+			echo '\sect' . PHP_EOL . PHP_EOL;
+		}
+	else if (!is_expenditure()) trigger_error('Δεν υπάρχουν συμβάσεις', E_USER_ERROR);
 }

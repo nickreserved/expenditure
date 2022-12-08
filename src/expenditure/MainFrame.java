@@ -101,6 +101,7 @@ import static javax.swing.event.TableModelEvent.ALL_COLUMNS;
 import static javax.swing.event.TableModelEvent.DELETE;
 import static javax.swing.event.TableModelEvent.INSERT;
 import static javax.swing.event.TableModelEvent.UPDATE;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumnModel;
 import util.ComboDataModel;
 import util.ComboPlusOneDataModel;
@@ -129,7 +130,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "05 Δεκ 22";
+	static private final String VERSION = "09 Δεκ 22";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -388,6 +389,10 @@ final public class MainFrame extends JFrame {
 		// Όταν επιλέγουμε άλλο τιμολόγιο στον πίνακα τιμολογίων
 		tblInvoices.getSelectionModel().addListSelectionListener(e -> {
 			if (e.getValueIsAdjusting()) return;
+			// Αν υπάρχει κελί υπό επεξεργασία στον πίνακα με τα είδη του τιμολογίου,
+			// η επεξεργασία πρέπει να σταματήσει
+			TableCellEditor tce = tblItems.getCellEditor();
+			if (tce != null) tce.stopCellEditing();
 			// Εύρεση του επιλεγμένου τιμολογίου
 			int selection = window.tblInvoices.getSelectedRow();
 			List<Invoice> list = data.expenditure.invoices;
@@ -622,14 +627,10 @@ final public class MainFrame extends JFrame {
 		hBox.add(btnNew);
 		hBox.add(btnDelete);
 
-		// Πίνακας στοιχείων διαγωνισμού
-		// Οι τύποι διαγωνισμού
-		JComboBox cbTenderTypes = new JComboBox(new String[] { "Συνοπτικός Διαγωνισμός", "Ανοικτή Διαδικασία" });
-		cbTenderTypes.setBorder(cbBoolean.getBorder());
 		// Ο πίνακας με τα στοιχεία του διαγωνισμού
 		TenderInfoTableModel ptmInfo = new TenderInfoTableModel();
 		Component[] cmp = {
-			null, null, cbTenderTypes, null, null, null, null, null, cbBoolean, null, null, null,
+			null, null, null, null, null, null, null, cbBoolean, null, null, null,
 			null, null, null, cbBoolean, null
 		};
 		JTable tblInfo = PropertiesTableModel.createTable(ptmInfo, cmp);
@@ -706,6 +707,12 @@ final public class MainFrame extends JFrame {
 		// Όταν επιλέγουμε άλλο δικαιούχο στον πίνακα δικαιούχων
 		tblContractors.getSelectionModel().addListSelectionListener(e -> {
 			if (e.getValueIsAdjusting()) return;
+			// Αν υπάρχει κελί υπό επεξεργασία στον πίνακα με τα στοιχεία του δικαιούχου,
+			// η επεξεργασία πρέπει να σταματήσει
+			TableCellEditor tce = tblInfo.getCellEditor();
+			if (tce != null) tce.stopCellEditing();
+			// Ο πίνακας με τα στοιχεία του δικαιούχου,
+			// ενημερώνεται με τα στοιχεία του επιλεγμένου δικαιούχου
 			ptmInfo.setIndex(((ListSelectionModel) e.getSource()).getMinSelectionIndex());
 		});
 
@@ -1507,7 +1514,7 @@ final public class MainFrame extends JFrame {
 		if (data.isEmpty()) {
 			o = (Contractor) showInputDialog(window, "Επιλέξτε το δικαιούχο για τον οποίο θα βγει η Υπεύθυνη Δήλωση",
 					"Εξαγωγή Υπεύθυνης Δήλωσης", QUESTION_MESSAGE, null,
-					data.contractors.toArray(new Contractor[data.contractors.size()]), null);
+					data.contractors.toArray(new Contractor[0]), null);
 			if (o == null) return;
 			env.put("unit", data.unitInfo.getUnitName());
 		} else o = data.expenditure;
