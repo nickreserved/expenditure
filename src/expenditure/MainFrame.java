@@ -33,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import static java.lang.ClassLoader.getSystemResource;
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import java.net.ServerSocket;
@@ -130,13 +131,15 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "09 Δεκ 22";
+	static private final String VERSION = "11 Δεκ 22";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
 	static private final Charset GREEK = Charset.forName("windows-1253");
 	/** Επιλογές ναι - όχι. */
 	static final String[] NOYES = { "Όχι", "Ναι" };
+	/** Η πόρτα του server για επικοινωνία μεταξύ των εφαρμογών. */
+	static private final int SERVER_PORT = 6666;
 
 	// ==================================== ΟΛΑ ΤΑ ΔΕΔΟΜΕΝΑ ΤΟΥ ΠΡΟΓΡΑΜΜΑΤΟΣ ===
 
@@ -162,8 +165,8 @@ final public class MainFrame extends JFrame {
 	private ResizableHeaderTableModel rtmPersonnel;
 	/** Το μοντέλο δεδομένων του πίνακα με το φύλλο καταχώρησης της δαπάνης. */
 	private ContentsTableModel rtmContents;
-	/** Το μοντέλο δεδομένων του πίνακα των συμβάσεων. */
-	private ResizableTableModel<Contract> rtmContracts;
+	/** Το μοντέλο δεδομένων του πίνακα των ταυτοτήτων των συμβάσεων. */
+	private ResizableHeaderTableModel<Contract> rtmContracts;
 	/** Το μοντέλο δεδομένων του combobox των διαγωνισμών. */
 	private ComboDataModel<Tender> cdmTenders;
 	/** Το μοντέλο δεδομένων του πίνακα διαγωνιζόμενων. */
@@ -219,7 +222,7 @@ final public class MainFrame extends JFrame {
 			@Override protected List get() { return data.personnel; }
 		});
 		// Επιλογέας δικαιούχων / εργολάβων / προμηθευτών / ανάδοχων.
-		JComboBox cbContractors = new JComboBox(new ComboDataModel() {
+		JComboBox cbContractors = new JComboBox(new ComboPlusOneDataModel() {
 			@Override protected List get() { return data.contractors; }
 		});
 		// Επιλογέας true / false.
@@ -537,16 +540,12 @@ final public class MainFrame extends JFrame {
 	/** Δημιουργεί το panel με τον πίνακα των συμβάσεων.
 	 * @param cbContractors Επιλογέας οικονομικών φορέων.
 	 * @return Το panel με τον πίνακα συμβάσεων */
-	private JScrollPane createPanelContracts(JComboBox cbContractors) {
-		// Οι επικεφαλίδες του πίνακα συμβάσεων
-		String[] headers = {
-			Contract.H[0], "<html>Τίτλος Σύμβασης <font size=2><i>(αιτιατική)",
-			Contract.H[2], Contract.H[3], Contract.H[4], Contract.H[5]
-		};
-		// Το μοντέλο του πίνακα συμβάσεων
-		rtmContracts = new ResizableHeaderTableModel<Contract>(headers) {
+	private JSplitPane createPanelContracts(JComboBox cbContractors) {
+		// Ο πάροχος δεδομένων για τον πίνακα με τις ταυτότητες των συμβάσεων
+		rtmContracts = new ResizableHeaderTableModel<Contract>(Arrays.copyOf(Contract.H, 1)) {
 			@Override protected List<Contract> get() { return data.expenditure == null ? null : data.expenditure.contracts; }
 			@Override protected Contract createNew() { return new Contract(data.expenditure); }
+			@Override public boolean isCellEditable(int row, int col) { return false; }
 			@Override protected void remove(int index) {
 				// Διαγράφονται μόνο οι συμβάσεις που δε χρησιμοποιούνται από κανένα τιμολόγιο
 				List<Contract> list = get();
@@ -556,17 +555,9 @@ final public class MainFrame extends JFrame {
 				else showMessageDialog(window, "Η σύμβαση δε μπορεί να διαγραφεί όσο χρησιμοποιείται από τιμολόγια.",
 							"Αποτυχία διαγραφής της σύμβασης", ERROR_MESSAGE);
 			}
-			@Override public boolean isCellEditable(int row, int col) {
-				return !data.expenditure.isSmart() || col != 5;
-			}
 		};
-		// Αλλαγή στο διαγωνισμό της σύμβασης τροποποιεί τον πίνακα αθροισμάτων τιμολογίων
-		rtmContracts.addTableModelListener(l -> {
-			switch(l.getColumn()) {
-				case 4: window.rtmReport.fireTableDataChanged(new TableModelEvent(window.rtmReport, 0, 6, 3));	// no break
-				case 5: window.rtmCompetitors.fireTableDataChanged(); break;
-			}
-		});
+		// Ο πίνακας με τις ταυτότητες των συμβάσεων
+		JTable tblContracts = createTable(rtmContracts, true, true );
 		// Επιλογέας διαγωνισμού
 		JComboBox cbTenders = new JComboBox(new ComboPlusOneDataModel() {
 			@Override protected List get() {
@@ -574,11 +565,53 @@ final public class MainFrame extends JFrame {
 			}
 		});
 		cbTenders.setBorder(cbContractors.getBorder());
-		// Ο πίνακας και οι στήλες με τους επιλογείς
-		JTable tblContracts = createTable(rtmContracts, true, true);
-		tblContracts.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(cbTenders));
-		tblContracts.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(cbContractors));
-		return new JScrollPane(tblContracts);
+		// Ο πίνακας με τα στοιχεία της σύμβασης
+		String[] h = {
+			Contract.H[0], "<html>Τίτλος Σύμβασης <font size=2><i>(αιτιατική)", Contract.H[2],
+			"<html><b>Απευθείας Ανάθεση", Contract.H[3], Contract.H[4], Contract.H[5], Contract.H[6],
+			"<html><b>Διαγωνισμός", Contract.H[7]
+		};
+		ResizablePropertiesTableModel<Contract> ptmContractInfo = new ResizablePropertiesTableModel<Contract>(h) {
+			@Override protected List<Contract> get() { return data.expenditure == null ? null : data.expenditure.contracts; }
+			@Override protected Contract createNew() { return new Contract(data.expenditure); }
+			@Override public boolean isCellEditable(int row, int col) {
+				return super.isCellEditable(row, col)
+						&& row != 3 && row != 8 && (!data.expenditure.isSmart() || row != 2);
+			}
+		};
+		// Αλλαγή στο διαγωνισμό της σύμβασης τροποποιεί τον πίνακα αθροισμάτων τιμολογίων
+		ptmContractInfo.addTableModelListener(l -> {
+			switch(l.getFirstRow()) {
+				case 9: window.rtmReport.fireTableDataChanged(new TableModelEvent(window.rtmReport, 0, 6, 3));	// no break
+				case 2: window.rtmCompetitors.fireTableDataChanged(); break;
+			}
+		});
+		JTable tblInfo = PropertiesTableModel.createTable(ptmContractInfo, new Component[] {
+			null, null, cbContractors,
+			null, null, null, cbContractors, cbContractors,
+			null, cbTenders
+		});
+		// Αλλαγές στη λίστα με τις ταυτότητες των συμβάσεων από τον πίνακα στοιχείων της σύμβασης
+		ptmContractInfo.addSelectorTableModelListener(tblContracts);
+		// Όταν επιλέγουμε άλλη σύμβαση στον πίνακα με τις ταυτότητες των συμβάσεων
+		tblContracts.getSelectionModel().addListSelectionListener(e -> {
+			if (e.getValueIsAdjusting()) return;
+			// Αν υπάρχει κελί υπό επεξεργασία στον πίνακα με τα στοιχεία της σύμβασης,
+			// η επεξεργασία πρέπει να σταματήσει
+			TableCellEditor tce = tblInfo.getCellEditor();
+			if (tce != null) tce.stopCellEditing();
+			// Ο πίνακας με τα στοιχεία της σύμβασης,
+			// ενημερώνεται με τα στοιχεία της επιλεγμένης σύμβασης
+			ptmContractInfo.setIndex(((ListSelectionModel) e.getSource()).getMinSelectionIndex());
+		});
+
+		// Η τελική διαμόρφωση της καρτέλας
+		JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				new JScrollPane(tblContracts),
+				new JScrollPane(tblInfo));
+		sp.setDividerSize(3);
+		sp.setDividerLocation(100);
+		return sp;
 	}
 
 	/** Δημιουργεί ένα panel με τους πίνακες των διαγωνισμών.
@@ -1318,8 +1351,13 @@ final public class MainFrame extends JFrame {
 		}
 		if ((flags & IMPORT_DEDUCTIONS) != 0)
 			importFiltered(expenditure.invoices.stream().map(i -> i.getDeduction()), data.deductions);
-		if ((flags & IMPORT_CONTRACTORS) != 0)
+		if ((flags & IMPORT_CONTRACTORS) != 0) {
 			importFiltered(expenditure.invoices.stream().map(i -> i.getContractor()), data.contractors);
+			importFiltered(expenditure.contracts.stream().flatMap(i -> Stream.of(i.getContractors())),
+																					data.contractors);			
+			importFiltered(expenditure.tenders.stream().flatMap(i -> i.competitors.stream())
+													.map(j -> j.getContractor()), data.contractors);
+		}
 		if ((flags & IMPORT_UNIT_DATA) != 0) data.unitInfo = expenditure.unitInfo;
 	}
 
@@ -1740,7 +1778,7 @@ final public class MainFrame extends JFrame {
 	// ============================================================== SERVER ===
 
 	/** Εξασφαλίζει ότι μόνο μια παρουσία (instance) του προγράμματος εκτελείται.
-	 * Ανοίγει και διατηρεί ανοικτή, μια συγκεκριμένη πόρτα δικτύου (την 666) για να
+	 * Ανοίγει και διατηρεί ανοικτή, μια συγκεκριμένη πόρτα δικτύου (την SERVER_PORT) για να
 	 * ακούει. Αν αποτύχει να την ανοίξει, θεωρεί ότι κάποιο άλλο instance του προγράμματος τρέχει
 	 * ήδη και έχει προλάβει να ανοίξει αυτό, την συγκεκριμένη πόρτα. Στην περίπτωση αυτή, αν έχει
 	 * κληθεί με παράμετρο μια δαπάνη, για να την ανοίξει, τότε στέλνει στο instance που ακούει την
@@ -1754,7 +1792,8 @@ final public class MainFrame extends JFrame {
 		try { serverStart(); return true; }
 		catch(IOException e) {
 			for (String arg : filenames)
-				serverSend(arg.getBytes(UTF_8));
+			{System.out.println(arg);
+				serverSend(arg.getBytes(UTF_8));}
 			return false;
 		}
 	}
@@ -1763,11 +1802,11 @@ final public class MainFrame extends JFrame {
 	 * Αυτό επιτυγχάνεται στέλνοντας το byte 0 στο server. */
 	static private void serverKill() { serverSend(new byte[] { 0 }); }
 
-	/** Εγκαθιστά έναν server στο socket localhost:666.
+	/** Εγκαθιστά έναν server στο socket localhost:SERVER_PORT.
 	 * throws IOException Αν το socket έχει δεσμευτεί από άλλο instance του προγράμματος. */
 	static private void serverStart() throws IOException {
-		// Το socket που μένει ανοικτό. Η πόρτα 666 στον τοπικό υπολογιστή.
-		ServerSocket ss = new ServerSocket(666);
+		// Το socket που μένει ανοικτό. Η πόρτα SERVER_PORT στον τοπικό υπολογιστή.
+		ServerSocket ss = new ServerSocket(SERVER_PORT);
 		Runnable server = () -> {
 			for(;;)
 				try {
@@ -1779,12 +1818,20 @@ final public class MainFrame extends JFrame {
 		new Thread(server).start();
 	}
 
-	/** Στέλνει δεδομένα στο socket με πόρτα 666 του τρέχοντα υπολογιστή.
+	/** Στέλνει δεδομένα στο socket με πόρτα SERVER_PORT του τρέχοντα υπολογιστή.
 	 * Χρησιμοποιείται για να αποστείλει τη δαπάνη που πρέπει να ανοίξει το τρέχον instance, αλλά
 	 * δεν θα την ανοίξει επειδή υπάρχει ήδη άλλο ανοικτό instance που θα την ανοίξει εκείνο.
 	 * @param a Τα δεδομένα */
 	static private void serverSend(byte[] a) {
-		try { new Socket("127.0.0.1", 666).getOutputStream().write(a); }
+		try {
+			// Αν δεν γίνει flush και close, stream και socket, τότε συμβαίνει connection reset στο server
+			Socket s = new Socket("127.0.0.1", SERVER_PORT);
+			OutputStream os = s.getOutputStream();
+			os.write(a);
+			os.flush();
+			os.close();
+			s.close();
+		}
 		catch(IOException e) {}
 	}
 }

@@ -112,7 +112,7 @@ abstract public class ResizablePropertiesTableModel<T extends ResizableTableMode
 		if (index != -1) {
 			List<T> list = get();
 			record = index < list.size() ? list.get(index) : null;
-		}
+		} else record = null;
 		fireTableDataChanged();
 	}
 }
