@@ -1,21 +1,8 @@
 package expenditure;
 
-import static expenditure.Deduction.D0_06216;
-import static expenditure.Deduction.D0_13468;
-import static expenditure.Deduction.D0_26216;
-import static expenditure.Deduction.D0_33468;
 import static expenditure.Deduction.D14;
 import static expenditure.Deduction.D14_096;
-import static expenditure.Deduction.D14_15816;
-import static expenditure.Deduction.D14_23068;
-import static expenditure.Deduction.D14_35816;
-import static expenditure.Deduction.D14_43068;
 import static expenditure.Deduction.D4;
-import static expenditure.Deduction.D4_096;
-import static expenditure.Deduction.D4_15816;
-import static expenditure.Deduction.D4_23068;
-import static expenditure.Deduction.D4_35816;
-import static expenditure.Deduction.D4_43068;
 import expenditure.Expenditure.Financing;
 import java.awt.AWTEvent;
 import static java.awt.Color.WHITE;
@@ -119,6 +106,16 @@ import util.ResizableHeaderTableModel;
 import util.ResizablePropertiesTableModel;
 import util.ResizableTableModel;
 import static util.ResizableTableModel.createTable;
+import static expenditure.Deduction.D4_1996;
+import static expenditure.Deduction.D0_1036;
+import static expenditure.Deduction.D14_1996;
+import static expenditure.Deduction.D4_296;
+import static expenditure.Deduction.D4_3996;
+import static expenditure.Deduction.D0_2;
+import static expenditure.Deduction.D0_3036;
+import static expenditure.Deduction.D14_296;
+import static expenditure.Deduction.D14_3996;
+import static expenditure.Deduction.D4_096;
 
 /** Το κυρίως παράθυρο του προγράμματος.
  * Περιλαμβάνει τη main(). */
@@ -131,7 +128,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "11 Δεκ 22";
+	static private final String VERSION = "17 Δεκ 22";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -1496,8 +1493,8 @@ final public class MainFrame extends JFrame {
 	static private void importNewDeductions() {
 		if (!VERSION.equals(data.version)) {
 			Deduction[] deductions = {
-				D4, D4_096, D4_15816, D4_35816, D4_23068, D4_43068, D0_06216, D0_26216, D0_13468,
-				D0_33468, D14, D14_096, D14_15816, D14_35816, D14_23068, D14_43068
+				D4, D4_096, D4_296, D4_1996, D4_3996, D0_2, D0_1036,
+				D0_3036, D14, D14_096, D14_296, D14_1996, D14_3996
 			};
 			importFiltered(Stream.of(deductions), data.deductions);
 			data.version = VERSION;	// ανανέωση της έκδοσης στις ρυθμίσεις στην τρέχουσα
@@ -1824,13 +1821,14 @@ final public class MainFrame extends JFrame {
 	 * @param a Τα δεδομένα */
 	static private void serverSend(byte[] a) {
 		try {
-			// Αν δεν γίνει flush και close, stream και socket, τότε συμβαίνει connection reset στο server
-			Socket s = new Socket("127.0.0.1", SERVER_PORT);
-			OutputStream os = s.getOutputStream();
-			os.write(a);
-			os.flush();
-			os.close();
-			s.close();
+			try (
+				Socket s = new Socket("127.0.0.1", SERVER_PORT);
+				OutputStream os = s.getOutputStream();
+			) { // Αν δεν γίνει flush και close, stream και socket, τότε συμβαίνει connection reset στο server
+				os.write(a);
+				os.flush();
+				os.close();
+			}
 		}
 		catch(IOException e) {}
 	}

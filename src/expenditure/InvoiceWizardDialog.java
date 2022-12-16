@@ -40,7 +40,7 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 		bh = Box.createHorizontalBox();
 		bh.add(new JLabel("Τύπος δαπάνης:"));
 		bh.add(Box.createHorizontalStrut(5));
-		bh.add(cbCost = new JComboBox<>(new String[] { "Λοιπές (ΓΕΣ/ΔΥΠΟΣΤΗ)", "Έργο ΜΧ (ΓΕΣ/ΔΥΠΠΕ)" }));
+		bh.add(cbCost = new JComboBox<>(new String[] { "Λοιπές (ΓΕΣ/Γ3 [ΔΥΠΟΣΤΗ])", "Έργο ΜΧ (ΓΕΣ/Γ2 [ΔΥΠΠΕ])" }));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 
 		bh = Box.createHorizontalBox();
@@ -58,7 +58,9 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 		bh.add(Box.createHorizontalStrut(5));
 		bh.add(cbInvoiceType = new JComboBox<>(new String[] {
 			"Προμήθεια υλικών", "Παροχή υπηρεσιών", "Προμήθεια υγρών καυσίμων", "Μισθώματα ακινήτων",
-			"Λογαριασμοί ύδρευσης-αποχέτευσης ή έργα της ΔΕΗ", "Εκπόνηση μελετών"
+			"Λογαριασμοί ύδρευσης-αποχέτευσης ή έργα της ΔΕΗ",
+			"Εκπόνηση μελετών έργων χωροταξικών, πολεοδομικών, συγκοινωνιακών, υδραυλικών, τοπογραφικών, Διεύθυνση εκτέλεσης έργου",
+			"Εκπόνηση μελετών λοιπών έργων, Επίβλεψη έργου, Πραγματογνωμοσύνη έργου"
 		}));
 		bv.add(bh); bv.add(Box.createVerticalStrut(5));
 
@@ -111,13 +113,11 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 			if (financing == 2 /*Προϋπολογισμός ΠΔΕ*/ && contractor != 0 /*Ιδιώτης*/)
 					cbContractor.setSelectedIndex(contractor = 0); // Ιδιώτης
 
-			// Σε κατασκευαστικές δαπάνες, προμηθευτής είναι πάντα ιδιώτης
-			if (construction && contractor != 0 /*Όχι ιδιώτης*/)
-				cbContractor.setSelectedIndex(contractor = 0 /*Ιδιώτης*/);
 			// Σε κατασκευαστικές δαπάνες, τιμολόγια προμήθειας υλικών, παροχής υπηρεσιών ή εκπόνησης
 			// μελετών μόνο
 			if (construction && invoiceType != 0 /*Προμήθεια υλικών*/ &&
-					invoiceType != 1 /*Παροχή υπηρεσιών*/ && invoiceType != 5 /*Εκπόνηση μελετών*/)
+					invoiceType != 1 /*Παροχή υπηρεσιών*/ && invoiceType != 5 /*Εκπόνηση μελετών*/ &&
+					invoiceType != 6 /*Εκπόνηση μελετών*/)
 				cbInvoiceType.setSelectedIndex(invoiceType = 0 /*Προμήθεια υλικών*/);
 
 			// Σε δαπάνες που προμηθευτής είναι ο Στρατός, τα τιμολόγια είναι πάντα προμήθειας υλικών
@@ -139,16 +139,16 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 					}
 				else if (net >= 1000)
 					if (financing == 2 /*Π/Υ ΠΔΕ*/)
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 0.33468 : 0.13468;
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 0.3036 : 0.1036;
 					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 4.43068 : 4.23068;
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 4.3996 : 4.1996;
 						if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
 					}
 				else
 					if (financing == 2 /*Π/Υ ΠΔΕ*/)
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 0.26216 : 0.06216;
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 0.2 : 0;
 					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ ? 4.35816 : 4.15816;
+						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 4.296 : 4.096;
 						if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
 					}
 			} else if (contractor == 1 /*ΝΠΔΔ*/ || contractor == 2 /*Στρατος*/)
@@ -171,7 +171,8 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 			double valueforfe = net * (1 - hold / 100);	// Όλες οι περιπτώσεις εκτός από παροχή υπηρεσιών σε κατασκευές
 			if (construction || net > 150 && contractor == 0 /*Ίδιώτης*/)
 				switch (invoiceType) {
-					case 0: /*Προμήθεια υλικών*/ fe = 4; break;
+					case 0: /*Προμήθεια υλικών*/
+					case 5: /*Εκπόνηση μελετών*/ fe = 4; break;
 					case 1: /*Παροχή υπηρεσιών*/
 						if (construction /*Κατασκευή έργου*/) {
 							fe = 3;
@@ -181,42 +182,30 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 					case 2: /*Προμήθεια υγρών καυσίμων*/ fe = 1; break;
 					//case 3: /*Μισθώματα ακινήτων*/ fe = 0; break;
 					//case 4: /*Λογαριασμοί νερού/ΔΕΗ*/ fe = 0; break;
-					case 5: /*Εκπόνηση μελετών*/ fe = 4; break;
+					case 6: /*Εκπόνηση μελετών*/ fe = 10; break;
 				}
-
-			if (invoiceType == 5 /*Εκπόνηση μελετών*/)
-				sb.append("\nΑν η δαπάνη αφορά εκπόνηση σχεδίων ή μελέτης έργου πολιτικού ή"
-						+ " τοπογράφου μηχανικού, τότε:");
 
 			sb.append("\nΦΕ: ").append(fe).append("% της καθαρής αξίας");
 			if (fe != 3) sb.append(" μειον κρατήσεις");
 			sb.append(" (").append(Math.round(valueforfe * fe) / 100.0).append("€)\n");
 
-			if (invoiceType == 5 /*Εκπόνηση μελετών*/)
-				sb.append("Αν η δαπάνη αφορά εκπόνηση σχεδίων ή μελέτης άλλου επιστημονικού τομέα ή"
-						+ " αφορά επίβλεψη εφαρμογής μελέτης, τότε:\nΦΕ: 10% της καθαρής αξίας (")
-						.append(Math.round(valueforfe * 10) / 100.0).append("€)\n");
-
 			if (construction /*Κατασκευή Έργων*/ && invoiceType == 1 /*Παροχή Υπηρεσιών*/)
 				sb.append("\nΟ εργολάβος πρέπει να μας υποβάλει τα παρακάτω πρωτότυπα αποδεικτικά κατάθεσης, επί της καθαρής αξίας, για:\n"
-						+ "• 1% ΤΠΕΔΕ (").append(Math.round(net) / 100.0).append("€) στο λογαριασμό ______\n"
+						+ "• 0.1% ΤΠΕΔΕ (").append(Math.round(0.1 * net) / 100.0).append("€) στο λογαριασμό ______\n"
 						+ "• 0.6% Π.Ο. ΕΜΔΥΔΑΣ (").append(Math.round(0.6 * net) / 100.0).append("€) στο λογαριασμό ΙΒΑΝ GR5701100800000008000587009\n"
-						+ "• 0.25% ΤΜΕΔΕ (").append(Math.round(0.25 * net) / 100.0).append("€) στο λογαριασμό IBAN GR9601600650000000085153587, υπέρ των Μηχανικών ΤΕ της Π.Ο.ΜΗ.ΤΕ.ΔΥ. τακτικών υπαλλήλων (µονίµων ή αορίστου χρόνου) που απασχολούνται στο Δηµόσιο, Ν.Π.Δ.Δ. και στους ΟΤΑ Α' και Β' βαθµού\n"
-						+ "• Το χαρτόσημο και χαρτόσημο ΟΓΑ που αναλογεί στα παραπάνω.");
+						+ "• 0.25% Π.Ο. ΜΗΤΕΔΥ (").append(Math.round(0.25 * net) / 100.0).append("€) στο λογαριασμό του ΤΜΕΔΕ με IBAN GR9601600650000000085153587\n"
+						+ "• Το χαρτόσημο και χαρτόσημο ΟΓΑ που αναλογεί στο παραπάνω ΤΠΕΔΕ.");
 
 			if (contractor == 0 /*Ιδιώτης*/) {
 				if (net > 1500)
-					sb.append("\nΑπαιτείται Φορολογική Ενημερότητα του δικαιούχου"
-							+ " για «Πληρωμή από το Δημόσιο».");
+					sb.append("\nΑπαιτείται Φορολογική Ενημερότητα του δικαιούχου για «Πληρωμή από το Δημόσιο».");
 				else if (net > 1220)
-					sb.append("Αν το καταλογιστέο είναι πάνω από 1500€, απαιτείται Φορολογική "
-							+ "Ενημερότητα του δικαιούχου για «Πληρωμή από το Δημόσιο».");
+					sb.append("Αν το καταλογιστέο είναι πάνω από 1500€, απαιτείται Φορολογική Ενημερότητα του δικαιούχου για «Πληρωμή από το Δημόσιο».");
 				if (net > 2500)
 					sb.append("\nΑπαιτείται Ασφαλιστική Ενημερότητα του δικαιούχου."
 							+ "\nΑπαιτείται απόσπασμα ποινικού μητρώου του δικαιούχου.");
 				else if (net > 2419)
-					sb.append("\nΑν το καταλογιστέο είναι πάνω από 3000€, απαιτείται "
-							+ "Ασφαλιστική Ενημερότητα του δικαιούχου.");
+					sb.append("\nΑν το καταλογιστέο είναι πάνω από 3000€, απαιτείται Ασφαλιστική Ενημερότητα του δικαιούχου.");
 				if (net > 2500 || construction /*Κατασκευή Έργων*/)
 					sb.append("\nΑπαιτείται σύναψη σύμβασης με τον δικαιούχο.");
 			}
@@ -226,14 +215,12 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 				sb.append("\nΑπαιτείται διαγωνισμός, εκτός αν η δαπάνη είναι «κοινωνική».");
                         
 			if (net > 30000)
-				sb.append("\nΟ δικαιούχος δεν πρέπει να έχει αριθμό καταδικαστικών αποφάσεων"
-						+ " εργατικής φύσεως την τελευταία διετία");
+				sb.append("\nΟ δικαιούχος δεν πρέπει να έχει αριθμό καταδικαστικών αποφάσεων εργατικής φύσεως την τελευταία διετία");
 
 			tpInfo.setText(sb.toString());
 		} catch(NumberFormatException e) {
-			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το "
-					+ "τιμολόγιο αλλά και τη δαπάνη.\nΟι κρατήσεις και το ΦΕ υπολογίζονται βάση της "
-					+ "Φ.830/40/1173153/Σ.2320/23 Απρ 19/ΓΕΣ/ΔΟΙ.");
+			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη."
+					+ "\nΟι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/12/1250230/Σ.5988/06 Δεκ 22/ΓΕΣ/ΔΟΙ/3");
 		}
 	}
 }

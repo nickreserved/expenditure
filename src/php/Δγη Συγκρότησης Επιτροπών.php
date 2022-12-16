@@ -4,7 +4,7 @@ require_once('order.php');
 
 init(4);
 
-if (isset($data['Συμβάσεις'])) {
+if (!is_expenditure() || isset($data['Συμβάσεις'])) {
 
 start_35_20();
 order_publish(ifexist($data, 'Δγη Συγκρότησης Επιτροπών'));
