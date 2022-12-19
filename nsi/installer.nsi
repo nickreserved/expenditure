@@ -6,7 +6,7 @@ RequestExecutionlevel highest
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define NAME "expenditure"
-!define VERSION "2022.12.17"
+!define VERSION "2022.12.20"
 !define EXTENSION ".δαπάνη"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_VERSION "1.8"
@@ -75,7 +75,7 @@ Section
 	File ..\bsd.txt
 	File ..\history.txt
 	
-	SetOverwrite off
+	SetOverwrite IfNewer
 	File /r ..\runtime\php5
 	${If} $0 == ""				# Η απαιτούμενη έκδοση Java δεν είναι εγκατεστημένη
 	${If} $1 == "1"				# Ο χρήστης έχει δικαιώματα administrator

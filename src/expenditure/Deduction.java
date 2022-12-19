@@ -64,7 +64,7 @@ final class Deduction implements VariableSerializable, TableRecord {
 	static private ArrayList<String> createTableHeader() {
 		ArrayList<String> a = new ArrayList<>(15);
 		a.add("Σύνολο"); a.add("ΜΤΣ"); a.add("Χαρτόσημο"); a.add("ΟΓΑ");
-		a.add("ΕΑΑΔΗΣΥ"); a.add("ΑΕΠΠ"); a.add("ΒΑΜ"); a.add("ΕΚΟΕΜΣ");
+		a.add("ΕΑΔΗΣΥ"); a.add("ΒΑΜ"); a.add("ΕΚΟΕΜΣ");
 		return a;
 	}
 
