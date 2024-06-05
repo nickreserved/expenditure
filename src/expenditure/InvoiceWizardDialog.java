@@ -129,30 +129,19 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 			int fe = 0;
 
 			// Υπολογισμός κρατήσεων
-			if (invoiceType == 4 /*Λογαριασμοί νερού/ΔΕΗ*/) /*hold = 0*/;
+			if (invoiceType == 4 /*Λογαριασμοί νερού/ΔΕΗ*/ || financing == 2  /*Π/Υ ΠΔΕ*/) /*hold = 0*/;
 			else if (contractor == 0 /*Ιδιώτης*/) {
-				if (invoiceType == 3 /*Μισθώματα ακινήτων*/)
-					switch(financing) {
-						case 0: /*Τακτικός Π/Υ*/ hold = 4.096; break;
-						case 1: /*Ιδιοι πόροι*/ hold = 14.096; break;
-						//case 2: /*Π/Υ ΠΔΕ*/ hold = 0;
-					}
-				else if (net >= 1000)
-					if (financing == 2 /*Π/Υ ΠΔΕ*/)
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 0.3036 : 0.1036;
-					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 4.3996 : 4.1996;
-						if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
-					}
-				else
-					if (financing == 2 /*Π/Υ ΠΔΕ*/)
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 0.2 : 0;
-					else { //Τακτικός Π/Υ ή Ιδιοι πόροι
-						hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 4.296 : 4.096;
-						if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
-					}
+				// Τακτικός Π/Υ ή Ιδιοι πόροι
+				if (net >= 1000 && invoiceType != 3 /*ΟΧΙ Μισθώματα ακινήτων*/) {
+					hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 6.4876 : 6.2476;
+					if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
+				}
+				else {
+					hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 6.384 : 6.144;
+					if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
+				}
 			} else if (contractor == 1 /*ΝΠΔΔ*/ || contractor == 2 /*Στρατος*/)
-				hold = financing == 1 /*Ιδιοι πόροι*/ ? 14 : 4;
+				hold = financing == 1 /*Ιδιοι πόροι*/ ? 16 : 6;
 
 			StringBuilder sb = new StringBuilder(4096);
 			sb.append("Καθαρή Αξία: ").append(net).append("€");
@@ -220,7 +209,7 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 			tpInfo.setText(sb.toString());
 		} catch(NumberFormatException e) {
 			tpInfo.setText("Συμπληρώστε σωστά τα παραπάνω πεδία για να λάβετε πληροφορίες για το τιμολόγιο αλλά και τη δαπάνη."
-					+ "\nΟι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/12/1250230/Σ.5988/06 Δεκ 22/ΓΕΣ/ΔΟΙ/3");
+					+ "\nΟι κρατήσεις και το ΦΕ υπολογίζονται βάση της Φ.830/7/1466624/Σ.2868/31 Μαι 24/ΓΕΣ/ΔΟΙ.");
 		}
 	}
 }

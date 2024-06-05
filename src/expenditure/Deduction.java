@@ -63,40 +63,34 @@ final class Deduction implements VariableSerializable, TableRecord {
 	/** Δημιουργεί στατικά τη λίστα με τους τίτλους των επιμέρους κρατήσεων. */
 	static private ArrayList<String> createTableHeader() {
 		ArrayList<String> a = new ArrayList<>(15);
-		a.add("Σύνολο"); a.add("ΜΤΣ"); a.add("Χαρτόσημο"); a.add("ΟΓΑ");
+		a.add("Σύνολο"); a.add("ΜΤΣ"); a.add("ΕΛΟΑΣ"); a.add("Χαρτόσημο"); a.add("ΟΓΑ");
 		a.add("ΕΑΔΗΣΥ"); a.add("ΒΑΜ"); a.add("ΕΚΟΕΜΣ");
 		return a;
 	}
 
-	//                                                            Σύνολο,  ΜΤΣ,Χαρτόσημο,ΟΓΑ, ΕΑΔΗΣΥ,ΒΑΜ,ΕΚΟΕΜΣ
+	//                                                            Σύνολο,  ΜΤΣ,ΕΛΟΑΣ,Χαρτόσημο,ΟΓΑ, ΕΑΔΗΣΥ,ΒΑΜ,ΕΚΟΕΜΣ
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία &lt; 1000 και χρηματοδότηση τακτικού Π/Υ, μισθώματα ακινήτων με χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D4_096   = new Deduction(new double[] { 4.096,  4,     0.08,  0.016 });
+	static final Deduction D6_144   = new Deduction(new double[] { 6.144,  4,     2,     0.12,  0.024 });
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 1000 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D4_1996  = new Deduction(new double[] { 4.1996, 4,     0.083, 0.0166, 0.1 });
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία &lt; 1000 και χρηματοδότηση Π/Υ ΠΔΕ, λογαριασμοί νερού, έργα ΔΕΗ. */
+	static final Deduction D6_2476  = new Deduction(new double[] { 6.2476, 4,     2,     0.123, 0.0246, 0.1 });
+	/** Τιμολόγιο ιδιωτικού τομέα με χρηματοδότηση Π/Υ ΠΔΕ, λογαριασμοί νερού, έργα ΔΕΗ. */
 	static final Deduction D0       = new Deduction(new double[] { 0 });
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 1000 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_1036  = new Deduction(new double[] { 0.1036, 0,     0.003, 0.0006, 0.1 });
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία &lt; 1000 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D14_096  = new Deduction(new double[] {14.096,  4,     0.08,  0.016,  0,   2, 8 });
+	static final Deduction D16_144  = new Deduction(new double[] {16.144,  4,     2,     0.12,  0.024,  0,   2, 8 });
 	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 1000 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D14_1996 = new Deduction(new double[] {14.1996, 4,     0.083, 0.0166, 0.1, 2, 8 });
+	static final Deduction D16_2476 = new Deduction(new double[] {16.2476, 4,     2,     0.123, 0.0246, 0.1, 2, 8 });
 	/** Προμήθεια από Πρατήριο ή ΝΠΔΔ με χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D4       = new Deduction(new double[] { 4,      3.904, 0.08,  0.016 });
+	static final Deduction D6       = new Deduction(new double[] { 6,      3.904, 1.952, 0.12,  0.024 });
 	/** Τιμολόγιο από Πρατήριο ή ΝΠΔΔ και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D14      = new Deduction(new double[] { 14,     3.904, 0.08,  0.016,  0,   2, 8 });
+	static final Deduction D16      = new Deduction(new double[] { 16,     3.904, 1.952, 0.12,  0.024,  0,   2, 8 });
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου &lt; 2500 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D4_296   = new Deduction(new double[] { 4.296,  4,     0.28,  0.016 });
+	static final Deduction D6_384   = new Deduction(new double[] { 6.384,  4,     2,     0.32,  0.064 });
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 2500 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D4_3996  = new Deduction(new double[] { 4.3996, 4,     0.283, 0.0166, 0.1 });
-	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου &lt; 2500 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_2     = new Deduction(new double[] { 0.2,    0,     0.2 });
-	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 2500 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_3036  = new Deduction(new double[] { 0.3036, 0,     0.203, 0.0006, 0.1 });
+	static final Deduction D6_4876  = new Deduction(new double[] { 6.4876, 4,     2,     0.323, 0.0646, 0.1 });
 	/** Αμοιβές μελετητών με καθαρή αξία &lt; 2500 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D14_296  = new Deduction(new double[] {14.296,  4,     0.28,  0.016,  0,   2, 8 });
+	static final Deduction D16_384  = new Deduction(new double[] {16.384,  4,     2,     0.32,  0.064,  0,   2, 8 });
 	/** Αμοιβές μελετητών με καθαρή αξία >= 2500 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D14_3996 = new Deduction(new double[] {14.3996, 4,     0.283, 0.0166, 0.1, 2, 8 });
+	static final Deduction D16_4876 = new Deduction(new double[] {16.4876, 4,     2,     0.323, 0.0646, 0.1, 2, 8 });
 
 	@Override public String toString() { return Double.toString(term[0]); }
 

@@ -4,9 +4,6 @@ import static expenditure.Contractor.Type.ARMY;
 import static expenditure.Contractor.Type.PRIVATE_SECTOR;
 import static expenditure.Contractor.Type.PUBLIC_SERVICES;
 import static expenditure.Deduction.D0;
-import static expenditure.Deduction.D14;
-import static expenditure.Deduction.D14_096;
-import static expenditure.Deduction.D4;
 import expenditure.Expenditure.Financing;
 import static expenditure.Expenditure.Financing.ARMY_BUDGET;
 import static expenditure.Expenditure.Financing.OWN_PROFITS;
@@ -20,16 +17,16 @@ import util.PhpSerializer.VariableSerializable;
 import util.ResizableTableModel.TableRecord;
 import static util.ResizableTableModel.getByte;
 import static util.ResizableTableModel.getString;
-import static expenditure.Deduction.D4_1996;
-import static expenditure.Deduction.D0_1036;
-import static expenditure.Deduction.D14_1996;
-import static expenditure.Deduction.D4_296;
-import static expenditure.Deduction.D4_3996;
-import static expenditure.Deduction.D0_2;
-import static expenditure.Deduction.D0_3036;
-import static expenditure.Deduction.D14_296;
-import static expenditure.Deduction.D14_3996;
-import static expenditure.Deduction.D4_096;
+import static expenditure.Deduction.D6_144;
+import static expenditure.Deduction.D6_2476;
+import static expenditure.Deduction.D16_144;
+import static expenditure.Deduction.D16_2476;
+import static expenditure.Deduction.D6;
+import static expenditure.Deduction.D16;
+import static expenditure.Deduction.D6_384;
+import static expenditure.Deduction.D6_4876;
+import static expenditure.Deduction.D16_384;
+import static expenditure.Deduction.D16_4876;
 
 /** Ένα τιμολόγιο της δαπάνης. */
 final class Invoice implements VariableSerializable, TableRecord {
@@ -557,34 +554,29 @@ final class Invoice implements VariableSerializable, TableRecord {
 	static private Deduction calcDeduction(Type type, Contractor contractor, double net, Financing financing) {
 		Deduction deduction = null;
 		if (type == null || contractor == null || contractor.getType() == null || financing == null);
-		else if (type == Type.WATER_ELECTRICITY) deduction = D0;
+		else if (type == Type.WATER_ELECTRICITY || financing == PUBLIC_INVESTMENT) deduction = D0;
 		else if (contractor.getType() == PRIVATE_SECTOR) {
 			if (type == Type.PROPERTY_RENTAL) {
-					 if (financing == ARMY_BUDGET) deduction = D4_096;
-				else if (financing == OWN_PROFITS) deduction = D14_096;
-				else if (financing == PUBLIC_INVESTMENT) deduction = D0;
+					 if (financing == ARMY_BUDGET) deduction = D6_144;
+				else if (financing == OWN_PROFITS) deduction = D16_144;
 			} else if (net > 1000) {
 				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
-						 if (financing == ARMY_BUDGET) deduction = D4_3996;
-					else if (financing == OWN_PROFITS) deduction = D14_3996;
-					else if (financing == PUBLIC_INVESTMENT) deduction = D0_3036;
+						 if (financing == ARMY_BUDGET) deduction = D6_4876;
+					else if (financing == OWN_PROFITS) deduction = D16_4876;
 				} else {// if (type != ENGINEERING_STUDY && type != STUDY_SUPERVISION)
-						 if (financing == ARMY_BUDGET) deduction = D4_1996;
-					else if (financing == OWN_PROFITS) deduction = D14_1996;
-					else if (financing == PUBLIC_INVESTMENT) deduction = D0_1036;
+						 if (financing == ARMY_BUDGET) deduction = D6_2476;
+					else if (financing == OWN_PROFITS) deduction = D16_2476;
 				}
 			} else // if (net <= 1000)
 				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
-						 if (financing == ARMY_BUDGET) deduction = D4_296;
-					else if (financing == OWN_PROFITS) deduction = D14_296;
-					else if (financing == PUBLIC_INVESTMENT) deduction = D0_2;
+						 if (financing == ARMY_BUDGET) deduction = D6_384;
+					else if (financing == OWN_PROFITS) deduction = D16_384;
 				} else {// if (type != ENGINEERING_STUDY && type != STUDY_SUPERVISION)
-						 if (financing == ARMY_BUDGET) deduction = D4_096;
-					else if (financing == OWN_PROFITS) deduction = D14_096;
-					else if (financing == PUBLIC_INVESTMENT) deduction = D0;
+						 if (financing == ARMY_BUDGET) deduction = D6_144;
+					else if (financing == OWN_PROFITS) deduction = D16_144;
 				}
 		} else // if (contractor.getType() == ARMY || contractor.getType() == PUBLIC_SERVICES)
-			deduction = financing == OWN_PROFITS ? D14: D4;
+			deduction = financing == OWN_PROFITS ? D16: D6;
 		return deduction;
 	}
 

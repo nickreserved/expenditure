@@ -1,8 +1,5 @@
 package expenditure;
 
-import static expenditure.Deduction.D14;
-import static expenditure.Deduction.D14_096;
-import static expenditure.Deduction.D4;
 import expenditure.Expenditure.Financing;
 import java.awt.AWTEvent;
 import static java.awt.Color.WHITE;
@@ -106,16 +103,16 @@ import util.ResizableHeaderTableModel;
 import util.ResizablePropertiesTableModel;
 import util.ResizableTableModel;
 import static util.ResizableTableModel.createTable;
-import static expenditure.Deduction.D4_1996;
-import static expenditure.Deduction.D0_1036;
-import static expenditure.Deduction.D14_1996;
-import static expenditure.Deduction.D4_296;
-import static expenditure.Deduction.D4_3996;
-import static expenditure.Deduction.D0_2;
-import static expenditure.Deduction.D0_3036;
-import static expenditure.Deduction.D14_296;
-import static expenditure.Deduction.D14_3996;
-import static expenditure.Deduction.D4_096;
+import static expenditure.Deduction.D6_144;
+import static expenditure.Deduction.D6_2476;
+import static expenditure.Deduction.D16_144;
+import static expenditure.Deduction.D16_2476;
+import static expenditure.Deduction.D6;
+import static expenditure.Deduction.D16;
+import static expenditure.Deduction.D6_384;
+import static expenditure.Deduction.D6_4876;
+import static expenditure.Deduction.D16_384;
+import static expenditure.Deduction.D16_4876;
 
 /** Το κυρίως παράθυρο του προγράμματος.
  * Περιλαμβάνει τη main(). */
@@ -128,7 +125,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "20 Δεκ 22";
+	static private final String VERSION = "5 Ιουν 24";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -1493,8 +1490,7 @@ final public class MainFrame extends JFrame {
 	static private void importNewDeductions() {
 		if (!VERSION.equals(data.version)) {
 			Deduction[] deductions = {
-				D4, D4_096, D4_296, D4_1996, D4_3996, D0_2, D0_1036,
-				D0_3036, D14, D14_096, D14_296, D14_1996, D14_3996
+				D6, D6_144, D6_384, D6_2476, D6_4876, D16, D16_144, D16_384, D16_2476, D16_4876
 			};
 			importFiltered(Stream.of(deductions), data.deductions);
 			data.version = VERSION;	// ανανέωση της έκδοσης στις ρυθμίσεις στην τρέχουσα
