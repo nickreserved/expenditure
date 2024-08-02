@@ -1,5 +1,8 @@
 package expenditure;
 
+import static expenditure.Deduction.D0_1036;
+import static expenditure.Deduction.D0_2;
+import static expenditure.Deduction.D0_3036;
 import expenditure.Expenditure.Financing;
 import java.awt.AWTEvent;
 import static java.awt.Color.WHITE;
@@ -125,7 +128,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "5 Ιουν 24";
+	static private final String VERSION = "2 Αυγ 24";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -1490,7 +1493,7 @@ final public class MainFrame extends JFrame {
 	static private void importNewDeductions() {
 		if (!VERSION.equals(data.version)) {
 			Deduction[] deductions = {
-				D6, D6_144, D6_384, D6_2476, D6_4876, D16, D16_144, D16_384, D16_2476, D16_4876
+				D6, D6_144, D6_384, D6_2476, D0_1036, D6_4876, D0_2, D0_3036, D16, D16_144, D16_384, D16_2476, D16_4876
 			};
 			importFiltered(Stream.of(deductions), data.deductions);
 			data.version = VERSION;	// ανανέωση της έκδοσης στις ρυθμίσεις στην τρέχουσα

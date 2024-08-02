@@ -4,6 +4,9 @@ import static expenditure.Contractor.Type.ARMY;
 import static expenditure.Contractor.Type.PRIVATE_SECTOR;
 import static expenditure.Contractor.Type.PUBLIC_SERVICES;
 import static expenditure.Deduction.D0;
+import static expenditure.Deduction.D0_1036;
+import static expenditure.Deduction.D0_2;
+import static expenditure.Deduction.D0_3036;
 import expenditure.Expenditure.Financing;
 import static expenditure.Expenditure.Financing.ARMY_BUDGET;
 import static expenditure.Expenditure.Financing.OWN_PROFITS;
@@ -554,7 +557,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 	static private Deduction calcDeduction(Type type, Contractor contractor, double net, Financing financing) {
 		Deduction deduction = null;
 		if (type == null || contractor == null || contractor.getType() == null || financing == null);
-		else if (type == Type.WATER_ELECTRICITY || financing == PUBLIC_INVESTMENT) deduction = D0;
+		else if (type == Type.WATER_ELECTRICITY) deduction = D0;
 		else if (contractor.getType() == PRIVATE_SECTOR) {
 			if (type == Type.PROPERTY_RENTAL) {
 					 if (financing == ARMY_BUDGET) deduction = D6_144;
@@ -563,17 +566,21 @@ final class Invoice implements VariableSerializable, TableRecord {
 				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
 						 if (financing == ARMY_BUDGET) deduction = D6_4876;
 					else if (financing == OWN_PROFITS) deduction = D16_4876;
+					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0_3036;
 				} else {// if (type != ENGINEERING_STUDY && type != STUDY_SUPERVISION)
 						 if (financing == ARMY_BUDGET) deduction = D6_2476;
 					else if (financing == OWN_PROFITS) deduction = D16_2476;
+					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0_1036;
 				}
 			} else // if (net <= 1000)
 				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
 						 if (financing == ARMY_BUDGET) deduction = D6_384;
 					else if (financing == OWN_PROFITS) deduction = D16_384;
+					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0_2;
 				} else {// if (type != ENGINEERING_STUDY && type != STUDY_SUPERVISION)
 						 if (financing == ARMY_BUDGET) deduction = D6_144;
 					else if (financing == OWN_PROFITS) deduction = D16_144;
+					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0;
 				}
 		} else // if (contractor.getType() == ARMY || contractor.getType() == PUBLIC_SERVICES)
 			deduction = financing == OWN_PROFITS ? D16: D6;

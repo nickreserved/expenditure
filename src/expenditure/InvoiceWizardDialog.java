@@ -129,16 +129,18 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 			int fe = 0;
 
 			// Υπολογισμός κρατήσεων
-			if (invoiceType == 4 /*Λογαριασμοί νερού/ΔΕΗ*/ || financing == 2  /*Π/Υ ΠΔΕ*/) /*hold = 0*/;
+			if (invoiceType == 4 /*Λογαριασμοί νερού/ΔΕΗ*/) /*hold = 0*/;
 			else if (contractor == 0 /*Ιδιώτης*/) {
-				// Τακτικός Π/Υ ή Ιδιοι πόροι
-				if (net >= 1000 && invoiceType != 3 /*ΟΧΙ Μισθώματα ακινήτων*/) {
-					hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 6.4876 : 6.2476;
-					if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
-				}
-				else {
-					hold = invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/ ? 6.384 : 6.144;
-					if (financing == 1 /*Ιδιοι πόροι*/) hold += 10;
+				if (financing == 2 /* Π/Υ ΠΔΕ*/) {
+					if (invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/)
+						hold = net >= 1000 ? 0.3036 : 0.2;
+					else if (net >= 1000) hold = 0.1036;
+				} else { // Τακτικός Π/Υ και Ίδιοι πόροι
+					if (invoiceType == 5 /*Εκπόνηση μελετών*/ || invoiceType == 6 /*Εκπόνηση μελετών*/)
+						hold = net >= 1000 ? 6.4876 : 6.384;
+					else
+						hold = net >= 1000 && invoiceType != 3 /*ΟΧΙ Μισθώματα ακινήτων*/ ? 6.2476 : 6.144;
+					if (financing == 1 /*Ίδιοι πόροι*/) hold += 10;
 				}
 			} else if (contractor == 1 /*ΝΠΔΔ*/ || contractor == 2 /*Στρατος*/)
 				hold = financing == 1 /*Ιδιοι πόροι*/ ? 16 : 6;
