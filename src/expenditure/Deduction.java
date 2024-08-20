@@ -90,9 +90,9 @@ final class Deduction implements VariableSerializable, TableRecord {
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 1000 και χρηματοδότηση τακτικού Π/Υ. */
 	static final Deduction D6_4876  = new Deduction(new double[] { 6.4876, 4,     2,     0.323, 0.0646, 0.1 });
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου &lt; 1000 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_2     = new Deduction(new double[] { 0.2,    0,     0.2 });
+	static final Deduction D0_2     = new Deduction(new double[] { 0.2,    0,     0,     0.2 });
 	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 1000 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_3036  = new Deduction(new double[] { 0.3036, 0,     0.203, 0.0006, 0.1 });
+	static final Deduction D0_3036  = new Deduction(new double[] { 0.3036, 0,     0,     0.203, 0.0006, 0.1 });
 	/** Αμοιβές μελετητών με καθαρή αξία &lt; 1000 και χρηματοδότηση ιδίων πόρων. */
 	static final Deduction D16_384  = new Deduction(new double[] {16.384,  4,     2,     0.32,  0.064,  0,   2, 8 });
 	/** Αμοιβές μελετητών με καθαρή αξία >= 1000 και χρηματοδότηση ιδίων πόρων. */

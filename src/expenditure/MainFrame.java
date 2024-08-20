@@ -128,7 +128,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "2 Αυγ 24";
+	static private final String VERSION = "20 Αυγ 24";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
