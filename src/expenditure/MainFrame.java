@@ -1,8 +1,5 @@
 package expenditure;
 
-import static expenditure.Deduction.D0_1036;
-import static expenditure.Deduction.D0_2;
-import static expenditure.Deduction.D0_3036;
 import expenditure.Expenditure.Financing;
 import java.awt.AWTEvent;
 import static java.awt.Color.WHITE;
@@ -106,16 +103,11 @@ import util.ResizableHeaderTableModel;
 import util.ResizablePropertiesTableModel;
 import util.ResizableTableModel;
 import static util.ResizableTableModel.createTable;
-import static expenditure.Deduction.D6_144;
-import static expenditure.Deduction.D6_2476;
-import static expenditure.Deduction.D16_144;
-import static expenditure.Deduction.D16_2476;
 import static expenditure.Deduction.D6;
 import static expenditure.Deduction.D16;
-import static expenditure.Deduction.D6_384;
-import static expenditure.Deduction.D6_4876;
-import static expenditure.Deduction.D16_384;
-import static expenditure.Deduction.D16_4876;
+import static expenditure.Deduction.D6_1;
+import static expenditure.Deduction.D16_1;
+import static expenditure.Deduction.D0_1;
 
 /** Το κυρίως παράθυρο του προγράμματος.
  * Περιλαμβάνει τη main(). */
@@ -128,7 +120,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "20 Αυγ 24";
+	static private final String VERSION = "11 Ιαν 25";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -1492,9 +1484,7 @@ final public class MainFrame extends JFrame {
 	 * τυχόν νέες κρατήσεις που έχουν θεσμοθετηθεί. */
 	static private void importNewDeductions() {
 		if (!VERSION.equals(data.version)) {
-			Deduction[] deductions = {
-				D6, D6_144, D6_384, D6_2476, D0_1036, D6_4876, D0_2, D0_3036, D16, D16_144, D16_384, D16_2476, D16_4876
-			};
+			Deduction[] deductions = { D6, D6_1, D16, D16_1, D0_1 };
 			importFiltered(Stream.of(deductions), data.deductions);
 			data.version = VERSION;	// ανανέωση της έκδοσης στις ρυθμίσεις στην τρέχουσα
 		}

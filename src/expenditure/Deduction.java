@@ -68,35 +68,19 @@ final class Deduction implements VariableSerializable, TableRecord {
 		return a;
 	}
 
-	//                                                            Σύνολο,  ΜΤΣ,ΕΛΟΑΣ,Χαρτόσημο,ΟΓΑ, ΕΑΔΗΣΥ,ΒΑΜ,ΕΚΟΕΜΣ
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία &lt; 1000 και χρηματοδότηση τακτικού Π/Υ, μισθώματα ακινήτων με χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D6_144   = new Deduction(new double[] { 6.144,  4,     2,     0.12,  0.024 });
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 1000 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D6_2476  = new Deduction(new double[] { 6.2476, 4,     2,     0.123, 0.0246, 0.1 });
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία &lt; 1000 και χρηματοδότηση Π/Υ ΠΔΕ, λογαριασμοί νερού, έργα ΔΕΗ. */
-	static final Deduction D0       = new Deduction(new double[] { 0 });
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 1000 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_1036  = new Deduction(new double[] { 0.1036, 0,     0,     0.003, 0.0006, 0.1 });
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία &lt; 1000 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D16_144  = new Deduction(new double[] {16.144,  4,     2,     0.12,  0.024,  0,   2, 8 });
-	/** Τιμολόγιο ιδιωτικού τομέα με καθαρή αξία >= 1000 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D16_2476 = new Deduction(new double[] {16.2476, 4,     2,     0.123, 0.0246, 0.1, 2, 8 });
-	/** Προμήθεια από Πρατήριο ή ΝΠΔΔ με χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D6       = new Deduction(new double[] { 6,      3.904, 1.952, 0.12,  0.024 });
-	/** Τιμολόγιο από Πρατήριο ή ΝΠΔΔ και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D16      = new Deduction(new double[] { 16,     3.904, 1.952, 0.12,  0.024,  0,   2, 8 });
-	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου &lt; 1000 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D6_384   = new Deduction(new double[] { 6.384,  4,     2,     0.32,  0.064 });
-	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 1000 και χρηματοδότηση τακτικού Π/Υ. */
-	static final Deduction D6_4876  = new Deduction(new double[] { 6.4876, 4,     2,     0.323, 0.0646, 0.1 });
-	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου &lt; 1000 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_2     = new Deduction(new double[] { 0.2,    0,     0,     0.2 });
-	/** Αμοιβές μελετητών με καθαρή αξία τιμολογίου >= 1000 και χρηματοδότηση Π/Υ ΠΔΕ. */
-	static final Deduction D0_3036  = new Deduction(new double[] { 0.3036, 0,     0,     0.203, 0.0006, 0.1 });
-	/** Αμοιβές μελετητών με καθαρή αξία &lt; 1000 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D16_384  = new Deduction(new double[] {16.384,  4,     2,     0.32,  0.064,  0,   2, 8 });
-	/** Αμοιβές μελετητών με καθαρή αξία >= 1000 και χρηματοδότηση ιδίων πόρων. */
-	static final Deduction D16_4876 = new Deduction(new double[] {16.4876, 4,     2,     0.323, 0.0646, 0.1, 2, 8 });
+	//                                                    Σύνολο,ΜΤΣ,ΕΛΟΑΣ,ΕΑΔΗΣΥ,ΒΑΜ,ΕΚΟΕΜΣ
+	/** Προμήθεια με χρηματοδότηση τακτικού Π/Υ και (καθαρή αξία &lt;= 1000 ή μίσθωση ακινήτων). */
+	static final Deduction D6    = new Deduction(new double[] {  6,   4, 2 });
+	/** Προμήθεια με χρηματοδότηση τακτικού Π/Υ και καθαρή αξία > 1000 */
+	static final Deduction D6_1  = new Deduction(new double[] {  6.1, 4, 2, 0.1 });
+	/** Προμήθεια με χρηματοδότηση ιδίων πόρων και (καθαρή αξία &lt;= 1000 ή μίσθωση ακινήτων). */
+	static final Deduction D16   = new Deduction(new double[] { 16,   4, 2, 0,   2, 8 });
+	/** Προμήθεια με χρηματοδότηση ιδίων πόρων και καθαρή αξία > 1000. */
+	static final Deduction D16_1 = new Deduction(new double[] { 16.1, 4, 2, 0.1, 2, 8 });
+	/** Προμήθεια με χρηματοδότηση Π/Υ ΠΔΕ και (καθαρή αξία &lt;= 1000 ή μίσθωση ακινήτων). */
+	static final Deduction D0    = new Deduction(new double[] { 0 });
+	/** Προμήθεια με χρηματοδότηση Π/Υ ΠΔΕ και καθαρή αξία > 1000. */
+	static final Deduction D0_1  = new Deduction(new double[] {  0.1, 0, 0, 0.1 });
 
 	@Override public String toString() { return Double.toString(term[0]); }
 

@@ -6,7 +6,7 @@ RequestExecutionlevel highest
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define NAME "expenditure"
-!define VERSION "2024.08.20"
+!define VERSION "2025.01.11"
 !define EXTENSION ".δαπάνη"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_VERSION "1.8"
