@@ -4,9 +4,6 @@ import static expenditure.Contractor.Type.ARMY;
 import static expenditure.Contractor.Type.PRIVATE_SECTOR;
 import static expenditure.Contractor.Type.PUBLIC_SERVICES;
 import static expenditure.Deduction.D0;
-import static expenditure.Deduction.D0_1036;
-import static expenditure.Deduction.D0_2;
-import static expenditure.Deduction.D0_3036;
 import expenditure.Expenditure.Financing;
 import static expenditure.Expenditure.Financing.ARMY_BUDGET;
 import static expenditure.Expenditure.Financing.OWN_PROFITS;
@@ -20,16 +17,11 @@ import util.PhpSerializer.VariableSerializable;
 import util.ResizableTableModel.TableRecord;
 import static util.ResizableTableModel.getByte;
 import static util.ResizableTableModel.getString;
-import static expenditure.Deduction.D6_144;
-import static expenditure.Deduction.D6_2476;
-import static expenditure.Deduction.D16_144;
-import static expenditure.Deduction.D16_2476;
 import static expenditure.Deduction.D6;
 import static expenditure.Deduction.D16;
-import static expenditure.Deduction.D6_384;
-import static expenditure.Deduction.D6_4876;
-import static expenditure.Deduction.D16_384;
-import static expenditure.Deduction.D16_4876;
+import static expenditure.Deduction.D6_1;
+import static expenditure.Deduction.D16_1;
+import static expenditure.Deduction.D0_1;
 
 /** Ένα τιμολόγιο της δαπάνης. */
 final class Invoice implements VariableSerializable, TableRecord {
@@ -213,7 +205,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 	 * @param net Η καθαρή αξία όλων των τιμολογίων του ίδιου δικαιούχου
 	 * @return Οι κρατήσεις άλλαξαν */
 	private boolean setDeductionPercent(double net) {
-		Deduction d = calcDeduction(type, getContractor(), net, parent.getFinancing());
+		Deduction d = calcDeduction(type, net, parent.getFinancing());
 		if (deduction != null && !deduction.equals(d) || deduction == null && d != null) {
 			deduction = d;
 			return true;
@@ -550,41 +542,19 @@ final class Invoice implements VariableSerializable, TableRecord {
 
 	/** Υπολογίζει ποιο πρέπει να είναι το ποσοστό κρατήσεων με βάση τα υπόλοιπα στοιχεία της δαπάνης.
 	 * @param type Ο τύπος του τιμολογίου
-	 * @param contractor Ο δικαιούχος
 	 * @param net Το άθροισμα καθαρών αξιών όλων των τιμολογίων του ίδιου δικαιούχου
 	 * @param financing Ο τύπος χρηματοδότησης της δαπάνης
 	 * @return Οι κρατήσεις του τιμολογίου ή null αν κάποια παράμετρος είναι null */
-	static private Deduction calcDeduction(Type type, Contractor contractor, double net, Financing financing) {
-		Deduction deduction = null;
-		if (type == null || contractor == null || contractor.getType() == null || financing == null);
-		else if (type == Type.WATER_ELECTRICITY) deduction = D0;
-		else if (contractor.getType() == PRIVATE_SECTOR) {
-			if (type == Type.PROPERTY_RENTAL) {
-					 if (financing == ARMY_BUDGET) deduction = D6_144;
-				else if (financing == OWN_PROFITS) deduction = D16_144;
-			} else if (net > 1000) {
-				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
-						 if (financing == ARMY_BUDGET) deduction = D6_4876;
-					else if (financing == OWN_PROFITS) deduction = D16_4876;
-					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0_3036;
-				} else {// if (type != ENGINEERING_STUDY && type != STUDY_SUPERVISION)
-						 if (financing == ARMY_BUDGET) deduction = D6_2476;
-					else if (financing == OWN_PROFITS) deduction = D16_2476;
-					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0_1036;
-				}
-			} else // if (net <= 1000)
-				if (type == Type.ENGINEERING_STUDY || type == Type.STUDY_SUPERVISION) {
-						 if (financing == ARMY_BUDGET) deduction = D6_384;
-					else if (financing == OWN_PROFITS) deduction = D16_384;
-					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0_2;
-				} else {// if (type != ENGINEERING_STUDY && type != STUDY_SUPERVISION)
-						 if (financing == ARMY_BUDGET) deduction = D6_144;
-					else if (financing == OWN_PROFITS) deduction = D16_144;
-					else /*if (financing == PUBLIC_INVESTMENT)*/ deduction = D0;
-				}
-		} else // if (contractor.getType() == ARMY || contractor.getType() == PUBLIC_SERVICES)
-			deduction = financing == OWN_PROFITS ? D16: D6;
-		return deduction;
+	static private Deduction calcDeduction(Type type, double net, Financing financing) {
+		if (type == null || financing == null) return null;
+		else if (type == Type.WATER_ELECTRICITY) return D0;
+		else
+		{
+			boolean c = net <= 1000 || type == Type.PROPERTY_RENTAL;
+			if (financing == ARMY_BUDGET) return c ? D6 : D6_1;
+			else if (financing == OWN_PROFITS) return c ? D16 : D16_1;
+			else /*if (financing == PUBLIC_INVESTMENT)*/ return c ? D0 : D0_1;
+		}
 	}
 
 	/** Ελέγχει πρέπει να υπάρχει ΦΠΑ με βάση τα υπόλοιπα στοιχεία της δαπάνης.
