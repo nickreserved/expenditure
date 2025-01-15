@@ -132,7 +132,9 @@ final class InvoiceWizardDialog extends JDialog implements ActionListener, Docum
 			if (invoiceType == 4 /*Λογαριασμοί νερού/ΔΕΗ*/) /*hold = 0*/;
 			else
 			{
-				boolean c = net <= 1000 || invoiceType == 3; /* Μισθώματα ακινήτων */
+				boolean c = net <= 1000
+						|| invoiceType == 3 /* Μισθώματα ακινήτων */
+						|| contractor != 0; /*Ιδιώτης*/
 				switch(financing)
 				{
 					case 0 /*Τακτικός Π/Υ*/: hold = c ? 6 : 6.1; break;

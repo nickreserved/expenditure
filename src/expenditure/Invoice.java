@@ -7,7 +7,6 @@ import static expenditure.Deduction.D0;
 import expenditure.Expenditure.Financing;
 import static expenditure.Expenditure.Financing.ARMY_BUDGET;
 import static expenditure.Expenditure.Financing.OWN_PROFITS;
-import static expenditure.Expenditure.Financing.PUBLIC_INVESTMENT;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.function.Predicate;
@@ -205,7 +204,7 @@ final class Invoice implements VariableSerializable, TableRecord {
 	 * @param net Η καθαρή αξία όλων των τιμολογίων του ίδιου δικαιούχου
 	 * @return Οι κρατήσεις άλλαξαν */
 	private boolean setDeductionPercent(double net) {
-		Deduction d = calcDeduction(type, net, parent.getFinancing());
+		Deduction d = calcDeduction(type, net, getContractor(), parent.getFinancing());
 		if (deduction != null && !deduction.equals(d) || deduction == null && d != null) {
 			deduction = d;
 			return true;
@@ -543,14 +542,15 @@ final class Invoice implements VariableSerializable, TableRecord {
 	/** Υπολογίζει ποιο πρέπει να είναι το ποσοστό κρατήσεων με βάση τα υπόλοιπα στοιχεία της δαπάνης.
 	 * @param type Ο τύπος του τιμολογίου
 	 * @param net Το άθροισμα καθαρών αξιών όλων των τιμολογίων του ίδιου δικαιούχου
+	 * @param contractor Ο δικαιούχος
 	 * @param financing Ο τύπος χρηματοδότησης της δαπάνης
 	 * @return Οι κρατήσεις του τιμολογίου ή null αν κάποια παράμετρος είναι null */
-	static private Deduction calcDeduction(Type type, double net, Financing financing) {
-		if (type == null || financing == null) return null;
+	static private Deduction calcDeduction(Type type, double net, Contractor contractor, Financing financing) {
+		if (type == null || contractor == null || financing == null) return null;
 		else if (type == Type.WATER_ELECTRICITY) return D0;
 		else
 		{
-			boolean c = net <= 1000 || type == Type.PROPERTY_RENTAL;
+			boolean c = net <= 1000 || type == Type.PROPERTY_RENTAL || contractor.getType() != PRIVATE_SECTOR;
 			if (financing == ARMY_BUDGET) return c ? D6 : D6_1;
 			else if (financing == OWN_PROFITS) return c ? D16 : D16_1;
 			else /*if (financing == PUBLIC_INVESTMENT)*/ return c ? D0 : D0_1;
