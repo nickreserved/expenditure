@@ -64,23 +64,25 @@ final class Deduction implements VariableSerializable, TableRecord {
 	static private ArrayList<String> createTableHeader() {
 		ArrayList<String> a = new ArrayList<>(15);
 		a.add("Σύνολο"); a.add("ν.5223/25");
-		a.add("ΕΑΔΗΣΥ"); a.add("ΒΑΜ"); a.add("ΕΚΟΕΜΣ");
+		a.add("ΜΤΣ"); a.add("ΕΛΟΑΣ");
+		a.add("ΕΑΔΗΣΥ");
+		a.add("ΒΑΜ"); a.add("ΕΚΟΕΜΣ");
 		return a;
 	}
 
-	//                                                    Σύνολο,ΜΤΣ,ΕΛΟΑΣ,ΕΑΔΗΣΥ,ΒΑΜ,ΕΚΟΕΜΣ
+	//                                                        Σύνολο,ν.5223/25,ΜΤΣ,ΕΛΟΑΣ,ΕΑΔΗΣΥ,ΒΑΜ,ΕΚΟΕΜΣ
 	/** Προμήθεια με χρηματοδότηση τακτικού Π/Υ και (καθαρή αξία &lt;= 1000 ή μίσθωση ακινήτων). */
-	static final Deduction D6    = new Deduction(new double[] {  6,   6 });
+	static final Deduction D6    = new Deduction(new double[] {  6,          6 });
 	/** Προμήθεια με χρηματοδότηση τακτικού Π/Υ και καθαρή αξία > 1000 */
-	static final Deduction D6_1  = new Deduction(new double[] {  6.1, 6, 0.1 });
+	static final Deduction D6_1  = new Deduction(new double[] {  6.1,        6,  0,    0,   0.1 });
 	/** Προμήθεια με χρηματοδότηση ιδίων πόρων και (καθαρή αξία &lt;= 1000 ή μίσθωση ακινήτων). */
-	static final Deduction D16   = new Deduction(new double[] { 16,   6, 0,   2, 8 });
+	static final Deduction D16   = new Deduction(new double[] { 16,          0,  4,    2,   0,   2,     8 });
 	/** Προμήθεια με χρηματοδότηση ιδίων πόρων και καθαρή αξία > 1000. */
-	static final Deduction D16_1 = new Deduction(new double[] { 16.1, 6, 0.1, 2, 8 });
+	static final Deduction D16_1 = new Deduction(new double[] { 16.1,        0,  4,    2,   0.1, 2,     8 });
 	/** Προμήθεια με χρηματοδότηση Π/Υ ΠΔΕ και (καθαρή αξία &lt;= 1000 ή μίσθωση ακινήτων). */
-	static final Deduction D0    = new Deduction(new double[] { 0 });
+	static final Deduction D0    = new Deduction(new double[] {  0 });
 	/** Προμήθεια με χρηματοδότηση Π/Υ ΠΔΕ και καθαρή αξία > 1000. */
-	static final Deduction D0_1  = new Deduction(new double[] {  0.1, 0, 0, 0.1 });
+	static final Deduction D0_1  = new Deduction(new double[] {  0.1,        0,  0,    0,   0.1 });
 
 	@Override public String toString() { return Double.toString(term[0]); }
 
