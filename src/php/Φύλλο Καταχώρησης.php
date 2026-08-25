@@ -23,6 +23,14 @@ function contents_subfolder($content_item) {
 	echo '\cell\cell\b\line ' . $countA . '\cell\line ' . $name . '\b0\cell\cell\row' . PHP_EOL;
 }
 
+/** Εξάγει τις εγγραφές των καταστάσεων πληρωμών. */
+function contents_payment() {
+	global $data, $count, $countA;
+	foreach($data['Δικαιούχοι'] as $per_contractor)
+		echo ++$count . '\cell ' . rtf($data['Μονάδα']) . '\cell ' . $countA . '\cell Κατάσταση Πληρωμής '
+				. $per_contractor['Δικαιούχος']['Επωνυμία'] . '\cell\cell\row' . PHP_EOL;
+}
+
 /** Εξάγει τις εγγραφές των τιμολογίων. */
 function contents_invoices() {
 	global $data, $count, $countA;
@@ -268,6 +276,7 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 	if (substr($content_item['Δικαιολογητικό'], 0, 12) == 'ΥΠΟΦΑΚΕΛΟΣ «') contents_subfolder($content_item);
 	else
 		switch($name) {
+			case 'Κατάσταση Πληρωμής': contents_payment(); break;
 			case 'Τιμολόγια': contents_invoices(); break;
 			case 'Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής': contents_acceptance_protocol(); break;
 			case 'Βεβαίωση Παραλαβής': contents_acceptance_affirmation(); break;

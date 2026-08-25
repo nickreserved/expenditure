@@ -120,11 +120,11 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "16 Σεπ 25";
+	static private final String VERSION = "25 Αυγ 26";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
-	static private final Charset GREEK = Charset.forName("windows-1253");
+	static final Charset GREEK = Charset.forName("windows-1253");
 	/** Επιλογές ναι - όχι. */
 	static final String[] NOYES = { "Όχι", "Ναι" };
 	/** Η πόρτα του server για επικοινωνία μεταξύ των εφαρμογών. */
@@ -1045,6 +1045,11 @@ final public class MainFrame extends JFrame {
 				createMenuItem("Οδηγός Τιμολογίου", "wizard",
 						e -> new InvoiceWizardDialog(this).setVisible(true)),
 				createMenuItem("Πληροφορίες IBAN", "bank", e -> iban()),
+				createMenuItem("Εύρεση CPV", e -> {
+							if (!CpvDialog.isLoaded()) CpvDialog.load();
+							if (CpvDialog.isLoaded())
+								new CpvDialog(this).setVisible(true);
+						}),
 				createMenuItem("Υπεύθυνη Δήλωση", "statement",
 						e -> new StatementDialog(this).setVisible(true))
 			}),
@@ -1343,7 +1348,7 @@ final public class MainFrame extends JFrame {
 		if ((flags & IMPORT_CONTRACTORS) != 0) {
 			importFiltered(expenditure.invoices.stream().map(i -> i.getContractor()), data.contractors);
 			importFiltered(expenditure.contracts.stream().flatMap(i -> Stream.of(i.getContractors())),
-																					data.contractors);			
+																					data.contractors);
 			importFiltered(expenditure.tenders.stream().flatMap(i -> i.competitors.stream())
 													.map(j -> j.getContractor()), data.contractors);
 		}
@@ -1521,7 +1526,7 @@ final public class MainFrame extends JFrame {
 		if (iban == null) return;
 		iban = iban.replaceAll("[^A-Z0-9]", "");
 		try {
-			String script = "<?php require('functions.php'); iban_gui('" + iban + "'); ?>";
+			String script = "<?php require('iban_functions.php'); iban_gui('" + iban + "'); ?>";
 			byte[] a = exportScriptOutput(script, null, true);
 			showMessageDialog(this, new String(a, GREEK), "Πληροφορίες ΙΒΑΝ", INFORMATION_MESSAGE);
 		} catch (Exception e) { showError(e.getMessage()); }
@@ -1668,7 +1673,7 @@ final public class MainFrame extends JFrame {
 	 * αρχείο. Το null επιτρέπεται.
 	 * @param redirectError Ανακατευθύνει την έξοδο του stderr στο stdout
 	 * @return Η έξοδος του PHP script στο stdout */
-	static private byte[] exportScriptOutput(String script, Map<String, String> env,
+	static byte[] exportScriptOutput(String script, Map<String, String> env,
 			boolean redirectError) throws Exception {
 		StdInStream sin = os -> {
 			os.write(script.getBytes(GREEK));
@@ -1704,7 +1709,7 @@ final public class MainFrame extends JFrame {
 
 	/** Εμφανίζει ένα διάλογο με τα σφάλματα της εξαγωγής αρχείου από το PHP script.
 	 * @param err Το κείμενο του σφάλματος αποτελούμενο από αριθμό γραμμών. */
-	static private void showError(String err) {
+	static void showError(String err) {
 		JDialog dlg = new JDialog(window, "Εμφάνιση σφαλμάτων εκτέλεσης του PHP Script", true);
 		JList<String> list = new JList<>(err.split("\n"));
 		JScrollPane scroll = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,

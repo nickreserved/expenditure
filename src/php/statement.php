@@ -1,5 +1,6 @@
 <?php
 require_once('functions.php');
+require_once('iban_functions.php');
 
 /** Εξάγει μια υπεύθυνη δήλωση.
  * @param array $data Τα δεδομένα της υπεύθυνης δήλωσης */

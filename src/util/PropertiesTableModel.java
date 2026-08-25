@@ -237,11 +237,15 @@ abstract public class PropertiesTableModel implements TableModel {
 			return current;
 		}
 
-		// Είναι αστείο, αλλά λόγω ενός bug της Java δεν καλείται ποτέ
-		// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6788481
 		@Override public void cancelCellEditing() {
-			ChangeEvent e = new ChangeEvent(this);
-			listeners.forEach(i -> i.editingCanceled(e));
+			if (current instanceof JComboBox) ((JComboBox) current).removeActionListener(actionListener);
+			if (!listeners.isEmpty()) {
+				ChangeEvent e = new ChangeEvent(this);
+				// Επειδή το editingStopped() προσθαφαιρεί listeners πρέπει να κάνουμε αντιγραφή τους
+				// listeners πριν τους ενημερώσουμε, ειδάλλως έχουμε ConcurrentModificationException
+				CellEditorListener[] ar = listeners.toArray(new CellEditorListener[listeners.size()]);
+				for (CellEditorListener l : ar) l.editingCanceled(e);
+			}
 		}
 
 		/** Οι listeners για τον τερματισμό ή ακύρωση της επεξεργασίας. */

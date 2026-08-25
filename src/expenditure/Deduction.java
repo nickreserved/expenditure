@@ -63,7 +63,7 @@ final class Deduction implements VariableSerializable, TableRecord {
 	/** Δημιουργεί στατικά τη λίστα με τους τίτλους των επιμέρους κρατήσεων. */
 	static private ArrayList<String> createTableHeader() {
 		ArrayList<String> a = new ArrayList<>(15);
-		a.add("Σύνολο"); a.add("ν.5223/25");
+		a.add("Σύνολο"); a.add("ν.5223/25 (άρθρο 37)");
 		a.add("ΜΤΣ"); a.add("ΕΛΟΑΣ");
 		a.add("ΕΑΔΗΣΥ");
 		a.add("ΒΑΜ"); a.add("ΕΚΟΕΜΣ");

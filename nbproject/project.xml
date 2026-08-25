@@ -14,16 +14,21 @@
             <folders>
                 <source-folder>
                     <label>${src.dir}</label>
-                    <type>java</type>
-                    <location>${src.dir}</location>
-                    <excludes>**/*.php</excludes>
+                    <type>php</type>
+                    <location>${src.dir}/php</location>
+                    <encoding>windows-1253</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>Στρατιωτικές Δαπάνες</label>
+                    <location>.</location>
                     <encoding>UTF-8</encoding>
                 </source-folder>
                 <source-folder>
                     <label>${src.dir}</label>
-                    <type>php</type>
-                    <location>${src.dir}/php</location>
-					<encoding>windows-1253</encoding>
+                    <type>java</type>
+                    <location>${src.dir}</location>
+                    <excludes>**/*.php</excludes>
+                    <encoding>UTF-8</encoding>
                 </source-folder>
             </folders>
             <ide-actions>
@@ -98,14 +103,15 @@
                     </context>
                 </action>
                 <action name="profile">
-					<target>profile</target>
-				</action>
+                    <target>profile</target>
+                </action>
             </ide-actions>
             <view>
                 <items>
                     <source-folder style="packages">
-                        <label>Κώδικας</label>
+                        <label>${src.dir}</label>
                         <location>${src.dir}</location>
+                        <excludes>**/*.php</excludes>
                     </source-folder>
                     <source-file>
                         <location>build.xml</location>
@@ -121,6 +127,7 @@
                     <ide-action name="profile"/>
                 </context-menu>
             </view>
+            <subprojects/>
         </general-data>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/4">
             <compilation-unit>

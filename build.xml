@@ -13,11 +13,11 @@
 			<attribute default="${excludes}" name="excludes"/>
 			<attribute default="" name="includes"/>
 			<sequential>
-               <javac srcdir="${src.dir}" destdir="@{destdir}" includes="@{includes}" fork="true"
+				<javac srcdir="${src.dir}" destdir="@{destdir}" includes="@{includes}" fork="true"
 						encoding="UTF-8" includeantruntime="false" release="${jvm.version}"
 						debug="@{debug}" deprecation="${javac.deprecation}">
 					<compilerarg line="${javac.compilerargs}"/>
-                </javac>
+				</javac>
             </sequential>
         </macrodef>
     </target>
@@ -51,7 +51,7 @@
         <macrodef name="create-symlinks">
             <attribute name="dir"/>
             <sequential>
-				<symlink link="${basedir}/@{dir}/php5" resource="../${php.dir}"/>
+				<symlink link="${basedir}/@{dir}/php5" resource="../${php.dir}" />
 				<symlink link="${basedir}/@{dir}/php" resource="../${src.dir}/php"/>
 				<symlink link="${basedir}/@{dir}/help" resource="../${src.dir}/help"/>
             </sequential>

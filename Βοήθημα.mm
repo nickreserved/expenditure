@@ -46,7 +46,7 @@
 <node CREATED="1669987739290" ID="Freemind_Link_1402276618" MODIFIED="1669987753194" TEXT="&#x391;&#x3bd;&#x3c4;&#x3af;&#x3b3;&#x3c1;&#x3b1;&#x3c6;&#x3b1; &#x3c0;&#x3bf;&#x3c5; &#x3c0;&#x3c1;&#x3ad;&#x3c0;&#x3b5;&#x3b9; &#x3bd;&#x3b1; &#x3b5;&#x3be;&#x3b1;&#x3c7;&#x3b8;&#x3bf;&#x3cd;&#x3bd; &#x3c0;&#x3ac;&#x3bd;&#x3c9; &#x3b1;&#x3c0;&#x3cc; &#x3bc;&#x3b9;&#x3b1; &#x3c6;&#x3bf;&#x3c1;&#x3ac;, &#x3b5;&#x3be;&#x3ac;&#x3b3;&#x3bf;&#x3bd;&#x3c4;&#x3b1;&#x3b9; &#x3bc;&#x3cc;&#x3bd;&#x3bf; &#x3bc;&#x3b9;&#x3b1; &#x3c6;&#x3bf;&#x3c1;&#x3ac;"/>
 </node>
 </node>
-<node CREATED="1669754645341" FOLDED="true" ID="Freemind_Link_1094410286" MODIFIED="1669764334552" POSITION="left" TEXT="&#x391;&#x3c1;&#x3c7;&#x3b9;&#x3ba;&#x3bf;&#x3c0;&#x3bf;&#x3af;&#x3b7;&#x3c3;&#x3b7; &#x3c4;&#x3bf;&#x3c5; PHP">
+<node CREATED="1669754645341" ID="Freemind_Link_1094410286" MODIFIED="1669764334552" POSITION="left" TEXT="&#x391;&#x3c1;&#x3c7;&#x3b9;&#x3ba;&#x3bf;&#x3c0;&#x3bf;&#x3af;&#x3b7;&#x3c3;&#x3b7; &#x3c4;&#x3bf;&#x3c5; PHP">
 <node COLOR="#006699" CREATED="1669754654046" ID="Freemind_Link_1103975419" MODIFIED="1669765804272" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 1">
 <edge WIDTH="thin"/>
 <font ITALIC="true" NAME="SansSerif" SIZE="12"/>
@@ -239,8 +239,8 @@
 <icon BUILTIN="button_cancel"/>
 </node>
 </node>
-<node CREATED="1669637807397" FOLDED="true" ID="Freemind_Link_1207373739" MODIFIED="1669637811410" POSITION="right" TEXT="&#x394;&#x3bf;&#x3bc;&#x3ad;&#x3c2;">
-<node CREATED="1669764504973" FOLDED="true" ID="Freemind_Link_729064590" MODIFIED="1669764509501" TEXT="$data">
+<node CREATED="1669637807397" ID="Freemind_Link_1207373739" MODIFIED="1669637811410" POSITION="right" TEXT="&#x394;&#x3bf;&#x3bc;&#x3ad;&#x3c2;">
+<node CREATED="1669764504973" ID="Freemind_Link_729064590" MODIFIED="1669764509501" TEXT="$data">
 <node COLOR="#006699" CREATED="1669637991825" FOLDED="true" ID="Freemind_Link_1619885931" MODIFIED="1669765810344" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 3">
 <font ITALIC="true" NAME="SansSerif" SIZE="12"/>
 <node CREATED="1669640449845" ID="Freemind_Link_893268982" MODIFIED="1669640554989" TEXT="&#x395;&#x3bb;&#x3ad;&#x3b3;&#x3c7;&#x3bf;&#x3c5;&#x3c3;&#x3b1; &#x391;&#x3c1;&#x3c7;&#x3ae;">
@@ -391,12 +391,6 @@
 </node>
 <node COLOR="#006699" CREATED="1669753731610" FOLDED="true" ID="Freemind_Link_1420554791" MODIFIED="1669765810344" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 5">
 <font ITALIC="true" NAME="SansSerif" SIZE="12"/>
-<node CREATED="1669753748326" ID="Freemind_Link_614767203" MODIFIED="1669755343933" TEXT="&#x39a;&#x3c1;&#x3b1;&#x3c4;&#x3ae;&#x3c3;&#x3b5;&#x3b9;&#x3c2;">
-<icon BUILTIN="bookmark"/>
-<node CREATED="1669753791619" ID="Freemind_Link_1154776513" MODIFIED="1669753796243" TEXT="string[]"/>
-<node CREATED="1669753801012" ID="Freemind_Link_253237898" MODIFIED="1669753882860" TEXT="&#x38c;&#x3bb;&#x3b1; &#x3c4;&#x3b1; &#x3bf;&#x3bd;&#x3cc;&#x3bc;&#x3b1;&#x3c4;&#x3b1; &#x3c4;&#x3c9;&#x3bd; &#x3b5;&#x3c0;&#x3b9;&#x3bc;&#x3ad;&#x3c1;&#x3bf;&#x3c5;&#x3c2; &#x3ba;&#x3c1;&#x3b1;&#x3c4;&#x3ae;&#x3c3;&#x3b5;&#x3c9;&#x3bd; &#x3cc;&#x3bb;&#x3c9;&#x3bd; &#x3c4;&#x3c9;&#x3bd; &#x3c4;&#x3b9;&#x3bc;&#x3bf;&#x3bb;&#x3bf;&#x3b3;&#x3af;&#x3c9;&#x3bd;, &#x3c3;&#x3c5;&#x3b3;&#x3ba;&#x3b5;&#x3bd;&#x3c4;&#x3c1;&#x3c9;&#x3bc;&#x3ad;&#x3bd;&#x3b1; &#x3c3;&#x3b5; &#x3b1;&#x3c5;&#x3c4;&#x3ae; &#x3c4;&#x3b7; &#x3bb;&#x3af;&#x3c3;&#x3c4;&#x3b1;"/>
-<node CREATED="1669753818593" ID="Freemind_Link_833759129" MODIFIED="1669753864266" TEXT="&#x3c0;.&#x3c7;. { &quot;&#x39c;&#x3a4;&#x3a3;&quot;, &quot;&#x3a7;&#x3b1;&#x3c1;&#x3c4;&#x3cc;&#x3c3;&#x3b7;&#x3bc;&#x3bf;&quot;, &quot;&#x39f;&#x393;&#x391;&quot;, &quot;&#x395;&#x39a;&#x39f;&#x395;&#x39c;&#x3a3;&quot;, &quot;&#x395;&#x391;&#x394;&#x397;&#x3a3;&#x3a5;&quot; }"/>
-</node>
 <node CREATED="1669637691793" ID="Freemind_Link_1947443217" MODIFIED="1669637759591" TEXT="&#x394;&#x3b9;&#x3b1;&#x3b3;&#x3c9;&#x3bd;&#x3b9;&#x3c3;&#x3bc;&#x3bf;&#x3af;">
 <node CREATED="1669637942447" ID="Freemind_Link_1360901552" LINK="#Freemind_Link_1148197091" MODIFIED="1669766372964" TEXT="Tender[]"/>
 </node>
@@ -924,12 +918,13 @@
 <node CREATED="1669759125511" ID="Freemind_Link_1996645187" MODIFIED="1669759127413" TEXT="double"/>
 </node>
 </node>
-<node CREATED="1669759214101" ID="Freemind_Link_1975349494" MODIFIED="1669759218109" TEXT="&#x39a;&#x3b1;&#x3c4;&#x3b7;&#x3b3;&#x3bf;&#x3c1;&#x3af;&#x3b5;&#x3c2; &#x3a6;&#x3a0;&#x391;">
+<node CREATED="1787680149272" ID="Freemind_Link_1774354195" MODIFIED="1787680164164" TEXT="&#x391;&#x3bd;&#x3ac;&#x3bb;&#x3c5;&#x3c3;&#x3b7; &#x39a;&#x3c1;&#x3b1;&#x3c4;&#x3ae;&#x3c3;&#x3b5;&#x3c9;&#x3bd;">
 <icon BUILTIN="bookmark"/>
-<node CREATED="1669766651565" ID="Freemind_Link_1434853845" MODIFIED="1669766653290" TEXT="[]">
-<node CREATED="1669759281789" ID="Freemind_Link_820029042" MODIFIED="1669766660970" TEXT="int &#x2192; double"/>
-<node CREATED="1669759298235" ID="Freemind_Link_1694967335" MODIFIED="1669759491822" TEXT="int: &#x3a4;&#x3bf; &#x3c0;&#x3bf;&#x3c3;&#x3bf;&#x3c3;&#x3c4;&#x3cc; &#x3a6;&#x3a0;&#x391;&#xa;double: &#x3a4;&#x3bf; &#x3a6;&#x3a0;&#x391; &#x3c3;&#x3b5; &#x20ac; &#x3b3;&#x3b9;&#x3b1; &#x3c4;&#x3b1; &#x3b5;&#x3af;&#x3b4;&#x3b7; &#x3c0;&#x3bf;&#x3c5; &#x3ad;&#x3c7;&#x3bf;&#x3c5;&#x3bd; &#x3b1;&#x3c5;&#x3c4;&#x3cc; &#x3c4;&#x3bf; &#x3c0;&#x3bf;&#x3c3;&#x3bf;&#x3c3;&#x3c4;&#x3cc; &#x3a6;&#x3a0;&#x391;&#xa;array: &#x395;&#x3c0;&#x3b5;&#x3b9;&#x3b4;&#x3ae; &#x3bc;&#x3c0;&#x3bf;&#x3c1;&#x3b5;&#x3af; &#x3bd;&#x3b1; &#x3c5;&#x3c0;&#x3ac;&#x3c1;&#x3c7;&#x3bf;&#x3c5;&#x3bd; &#x3b5;&#x3af;&#x3b4;&#x3b7; &#x3bc;&#x3b5; &#x3b4;&#x3b9;&#x3b1;&#x3c6;&#x3bf;&#x3c1;&#x3b5;&#x3c4;&#x3b9;&#x3ba;&#x3cc; &#x3a6;&#x3a0;&#x391; &#x3c3;&#x3c4;&#x3bf; &#x3af;&#x3b4;&#x3b9;&#x3bf; &#x3c4;&#x3b9;&#x3bc;&#x3bf;&#x3bb;&#x3cc;&#x3b3;&#x3b9;&#x3bf;"/>
-<node CREATED="1669759357648" ID="Freemind_Link_234995303" MODIFIED="1669759449175" TEXT="&#x3c0;.&#x3c7;. 24 &#x2192; 105.5"/>
+<node CREATED="1669652659292" ID="Freemind_Link_133558421" MODIFIED="1669652739476" TEXT="&#x3a4;&#x3b1; &#x3bf;&#x3bd;&#x3cc;&#x3bc;&#x3b1;&#x3c4;&#x3b1; &#x3ba;&#x3b1;&#x3b9; &#x3bf; &#x3b1;&#x3c1;&#x3b9;&#x3b8;&#x3bc;&#x3cc;&#x3c2; &#x3c4;&#x3c9;&#x3bd; &#x3ba;&#x3c1;&#x3b1;&#x3c4;&#x3ae;&#x3c3;&#x3b5;&#x3c9;&#x3bd; &#x3c0;&#x3bf;&#x3b9;&#x3ba;&#x3af;&#x3bb;&#x3bf;&#x3c5;&#x3bd;. &#x3a0;.&#x3c7;."/>
+<node CREATED="1787680223013" ID="Freemind_Link_1568807028" MODIFIED="1787680226425" TEXT="&#x39f;&#x3b9; &#x3c4;&#x3b9;&#x3bc;&#x3ad;&#x3c2; &#x3b5;&#x3af;&#x3bd;&#x3b1;&#x3b9; &#x3b5;&#x3c5;&#x3c1;&#x3ce;"/>
+<node CREATED="1787680231858" ID="Freemind_Link_484941894" MODIFIED="1787680252935" TEXT="&#x394;&#x3b5;&#x3bd; &#x3c5;&#x3c0;&#x3ac;&#x3c1;&#x3c7;&#x3b5;&#x3b9; &apos;&#x3a3;&#x3cd;&#x3bd;&#x3bf;&#x3bb;&#x3bf;&apos; &#x3c3;&#x3b1;&#x3bd; &#x3cc;&#x3bd;&#x3bf;&#x3bc;&#x3b1;"/>
+<node CREATED="1669652679017" ID="Freemind_Link_871510601" MODIFIED="1669652727110" TEXT="&#x39c;&#x3a4;&#x3a3;">
+<node CREATED="1669652716709" ID="Freemind_Link_279520596" MODIFIED="1669652721800" TEXT="double"/>
 </node>
 </node>
 </node>
@@ -956,21 +951,33 @@
 </node>
 <node COLOR="#006699" CREATED="1669758940043" FOLDED="true" ID="Freemind_Link_46857916" MODIFIED="1669765842387" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 5">
 <font ITALIC="true" NAME="SansSerif" SIZE="12"/>
-<node CREATED="1669758948772" ID="Freemind_Link_327037887" MODIFIED="1669758949843" TEXT="&#x3a3;&#x3c5;&#x3bd;&#x3bf;&#x3bb;&#x3b9;&#x3ba;&#x3ae; &#x3a4;&#x3b9;&#x3bc;&#x3ae;">
+<node CREATED="1669758948772" ID="Freemind_Link_327037887" MODIFIED="1787680139348" TEXT="&#x3a3;&#x3c5;&#x3bd;&#x3bf;&#x3bb;&#x3b9;&#x3ba;&#x3ae; &#x3a4;&#x3b9;&#x3bc;&#x3ae;">
+<icon BUILTIN="bookmark"/>
 <node CREATED="1669758951120" ID="Freemind_Link_1031370365" MODIFIED="1669758952849" TEXT="double"/>
 <node CREATED="1669758954854" ID="Freemind_Link_54715923" MODIFIED="1669758972541" TEXT="&#x3a4;&#x3b9;&#x3bc;&#x3ae; &#x39c;&#x3bf;&#x3bd;&#x3ac;&#x3b4;&#x3b1;&#x3c2; * &#x3a0;&#x3bf;&#x3c3;&#x3cc;&#x3c4;&#x3b7;&#x3c4;&#x3b1;"/>
+</node>
+<node CREATED="1787679877130" ID="Freemind_Link_1285608270" MODIFIED="1787680139348" TEXT="&#x3a4;&#x3b9;&#x3bc;&#x3ae; &#x3a6;&#x3a0;&#x391;">
+<icon BUILTIN="bookmark"/>
+<node CREATED="1669758951120" ID="Freemind_Link_590907531" MODIFIED="1669758952849" TEXT="double"/>
+<node CREATED="1787679892501" ID="Freemind_Link_1244030576" MODIFIED="1787679917603" TEXT="&#x3a1;&#x3c5;&#x3b8;&#x3bc;&#x3b9;&#x3c3;&#x3bc;&#x3ad;&#x3bd;&#x3bf; &#x3ce;&#x3c3;&#x3c4;&#x3b5; &#x3c4;&#x3bf; &#x3ac;&#x3b8;&#x3c1;&#x3bf;&#x3b9;&#x3c3;&#x3bc;&#x3b1; &#x3cc;&#x3bb;&#x3c9;&#x3bd; &#x3bd;&#x3b1; &#x3b2;&#x3b3;&#x3b1;&#x3af;&#x3bd;&#x3b5;&#x3b9; &#x3c4;&#x3bf; &#x3a6;&#x3a0;&#x391; &#x3c4;&#x3bf;&#x3c5; &#x3c4;&#x3b9;&#x3bc;&#x3bf;&#x3bb;&#x3bf;&#x3b3;&#x3af;&#x3bf;&#x3c5;"/>
+</node>
+<node CREATED="1787679859012" ID="Freemind_Link_1239009395" MODIFIED="1787680139347" TEXT="&#x3a3;&#x3c5;&#x3bd;&#x3bf;&#x3bb;&#x3b9;&#x3ba;&#x3ae; &#x3a4;&#x3b9;&#x3bc;&#x3ae; &#x3bc;&#x3b5; &#x3a6;&#x3a0;&#x391;">
+<icon BUILTIN="bookmark"/>
+<node CREATED="1669758951120" ID="Freemind_Link_1488797391" MODIFIED="1669758952849" TEXT="double"/>
+<node CREATED="1787679892501" ID="Freemind_Link_1414568159" MODIFIED="1787679936938" TEXT="&#x3a1;&#x3c5;&#x3b8;&#x3bc;&#x3b9;&#x3c3;&#x3bc;&#x3ad;&#x3bd;&#x3bf; &#x3ce;&#x3c3;&#x3c4;&#x3b5; &#x3c4;&#x3bf; &#x3ac;&#x3b8;&#x3c1;&#x3bf;&#x3b9;&#x3c3;&#x3bc;&#x3b1; &#x3cc;&#x3bb;&#x3c9;&#x3bd; &#x3bd;&#x3b1; &#x3b2;&#x3b3;&#x3b1;&#x3af;&#x3bd;&#x3b5;&#x3b9; &#x3c4;&#x3bf; &#x3ba;&#x3b1;&#x3c4;&#x3b1;&#x3bb;&#x3bf;&#x3b3;&#x3b9;&#x3c3;&#x3c4;&#x3ad;&#x3bf; &#x3c4;&#x3bf;&#x3c5; &#x3c4;&#x3b9;&#x3bc;&#x3bf;&#x3bb;&#x3bf;&#x3b3;&#x3af;&#x3bf;&#x3c5;"/>
 </node>
 </node>
 </node>
 <node CREATED="1669652407325" FOLDED="true" ID="Freemind_Link_1963966867" MODIFIED="1669652409649" TEXT="Deduction">
-<node COLOR="#006699" CREATED="1669764974570" FOLDED="true" ID="Freemind_Link_1097605209" MODIFIED="1669765846512" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 3">
+<node COLOR="#006699" CREATED="1669764974570" ID="Freemind_Link_1097605209" MODIFIED="1669765846512" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 3">
 <font ITALIC="true" NAME="SansSerif" SIZE="12"/>
 <node CREATED="1669652659292" ID="Freemind_Link_287052638" MODIFIED="1669652739476" TEXT="&#x3a4;&#x3b1; &#x3bf;&#x3bd;&#x3cc;&#x3bc;&#x3b1;&#x3c4;&#x3b1; &#x3ba;&#x3b1;&#x3b9; &#x3bf; &#x3b1;&#x3c1;&#x3b9;&#x3b8;&#x3bc;&#x3cc;&#x3c2; &#x3c4;&#x3c9;&#x3bd; &#x3ba;&#x3c1;&#x3b1;&#x3c4;&#x3ae;&#x3c3;&#x3b5;&#x3c9;&#x3bd; &#x3c0;&#x3bf;&#x3b9;&#x3ba;&#x3af;&#x3bb;&#x3bf;&#x3c5;&#x3bd;. &#x3a0;.&#x3c7;."/>
+<node CREATED="1787680213666" ID="Freemind_Link_562340327" MODIFIED="1787680220272" TEXT="&#x39f;&#x3b9; &#x3c4;&#x3b9;&#x3bc;&#x3ad;&#x3c2; &#x3b5;&#x3af;&#x3bd;&#x3b1;&#x3b9; &#x3c0;&#x3bf;&#x3c3;&#x3bf;&#x3c3;&#x3c4;&#x3ac;"/>
 <node CREATED="1669652679017" ID="Freemind_Link_683893555" MODIFIED="1669652727110" TEXT="&#x39c;&#x3a4;&#x3a3;">
 <node CREATED="1669652716709" ID="Freemind_Link_1028955406" MODIFIED="1669652721800" TEXT="double"/>
 </node>
 </node>
-<node COLOR="#006699" CREATED="1669758694363" FOLDED="true" ID="Freemind_Link_806785175" MODIFIED="1669765846513" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 5">
+<node COLOR="#006699" CREATED="1669758694363" ID="Freemind_Link_806785175" MODIFIED="1669765846513" TEXT="&#x3a6;&#x3ac;&#x3c3;&#x3b7; 5">
 <font ITALIC="true" NAME="SansSerif" SIZE="12"/>
 <node CREATED="1669758730920" ID="Freemind_Link_1355950413" MODIFIED="1669758735748" TEXT="&#x3a3;&#x3cd;&#x3bd;&#x3bf;&#x3bb;&#x3bf;">
 <node CREATED="1669758736222" ID="Freemind_Link_499706833" MODIFIED="1669758737543" TEXT="double"/>

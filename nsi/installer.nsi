@@ -6,7 +6,7 @@ RequestExecutionlevel highest
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define NAME "expenditure"
-!define VERSION "2025.09.16"
+!define VERSION "2026.08.25"
 !define EXTENSION ".δαπάνη"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_VERSION "1.8"
@@ -67,8 +67,10 @@ VIAddVersionKey /LANG=${LANG_GREEK} "LegalCopyright" "${ME}"
 VIAddVersionKey /LANG=${LANG_GREEK} "FileVersion" "${VERSION}"
 
 # ----------------------------------------------------- default installation ---
-Section
+Section "Πρόγραμμα"
 
+	SectionIn RO
+	
 	SetOutPath $INSTDIR
 	File ..\dist\${NAME}.jar
 	File /r ..\src\php

@@ -84,7 +84,10 @@ final class ContentsTableCellEditor implements TableCellEditor {
 	// https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6788481
 	@Override public void cancelCellEditing() {
 		ChangeEvent e = new ChangeEvent(this);
-		listeners.forEach(i -> i.editingCanceled(e));
+		// Επειδή το editingCanceled() προσθαφαιρεί listeners πρέπει να χρησιμοποιήσουμε κλασικό for,
+		// ειδάλλως έχουμε ConcurrentModificationException
+		for (int z = 0; z < listeners.size(); ++z)
+			listeners.get(z).editingCanceled(e);
 	}
 
 	/** Οι listeners για τον τερματισμό ή ακύρωση της επεξεργασίας. */

@@ -278,7 +278,6 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		new ContentItem("Κατάσταση Πληρωμής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED, 2),
 		new ContentItem("Δγη Συγκρότησης Επιτροπών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),
 		new ContentItem("Τιμολόγια", TYPE_LISTED | INIT_YES_FIXED),
-		new ContentItem("Αποδεικτικό Πληρωμής ΤΠΕΔΕ, Π.Ο.ΕΜΔΥΔΑΣ, ΤΜΕΔΕ", TYPE_LISTED | INIT_YESNO_YES),	// Έργο
 		new ContentItem("Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),	// καθαρή αξία > 2500
 		new ContentItem("Βεβαίωση Παραλαβής", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),	// καθαρή αξία <= 2500
 		new ContentItem("Βεβαίωση μη Χρέωσης Υλικών", TYPE_LISTED_EXPORTED | INIT_YESNO_YES),
