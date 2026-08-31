@@ -22,7 +22,6 @@ import static java.lang.ClassLoader.getSystemResource;
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import static java.net.URLDecoder.decode;
 import java.nio.charset.Charset;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import java.util.ArrayList;
@@ -108,6 +107,7 @@ import static expenditure.Deduction.D16;
 import static expenditure.Deduction.D6_1;
 import static expenditure.Deduction.D16_1;
 import static expenditure.Deduction.D0_1;
+import java.net.URISyntaxException;
 
 /** Το κυρίως παράθυρο του προγράμματος.
  * Περιλαμβάνει τη main(). */
@@ -120,7 +120,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "25 Αυγ 26";
+	static private final String VERSION = "25 Σεπ 26";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -129,6 +129,9 @@ final public class MainFrame extends JFrame {
 	static final String[] NOYES = { "Όχι", "Ναι" };
 	/** Η πόρτα του server για επικοινωνία μεταξύ των εφαρμογών. */
 	static private final int SERVER_PORT = 6666;
+	/** Η διαδρομή του φακέλου των PHP scripts του προγράμματος */
+	static private final String PHP_SCRIPT_PATH = ROOT_PATH + "/php/"; // Υπάρχει παρακάτω: getPhpPath();
+
 
 	// ==================================== ΟΛΑ ΤΑ ΔΕΔΟΜΕΝΑ ΤΟΥ ΠΡΟΓΡΑΜΜΑΤΟΣ ===
 
@@ -222,12 +225,24 @@ final public class MainFrame extends JFrame {
 			"λίβρες", "ζεύγη", "στρέμματα", "Km", "Km²", "τονοχιλιόμετρα", "ώρες", "ημέρες", "μήνες"
 		});
 		cbUnits.setEditable(true);
+		// Επιλογέας διαθέσιμων Αναθετουσών Αρχών.
+		String[] names;
+		try {
+			String script = "<?php require('contructing_authorities_functions.php'); export_contracting_authorities(); ?>";
+			byte[] a = MainFrame.exportScriptOutput(script, null, true);
+			names = new String(a, GREEK).split(";");
+		} catch (Exception e) {
+			MainFrame.showError(e.getMessage());
+			names = new String[] {};
+		}
+		JComboBox cbContractingAuthorities = new JComboBox(names);
 		// Περίγραμμα για όλα
 		Border border = createLineBorder(WHITE, 0);
-		cbUnits      .setBorder(border);
-		cbPersonnel  .setBorder(border);
-		cbContractors.setBorder(border);
-		cbBoolean    .setBorder(border);
+		cbUnits                 .setBorder(border);
+		cbPersonnel             .setBorder(border);
+		cbContractors           .setBorder(border);
+		cbBoolean               .setBorder(border);
+		cbContractingAuthorities.setBorder(border);
 
 		// ---------------------------------------------- ΚΑΡΤΕΛΑ «ΕΡΓΑΣΙΕΣ» ---
 		// Πίνακας εργασιών
@@ -251,21 +266,22 @@ final public class MainFrame extends JFrame {
 		String[] unitHeader = {
 			"<html><b>Στοιχεία Μονάδας",
 			"<html>Ελέγχουσα Αρχή <font size=2><i>(σύντμηση)",
-			"<html>Σχηματισμός <font size=2><i>(σύντμηση)",
+			UnitInfo.H[1],
 			"<html>Μονάδα <font size=2><i>(πλήρης)",
 			"<html>Μονάδα <font size=2><i>(σύντμηση)",
-			UnitInfo.H[4], UnitInfo.H[5], UnitInfo.H[6], UnitInfo.H[7], UnitInfo.H[8], UnitInfo.H[9],
-			UnitInfo.H[10], UnitInfo.H[11], UnitInfo.H[12], UnitInfo.H[13],
+			UnitInfo.H[4], UnitInfo.H[5], UnitInfo.H[6],
+			"Διεύθυνση ηλεκτρονικού ταχυδρομείου",
+			UnitInfo.H[8], UnitInfo.H[9], UnitInfo.H[10], UnitInfo.H[11], UnitInfo.H[12],
+			UnitInfo.H[13], UnitInfo.H[14],UnitInfo.H[15],
 			"<html><b>Στοιχεία Επιτροπών Δαπάνων",
-			UnitInfo.H[14], UnitInfo.H[15], UnitInfo.H[16], UnitInfo.H[17], UnitInfo.H[18],
-			UnitInfo.H[19], UnitInfo.H[20], UnitInfo.H[21], UnitInfo.H[22], UnitInfo.H[23]
+			UnitInfo.H[16], UnitInfo.H[17], UnitInfo.H[18], UnitInfo.H[19], UnitInfo.H[20],
+			UnitInfo.H[21], UnitInfo.H[22], UnitInfo.H[23], UnitInfo.H[24], UnitInfo.H[25]
 		};
 		// Οι επεξεργαστές για τα πεδία του πίνακα με τα στοιχεία της Μονάδας.
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
 		Component[] unitEditors = {
-			null, null, null, null, null, null, null, null, null, null, null, cbPersonnel, cbPersonnel,
-			cbPersonnel, cbPersonnel,
-			null, null, cbPersonnel
+			null, null, cbContractingAuthorities, null, null, null, null, null, null, null, null, null,
+			null, null, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, null, null, cbPersonnel
 		};
 
 		// Το tabbed panel πρέπει να είναι πρώτο στοιχείο της φορμας και οι Εργασίες το 4ο στοιχείο
@@ -1020,17 +1036,11 @@ final public class MainFrame extends JFrame {
 				}),
 				createMenu("Υπεύθυνες Δηλώσεις", new JMenuItem[] {
 					createMenuItem("Γνωστοποίηση τραπεζικού λογαριασμού", e -> statement("statement_IBAN")),
-					createMenuItem("Μη χρησιμοποίηση στρατιωτικού ως αντιπρόσωπου", e ->
-							statement("statement_representative")),
 					createMenuItem("Μη συνδρομή λόγων αποκλεισμού", e ->
 							statement("statement_disqualification")),
 					null,
 					createMenuItem("Κενή", e -> saveScriptOutput(
 							"<?php require_once('statement.php'); init(1); statement(null); ?>\n\n}")),
-				}),
-				createMenu("ΦΕ", new JMenuItem[] {
-					createMenuItem("Εφορία", e -> exportReport("ΦΕ για την Εφορία.php", null)),
-					createMenuItem("Δικαιούχος", e -> exportReport("ΦΕ για τον Δικαιούχο.php", null))
 				}),
 				createMenu("Διάφορα", new JMenuItem[] {
 					createMenuItem("Κατάσταση Πληρωμής", e ->
@@ -1070,22 +1080,21 @@ final public class MainFrame extends JFrame {
 	 * Αν δεν υπάρχουν ανοικτές δαπάνες, απενεργοποιεί ορισμένα μενού. Επιπλέον ενημερώνει το μενού
 	 * Δαπάνες, για το ποιές δαπάνες είναι ανοικτές. */
 	private void updateMenus() {
-		boolean has = !data.isEmpty();				// Το πρόγραμμα έχει ανοικτές δαπάνες
+		boolean has = !data.isEmpty();					// Το πρόγραμμα έχει ανοικτές δαπάνες
 		JMenu file = getJMenuBar().getMenu(0);		// μενού Αρχείο
 		file.getItem(2).setEnabled(has);			// μενού Αποθήκευση Δαπάνης
 		file.getItem(4).setEnabled(has);			// μενού Κλείσιμο Δαπάνης
 		JMenu export = getJMenuBar().getMenu(1);	// μενού Εξαγωγή
 		export.getItem(0).setEnabled(has);			// μενού Εξαγωγή/Δαπάνη
 		JMenu doc = (JMenu) export.getItem(1);		// μενού Εξαγωγή/Αλληλογραφία
-		doc.getItem(1).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
-		doc.getItem(2).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
-		doc.getItem(3).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
+		doc.getItem(1).setEnabled(has);			// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
+		doc.getItem(2).setEnabled(has);			// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
+		doc.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
 		export.getItem(2).setEnabled(has);			// μενού Εξαγωγή/Σύμβαση
 		export.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Διαγωνισμοί
-		JMenu statement = (JMenu) export.getItem(4);// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις
-		statement.getItem(2).setEnabled(has);		// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις/Μη συνδρομή λόγων αποκλεισμού
-		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/ΦΕ
-		export.getItem(6).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
+		JMenu statement = (JMenu) export.getItem(4);	// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις
+		statement.getItem(1).setEnabled(has);		// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις/Μη συνδρομή λόγων αποκλεισμού
+		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
 		JMenu expenditures = getJMenuBar().getMenu(4);	// μενού Δαπάνες
 		expenditures.setEnabled(has);
 		// Ξαναδημιουργείται το μενού με όλες τις ανοικτές δαπάνες σαν επιλογές του
@@ -1125,7 +1134,7 @@ final public class MainFrame extends JFrame {
 
 	/** Άνοιγμα της τεκμηρίωσης του προγράμματος, στο πρόγραμμα πλοήγησης. */
 	private void help() {
-		try { Desktop.getDesktop().open(new File(ROOT_PATH + "help/index.html")); }
+		try { Desktop.getDesktop().open(new File(ROOT_PATH + "/help/index.html")); }
 		catch(RuntimeException | IOException ex) {
 			showExceptionMessage(this, ex, "Πρόβλημα στην εκκίνηση του browser", null);
 		}
@@ -1136,7 +1145,7 @@ final public class MainFrame extends JFrame {
 		File s = null;
 		int z = 0;
 		do
-			s = new File(ROOT_PATH + "Νέα Δαπάνη - " + z++ + ".δαπάνη");
+			s = new File(ROOT_PATH + "/Νέα Δαπάνη - " + z++ + ".δαπάνη");
 		while(data.isExpenditureFileExist(s));
 		data.addActiveExpenditure(new Expenditure(s, new UnitInfo(data.unitInfo)));
 		updateMenus(); updatePanels();
@@ -1454,11 +1463,23 @@ final public class MainFrame extends JFrame {
 	/** Επιστρέφει το φάκελο εκτέλεσης του προγράμματος.
 	 * @return Ο φάκελος εκτέλεσης του προγράμματος */
 	static private String getRootPath() {
-		try {	//JDK11: Αντικατάσταση του "UTF-8" με UTF_8 και αφαίρεση των try-catch
-			return decode(getSystemResource(INI).getPath()
-					.replaceAll("(expenditure\\.jar!/)?expenditure\\.ini$|^(file\\:)?/", ""), "UTF-8");
-		} catch(IOException e) { return null; }
+		try {
+			File location = new File(MainFrame.class.getProtectionDomain().getCodeSource()
+					.getLocation().toURI());
+			return location.isFile() ? location.getParent() : location.getPath();
+		} catch (URISyntaxException e) { return null; }
 	}
+
+	/* * Επιστρέφει το φάκελο των PHP scripts του προγράμματος.
+	 * @return Ο φάκελος των PHP scripts * /
+	static private String getPhpPath() {
+		try {
+			String path = new File(MainFrame.class.getProtectionDomain().getCodeSource()
+					.getLocation().toURI()).getPath();
+			if (path.endsWith(".jar")) path = "phar://" + path;
+			return path + "/php/";
+		} catch (URISyntaxException e) { return null; }
+	}*/
 
 	/** Φορτώνει τις ρυθμίσεις του προγράμματος.
 	 * Υψηλού επιπέδου κλήση που κάνει τις παρακάτω προσπάθειες:
@@ -1473,7 +1494,7 @@ final public class MainFrame extends JFrame {
 	 * <li>Το πρόγραμμα ξεκινάει με όλα τα δεδομένα κενά.</ol> */
 	static private void iniLoad() {
 		// Πρώτα ψάχνει το αρχείο ρυθμίσεων στο φάκελο εγκατάστασης (φορητή λειτουργία)
-		iniPath = ROOT_PATH + INI;
+		iniPath = ROOT_PATH + "/" + INI;
 		try { data = iniLoad(new FileInputStream(iniPath)); }
 		catch(FileNotFoundException ex) {
 			// Αν αποτύχει, ψάχνει το αρχείο ρυθμίσεων στο φάκελο του χρήστη (κανονική λειτουργία)
@@ -1509,7 +1530,7 @@ final public class MainFrame extends JFrame {
 	static private boolean initPHP() {
 		// Η διαδρομή προς το εκτελέσιμο php. Σε linux είναι απλά 'php' ενώ σε Windows είναι η
 		// διαδρομή προς το php που εγκαθιστά ο installer του προγράμματος.
-		String php = System.getProperty("os.name").contains("Windows") ? ROOT_PATH + "php5/php.exe" : "php";
+		String php = System.getProperty("os.name").contains("Windows") ? ROOT_PATH + "/php5/php.exe" : "php";
 		try { PhpScriptRunner.init(php); return true; }
 		catch (ExecutionException e) {
 			showExceptionMessage(null, e, "Πρόβλημα του PHP cli",
@@ -1652,7 +1673,7 @@ final public class MainFrame extends JFrame {
 	 * αρχείο. Το null επιτρέπεται. */
 	static private void exportReport(String fname, StdInStream sin, Map<String, String> env) {
 		// Αρχικοποίηση των ρυθμίσεων εκτέλεσης του PHP script
-		PhpScriptRunner php = new PhpScriptRunner(ROOT_PATH + "php/", fname, null);
+		PhpScriptRunner php = new PhpScriptRunner(PHP_SCRIPT_PATH, fname, null);
 		if (env != null) php.getEnvironment().putAll(env);
 		try {
 			PhpScriptRunner.StdOut out = new PhpScriptRunner.StdOut(), err = new PhpScriptRunner.StdOut();
@@ -1680,7 +1701,7 @@ final public class MainFrame extends JFrame {
 			os.close();
 		};
 		// Αρχικοποίηση των ρυθμίσεων εκτέλεσης του PHP script
-		PhpScriptRunner php = new PhpScriptRunner(ROOT_PATH + "php/", null, null);
+		PhpScriptRunner php = new PhpScriptRunner(PHP_SCRIPT_PATH, null, null);
 		if (env != null) php.getEnvironment().putAll(env);
 		int errCode;
 		String error = "";

@@ -6,7 +6,7 @@ RequestExecutionlevel highest
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define NAME "expenditure"
-!define VERSION "2026.08.25"
+!define VERSION "2026.09.25"
 !define EXTENSION ".δαπάνη"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define JAVA_VERSION "1.8"
@@ -118,7 +118,7 @@ Section "Πρόγραμμα"
 	
 SectionEnd
 
-# --------------------------------------------------------------------- help ---
+# ------------------------------------------------------------------ Βοήθεια ---
 Section 'Βοήθεια'
 
 	SetOutPath $INSTDIR

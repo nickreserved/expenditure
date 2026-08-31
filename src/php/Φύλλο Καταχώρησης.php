@@ -284,8 +284,7 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Υπεύθυνη Δήλωση Σχετικά με τους Οργανισμούς Κύριας και Επικουρικής Ασφάλισης που Καταβάλλονται Εισφορές':
 			case 'Υπεύθυνη Δήλωση Περί μη Έκδοσης Δικαστικής ή Διοικητικής Απόφασης με Τελεσίδικη και Δεσμευτική Ισχύ, για την Αθέτηση των Υποχρεώσεων, όσον Αφορά στην Καταβολή Φόρων ή Εισφορών Κοινωνικής Ασφάλισης':
 			case 'Απόσπασμα Ποινικού Μητρώου': contents_contractor_certificate($name); break;
-			case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
-			case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ': contents_statement($content_item); break;
+			case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού': contents_statement($content_item); break;
 			case 'Φορολογική και Ασφαλιστική Ενημερότητα': contents_tax_insurrance_currency(); break;
 			case 'Σύμβαση': contents_contract(); break;
 			case 'Δικαιολογητικά Κατακύρωσης Προσωρινού Αναδόχου': contents_legal_documents(); break;
@@ -295,7 +294,7 @@ foreach($data['Φύλλο Καταχώρησης'] as $content_item) {
 			case 'Κατακύρωση Διαγωνισμού':
 			case 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου': contents_order_tender($content_item, true); break;
 			case 'Διακήρυξη Διαγωνισμού': contents_order_tender($content_item, false); break;
-			case 'Πρόσκληση Υποβολής Προσφορών':	
+			case 'Πρόσκληση Υποβολής Προσφορών':
 			case 'Απόφαση Απευθείας Ανάθεσης': contents_order_contract($content_item); break;
 			case 'Δγη Συγκρότησης Επιτροπών':
 				if (isset($data['Συμβάσεις'])) contents_order($content_item, $data[$name]);

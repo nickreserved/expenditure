@@ -5,7 +5,6 @@ require_once('functions.php');
 $name = $_ENV['export'];
 switch($name) {
 	case 'statement_IBAN':
-	case 'statement_representative':
 	case 'statement_disqualification':
 		require_once('statement.php');
 		init(3);

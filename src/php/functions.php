@@ -1,5 +1,7 @@
 <?php
 
+require('contructing_authorities_functions.php');
+
 // -------------------------------------------------------------------- ΕΞΑΓΩΓΗ RTF ΠΕΡΙΕΧΟΜΕΝΟΥ ---
 
 /** Κλείνει το RTF αρχείο, αν απαιτείται, με εξαγωγή του κατάλληλου κειμένου.
@@ -913,6 +915,7 @@ function init_invoices() {
 		// Υπολογίζει καθαρή αξία και ΦΠΑ τιμολογίου
 		$net = $vat = 0;
 		$vat_items = array();
+		$vat_categories = array();
 		foreach($invoice['Είδη'] as & $item) {
 			$a = round($item['Τιμή Μονάδας'] * $item['Ποσότητα'], 3);
 			$item['Συνολική Τιμή'] = $a;
@@ -922,12 +925,15 @@ function init_invoices() {
 				$a *= $vat_p / 100;
 				$vat_items[] = $a;
 				$vat += $a;
+				if (isset($vat_categories[$vat_p])) $vat_categories[$vat_p] += $a;
+				else $vat_categories[$vat_p] = $a;
 			}
 		}
 		unset($item);
 		// Ενσωματώνει τις αξίες του τιμολογίου σε κάθε τιμολόγιο
 		$net = round($net, 2);
 		$vat = round($vat, 2);
+		$vat_categories = adjust_partials($vat_categories, $vat);
 		$mixed = $net + $vat;
 		$deductions = round($net * $invoice['Κρατήσεις']['Σύνολο'] / 100, 2);
 		if ($invoice['Δικαιούχος']['Τύπος'] != 'Ιδιωτικός Τομέας') $mixed += $deductions;
@@ -966,6 +972,7 @@ function init_invoices() {
 			'ΦΕ'                 => $incomeTax,
 			'Υπόλοιπο Πληρωτέο'  => $payableMinusIncomeTax
 		);
+		$invoice['Κατηγορίες ΦΠΑ'] = $vat_categories;
 	}
 	// Υπολογισμός καταλογιστέου, κρατήσεων, ΦΕ, κτλ για το σύνολο της δαπάνης
 	$data['Τιμές'] = calc_sum_of_invoices_prices($data['Τιμολόγια']);
@@ -1152,6 +1159,7 @@ function init($i) {
 				explode_order_if_exists($data, 'Δγη Συγκρότησης Επιτροπών');
 				break;
 			case 5:
+				init_contracting_authority();
 				init_tenders();
 				init_contracts();
 				init_invoices();

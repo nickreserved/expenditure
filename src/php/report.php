@@ -138,20 +138,20 @@ foreach($invoices as $invoice)
 /** Εξάγει τα στοιχεία μιας έκθεσης, χωρίς τιμές.
  * Χρησιμοποιείται αποκλειστικά στην στην πρόσκληση υποβολής προσφορών.
  * @param array $invoices Λίστα με τα τιμολόγια της έκθεσης */
-function report_no_prices_no_sums2($invoices) {
+function report_list_items($invoices) {
 	$cells = <<<'EOD'
 \trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
-\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx454
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\cellx4366
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx5613
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx6916
-\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx8788
+\clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx510
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clvertalc\cellx5499
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx6746
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\clvertalc\cellx7654
+\clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clvertalc\cellx8788
 
 EOD;
 ?>
-\pard\plain\fs21
+\pard\plain
 \trowd\trhdr<?=$cells?>
-\qc\b A/A\cell ΠΕΡΙΓΡΑΦΗ\cell ΜΟΝΑΔΑ\line ΜΕΤΡΗΣΗΣ\cell ΠΟΣΟΤΗΤΑ\cell ΠΑΡΑΤΗΡΗΣΕΙΣ\b0\cell\row
+\qc\b A/A\cell Περιγραφή\cell Μονάδα\line Μέτρησης\cell Ποσότητα\cell Παρατηρήσεις\b0\cell\row
 \trowd<?=$cells?>
 <?php
 $count_items = 0;

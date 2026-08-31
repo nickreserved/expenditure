@@ -6,15 +6,20 @@ if (!isset($output)) $output = !isset($_ENV['draft']) || $_ENV['draft'] != 'true
 /** еНэЦЕИ ТО АМ Г ДИАТАЦч ЕъМАИ АМАЯТГТщА СТО ДИАДъЙТУО ч ЭВИ, ЙАХЧР ЙАИ ТО ада ТГР.
  * @param array $order тО array ЛЕ ТА СТОИВЕъА ТАУТЭТГТАР ТОУ СТЯАТИЫТИЙОЩ ЕЦЦЯэЖОУ ч null */
 function order_publish($order) {
-	if (published()) { ?>
-
-\pard\plain\li5670 ада: <?=orelse($order, 'ада', '\u8230.\u8230.')?>\par
-адал: <?=orelse($order, 'адал', '\u8230.\u8230.')?>\par\par
-\li0\qc{\ul\b амаятгтеа сто диадийтуо}\par\par
+	if (published()) {
+		if (!isset($order['ада']) && !isset($order['адал'])) { ?>
+\pard\plain\li5670 ада: \u8230.\u8230.\par
+адал: \u8230.\u8230.\par
+<?php	} else {
+			echo '\pard\plain\li5670 ';
+			if (isset($order['ада'])) echo 'ада: ' . $order['ада'] . '\par' . PHP_EOL;
+			if (isset($order['адал'])) echo 'адал: ' . $order['адал'] . '\par' . PHP_EOL;
+		} ?>
+\li0\sb120\sa240\qc{\ul\b амаятгтеа сто диадийтуо}\par
 
 <?php } else { ?>
 
-\pard\plain\qc{\ul\b лг амаятгтеа сто диадийтуо}\par\par
+\pard\plain\sa240\qc{\ul\b лг амаятгтеа сто диадийтуо}\par
 
 <?php }
 }

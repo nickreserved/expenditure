@@ -300,7 +300,7 @@ function iban_gui($iban) {
 				if (isset($bank['phone'  ])) echo "Τηλέφωνο: {$bank['phone']}\n";
 				if (isset($bank['fax'    ])) echo "Τηλεομοιοτυπία: {$bank['fax']}\n";
 				if (isset($bank['url'    ])) echo "Ιστοσελίδα: {$bank['url']}\n";
-				
+
 				$branch = branch_full_info($iban);
 				if (!isset($branch))
 					echo "\nΤο υποκατάστημα της τράπεζας έχει κωδικό " . substr($iban, 4, 7) . " χωρίς άλλα στοιχεία - πιθανόν να έκλεισε\n";
@@ -315,7 +315,7 @@ function iban_gui($iban) {
 					if (isset($branch['atm'         ])) echo $branch['atm'] ? "Έχει ATM\n" : "Δεν έχει ATM\n";
 					if (isset($branch['aps'         ])) echo $branch['aps'] ? "Έχει APS\n" : "Δεν έχει APS\n";
 				}
-				
+
 				echo "\nΟ αριθμός λογαριασμού είναι " . substr($iban, 11);
 			}
 		}

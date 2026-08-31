@@ -40,7 +40,6 @@ function contractor_legal_documents($tender) {
 
 \tab <?=greekNum(++$par)?>.\tab Απόσπασμα Ποινικού Μητρώου.\par
 \tab <?=greekNum(++$par)?>.\tab Φορολογική και Ασφαλιστική Ενημερότητα.\par
-\tab <?=greekNum(++$par)?>.\tab Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ.\par
 \tab <?=greekNum(++$par)?>.\tab Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού.\par
 <?php
 	if ($tender['Εγγυητική Επιστολή Καλής Εκτέλεσης'])

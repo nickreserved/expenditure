@@ -60,7 +60,7 @@ final class ContentItem implements VariableSerializable, TableRecord {
 	static final private byte DEFAULT_NO = 0;
 	/** Η προκαθορισμένη επιλογή για το δικαιολογητικό είναι να εξαχθεί πλήρως. */
 	static final private byte DEFAULT_YES = 16;
-	/** Η προκαθορισμένη επιλογή για το δικαιολογητικό είναι να κατχωρηθεί μόνο στο φύλλο καταχώρησης.
+	/** Η προκαθορισμένη επιλογή για το δικαιολογητικό είναι να καταχωρηθεί μόνο στο φύλλο καταχώρησης.
 	 * Αφορά μόνο τα δικαιολογητικά για τα οποία το πρόγραμμα μπορεί να εξάγει έντυπο και μπορούν να
 	 * καταχωρηθούν στο φύλλο καταχώρησης. */
 	static final private byte DEFAULT_LIST = 32;
@@ -256,6 +256,8 @@ final class ContentItem implements VariableSerializable, TableRecord {
 			= new ContentItem("Υπεύθυνη Δήλωση Σχετικά με τους Οργανισμούς Κύριας και Επικουρικής Ασφάλισης που Καταβάλλονται Εισφορές", TYPE_LISTED | INIT_YES_FIXED);
 	static final private ContentItem ΥπεύθυνηΔήλωσηΔικαστικήςΑπόφασης
 			= new ContentItem("Υπεύθυνη Δήλωση Περί μη Έκδοσης Δικαστικής ή Διοικητικής Απόφασης με Τελεσίδικη και Δεσμευτική Ισχύ, για την Αθέτηση των Υποχρεώσεων, όσον Αφορά στην Καταβολή Φόρων ή Εισφορών Κοινωνικής Ασφάλισης", TYPE_LISTED | INIT_YES_FIXED);
+	static final private ContentItem ΥπεύθυνηΔήλωσηΜηΔωροδοκίας
+			= new ContentItem("Υπεύθυνη Δήλωση Περί μη Συνδρομής Αδικημάτων Δωροδοκίας της παρ. 1 του Άρθρου 73 του ν.4412/2016", TYPE_LISTED | INIT_YES_FIXED);
 	static final private ContentItem ΠρόσκλησηΥποβολήςΠροσφορών
 			= new ContentItem("Πρόσκληση Υποβολής Προσφορών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES);
 	static final private ContentItem ΑπόφασηΑπευθείαςΑνάθεσης
@@ -285,7 +287,6 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		new ContentItem("Πρωτόκολλο Παραλαβής Αφανών Εργασιών", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
 		new ContentItem("Οριστική και Αναλυτική Επιμέτρηση", TYPE_LISTED_EXPORTED | INIT_YESLIST_YES),	// Έργο
 		new ContentItem("Βεβαίωση Εκτέλεσης του Έργου από Οπλίτες", TYPE_LISTED_EXPORTED | INIT_YESNO_YES),	// Έργο
-		new ContentItem("Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST),
 		new ContentItem("Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού", TYPE_LISTED_EXPORTED | INIT_YESNOLIST_LIST)
 	};
 
@@ -298,6 +299,7 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,	// καταλογιστέο > 1500 και καταλογιστέο > 3000 && καθαρή αξία > 2500
 		ΥπεύθυνηΔήλωσηΕισφορώνΑσφάλισης,	// καθαρή αξία > 2500
 		ΥπεύθυνηΔήλωσηΔικαστικήςΑπόφασης,	// καθαρή αξία > 2500
+		ΥπεύθυνηΔήλωσηΜηΔωροδοκίας,			// καθαρή αξία > 2500
 		Σύμβαση,							// καθαρή αξία > 2500
 	};
 
@@ -315,6 +317,7 @@ final class ContentItem implements VariableSerializable, TableRecord {
 		ΦορολογικήΑσφαλιστικήΕνημερότητα,
 		ΥπεύθυνηΔήλωσηΕισφορώνΑσφάλισης,
 		ΥπεύθυνηΔήλωσηΔικαστικήςΑπόφασης,
+		ΥπεύθυνηΔήλωσηΜηΔωροδοκίας,
 		new ContentItem("Δικαιολογητικά Κατακύρωσης Προσωρινού Αναδόχου", TYPE_LISTED | INIT_YES_FIXED),
 
 		new ContentItem("ΥΠΟΦΑΚΕΛΟΣ «Δ»: ΚΑΤΑΚΥΡΩΣΗ ΔΙΑΓΩΝΙΣΜΟΥ", TYPE_LISTED_EXPORTED | INIT_YES_FIXED),

@@ -6,6 +6,7 @@ switch($argv[1]) {
 	case 'dump': var_dump($data); break;
 	case 'clean-all':
 		unset($data['Έκδοση']);
+		//unset($data['Δαπάνες']);
 		$keys = array_keys($data['Δαπάνες']);
 		$data['Δαπάνες'] = array('Παράδειγμα' => $data['Δαπάνες'][$keys[$data['Τρέχουσα Δαπάνη']]]);
 		unset($data['Κρατήσεις']);

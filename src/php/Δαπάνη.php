@@ -38,8 +38,6 @@ foreach($data['Φύλλο Καταχώρησης'] as $paper_v)
 		switch($name) {
 			case 'Υπεύθυνη Δήλωση, Γνωστοποίησης Τραπεζικού Λογαριασμού':
 				statement_common('statement_IBAN', $data['Μονάδα Πλήρες']); break;
-			case 'Υπεύθυνη Δήλωση, μη Χρησιμοποίησης Αντιπροσώπου Εταιρίας, Αξκου των ΕΔ':
-				statement_common('statement_representative', $data['Μονάδα Πλήρες']); break;
 			case 'Σύμβαση': export_contracts(); break;
 			case 'Πρακτικά Αποσφράγισης Δικαιολογητικών Συμμετοχής': offer_unseal_reports(); break;
 			default:
