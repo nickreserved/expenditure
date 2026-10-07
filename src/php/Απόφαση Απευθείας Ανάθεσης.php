@@ -9,9 +9,11 @@ $contracts = isset($data['Συμβάσεις'])
 	: array();
 foreach ($contracts as $per_contract) {
 	$contract = $per_contract['Σύμβαση'];
+	$to = get_contractor_recipient($per_contract['Δικαιούχος']);
+
 	start_35_20();
 	order_publish(ifexist($contract, 'Απόφαση Απευθείας Ανάθεσης'));
-	order_header_recipients(ifexist2($output, $contract, 'Απόφαση Απευθείας Ανάθεσης'), $output, null,
+	order_header(ifexist2($output, $contract, 'Απόφαση Απευθείας Ανάθεσης'), $to, $data['Μονάδα'], $output, null,
 			'Άλλα Θέματα Συμβάσεων (Απόφαση Απευθείας Ανάθεσης)',
 			array(
 				'ΝΔ.721/1970 Περί «Οικονομικής Μερίμνης και Λογιστικού των Ενόπλων Δυνάμεων» (Α\' 251)',
@@ -47,7 +49,7 @@ if (published()) echo $count++ . '.\tab Το παρόν θα αναρτηθεί στο διαδικτυακό τό
 <?=$count++?>.\tab Χειριστής θέματος: <?=person($data['Αξκος Γραφείου'])?>, <?=rtf($data['Ιδιότητα Αξκου'])?>, τηλ. <?=rtf($data['Τηλέφωνο'])?>, διεύθυνση ηλεκτρονικού ταχυδρομείου <?=rtf($data['email'])?>.\par
 <?php
 order_footer($output);
-order_recipient_table(array(get_contractor_recipient($per_contract['Δικαιούχος'])), array($data['Μονάδα']));
+order_recipient_table($to, $data['Μονάδα']);
 ?>
 
 \sect
@@ -57,6 +59,6 @@ order_recipient_table(array(get_contractor_recipient($per_contract['Δικαιούχος']
 
 if (!is_expenditure() && !isset($per_contract)) trigger_error('Δεν έχουμε απευθείας ανάθεση', E_USER_ERROR);
 
-unset($contract, $contracts, $per_contract, $count);
+unset($contract, $contracts, $per_contract, $count, $to);
 
 rtf_close(__FILE__);

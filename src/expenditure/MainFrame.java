@@ -120,7 +120,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "25 Σεπ 26";
+	static private final String VERSION = "07 Οκτ 26";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -281,7 +281,7 @@ final public class MainFrame extends JFrame {
 		// Πρέπει να είναι τύπου Component γιατί τα null στοιχεία, αντικαθίστανται με JTextField.
 		Component[] unitEditors = {
 			null, null, cbContractingAuthorities, null, null, null, null, null, null, null, null, null,
-			null, null, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, null, null, cbPersonnel
+			null, cbPersonnel, cbPersonnel, cbPersonnel, cbPersonnel, null, null, cbPersonnel
 		};
 
 		// Το tabbed panel πρέπει να είναι πρώτο στοιχείο της φορμας και οι Εργασίες το 4ο στοιχείο
@@ -311,7 +311,7 @@ final public class MainFrame extends JFrame {
 		PropertiesTableModel ptm = new PropertiesTableModel(unitHeader, 1) {
 			@Override public TableRecord get(int index) { return data.unitInfo; }
 			@Override public boolean isCellEditable(int row, int col) {
-				return super.isCellEditable(row, col) && row != 0 && row != 15 && row != 29;
+				return super.isCellEditable(row, col) && row != 0 && row != 17;
 			}
 		};
 		return new JScrollPane(createTable(ptm, unitEditors));
@@ -529,7 +529,7 @@ final public class MainFrame extends JFrame {
 			@Override public TableRecord get(int index) { return data.expenditure; }
 			@Override public boolean isCellEditable(int row, int col) {
 				return super.isCellEditable(row, col) && row != 0 && row != 8 && row != 10
-						&& row - 17 != 0 && row - 17 != 15;
+						&& row - 17 != 0 && row - 17 != 17;
 			}
 		};
 		// Ανανέωση πινάκων που τροποποιούνται λόγω αυτοματισμών

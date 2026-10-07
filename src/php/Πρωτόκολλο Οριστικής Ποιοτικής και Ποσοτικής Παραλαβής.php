@@ -1,11 +1,12 @@
 <?php
 require_once('functions.php');
-init(7);
 
-if (isset($data['Συμβάσεις']))
-	foreach($data['Συμβάσεις'] as $per_contract) {
-		$invoices = $per_contract['Τιμολόγια'];
-		foreach(get_invoices_by_category($invoices) as $a => $invoices) {
+init(8);
+
+if (isset($data['Διαγωνισμοί']) || $data['Έργο']) {
+
+	foreach($data['Συμβάσεις'] as $per_contract)
+		foreach(get_invoices_by_category($per_contract['Τιμολόγια']) as $a => $invoices) {
 			$b = $a ? 'Προμηθειών' : 'Υπηρεσιών';
 			// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
 			$c = count($invoices) > 1 ? 'α' : 'ο';
@@ -14,7 +15,7 @@ if (isset($data['Συμβάσεις']))
 \sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134
 
 \pard\plain\qr <?=rtf($data['Σχηματισμός'])?>\line <?=rtf($data['Μονάδα'])?>\line <?=rtf($data['Έδρα']) . ', ' . strftime('%d %b %y', get_newer_timestamp($invoices))?>\par
-\pard\plain\sb240\sa240\qc\b ΠΡΩΤΟΚΟΛΛΟ\line ΟΡΙΣΤΙΚΗΣ ΠΟΣΟΤΙΚΗΣ ΚΑΙ ΠΟΙΟΤΙΚΗΣ ΠΑΡΑΛΑΒΗΣ <?=$a[0] ? 'ΠΡΟΜΗΘΕΙΩΝ' : 'ΥΠΗΡΕΣΙΩΝ'?>\par
+\pard\plain\sb240\sa240\qc\b ΠΡΩΤΟΚΟΛΛΟ\line ΟΡΙΣΤΙΚΗΣ ΠΟΣΟΤΙΚΗΣ ΚΑΙ ΠΟΙΟΤΙΚΗΣ ΠΑΡΑΛΑΒΗΣ <?=$a ? 'ΠΡΟΜΗΘΕΙΩΝ' : 'ΥΠΗΡΕΣΙΩΝ'?>\par
 \pard\plain\sa120\tx567\tx1134\tx1701\qj
 \tab Σήμερα την <?=strftime('%d %b %y', get_newer_timestamp($invoices))?>, η Επιτροπή η οποία αποτελείται από τους:\par
 \tab\tab α.\tab <?=personi($data["Πρόεδρος Παραλαβής $b"], 0)?>, Πρόεδρος της Επιτροπής.\par
@@ -43,7 +44,8 @@ else echo 'ΑΞΚΟΣ 4ου ΓΡΑΦΕΙΟΥ\line\line\line ' . rtf($data['Αξκος Γραφείου']['Ον
 \sect
 
 <?		}
-	}
+
+}
 
 unset($a, $b, $c, $invoices, $per_contract);
 

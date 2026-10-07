@@ -1,15 +1,14 @@
 <?php
 require_once('functions.php');
 
-init(6);
-$invoices = array();
-foreach($data['Δικαιούχοι'] as $per_contractor) {
-	if (isset($per_contractor['Σύμβαση']['Διαγωνισμός'])) continue;
-	$invoices = $per_contractor['Τιμολόγια'];
+init(8);
 
-	foreach(get_invoices_by_category($invoices) as $a => $invoices) {
-		// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
-		$c = count($invoices) > 1 ? 'α' : 'ο';
+if (!isset($data['Διαγωνισμοί']) && !$data['Έργο']) {
+
+	foreach($data['Δικαιούχοι'] as $per_contractor)
+		foreach(get_invoices_by_category($per_contractor['Τιμολόγια']) as $a => $invoices) {
+			// Κατάληξη πληθυντικού - ενικού σχετικά με τον αριθμό τιμολογίων
+			$c = count($invoices) > 1 ? 'α' : 'ο';
 ?>
 
 \sectd\sbkodd\pgwsxn11906\pghsxn16838\marglsxn1984\margrsxn1134\margtsxn1134\margbsxn1134\facingp\margmirror
@@ -24,7 +23,8 @@ foreach($data['Δικαιούχοι'] as $per_contractor) {
 
 \sect
 
-<?php }
+<?php	}
+
 }
 
 unset($a, $c, $invoices, $per_contractor);

@@ -42,45 +42,51 @@ function contents_invoices() {
 /** Εξάγει τις εγγραφές των πρωτοκόλλων οριστικής ποιοτικής και ποσοτικής παραλαβής. */
 function contents_acceptance_protocol() {
 	global $data;
-	if (isset($data['Συμβάσεις']))
+	if (isset($data['Διαγωνισμοί']) || $data['Έργο'])
 		foreach($data['Συμβάσεις'] as $per_contract) {
+				$flags = 0;	// FLAGS: 1: Προμήθεια Υλικών, 2: Παροχή Υπηρεσιών
+				foreach($per_contract['Τιμολόγια'] as $invoice) {
+					$flags |= is_supply($invoice['Κατηγορία']) ? 1 : 2;
+					if ($flags == 3) break;
+				}
+				if ($flags) {
+					$f = function($a) use($per_contract) {
+						global $data, $count, $countA;
+						echo ++$count . '\cell ' . rtf($data['Μονάδα']) . '\cell ' . $countA
+								. '\cell Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής '
+								. $a . ' «' . rtf($per_contract['Δικαιούχος']['Επωνυμία'])
+								. '»\cell\cell\row' . PHP_EOL;
+					};
+					if ($flags & 1) $f('Προμηθειών');
+					if ($flags & 2) $f('Υπηρεσιών');
+				}
+			}
+}
+
+/** Εξάγει τις εγγραφές των βεβαιώσεων παραλαβής.
+ * Είναι εντελώς ίδιο με το πρωτόκολλο οριστικής ποιοτικής και ποσοτικής παραλαβής με τη διαφορά ότι
+ * αντί για $data['Συμβάσεις'] έχει $data['Δικαιούχοι'] και ο έλεγχος για διαγωνισμούς είναι
+ * αρνητικός αντί για καταφατικός. */
+function contents_acceptance_affirmation() {
+	global $data;
+	if (!isset($data['Διαγωνισμοί']) && !$data['Έργο']) {
+		foreach($data['Δικαιούχοι'] as $per_contractor) {
 			$flags = 0;	// FLAGS: 1: Προμήθεια Υλικών, 2: Παροχή Υπηρεσιών
-			foreach($per_contract['Τιμολόγια'] as $invoice) {
+			foreach($per_contractor['Τιμολόγια'] as $invoice) {
 				$flags |= is_supply($invoice['Κατηγορία']) ? 1 : 2;
 				if ($flags == 3) break;
 			}
 			if ($flags) {
-				$f = function($a) use($per_contract) {
+				$f = function($a) use($per_contractor) {
 					global $data, $count, $countA;
-					echo ++$count . '\cell ' . rtf($data['Μονάδα']) . '\cell ' . $countA
-							. '\cell Πρωτόκολλο Οριστικής Ποιοτικής και Ποσοτικής Παραλαβής '
-							. $a . ' «' . rtf($per_contract['Δικαιούχος']['Επωνυμία'])
-							. '»\cell\cell\row' . PHP_EOL;
+					echo ++$count . '\cell ' . rtf($data['Μονάδα']) . '\cell ' . $countA . '\cell Βεβαίωση Παραλαβής '
+							. $a . ' από «' . rtf($per_contractor['Δικαιούχος']['Επωνυμία'])
+									. '»\cell\cell\row' . PHP_EOL;
 				};
 				if ($flags & 1) $f('Προμηθειών');
 				if ($flags & 2) $f('Υπηρεσιών');
 			}
 		}
-}
-
-/** Εξάγει τις εγγραφές των βεβαιώσεων παραλαβής. */
-function contents_acceptance_affirmation() {
-	global $data;
-	$flags = 0;	// FLAGS: 1: Προμήθεια Υλικών, 2: Παροχή Υπηρεσιών
-	foreach($data['Δικαιούχοι'] as $per_contractor)
-		if (!isset($per_contractor['Σύμβαση']))
-			foreach($per_contractor['Τιμολόγια'] as $invoice) {
-				$flags |= is_supply($invoice['Κατηγορία']) ? 1 : 2;
-				if ($flags == 3) break 2;
-			}
-	if ($flags) {
-		$f = function($a) {
-			global $data, $count, $countA;
-			echo ++$count . '\cell ' . rtf($data['Μονάδα']) . '\cell ' . $countA . '\cell Βεβαίωση Παραλαβής '
-					. $a . '\cell\cell\row' . PHP_EOL;
-		};
-		if ($flags & 1) $f('Προμηθειών');
-		if ($flags & 2) $f('Υπηρεσιών');
 	}
 }
 

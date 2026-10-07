@@ -16,8 +16,12 @@ $common_func = function($tender) { ?>
 foreach($data['Διαγωνισμοί'] as $per_tender) {
 	$tender = $per_tender['Διαγωνισμός'];
 
+	// Πίνακας αποδεκτών
+	$to = array_map(function($competitor) { return get_contractor_recipient($competitor['Ενδιαφερόμενος']); },
+			$tender['Ενδιαφερόμενοι']);
+
 	start_35_20();
-	order_header_recipients(ifexist2($output, $tender, 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου'), $output, 'Το (κα) σχετικό', 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου',
+	order_header(ifexist2($output, $tender, 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου'), $to, $data['Μονάδα'], $output, 'Το (κα) σχετικό', 'Απόφαση Ανάδειξης Προσωρινού Αναδόχου',
 			array(
 				'ΝΔ.721/1970 (ΦΕΚ Α\' 251) περί «Οικονομικής Μερίμνης και Λογιστικού των Ενόπλων Δυνάμεων»',
 				'Ν.2690/1999 (ΦΕΚ Α\' 45) «Κύρωση του Κώδικα Διοικητικής Διαδικασίας και άλλες διατάξεις» και ιδίως των άρθρων 7 και 13 έως 15',
@@ -96,11 +100,7 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 <?=$par?>.\tab Χειριστής θέματος: <?=personi($data['Αξκος Γραφείου'], 0)?>, τηλ. <?=rtf($data['Τηλέφωνο'])?>.\par
 <?php
 	order_footer($output);
-
-	// Πίνακας αποδεκτών
-	$to = array_map(function($competitor) { return get_contractor_recipient($competitor['Ενδιαφερόμενος']); },
-			$tender['Ενδιαφερόμενοι']);
-	order_recipient_table($to, array($data['Μονάδα']));
+	order_recipient_table($to, $data['Μονάδα']);
 ?>
 
 

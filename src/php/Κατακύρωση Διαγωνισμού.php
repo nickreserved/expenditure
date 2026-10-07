@@ -11,9 +11,13 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 		return isset($i['Διαγωνισμός']) && $i['Διαγωνισμός'] == $tender;
 	}));
 	$many = count($contracts) > 1;
+	// Πίνακας αποδεκτών
+	$to = array_map(function($contract) { return get_contractor_recipient($contract['Ανάδοχος']); },
+			$per_tender['Συμβάσεις']);
 
 	start_35_20();
-	order_header_recipients(ifexist2($output, $tender, 'Κατακύρωση Διαγωνισμού'), $output, 'Το (κβ) σχετικό', 'Κατακύρωση Διαγωνισμού',
+	order_header(ifexist2($output, $tender, 'Κατακύρωση Διαγωνισμού'), $to, $data['Μονάδα'],
+			$output, 'Το (κβ) σχετικό', 'Κατακύρωση Διαγωνισμού',
 			array(
 				'ΝΔ.721/1970 (ΦΕΚ Α\' 251) περί «Οικονομικής Μερίμνης και Λογιστικού των Ενόπλων Δυνάμεων»',
 				'Ν.2690/1999 (ΦΕΚ Α\' 45) «Κύρωση του Κώδικα Διοικητικής Διαδικασίας και άλλες διατάξεις» και ιδίως των άρθρων 7 και 13 έως 15',
@@ -80,11 +84,7 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 <?=$par?>.\tab Χειριστής θέματος: <?=personi($data['Αξκος Γραφείου'], 0)?>, τηλ. <?=rtf($data['Τηλέφωνο'])?>.\par
 <?php
 	order_footer($output);
-
-	// Πίνακας αποδεκτών
-	$to = array_map(function($contract) { return get_contractor_recipient($contract['Ανάδοχος']); },
-			$per_tender['Συμβάσεις']);
-	order_recipient_table($to, array($data['Μονάδα']));
+	order_recipient_table($to, $data['Μονάδα']);
 ?>
 
 

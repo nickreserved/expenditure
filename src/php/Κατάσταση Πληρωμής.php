@@ -61,13 +61,13 @@ foreach($data['Δικαιούχοι'] as $per_contractor) {
 \pard\plain\qr <?=rtf(strtouppergn($data['Μονάδα Πλήρες']))?>\line Τηλέφωνο <?=rtf($data['Τηλέφωνο'])?>\line <?=rtf($data['Έδρα'])?>, <?=strftime('%d %b %y', $data['Ημερομηνία Τελευταίου Τιμολογίου'])?>\par
 \pard\plain\sb240\sa240\qc\b\ul ΚΑΤΑΣΤΑΣΗ ΠΛΗΡΩΜΗΣ\b0\ul0\par
 
-\pard\plain\sa120\ql ΓΙΑ ΤΟΝ ΔΙΚΑΙΟΥΧΟ: <?=rtf($contractor['Επωνυμία'])?>, ΑΦΜ: <?=rtf($contractor['ΑΦΜ'])?>\line
+\pard\plain\sa120\ql ΔΙΚΑΙΟΥΧΟΣ: <?=rtf($contractor['Επωνυμία'])?>, ΑΦΜ: <?=rtf($contractor['ΑΦΜ'])?>\line
 <?php
 if ($contractor['Τύπος'] == 'Ιδιωτικός Τομέας') { ?>
 IBAN: <?=rtf($contractor['ΙΒΑΝ'])?>\line
 <?php } ?>
-ΠΟΣΟΥ: <?=euro2str($prices['Υπόλοιπο Πληρωτέο'])?> (<?=euro($prices['Υπόλοιπο Πληρωτέο'])?>)\line
-ΛΟΓΩ: <?=rtf(inflectPhrase(isset($per_contractor['Σύμβαση']) ? $per_contractor['Σύμβαση']['Τίτλος'] : $data['Τίτλος'], 1))?>\line
+ΠΟΣΟ: <?=euro2str($prices['Υπόλοιπο Πληρωτέο'])?> (<?=euro($prices['Υπόλοιπο Πληρωτέο'])?>)\line
+ΘΕΜΑ: <?=rtf(isset($per_contractor['Σύμβαση']) ? $per_contractor['Σύμβαση']['Τίτλος'] : $data['Τίτλος'])?>\line
 ΕΙΔΙΚΟΣ ΦΟΡΕΑΣ: <?=rtf($data['ΕΦ'])?>, ΑΛΕ: <?=rtf($data['ΑΛΕ'])?>\par
 
 \pard\plain\fs22<?=payment_report_table_row_properties(0, 0, null) ?>\qc\b Δικαιούχος\cell Παραστατικό\cell Καθαρή\line Αξία\cell Κράτηση\cell Ποσό\line Κράτησης\cell Σύνολο\line Κρατήσεων\cell Καθαρό\line Ποσό\cell ΦΕ\cell Καθαρό\line Πληρωτέο\b0\cell\row

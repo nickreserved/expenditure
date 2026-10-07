@@ -15,9 +15,16 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 		else if ($total != $deduction) { unset($deduction); break; }
 	}
 
+	// Πίνακας αποδεκτών
+	$to = array();
+	if (!published())
+		foreach($tender['Ενδιαφερόμενοι'] as $competitor)
+			$to[] = get_contractor_recipient($competitor['Ενδιαφερόμενος']);
+
 	start_35_20();
 	order_publish(ifexist($tender, 'Διακήρυξη Διαγωνισμού'));
-	order_header_recipients(ifexist2($output, $tender, 'Διακήρυξη Διαγωνισμού'), $output, null, 'Διακήρυξη Διαγωνισμού',
+	order_header(ifexist2($output, $tender, 'Διακήρυξη Διαγωνισμού'), $to, $data['Μονάδα'],
+			$output, null, 'Διακήρυξη Διαγωνισμού',
 			array(
 				'Ν.4412/2016 (ΦΕΚ Α\' 147) «Δημόσιες Συμβάσεις Έργων, Προμηθειών και Υπηρεσιών (προσαρμογή στις Οδηγίες 2014/24/ΕΕ και 2014/25/ΕΕ)»',
 				'Ν.4314/2014 (ΦΕΚ Α\' 265) «Α) Για τη διαχείριση, τον έλεγχο και την εφαρμογή αναπτυξιακών παρεμβάσεων για την προγραμματική περίοδο 2014-2020, Β) Ενσωμάτωση της Οδηγίας 2012/17 του Ευρωπαϊκού Κοινοβουλίου και του Συμβουλίου της 13ης Ιουνίου 2012 (EE L 156/16.6.2012) στο ελληνικό δίκαιο, τροποποίηση του ν. 3419/2005 (Α1297) και άλλες διατάξεις» και του Ν.3614/2007 (ΦΕΚ Α\' 267) «Διαχείριση, έλεγχος και εφαρμογή αναπτυξιακών παρεμβάσεων για την προγραμματική περίοδο 2007-2013»',
@@ -87,14 +94,6 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 <?php
 	order_footer($output);
 
-	// Πίνακας αποδεκτών
-	$to = array();
-	if (published()) $to[] = '-';
-	else
-		foreach($tender['Ενδιαφερόμενοι'] as $competitor)
-			$to[] = get_contractor_recipient($competitor['Ενδιαφερόμενος']);
-	order_recipient_table($to, array($data['Μονάδα']));
-
 	// Πίνακας παραρτημάτων
 	$appendices = array('Σχέδιο Σύμβασης', 'Τεχνική Περιγραφή');
 	if ($data['Έργο']) {
@@ -106,6 +105,7 @@ foreach($data['Διαγωνισμοί'] as $per_tender) {
 		$appendices[] = 'Τεχνική Μελέτη';
 	}
 	order_appendices($appendices);
+	order_recipient_table($to, $data['Μονάδα']);
 ?>
 
 \sect

@@ -11,10 +11,21 @@ $contracts = isset($data['Συμβάσεις'])
 	: array();
 foreach ($contracts as $per_contract) {
 	$contract = $per_contract['Σύμβαση'];
+
+	// Πίνακας αποδεκτών
+	$to = null;
+	if (!published()) {
+		$to = array(get_contractor_recipient($per_contract['Δικαιούχος']));
+		if (isset($contract['Προσκεκλημένος 1']))
+			$to[] = get_contractor_recipient($contract['Προσκεκλημένος 1']);
+		if (isset($contract['Προσκεκλημένος 2']))
+			$to[] = get_contractor_recipient($contract['Προσκεκλημένος 2']);
+	}
+
 	start_35_20();
 	order_publish(ifexist($contract, 'Πρόσκληση Υποβολής Προσφορών'));
-	order_header_recipients(ifexist2($output, $contract, 'Πρόσκληση Υποβολής Προσφορών'), $output, 'Υπεύθυνη δήλωση',
-			'Άλλα Θέματα Συμβάσεων (Πρόσκληση Υποβολής Προσφορών)',
+	order_header(ifexist2($output, $contract, 'Πρόσκληση Υποβολής Προσφορών'), $to, $data['Μονάδα'],
+			$output, 'Υπεύθυνη δήλωση', 'Άλλα Θέματα Συμβάσεων (Πρόσκληση Υποβολής Προσφορών)',
 			array(
 				'Ν.Δ.721/1970 «Περί Οικονομικής Μέριμνας και Λογιστικού των Ενόπλων Δυνάμεων» (Α\' 251)',
 				'Ν.4270/2014 «Αρχές Δημοσιονομικής Διαχείρισης και Εποπτείας (Ενσωμάτωση της Οδηγίας 2011/85/ΕΕ) - Δημόσιο Λογιστικό και Άλλες Διατάξεις» (Α\' 143)',
@@ -68,18 +79,7 @@ if (published()) echo $count++ . '.\tab Το παρόν θα αναρτηθεί στο διαδικτυακό τό
 
 <?php
 order_footer($output);
-
-// Πίνακας αποδεκτών
-$to = array();
-if (published()) $to[] = '-';
-else {
-	$to[] = get_contractor_recipient($per_contract['Δικαιούχος']);
-	if (isset($contract['Προσκεκλημένος 1']))
-		$to[] = get_contractor_recipient($contract['Προσκεκλημένος 1']);
-	if (isset($contract['Προσκεκλημένος 2']))
-		$to[] = get_contractor_recipient($contract['Προσκεκλημένος 2']);
-}
-order_recipient_table($to, array($data['Μονάδα']));
+order_recipient_table($to, $data['Μονάδα']);
 order_appendices(array('Ελάχιστες Απαιτήσεις - Κριτήρια Ποιοτικής Επιλογής', 'Απαιτούμενα Είδη και Ποσότητες'));
 ?>
 
