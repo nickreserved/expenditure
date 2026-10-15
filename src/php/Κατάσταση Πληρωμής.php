@@ -68,7 +68,9 @@ IBAN: <?=rtf($contractor['ΙΒΑΝ'])?>\line
 <?php } ?>
 ΠΟΣΟ: <?=euro2str($prices['Υπόλοιπο Πληρωτέο'])?> (<?=euro($prices['Υπόλοιπο Πληρωτέο'])?>)\line
 ΘΕΜΑ: <?=rtf(isset($per_contractor['Σύμβαση']) ? $per_contractor['Σύμβαση']['Τίτλος'] : $data['Τίτλος'])?>\line
-ΕΙΔΙΚΟΣ ΦΟΡΕΑΣ: <?=rtf($data['ΕΦ'])?>, ΑΛΕ: <?=rtf($data['ΑΛΕ'])?>\par
+ΕΙΔΙΚΟΣ ΦΟΡΕΑΣ: <?=rtf($data['ΕΦ'])?><?php
+if ($data['Τύπος Χρηματοδότησης'] != 'Ιδίων πόρων' || isset($data['ΑΛΕ'])) echo ', ΑΛΕ: ' . $data['ΑΛΕ'];
+?>\par
 
 \pard\plain\fs22<?=payment_report_table_row_properties(0, 0, null) ?>\qc\b Δικαιούχος\cell Παραστατικό\cell Καθαρή\line Αξία\cell Κράτηση\cell Ποσό\line Κράτησης\cell Σύνολο\line Κρατήσεων\cell Καθαρό\line Ποσό\cell ΦΕ\cell Καθαρό\line Πληρωτέο\b0\cell\row
 
@@ -103,15 +105,15 @@ IBAN: <?=rtf($contractor['ΙΒΑΝ'])?>\line
 ?>
 \trowd
 \trqc\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
-\clftsWidth1\cellx3911
-\clftsWidth1\cellx5669
+\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clftsWidth1\cellx3911
+\clbrdrb\brdrs\brdrw1\clftsWidth1\cellx5669
 \clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx7030
 \clftsWidth1\cellx8561
 \clftsWidth1\cellx9808
-\clftsWidth1\cellx11169
-\clftsWidth1\cellx12529
-\clftsWidth1\cellx13776
-\clftsWidth1\cellx15137
+\clbrdrl\brdrdot\brdrw1\clbrdrr\brdrdot\brdrw1\clftsWidth1\cellx11169
+\clbrdrr\brdrdot\brdrw1\clftsWidth1\cellx12529
+\clbrdrr\brdrdot\brdrw1\clftsWidth1\cellx13776
+\clbrdrr\brdrdot\brdrw1\clftsWidth1\cellx15137
 \ql ΚΑΘΑΡΗ ΑΞΙΑ\cell\cell\qr <?=euro($prices['Καθαρή Αξία'])?>\cell\cell\cell\cell\cell\cell\cell\row
 <?php
 if ($prices['ΦΠΑ']) {
@@ -119,11 +121,11 @@ if ($prices['ΦΠΑ']) {
 <?php } ?>
 \trowd
 \trqc\trautofit1\trpaddfl3\trpaddl28\trpaddfr3\trpaddr28
-\clftsWidth1\cellx3911
-\clftsWidth1\cellx5669
+\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clftsWidth1\cellx3911
+\clbrdrb\brdrs\brdrw1\clftsWidth1\cellx5669
 \clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx7030
-\clftsWidth1\cellx8561
-\clftsWidth1\cellx9808
+\clbrdrt\brdrdot\brdrw1\clbrdrb\brdrdot\brdrw1\clftsWidth1\cellx8561
+\clbrdrt\brdrdot\brdrw1\clbrdrb\brdrdot\brdrw1\clftsWidth1\cellx9808
 \clbrdrt\brdrs\brdrw1\clbrdrl\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx11169
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx12529
 \clbrdrt\brdrs\brdrw1\clbrdrb\brdrs\brdrw1\clbrdrr\brdrs\brdrw1\clftsWidth1\clNoWrap\cellx13776

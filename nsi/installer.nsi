@@ -6,15 +6,13 @@ RequestExecutionlevel highest
 # -------------------------------------------------------------- definitions ---
 !define PROGRAM "Στρατιωτικές Δαπάνες"
 !define NAME "expenditure"
-!define VERSION "2026.10.07"
+!define VERSION "2026.10.15"
 !define EXTENSION ".δαπάνη"
 !define ME "Γκέσος Παύλος (Σ.Σ.Ε. 2002)"
 !define UNINSTALL_REG "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}"
 !define INSTALLER_INFO "Πρόγραμμα συντάξεως στρατιωτικών δαπανών"
 !define SHORTCUT_INFO "${INSTALLER_INFO}$\nΈκδοση: ${VERSION}$\nΠρογραμματιστής: ${ME}$\nΆδεια χρήσης: BSD"
 
-# --------------------------------------------------------- function include ---
-!include LogicLib.nsh
 
 # ------------------------------------------------------------------ general ---
 Name "${PROGRAM} ${VERSION}"
@@ -47,7 +45,8 @@ Section "Πρόγραμμα"
 	
 	SetOutPath $INSTDIR
 	
-	RMDir /r $INSTDIR\php			# Διαγραφή των παλιών γιατί μπορεί να έχουν παραπανίσια αρχεία
+	# Διαγραφή των παλιών γιατί μπορεί να έχουν παραπανίσια αρχεία
+	RMDir /r $INSTDIR\php
 	RMDir /r $INSTDIR\help
 	
 	File ..\dist\${NAME}.jar
@@ -62,11 +61,12 @@ Section "Πρόγραμμα"
 
 	UserInfo::GetAccountType
 	Pop $8
-	${If} $8 == "Admin"				# Ο χρήστης έχει δικαιώματα administrator
-		SetShellVarContext all		# Εγκατάσταση για όλους τους χρήστες - επηρεάζει μητρώο και menu Έναρξη
-	${Else}
-		StrCpy $INSTDIR "$PROFILE\${NAME}"
-	${EndIf}
+	StrCmp $8 "Admin" 0 +3
+	# Ο χρήστης έχει δικαιώματα administrator
+	SetShellVarContext all				# Εγκατάσταση για όλους τους χρήστες - επηρεάζει μητρώο και menu Έναρξη
+	GoTo +2
+	# Ο χρήστης δεν έχει δικαιώματα administrator
+	StrCpy $INSTDIR "$PROFILE\${NAME}"	# Εγκατάσταση στον ιδιωτικό χώρο του απλού χρήστη
 
 	WriteRegStr SHCTX "${UNINSTALL_REG}" "DisplayName" "${PROGRAM}"
 	WriteRegStr SHCTX "${UNINSTALL_REG}" "UninstallString" '"$INSTDIR\uninstall.exe"'
@@ -104,12 +104,12 @@ Section "Uninstall"
 
 	UserInfo::GetAccountType	# Προσδιορισμός του τύπου του χρήστη
 	Pop $8
-	${If} $8 == "Admin"			# Ο χρήστης έχει δικαιώματα administrator
-		SetShellVarContext all	# Απεγκατάσταση για όλους τους χρήστες
-		Delete "$SMPROGRAMS\${PROGRAM}.lnk"
-		DeleteRegKey SHCTX "${UNINSTALL_REG}"
-		DeleteRegKey SHCTX "Software\Classes\${EXTENSION}"
-	${EndIf}
+	StrCmp $8 "Admin" 0 +5
+	# Ο χρήστης έχει δικαιώματα administrator
+	SetShellVarContext all	# Απεγκατάσταση για όλους τους χρήστες
+	Delete "$SMPROGRAMS\${PROGRAM}.lnk"
+	DeleteRegKey SHCTX "${UNINSTALL_REG}"
+	DeleteRegKey SHCTX "Software\Classes\${EXTENSION}"
 
 	IfFileExists $PROFILE\${NAME}.ini 0 +2
 	MessageBox MB_YESNO|MB_ICONEXCLAMATION|MB_DEFBUTTON2 "Στο αρχείο ${NAME}.ini φυλάγονται όλα τα δεδομένα του προγράμματος.$\nΔεν προτείνεται να το διαγράψετε.$\nΘέλετε να το διαγράψω;" IDNO +2

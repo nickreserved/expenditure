@@ -120,7 +120,7 @@ final public class MainFrame extends JFrame {
 	/** Η διαδρομή του αρχείου ρυθμίσεων του προγράμματος */
 	static private String iniPath;
 	/** Η έκδοση του προγράμματος. */
-	static private final String VERSION = "07 Οκτ 26";
+	static private final String VERSION = "15 Οκτ 26";
 	/** Το όνομα του αρχείου ρυθμίσεων του προγράμματος */
 	static private final String INI = "expenditure.ini";
 	/** Η ομάδα χαρακτήρων των ελληνικών. Χρησιμοποιείται στα εξαγόμενα αρχεία RTF. */
@@ -1042,6 +1042,10 @@ final public class MainFrame extends JFrame {
 					createMenuItem("Κενή", e -> saveScriptOutput(
 							"<?php require_once('statement.php'); init(1); statement(null); ?>\n\n}")),
 				}),
+				createMenu("ΦΕ", new JMenuItem[] {
+					createMenuItem("Εφορία", e -> exportReport("ΦΕ για την Εφορία.php", null)),
+					createMenuItem("Δικαιούχος", e -> exportReport("ΦΕ για τον Δικαιούχο.php", null))
+				}),
 				createMenu("Διάφορα", new JMenuItem[] {
 					createMenuItem("Κατάσταση Πληρωμής", e ->
 							exportReport("Κατάσταση Πληρωμής.php", null)),
@@ -1080,21 +1084,22 @@ final public class MainFrame extends JFrame {
 	 * Αν δεν υπάρχουν ανοικτές δαπάνες, απενεργοποιεί ορισμένα μενού. Επιπλέον ενημερώνει το μενού
 	 * Δαπάνες, για το ποιές δαπάνες είναι ανοικτές. */
 	private void updateMenus() {
-		boolean has = !data.isEmpty();					// Το πρόγραμμα έχει ανοικτές δαπάνες
+		boolean has = !data.isEmpty();				// Το πρόγραμμα έχει ανοικτές δαπάνες
 		JMenu file = getJMenuBar().getMenu(0);		// μενού Αρχείο
 		file.getItem(2).setEnabled(has);			// μενού Αποθήκευση Δαπάνης
 		file.getItem(4).setEnabled(has);			// μενού Κλείσιμο Δαπάνης
 		JMenu export = getJMenuBar().getMenu(1);	// μενού Εξαγωγή
 		export.getItem(0).setEnabled(has);			// μενού Εξαγωγή/Δαπάνη
 		JMenu doc = (JMenu) export.getItem(1);		// μενού Εξαγωγή/Αλληλογραφία
-		doc.getItem(1).setEnabled(has);			// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
-		doc.getItem(2).setEnabled(has);			// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
-		doc.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
+		doc.getItem(1).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
+		doc.getItem(2).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Απόφαση Απευθείας Ανάθεσης
+		doc.getItem(3).setEnabled(has);				// μενού Εξαγωγή/Αλληλογραφία/Διαβιβαστικό Δαπάνης
 		export.getItem(2).setEnabled(has);			// μενού Εξαγωγή/Σύμβαση
 		export.getItem(3).setEnabled(has);			// μενού Εξαγωγή/Διαγωνισμοί
-		JMenu statement = (JMenu) export.getItem(4);	// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις
+		JMenu statement = (JMenu) export.getItem(4);// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις
 		statement.getItem(1).setEnabled(has);		// μενού Εξαγωγή/Υπεύθυνες Δηλώσεις/Μη συνδρομή λόγων αποκλεισμού
-		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
+		export.getItem(5).setEnabled(has);			// μενού Εξαγωγή/ΦΕ
+		export.getItem(6).setEnabled(has);			// μενού Εξαγωγή/Διάφορα
 		JMenu expenditures = getJMenuBar().getMenu(4);	// μενού Δαπάνες
 		expenditures.setEnabled(has);
 		// Ξαναδημιουργείται το μενού με όλες τις ανοικτές δαπάνες σαν επιλογές του

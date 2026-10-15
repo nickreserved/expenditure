@@ -921,13 +921,11 @@ function init_invoices() {
 			$item['Συνολική Τιμή'] = $a;
 			$net += $a;
 			$vat_p = $item['ΦΠΑ'];
-			if ($vat_p) {
-				$a *= $vat_p / 100;
-				$vat_items[] = $a;
-				$vat += $a;
-				if (isset($vat_categories[$vat_p])) $vat_categories[$vat_p] += $a;
-				else $vat_categories[$vat_p] = $a;
-			}
+			$a *= $vat_p / 100;
+			$vat_items[] = $a;	// Αποθηκεύονται όλα γιατί ξαναχρησιμοποιούνται παρακάτω
+			$vat += $a;
+			if (isset($vat_categories[$vat_p])) $vat_categories[$vat_p] += $a;
+			else $vat_categories[$vat_p] = $a;
 		}
 		unset($item);
 		// Ενσωματώνει τις αξίες του τιμολογίου σε κάθε τιμολόγιο
@@ -946,12 +944,14 @@ function init_invoices() {
 		$incomeTax = round($netIncomeTax * $incomeTax / 100, 2);
 		$payableMinusIncomeTax = round($payable - $incomeTax, 2);
 		// Επανέρχεται στα είδη για να βάλει τις αξίες ΦΠΑ κατά είδος
-		$vat_items = adjust_partials($vat_items, $vat);
-		foreach($invoice['Είδη'] as $i => & $item) {
-			$item['Τιμή ΦΠΑ'] = $vat_items[$i];
-			$item['Συνολική Τιμή με ΦΠΑ'] = $item['Συνολική Τιμή'] + $vat_items[$i];
+		if (count($vat_items)) {
+			$vat_items = adjust_partials($vat_items, $vat);
+			foreach($invoice['Είδη'] as $i => & $item) {
+				$item['Τιμή ΦΠΑ'] = $vat_items[$i];
+				$item['Συνολική Τιμή με ΦΠΑ'] = $item['Συνολική Τιμή'] + $vat_items[$i];
+			}
+			unset($item);
 		}
-		unset($item);
 		// Υπολογισμός επιμέρους κρατήσεων
 		$a = array();
 		$deduction = $invoice['Κρατήσεις'];
